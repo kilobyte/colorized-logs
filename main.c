@@ -96,7 +96,7 @@ char status[BUFFER_SIZE];
 /************ externs *************/
 extern char done_input[BUFFER_SIZE];
 extern void user_init(void);
-extern int process_kbd(struct session *ses);
+extern int process_kbd(struct session *ses, char ch);
 extern void textout(char *txt);
 extern void user_pause(void);
 extern void user_resume(void);
@@ -139,6 +139,11 @@ extern void cleanup_session(struct session *ses);
 extern void user_title(char *fmt,...);
 void make_name(char *str, char *basis, int run);
 extern struct session* do_hook(struct session *ses, int t, char *data, int blockzap);
+#ifdef PROFILING
+extern char *prof_area;
+extern time_t kbd_lag, mud_lag;
+extern int kbd_cnt, mud_cnt;
+#endif
 
 void tstphandler(int sig)
 {
@@ -418,6 +423,10 @@ ever wants to read -- that is what docs are for.
 #endif
 
     setup_signals();
+#ifdef PROFILING
+    setup_prof();
+#endif
+    PROF("initializing");
     setup_ulimit();
     time0 = time(NULL);
 
@@ -493,6 +502,7 @@ ever wants to read -- that is what docs are for.
     nullsession->mesvar[11]= DEFAULT_ERROR_MESS;
     nullsession->mesvar[12]= DEFAULT_HOOK_MESS;
 
+    PROF("other");
     parse_options(argc, argv, environ);
     tintin();
     return 0;
@@ -526,13 +536,14 @@ int check_events(void)
 /***************************/
 void tintin(void)
 {
-    int done, result, maxfd;
+    int i, result, maxfd;
     struct session *sesptr, *t;
     struct timeval tv;
     fd_set readfdmask;
 #ifdef XTERM_TITLE
     struct session *lastsession=0;
 #endif
+    char kbdbuf[BUFFER_SIZE];
 
     while (TRUE)
     {
@@ -583,35 +594,43 @@ void tintin(void)
 
         if (FD_ISSET(0, &readfdmask))
         {
-            done = process_kbd(activesession);
-            if (done)
+            PROFSTART;
+            PROFPUSH("user interface");            
+            result=read(0,kbdbuf,BUFFER_SIZE);
+            if (result==-1)
+                myquitsig;
+            
+            for (i=0;i<result;i++)
             {
-                if (done<0)
-                    myquitsig();
-#ifdef UI_FULLSCREEN
-                hist_num=-1;
-#endif
-                if (term_echoing || (got_more_kludge && done_input[0]))
-                    /* got_more_kludge: echo any non-empty line */
+                if (process_kbd(activesession,kbdbuf[i]))
                 {
-                    if (activesession && *done_input)
-                        if (strcmp(done_input, prev_command))
-                            do_history(done_input, activesession);
-                    if (activesession->echo)
-                        echo_input(done_input);
-                    if (activesession->logfile)
-                        if (fprintf(activesession->logfile, LOG_INPUT, done_input)<1)
-                        {
-                            activesession->logfile=0;
-                            tintin_eprintf(activesession, "#WRITE ERROR -- LOGGING DISABLED.  Disk full?");
-                        }
+#ifdef UI_FULLSCREEN
+                    hist_num=-1;
+#endif
+                    if (term_echoing || (got_more_kludge && done_input[0]))
+                        /* got_more_kludge: echo any non-empty line */
+                    {
+                        if (activesession && *done_input)
+                            if (strcmp(done_input, prev_command))
+                                do_history(done_input, activesession);
+                        if (activesession->echo)
+                            echo_input(done_input);
+                        if (activesession->logfile)
+                            if (fprintf(activesession->logfile, LOG_INPUT, done_input)<1)
+                            {
+                                activesession->logfile=0;
+                                tintin_eprintf(activesession, "#WRITE ERROR -- LOGGING DISABLED.  Disk full?");
+                            }
+                    }
+                    if (*done_input)
+                        strcpy(prev_command, done_input);
+                    aborting=0;
+                    activesession = parse_input(done_input,0,activesession);
+                    recursion=0;
                 }
-                if (*done_input)
-                    strcpy(prev_command, done_input);
-                aborting=0;
-                activesession = parse_input(done_input,0,activesession);
-                recursion=0;
             }
+            PROFEND(kbd_lag,kbd_cnt);
+            PROFPOP;
         }
         for (sesptr = sessionlist; sesptr; sesptr = t)
         {
@@ -646,6 +665,7 @@ void read_mud(struct session *ses)
     char temp[BUFFER_SIZE];
     int didget, n, count;
 
+    PROFSTART;
     if ((didget = read_buffer_mud(buffer, ses))==-1)
     {
         cleanup_session(ses);
@@ -709,6 +729,7 @@ abort_log:
     if (!ses->more_coming)
         if (cpdest!=linebuffer)
             do_one_line(linebuffer,0,ses);
+    PROFEND(mud_lag, mud_cnt);
 }
 /**********************************************************/
 /* do all of the functions to one line of buffer          */
@@ -717,6 +738,7 @@ void do_one_line(char *line,int nl,struct session *ses)
 {
     int isnb;
 
+    PROFPUSH("looking for passwords");
     switch (ses->server_echo)
     {
     case 0:
@@ -739,18 +761,25 @@ void do_one_line(char *line,int nl,struct session *ses)
         };
     };
     _=line;
+    PROF("processing incoming colors");
     do_in_MUD_colors(line,0);
     isnb=isnotblank(line,0);
+    PROF("promptactions");
     if (!ses->ignore && (nl||isnb))
         check_all_promptactions(line, ses);
+    PROF("actions");
     if (nl && !ses->presub && !ses->ignore)
         check_all_actions(line, ses);
+    PROF("substitutions");
     if (!ses->togglesubs && (nl||isnb) && !do_one_antisub(line, ses))
         do_all_sub(line, ses);
+    PROF("actions");
     if (nl && ses->presub && !ses->ignore)
         check_all_actions(line, ses);
+    PROF("highlights");
     if (isnb&&!ses->togglesubs)
         do_all_high(line, ses);
+    PROF("display");
     if (isnotblank(line,ses->blank))
     {
         if (ses==activesession)
@@ -782,6 +811,7 @@ void do_one_line(char *line,int nl,struct session *ses)
             if (ses->snoopstatus)
                 snoop(line,ses);
     }
+    PROFPOP;
     _=0;
 }
 

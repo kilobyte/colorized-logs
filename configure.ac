@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 AC_INIT
-AM_INIT_AUTOMAKE(KBtin, 1.0.5)
+AM_INIT_AUTOMAKE(KBtin, 1.0.5a)
 AC_CONFIG_SRCDIR([action.c])
 AM_CONFIG_HEADER(config.h)
 
@@ -9,6 +9,7 @@ AC_PROG_AWK
 AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_LN_S
+AC_PROG_EGREP
 
 # Checks for libraries.
 

@@ -1316,7 +1316,8 @@ a>b>c (length=15) is shorter than a>d>c (length=23).
 
 #route [<a> [<b>]]
 Lists all routes, all routes going from <a>, or the route from <a> to <b>.
-Hint: if you want all the routes going _to_ b, type "#route * b".
+Hint: if you want all the routes going _to_ b, type "#route * b".  You may
+also want to take a look at #dogoto, to check non-direct routes too.
 
 #route <a> <b> <commands> [<distance> [{condition}]]
 Teaches KBtin that to go from <a> to <b> you have to type <commands>.

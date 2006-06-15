@@ -67,6 +67,10 @@ extern int in_read;
 extern int aborting;
 struct hashtable *commands, *c_commands;
 int recursion;
+#ifdef PROFILING
+extern char *prof_area;
+#endif
+
 
 /**************************************************************************/
 /* parse input, check for TINTIN commands and aliases and send to session */
@@ -75,6 +79,13 @@ struct session *parse_input(char *input,int override_verbatim,struct session *se
 {
     char command[BUFFER_SIZE], arg[BUFFER_SIZE], result[BUFFER_SIZE], *al;
     int nspaces;
+#ifdef PROFILING
+    char *oldprof=prof_area;
+    PROF("parsing input");
+# define PPOP prof_area=oldprof
+#else
+# define PPOP
+#endif
 
     if(++recursion>=MAX_RECURSION)
     {
@@ -82,6 +93,7 @@ struct session *parse_input(char *input,int override_verbatim,struct session *se
         if (recursion==MAX_RECURSION)
            tintin_eprintf(ses, "#TOO DEEP RECURSION.");
         recursion=MAX_RECURSION*3;
+        PPOP;
         return ses;
     }
 
@@ -102,6 +114,7 @@ struct session *parse_input(char *input,int override_verbatim,struct session *se
             if (!in_read)
                 write_com_arg_mud("", "", 0, ses);
         }
+        PPOP;
         return ses;
     }
     if ((*input==tintin_char) && is_abrev(input + 1, "verbatim"))
@@ -109,6 +122,7 @@ struct session *parse_input(char *input,int override_verbatim,struct session *se
         verbatim_command("",ses);
         if (ses->debuglogfile)
             debuglog(ses, "%s", input);
+        PPOP;
         return ses;
     }
     if (ses->verbatim && !override_verbatim && (ses!=nullsession))
@@ -116,6 +130,7 @@ struct session *parse_input(char *input,int override_verbatim,struct session *se
         write_line_mud(input, ses);
         if (ses->debuglogfile)
             debuglog(ses, "%s", input);
+        PPOP;
         return ses;
     }
     if (*input==verbatim_char && (ses!=nullsession))
@@ -124,11 +139,13 @@ struct session *parse_input(char *input,int override_verbatim,struct session *se
         write_line_mud(input, ses);
         if (ses->debuglogfile)
             debuglog(ses, "%s", input-1);
+        PPOP;
         return ses;
     }
 
     while (*input)
     {
+        PROFPUSH("expanding variables");
         while (*input == ';')
             input=space_out(input+1);
         if (pvars)
@@ -159,6 +176,7 @@ struct session *parse_input(char *input,int override_verbatim,struct session *se
             input = get_arg_all(input, result);
             substitute_myvars( result, arg, ses);
         }
+        PROFPOP;
 
         if (in_alias)
         {
@@ -179,11 +197,15 @@ struct session *parse_input(char *input,int override_verbatim,struct session *se
             in_alias=0;
         }
         if (recursion>MAX_RECURSION)
+        {
+            PPOP;
             return ses;
+        }
         if (aborting)
         {
             aborting=0;
             recursion--;
+            PPOP;
             return ses;
         }
         if (ses->debuglogfile)
@@ -199,6 +221,7 @@ struct session *parse_input(char *input,int override_verbatim,struct session *se
 
             strcpy(vars[0], arg);
 
+            PROF("expanding aliases");
             for (i = 1, cpsource = arg; i < 10; i++)
                 cpsource=get_arg_in_braces(cpsource,vars[i],0);
             in_alias=1;
@@ -215,12 +238,14 @@ struct session *parse_input(char *input,int override_verbatim,struct session *se
             if ((*arg)||!do_goto(command,ses))
 #endif
             {
+                PROF("expanding text being sent");
                 get_arg_with_spaces(arg, arg);
                 write_com_arg_mud(command, arg, nspaces, ses);
             }
     }
     aborting=0;
     recursion--;
+    PPOP;
     return (ses);
 }
 
@@ -319,7 +344,11 @@ int do_goto(char *txt,struct session *ses)
 struct session *parse_tintin_command(char *command, char *arg,struct session *ses)
 {
     struct session *sesptr;
-    char *func;
+    char *func, *a, *b, cmd[BUFFER_SIZE];
+#ifdef PROFILING
+    char *oldprof=prof_area;
+    PROF("executing commands");
+#endif
 
     for (sesptr = sessionlist; sesptr; sesptr = sesptr->next)
         if (strcmp(sesptr->name, command) == 0)
@@ -328,6 +357,7 @@ struct session *parse_tintin_command(char *command, char *arg,struct session *se
             {
                 get_arg_in_braces(arg, arg, 1);
                 parse_input(arg,1, sesptr);	/* was: #sessioname commands */
+                PPOP;
                 return (ses);
             }
             else
@@ -335,9 +365,17 @@ struct session *parse_tintin_command(char *command, char *arg,struct session *se
                 activesession = sesptr;
                 tintin_printf(ses, "#SESSION '%s' ACTIVATED.", sesptr->name);
                 do_hook(ses, HOOK_DEACTIVATE, 0, 1);  /* FIXME: blockzap */
+                PPOP;
                 return do_hook(sesptr, HOOK_ACTIVATE, 0, 0);
             }
         }
+        
+    a=command;
+    b=cmd;
+    while (*a)
+        *b++=tolower(*a++);
+    *b=0;
+    
     if (isdigit(*command))
     {
         int i = atoi(command);
@@ -353,15 +391,16 @@ struct session *parse_tintin_command(char *command, char *arg,struct session *se
             tintin_eprintf(ses,"#Cannot repeat a command a non-positive number of times.");
             prompt(ses);
         }
+        PPOP;
         return (ses);
     }
         
-    else if ((func=get_hash(c_commands, command)))
+    else if ((func=get_hash(c_commands, cmd)))
     {
         ses=((t_c_command)func)(arg, ses);
     }
     
-    else if ((func=get_hash(commands, command)))
+    else if ((func=get_hash(commands, cmd)))
     {
         ((t_command)func)(arg, ses);
     }
@@ -371,6 +410,7 @@ struct session *parse_tintin_command(char *command, char *arg,struct session *se
         tintin_eprintf(ses,"#UNKNOWN TINTIN-COMMAND: [%c%s]",tintin_char,command);
         prompt(ses);
     }
+    PPOP;
     return (ses);
 }
 

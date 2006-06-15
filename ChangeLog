@@ -1,3 +1,9 @@
+1.0.6:
+*	made commands case-insensitive, so #ALIAS works
+*	bugfix: the prority of "6a" is supposed to come before "60"
+*	made KBtin a lot more responsive to keyboard input when under
+	a heavy load
+
 1.0.5:
 *	added a symlink kbtin -> KBtin to avoid mixed-case executable
 	name while retaining old name as well

@@ -608,13 +608,11 @@ static int ret(int r)
 
 static int state=0;
 static int val=0;
-int process_kbd(struct session *ses)
+int process_kbd(struct session *ses, char ch)
 {
-    char ch,txt[16];
+    char txt[16];
     int i;
     
-    if (read(0,&ch,1)!=1)
-        return(-1);
     switch(state)
     {
 #if 0

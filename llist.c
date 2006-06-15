@@ -172,6 +172,8 @@ struct listnode *copy_list(struct listnode *sourcelist,int mode)
 /******************************************************************/
 int prioritycmp(char *a, char *b)
 {
+    char *oa=a;
+
     while(*a && *b && *a==*b)
     {
         a++;
@@ -179,10 +181,13 @@ int prioritycmp(char *a, char *b)
     }
     if (!a && !b)
         return 0;
-    if(isdigit(*a)&&isdigit(*b))
-        return (strtoul(a,0,10)<strtoul(b,0,10))? -1:1;
-    else
-        return (*a<*b)? -1:1;
+    if(isdigit(*a)||isdigit(*b))
+    {
+        if ((a>oa && isdigit(*(a-1)) && a-- && b--)
+            ||(isdigit(*a)&&isdigit(*b)))
+            return (strtoul(a,0,10)<strtoul(b,0,10))? -1:1;
+    }
+    return (*a<*b)? -1:1;
 }
 
 /*****************************************************************/

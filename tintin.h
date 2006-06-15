@@ -5,6 +5,7 @@
 #undef TELNET_DEBUG        /* uncomment to show TELNET negotiations */
 #undef USER_DEBUG          /* debugging of the user interface */
 #undef TERM_DEBUG          /* debugging pseudo-tty stuff */
+#define PROFILING          /* profiling */
 
 /************************/
 /* The meaning of life: */
@@ -80,7 +81,7 @@
 #endif
 #if COMPRESSED_HELP
 #define DEFAULT_COMPRESSION_EXT ".gz"     /* for compress: ".Z" */
-#define DEFAULT_EXPANSION_STR "gzip -cd "/* for compress: "uncompress -c" */
+#define DEFAULT_EXPANSION_STR "gzip -cd " /* for compress: "uncompress -c" */
 #else
 #define DEFAULT_COMPRESSION_EXT ""
 #endif
@@ -150,6 +151,7 @@
 /* The stuff below here shouldn't be modified unless you know what you're */
 /* doing........                                                          */
 /**************************************************************************/ 
+#include "version.h"
 #define STOP_AT_SPACES 0
 #define WITH_SPACES 1
 #define ALPHA 1
@@ -161,7 +163,6 @@
 
 #define BUFFER_SIZE 2048
 #define INPUT_CHUNK 512
-#define VERSION_NUM "1.0.5"
 #define MSG_ALIAS       0
 #define MSG_ACTION      1
 #define MSG_SUBSTITUTE  2
@@ -264,3 +265,18 @@ struct session
 };
 
 typedef char pvars_t[10][BUFFER_SIZE];
+
+#ifdef PROFILING
+# define PROF(x) prof_area=(x)
+# define PROFPUSH(x) {char *prev_prof=prof_area; prof_area=(x)
+# define PROFPOP prof_area=prev_prof;}
+# define PROFSTART struct timeval tvstart,tvend;gettimeofday(&tvstart,0);
+# define PROFEND(x,y) gettimeofday(&tvend,0);(x)+=(tvend.tv_sec-tvstart.tv_sec) \
+    *1000000+tvend.tv_usec-tvstart.tv_usec;(y)++;
+#else
+# define PROF(x)
+# define PROFPUSH(x)
+# define PROFPOP
+# define PROFSTART
+# define PROFEND(x,y)
+#endif

@@ -165,3 +165,7 @@ expand
 hooks
 unhook
 logcomment
+
+#ifdef PROFILING
+profile
+#endif

@@ -4,15 +4,16 @@ help_DATA= NEWS KBtin_help.gz
 INCLUDES = -DDATA_PATH=\"$(helpdir)\"
 man_MANS = ansi2html.6 ansi2txt.6 KBtin.6
 
-BUILT_SOURCES=commands.h load_commands.h
-KBtin_SOURCES=action.c alias.c antisub.c files.c glob.c help.c highlight.c history.c ivars.c llist.c main.c misc.c net.c parse.c path.c session.c substitute.c ticks.c utils.c variables.c events.c user.c run.c colors.c routes.c bind.c telnet.c crc.c hash.c regexp.c $(BUILT_SOURCES)
+BUILT_SOURCES=commands.h load_commands.h version.h profinit.h
+KBtin_C_FILES=action.c alias.c antisub.c files.c glob.c help.c highlight.c history.c ivars.c llist.c main.c misc.c net.c parse.c path.c session.c substitute.c ticks.c utils.c variables.c events.c user.c run.c colors.c routes.c bind.c telnet.c crc.c hash.c regexp.c prof.c
+KBtin_SOURCES=$(KBtin_C_FILES) $(BUILT_SOURCES)
 KBtin_LDADD=
 
 ansi2html_SOURCES=ansi2html.c
 ansi2txt_SOURCES=ansi2txt.c
 
-EXTRA_DIST=tintin.h KBtin_help.in BUGS commands make_commands $(man_MANS) OLDNEWS help2ansi fixmanual terminfo.src KEYPAD FAQ
-CLEANFILES=commands.h load_commands.h KBtin_help.gz manual.html
+EXTRA_DIST=tintin.h KBtin_help.in BUGS commands make_commands $(man_MANS) OLDNEWS help2ansi fixmanual terminfo.src prof_init
+CLEANFILES=commands.h load_commands.h KBtin_help.gz manual.html profinit.h
 
 #kludge to prevent $(BUILT_SOURCES) from being distributed
 dist-hook:
@@ -43,9 +44,11 @@ commands.h: make_commands commands tintin.h
 
 load_commands.h: commands make_commands commands.h
 
-tintin.h: configure.ac update-version
-# automagically update version number in tintin.h if configure.ac has
-# changed
+version.h: configure.ac
+	echo "#define VERSION_NUM \"$(VERSION)\"" >version.h
+
+profinit.h: $(KBtin_C_FILES) prof_init
+	$(srcdir)/prof_init $(srcdir) $(KBtin_C_FILES)
 
 KBtin_help.gz: KBtin_help.in
 	gzip -9 <$(srcdir)/KBtin_help.in >KBtin_help.gz
@@ -60,24 +63,11 @@ manual.html: KBtin_help.in help2ansi ansi2html fixmanual
 install-terminfo: terminfo.src
 	tic terminfo.src -o $(DESTDIR)$(TERMINFODIR)
 
-# update version number in "tintin.h"
-update-version:
-	@if cat tintin.h | grep -e "$(VERSION)" >/dev/null; then \
-		if [ tintin.h -ot configure.ac ]; then \
-			touch -r tintin.h configure.ac; \
-		fi; \
-	else \
-		if cat tintin.h | sed -e 's/#define VERSION_NUM.*/#define VERSION_NUM \"$(VERSION)\"/' > 'updated_tintin.h~'; then \
-			mv 'updated_tintin.h~' tintin.h; \
-		fi; \
-	fi
-
-
 # Remake, check and tag new version
-cvs-dist: update-version KBtin check
+cvs-dist: KBtin check
 	@if sed 1q NEWS | grep -e "$(VERSION)" > /dev/null; then :; else \
 		echo "NEWS not updated; not releasing" 1>&2; \
-		exit 1;			       \
+		exit 1;                               \
 	fi
 	cvs tag `echo "Release-$(VERSION)" | sed 's/\./-/g'`
 	$(MAKE) dist
