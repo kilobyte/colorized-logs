@@ -16,12 +16,14 @@ extern void tintin_eprintf(struct session *ses, const char *format, ...);
 extern struct session *nullsession;
 extern void substitute_myvars(char *arg,char *result,struct session *ses);
 extern void substitute_vars(char *arg, char *result);
+extern int recursion;
 
 void execute_event(struct eventnode *ev, struct session *ses)
 {
     if(activesession==ses && ses->mesvar[3])
         tintin_printf(ses, "[EVENT: %s]", ev->event);
     parse_input(ev->event,1,ses);
+    recursion=0;
 }
 
 /* list active events matching regexp arg */

@@ -10,6 +10,4 @@
 
 *	need a README
 
-*	{#var color ~7~;#var color} shows {}
-
-*	#promptaction foo {#unpro foo} locks up
+*	{#var color ~7~;#var color} shows {} -- it shouldn't get interpreted

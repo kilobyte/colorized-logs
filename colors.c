@@ -38,7 +38,7 @@ inline int getcolor(char **ptr,int *color,const int flag)
     if (isdigit(*txt))
     {
         fg=strtol(txt,&txt,10);
-        if (fg>255)
+        if (fg>1023)
             return 0;
     }
     else
@@ -73,7 +73,7 @@ inline int getcolor(char **ptr,int *color,const int flag)
     if (isdigit(*++txt))
     {
         blink=strtol(txt,&txt,10);
-        if (blink>1)
+        if (blink>7)
             return 0;
     }
     else
@@ -91,14 +91,19 @@ inline int setcolor(char *txt,int c)
         return sprintf(txt,"~-1~");
     if (c<16)
         return sprintf(txt,"~%d~",c);
-    return sprintf(txt,"~%d:%d%s~",c&15,(c&0x70)>>4,(c>>7)? ":1" : "");
+    if (c<128)
+        return sprintf(txt,"~%d:%d~",c&15,(c&0x70)>>4);
+    return sprintf(txt,"~%d:%d:%d~",c&15,(c&0x70)>>4,c>>7);
 }
+
+#define MAXTOK 10
 
 void do_in_MUD_colors(char *txt)
 {
     static int ccolor=7;
-    char OUT[BUFFER_SIZE],*out,*back,*TXT=txt;
-    int colorchanged=0,oldccolor;
+    /* worst case: buffer full of FormFeeds, with color=1023 */
+    char OUT[BUFFER_SIZE*20],*out,*back,*TXT=txt;
+    int tok[MAXTOK],nt,i;
 
     for (out=OUT;*txt;txt++)
         switch(*txt)
@@ -107,79 +112,84 @@ void do_in_MUD_colors(char *txt)
             out+=sprintf(out,"~112~<FormFeed>~%d~",ccolor);
         case 27:
             if (*(txt+1)=='[')
-                switch(txt[strspn(txt+2,"0123456789;")+2])
-                {
-                case 'm':
-                    {
-                        back=txt++;
-                        oldccolor=ccolor;
+            {
+                back=txt++;
+                tok[0]=nt=0;
 again:
-                        switch (*++txt)
+                switch (*++txt)
+                {
+                case 0:
+                    goto error;
+                case ';':
+                    if (++nt==MAXTOK)
+                        goto error;
+                    tok[nt]=0;
+                    goto again;
+                case '0': case '1': case '2': case '3': case '4':
+                case '5': case '6': case '7': case '8': case '9':
+                    tok[nt]=tok[nt]*10+*txt-'0';
+                    goto again;
+                case 'm':
+                    if (*(txt-1)!='[')
+                        nt++;
+                    else
+                        ccolor=7;
+                    for(i=0;i<nt;i++)
+                        switch(tok[i])
                         {
                         case 0:
-                            goto error;
-                        case ';':
-                            goto again;
-                        case 'm':
-                            if (*(txt-1)=='[')
-                                ccolor=7;   /* ESC[m */
-                            out+=setcolor(out,ccolor);
-                            colorchanged=1;
-                            break;
-                        case '0':
                             ccolor=7;
-                            goto again;
-                        case '1':
+                            break;
+                        case 1:
                             ccolor|=8;
-                            goto again;
-                        case '2':
-                            ccolor=(ccolor&0xf0)|8;
-                            goto again;
-                        case '3':
-                            if (!*++txt)
-                                goto error;
-                            if ((*txt>='0')&&(*txt<'8'))
-                            {
-                                ccolor=(ccolor&0xf8)|colors[*txt-'0'];
-                                goto again;
-                            };
-                            goto error;
-                        case '4':
-                            if (!*++txt)
-                                goto error;
-                            if ((*txt>='0')&&(*txt<'8'))
-                            {
-                                /* background */
-                                ccolor=(ccolor&0x8f)|(colors[*txt-'0']<<4);
-                                goto again;
-                            };
-                            goto error;
-                        case '5':
-                            ccolor=ccolor|=128;
-                            goto again;
-                        case '7':
-                            ccolor=(ccolor&0x88)|(ccolor&0x70>>4)|(ccolor&7);
+                            break;
+                        case 2:
+                            ccolor=(ccolor&~0x0f)|8;
+                            break;
+                        case 3:
+                            ccolor|=256;
+                            break;
+                        case 4:
+                            ccolor|=512;
+                            break;
+                        case 5:
+                            ccolor|=128;
+                            break;
+                        case 7:
+                            ccolor=(ccolor&0x388)|(ccolor&0x70>>4)|(ccolor&7);
                             /* inverse should propagate... oh well */
-                            goto again;
+                            break;
+                        case 22:
+                            if (!(ccolor&7))
+                                ccolor|=7;
+                        case 21:
+                            ccolor&=~8;
+                            break;
+                        case 23:
+                            ccolor&=~256;
+                            break;
+                        case 24:
+                            ccolor&=~512;
+                            break;
+                        case 25:
+                            ccolor&=~128;
+                            break;
                         default:
-error:
-                            txt=back;
-                        };
-                    };
+                            if (tok[i]>=30 && tok[i]<38)
+                                ccolor=(ccolor&0x3f8)|colors[tok[i]-30];
+                            else if (tok[i]>=40 && tok[i]<48)
+                                ccolor=(ccolor&0x38f)|(colors[tok[i]-40]<<4);
+                            /* ignore unknown attributes */
+                        }
+                        out+=setcolor(out,ccolor);
                     break;
                 case 'C':
-                    back=txt;
-                    oldccolor=0;
-                    txt+=2;
-                    while (isdigit(*txt))
-                        oldccolor=oldccolor*10+*txt++-'0';
-                    if (oldccolor>132)
-                        oldccolor=0; /* something is wrong? */
-                    if (*txt=='C')
-                        while (oldccolor--)
-                            *out++=' ';
-                    else
-                        txt=back;
+                    if (tok[0]<0)     /* sanity check */
+                        break;
+                    if (out-OUT+tok[0]>INPUT_CHUNK*2)
+                        break;       /* something fishy is going on */
+                    for(i=0;i<tok[0];i++)
+                        *out++=' ';
                     break;
                 case 'D': /* this interpretation is not really valid... */
                 case 'K':
@@ -187,13 +197,17 @@ error:
                     while (!isalpha(*txt++));
                     txt--;
                     out=OUT;
-                    if (colorchanged)
-                        out+=setcolor(out,ccolor);
-                };
-                break;
+                    out+=setcolor(out,ccolor);
+                    break;
+                default:
+error:
+                    txt=back;
+                }
+            }
+            break;
         case '~':
             back=txt;
-            if (getcolor(&txt,&oldccolor,1))
+            if (getcolor(&txt,&i,1))
             {
                 *out++='`';
                 back++;
@@ -205,11 +219,11 @@ error:
         default:
             *out++=*txt;
         };
+    if (out-OUT>=BUFFER_SIZE) /* can happen only if there's a lot of FFs */
+        out=OUT+BUFFER_SIZE-1;
     *out=0;
     strcpy(TXT,OUT);
 }
-
-
 
 void do_out_MUD_colors(char *line)
 {

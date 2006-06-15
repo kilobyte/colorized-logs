@@ -14,6 +14,16 @@
 #endif
 #endif
 #include <ctype.h>
+#if TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# if HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
 #include "tintin.h"
 
 #include <stdlib.h>
@@ -1051,15 +1061,15 @@ void gauge_command(char *arg, struct session *ses)
     {
         if (*sec)
         {
-            sprintf(right, "%d", tv2.tv_sec);
+            sprintf(right, "%d", (int)tv2.tv_sec);
             set_variable(sec, right, ses);
         }
         if (*usec)
         {
-            sprintf(right, "%d", tv2.tv_usec);
+            sprintf(right, "%d", (int)tv2.tv_usec);
             set_variable(usec, right, ses);
         }
     }
     else
-        tintin_printf(ses, "#Time elapsed: %d.%06d", tv2.tv_sec, tv2.tv_usec);
+        tintin_printf(ses, "#Time elapsed: %d.%06d", (int)tv2.tv_sec, (int)tv2.tv_usec);
 }

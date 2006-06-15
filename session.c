@@ -53,6 +53,7 @@ extern void tintin_puts1(char *cptr, struct session *ses);
 extern void tintin_printf(struct session *ses,char *format,...);
 extern void tintin_eprintf(struct session *ses,char *format,...);
 extern struct hashtable* copy_hash(struct hashtable *h);
+extern void do_in_MUD_colors(char *txt);
 
 extern struct session *sessionlist, *activesession, *nullsession;
 
@@ -223,21 +224,21 @@ struct session *new_session(char *name,char *address,int sock,int issocket,struc
     newsession->name = mystrdup(name);
     newsession->address = mystrdup(address);
     newsession->tickstatus = FALSE;
-    newsession->tick_size = DEFAULT_TICK_SIZE;
+    newsession->tick_size = ses->tick_size;
     newsession->time0 = 0;
     newsession->snoopstatus = FALSE;
     newsession->logfile = NULL;
-    newsession->ignore = DEFAULT_IGNORE;
-    newsession->aliases = copy_hash(nullsession->aliases);
-    newsession->actions = copy_list(nullsession->actions, PRIORITY);
-    newsession->prompts = copy_list(nullsession->prompts, PRIORITY);
-    newsession->subs = copy_list(nullsession->subs, ALPHA);
-    newsession->myvars = copy_hash(nullsession->myvars);
-    newsession->highs = copy_list(nullsession->highs, ALPHA);
-    newsession->pathdirs = copy_hash(nullsession->pathdirs);
+    newsession->ignore = ses->ignore;
+    newsession->aliases = copy_hash(ses->aliases);
+    newsession->actions = copy_list(ses->actions, PRIORITY);
+    newsession->prompts = copy_list(ses->prompts, PRIORITY);
+    newsession->subs = copy_list(ses->subs, ALPHA);
+    newsession->myvars = copy_hash(ses->myvars);
+    newsession->highs = copy_list(ses->highs, ALPHA);
+    newsession->pathdirs = copy_hash(ses->pathdirs);
     newsession->socket = sock;
-    newsession->antisubs = copy_list(nullsession->antisubs, ALPHA);
-    newsession->binds = copy_hash(nullsession->binds);
+    newsession->antisubs = copy_list(ses->antisubs, ALPHA);
+    newsession->binds = copy_hash(ses->binds);
     newsession->socketbit = 1 << sock;
     newsession->issocket = issocket;
     newsession->naws = 0;
@@ -253,22 +254,22 @@ struct session *new_session(char *name,char *address,int sock,int issocket,struc
     newsession->path_length = 0;
     newsession->more_coming = 0;
     newsession->events = NULL;
-    newsession->verbose = nullsession->verbose;
-    newsession->blank = nullsession->blank;
-    newsession->echo = nullsession->echo;
-    newsession->speedwalk = nullsession->speedwalk;
-    newsession->togglesubs = nullsession->togglesubs;
-    newsession->presub = nullsession->presub;
-    newsession->verbatim = nullsession->verbatim;
+    newsession->verbose = ses->verbose;
+    newsession->blank = ses->blank;
+    newsession->echo = ses->echo;
+    newsession->speedwalk = ses->speedwalk;
+    newsession->togglesubs = ses->togglesubs;
+    newsession->presub = ses->presub;
+    newsession->verbatim = ses->verbatim;
     newsession->sessionstart=newsession->idle_since=time(0);
     newsession->debuglogfile=0;
-    memcpy(newsession->mesvar, nullsession->mesvar, sizeof(*newsession->mesvar));
+    memcpy(newsession->mesvar, ses->mesvar, sizeof(int)*(MAX_MESVAR+1));
     for (i=0;i<MAX_LOCATIONS;i++)
     {
         newsession->routes[i]=0;
         newsession->locations[i]=0;
     };
-    copyroutes(nullsession,newsession);
+    copyroutes(ses,newsession);
     newsession->last_line[0]=0;
     sessionlist = newsession;
     activesession = newsession;
@@ -305,6 +306,7 @@ void cleanup_session(struct session *ses)
     {
         textout_draft(0);
         sprintf(buf,"%s\n",ses->last_line);
+        do_in_MUD_colors(buf);
         textout(buf);
     };
     sprintf(buf, "#SESSION '%s' DIED.", ses->name);

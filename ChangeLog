@@ -1,10 +1,17 @@
 1.0.2:
 *	bugfix: #send with no session
 *	#gauge
-*	#debuglog
+*	#debuglog (not officially introduced as it's not finished yet)
 *	bugfix: some commands ignored variables
 *	proper handling of IAC IAC sequences
 *	bugfix: '#<sesname> {command}' sent verbatim {}s.
+*	bugfix: #message types were not propagated correctly to new
+	sessions, that could crash KBtin
+*	Nazi protection against too deep recursion.
+*	bugfix: #path did something completely different than the docs said
+*	added italic and underline as valid "colors"
+*	when a session is started, it will inherit all settings from the
+	currently active session instead of the null session
 
 1.0.1:
 *	a slight change of the logic of highlights being suppressed

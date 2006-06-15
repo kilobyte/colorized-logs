@@ -37,6 +37,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <sys/resource.h>
 
 #ifndef BADSIG
 #define BADSIG (void (*)())-1
@@ -67,6 +68,7 @@ extern int LINES,COLS;
 char *tintin_exec;
 struct session *lastdraft;
 int aborting=0;
+extern int recursion;
 char *_;
 
 struct session *sessionlist, *activesession, *nullsession;
@@ -216,6 +218,26 @@ void setup_signals(void)
         syserr("signal SIGPIPE");
 }
 
+/****************************************/
+/* attempt to assure enough stack space */
+/****************************************/
+void setup_ulimit(void)
+{
+    struct rlimit rlim;
+
+    if (getrlimit(RLIMIT_STACK,&rlim))
+        return;
+    if ((unsigned int)rlim.rlim_cur>=STACK_LIMIT)
+        return;
+    if (rlim.rlim_cur==rlim.rlim_max)
+        return;
+    if ((unsigned int)rlim.rlim_max<STACK_LIMIT)
+        rlim.rlim_cur=rlim.rlim_max;
+    else
+        rlim.rlim_cur=STACK_LIMIT;
+    setrlimit(RLIMIT_STACK,&rlim);
+}
+
 /**************************************************************************/
 /* main() - show title - setup signals - init lists - readcoms - tintin() */
 /**************************************************************************/
@@ -256,6 +278,7 @@ int main(int argc, char **argv, char **environ)
         tintin_printf(ses,"Check #news now!");
 
     setup_signals();
+    setup_ulimit();
     time0 = time(NULL);
 
     nullsession=(struct session *)malloc(sizeof(struct session));
@@ -453,6 +476,7 @@ void tintin(void)
                     strcpy(prev_command, done_input);
                 aborting=0;
                 activesession = parse_input(done_input,0,activesession);
+                recursion=0;
             }
         }
         for (sesptr = sessionlist; sesptr; sesptr = t)
@@ -538,7 +562,7 @@ abort_log:
             else
                 *cpdest++ = *cpsource++;
     }
-    if (cpdest-linebuffer>512) /* let's split too long lines */
+    if (cpdest-linebuffer>INPUT_CHUNK) /* let's split too long lines */
     {
         *cpdest=0;
         do_one_line(linebuffer,1,ses);

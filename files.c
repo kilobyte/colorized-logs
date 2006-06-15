@@ -20,6 +20,16 @@
 #include <ctype.h>
 #include <pwd.h>
 #include <stdarg.h>
+#if TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# if HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
 #include "tintin.h"
 
 void prepare_for_write(char *command, char *left, char *right, char *pr, char *result);
@@ -45,6 +55,7 @@ extern void write_line_mud(char *line, struct session *ses);
 extern int puts_echoing;
 extern int alnum, acnum, subnum, hinum, varnum, antisubnum, routnum, bindnum, pdnum;
 extern char tintin_char;
+extern int recursion;
 
 int in_read=0;
 
@@ -332,7 +343,7 @@ void debuglog(struct session *ses, const char *format, ...)
 #endif
         va_end(ap);
         fprintf(ses->debuglogfile, "%4d.%06d: %s\n",
-            tv.tv_sec-ses->sessionstart, tv.tv_usec, buf);
+            (int)tv.tv_sec-ses->sessionstart, (int)tv.tv_usec, buf);
     }
 }
 
@@ -412,11 +423,15 @@ struct session *read_command(char *filename, struct session *ses)
             }
         }
         ses = parse_input(buffer,1, ses);
+        recursion=0;
         ignore_lines=0;
         strcpy(buffer, line);
     }
     if (*buffer)
+    {
         ses=parse_input(buffer,1,ses);
+        recursion=0;
+    }
     in_read--;
     if (!ses->verbose && !in_read)
     {

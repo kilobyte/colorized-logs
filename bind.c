@@ -22,6 +22,7 @@ extern void substitute_vars(char *arg, char *result);
 
 
 extern int bindnum;
+extern int recursion;
 
 struct hashtable *keynames;
 
@@ -128,6 +129,7 @@ int find_bind(char *key,int msg,struct session *ses)
     if ((val=get_hash(ses->binds,key)))
     {          /* search twice, both for raw key code and key name */
         parse_input(val,1,ses);
+        recursion=0;
         return 1;
     };
     if ((val=get_hash(keynames,key)))
@@ -136,6 +138,7 @@ int find_bind(char *key,int msg,struct session *ses)
         if ((val=get_hash(ses->binds,key)))
         {
             parse_input(val,1,ses);
+            recursion=0;
             return 1;
         }
     }

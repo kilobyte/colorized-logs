@@ -87,7 +87,8 @@ void map_command(char *arg,struct session *ses)
         tintin_printf(ses,"#No session active => NO PATH!");
 }
 
-void path_command(char *arg,struct session *ses)
+#if 0
+void map_command(char *arg,struct session *ses)
 {
     if (ses!=nullsession)
     {
@@ -98,6 +99,7 @@ void path_command(char *arg,struct session *ses)
     else
         tintin_printf(ses,"#No session active => NO PATH!");
 }
+#endif
 
 void savepath_command(char *arg, struct session *ses)
 {
@@ -188,7 +190,7 @@ void path2var(char *var, struct session *ses)
 }
 
 
-void showpath_command(char *arg, struct session *ses)
+void path_command(char *arg, struct session *ses)
 {
     if (ses!=nullsession)
     {

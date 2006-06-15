@@ -80,7 +80,7 @@ Note: use #verbatim to turn all parsing off.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~colorcodes
 The color codes for KBtin are enclosed by tilde (~) chars.  The general
-syntax is: ~foreground[:background[:blink]]~
+syntax is: ~foreground[:background[:attr]]~
 Foreground colors:
  0 - ~0~black~-1~       4 - ~4~red~-1~       8 - ~8~dark gray~-1~    12 - ~12~lt. red~-1~
  1 - ~1~blue~-1~        5 - ~5~magenta~-1~   9 - ~9~lt. blue~-1~     13 - ~13~pink~-1~
@@ -89,13 +89,17 @@ Foreground colors:
 Background colors:
  0 - ~:0~black~-1~       2 - ~0:2~green~-1~     4 - ~0:4~red~-1~           6 - ~0:6~brown~-1~
  1 - ~:1~blue~-1~        3 - ~0:3~cyan~-1~      5 - ~0:5~magenta~-1~       7 - ~0:7~lt. gray~-1~
-Blink:
- 0 - normal text 1 - ~::1~blinking~-1~
+Attributes:
+ 0 - normal text 1 - ~::1~blinking~-1~  2 - ~::2~italic~-1~        4 - ~::4~underline~-1~
+ or a sum of the above: 7 for ~::7~blinking, italic and underlined~7~ text
+
+While color codes are generally supported on all color terminals, the support
+for extended attributes varies.  For example, only text console provides
+blink, while italic and underlining is available only on some xterms.
 
 You can omit a field to retain the old color, for example: ::1 turns
 blinking on without affecting neither foreground nor background, and 4:
 changes foreground color to red leaving the background unchanged.
-
 When KBtin translates the ANSI codes coming from MUD, it uses the shortest
 possible code, without omitting any fields.  That is: ~2~2~-1~, ~0:7~0:7~-1~ or ~12:0:1~12:0:1~-1~.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -132,6 +136,9 @@ switches to session <name>
 
 #<name> <command>
 executes <command> in session <name>
+
+Note: the "unconnected" pseudo-session created when KBtin starts can be
+accessed as 'main'.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~all
 
@@ -926,8 +933,6 @@ Type 'fg' to return.
 
 #system <command>
 Executes <command> using /bin/sh.
-Sorry tcsh people, POSIX specifies /bin/sh as the only shell which is
-guaranteed to exist.  Anyway, tcsh sucks, switch to bash :P
 
 The command is executed _synchronously_, this means TinTin is suspended
 during the execution of your command.  The command's input is /dev/null,
@@ -940,7 +945,8 @@ screen programs using #system is not a good idea.  Use #shell for that.
 Executes <command> using /bin/sh.
 
 This command is the alternative to #system with support for full-screen
-programs.  Unfortunately, for ordinary line-based ones the output is lost.
+programs.  Unfortunately, for non-interactive line based ones the output
+is lost, as it will be overwritten as soon as the program returns.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~firstupper
 

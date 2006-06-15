@@ -1,7 +1,16 @@
 1.0.1:
-* fixed a problem with all input being hidden on MUDs like Genesis or
+* Fixed a problem with all input being hidden on MUDs like Genesis or
   Arkadia due to telnet echo settings.
-* fixed a bug where highlights before/after a letter character didn't
+* Fixed a bug where highlights before/after a letter character didn't
   work properly ("#highlight red /d/mordor/" failed to highlight both
   "/testmud/d/mordor/" and "/d/mordor/morannon/").  Highlights inside
   a word are still suppressed, though (no "ash" inside of "Bashgeroy").
+
+1.0.2:
+* Tons of bugfixes.
+* The allowed level of recursion is limited to 256.  Yeah, this can
+  break some functionality, but it's better to cut off a run-away alias
+  than to get a segfault.
+* If your terminal happens to support underline and/or italics, you
+  can use them in your highlights/whatever.  Of course, if the MUD
+  happens to use these codes, they'll work, too.

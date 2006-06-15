@@ -32,8 +32,8 @@ dnl fi
 if test "$ptys" != "$pdir/pty??" ; then
 p0=`echo $ptys | tr ' ' '\012' | sed -e 's/^.*\(.\).$/\1/g' | sort -u | tr -d '\012'`
 p1=`echo $ptys | tr ' ' '\012' | sed -e 's/^.*\(.\)$/\1/g'  | sort -u | tr -d '\012'`
-AC_DEFINE_UNQUOTED(PTYRANGE0,"$p0",[blah])
-AC_DEFINE_UNQUOTED(PTYRANGE1,"$p1",[blah])
+AC_DEFINE_UNQUOTED(PTYRANGE0,"$p0",[The range of Xes in /dev/ptyXY])
+AC_DEFINE_UNQUOTED(PTYRANGE1,"$p1",[The range of Ys in /dev/ptyXY])
 fi
 ])
 

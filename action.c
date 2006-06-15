@@ -44,7 +44,7 @@ extern int in_alias;
 extern void debuglog(struct session *ses, const char *format, ...);
 int var_len[10];
 char *var_ptr[10];
-extern int aborting;
+extern int aborting, recursion;
 
 #define K_ACTION_MAGIC "#X~4~~2~~12~[This action is being deleted!]~7~X"
 int inActions=0;
@@ -396,6 +396,7 @@ void check_all_actions(char *line, struct session *ses)
             if (ses->debuglogfile)
                 debuglog(ses, "ACTION: {%s}->{%s}", line, ln->right);
             parse_input(ln->right,1,ses);
+            recursion=0;
             pvars = lastpvars;
             /*      return;*/		/* KB: we want ALL actions to be done */
         }
@@ -433,6 +434,7 @@ void check_all_promptactions(char *line, struct session *ses)
             if (ses->debuglogfile)
                 debuglog(ses, "PROMPTACTION: {%s}->{%s}", line, ln->right);
             parse_input(ln->right,1,ses);
+            recursion=0;
             pvars=lastpvars;
             /*      return;*/		/* KB: we want ALL actions to be done */
         }

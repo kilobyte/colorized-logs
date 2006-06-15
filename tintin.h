@@ -67,6 +67,7 @@
 #define DEFAULT_VERBATIM_CHAR '\\'        /* if an input starts with this
                                              char, it will be sent 'as is'
                                              to the MUD */
+#define MAX_RECURSION 256
 #ifndef DEFAULT_FILE_DIR
 #define DEFAULT_FILE_DIR "." /* Path to Tintin files, or HOME */
 #endif
@@ -130,6 +131,7 @@
 				 similar to #getitemnr command behaviour */
 
 #define EMPTY_LINE "-gag-"
+#define STACK_LIMIT 8192*1024
 
 /**************************************************************************/ 
 /* The stuff below here shouldn't be modified unless you know what you're */
@@ -143,7 +145,8 @@
 #define END 1
 
 #define BUFFER_SIZE 2048
-#define VERSION_NUM "1.0.1"
+#define INPUT_CHUNK 512
+#define VERSION_NUM "1.0.2"
 #define MSG_ALIAS       0
 #define MSG_ACTION      1
 #define MSG_SUBSTITUTE  2

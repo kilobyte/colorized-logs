@@ -52,7 +52,7 @@ struct termios old_tattr;
 char term_buf[BUFFER_SIZE],*tbuf;
 
 const int colors[8]={0,4,2,6,1,5,3,7};
-
+const char *attribs[8]={"",";5",";3",";3;5",";4",";4;5",";4;3",";4;3;5"};
 #ifdef GRAY2
 const char *fcolors[16]={";30",  ";34",  ";32",  ";36",
                             ";31",  ";35",  ";33",  "",
@@ -60,9 +60,9 @@ const char *fcolors[16]={";30",  ";34",  ";32",  ";36",
                             ";31;1",";35;1",";33;1",";1"};
 const char *bcolors[8]={"",    ";44",    ";42",   ";46",
                             ";41",  ";45",  ";43",  "47"};
-#define COLORCODE(c) "\e[0%s%s%sm",fcolors[(c)&15],bcolors[((c)>>4)&7],(c)>>7? ";5":""
+#define COLORCODE(c) "\e[0%s%s%sm",fcolors[(c)&15],bcolors[((c)>>4)&7],attribs[(c))>>7]
 #else
-#define COLORCODE(c) "\e[0%s;3%d;4%d%sm",(c&8)?";1":"",colors[c&7],colors[(c>>4)&7],c>>7? ";5":""
+#define COLORCODE(c) "\e[0%s;3%d;4%d%sm",((c)&8)?";1":"",colors[(c)&7],colors[((c)>>4)&7],attribs[(c)>>7]
 #endif
 
 void term_commit(void)
@@ -381,65 +381,9 @@ void b_textout(char *txt)
     for (;*txt;txt++)
         switch(*txt)
         {
-        case 27:
-            if (*(txt+1)=='[')
-            {
-                ++txt;
-again:
-                switch (*++txt)
-                {
-                case 0:
-                    --txt;
-                    break;
-                case ';':
-                    goto again;
-                case 'm':
-                    if (*(txt-1)=='[')
-                        o_color=7;
-                    break;
-                case '0':
-                    o_color=7;
-                    goto again;
-                case '1':
-                    o_color|=8;
-                    goto again;
-                case '2':
-                    o_color=(o_color&0xf0)|8;
-                    goto again;
-                case '3':
-                    if (!*++txt)
-                    {--txt;break;};
-                    if ((*txt>='0')&&(*txt<'8'))
-                    {
-                        o_color=(o_color&0xf0)|colors[*txt-'0'];
-                        goto again;
-                    }
-                    else
-                        --txt;
-                    break;
-                case '4':
-                    if (!*++txt)
-                    {--txt;break;};
-                    if ((*txt>='0')&&(*txt<'8'))
-                    {
-                        o_color=(o_color&0x8f)|(colors[*txt-'0']<<4);
-                        goto again;
-                    }
-                    else
-                        --txt;
-                    break;
-                case '5':
-                    o_color=o_color|=128;
-                    goto again;
-                case '7':
-                    o_color=(o_color&0x88)|(o_color&0x70>>4)|(o_color&7);
-                    /* inverse should propagate... oh well */
-                    goto again;
-                default:
-                    --txt;
-                };
-                break;
-            };
+        case 27:    /* we're not supposed to see escapes here */
+            print_char('^');
+            print_char('[');
             break;
         case 7:
             write(1,"\007",1);

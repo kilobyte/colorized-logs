@@ -172,15 +172,15 @@ int read_buffer_mud(char *buffer, struct session *ses)
 
     if (!ses->issocket)
     {
-        didget=read(ses->socket, buffer, 512);
+        didget=read(ses->socket, buffer, INPUT_CHUNK);
         if (didget<=0)
             return -1;
-        ses->more_coming=(didget==512);
+        ses->more_coming=(didget==INPUT_CHUNK);
         buffer[didget]=0;
         return didget;
     }
     
-    didget = read(ses->socket, tmpbuf+ses->telnet_buf, 512-ses->telnet_buf);
+    didget = read(ses->socket, tmpbuf+ses->telnet_buf, INPUT_CHUNK-ses->telnet_buf);
 
     if (didget < 0)
         return -1;
@@ -188,7 +188,7 @@ int read_buffer_mud(char *buffer, struct session *ses)
     else if (didget == 0)
         return -1;
     
-    if ((didget+=ses->telnet_buf) == 512)
+    if ((didget+=ses->telnet_buf) == INPUT_CHUNK)
         ses->more_coming = 1;
     else
         ses->more_coming = 0;

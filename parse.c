@@ -65,6 +65,7 @@ int in_alias=0;
 extern int in_read;
 extern int aborting;
 struct hashtable *commands, *c_commands;
+int recursion;
 
 /**************************************************************************/
 /* parse input, check for TINTIN commands and aliases and send to session */
@@ -73,6 +74,15 @@ struct session *parse_input(char *input,int override_verbatim,struct session *se
 {
     char command[BUFFER_SIZE], arg[BUFFER_SIZE], result[BUFFER_SIZE], *al;
     int nspaces;
+
+    if(++recursion>=MAX_RECURSION)
+    {
+        in_alias=0;
+        if (recursion==MAX_RECURSION)
+           tintin_eprintf(ses, "#TOO DEEP RECURSION.");
+        recursion=MAX_RECURSION*3;
+        return ses;
+    }
 
     if (ses->debuglogfile)
         debuglog(ses, "%s", input);
@@ -167,9 +177,12 @@ struct session *parse_input(char *input,int override_verbatim,struct session *se
             };
             in_alias=0;
         }
+        if (recursion>MAX_RECURSION)
+            return ses;
         if (aborting)
         {
             aborting=0;
+            recursion--;
             return ses;
         }
         if (ses->debuglogfile)
@@ -206,6 +219,7 @@ struct session *parse_input(char *input,int override_verbatim,struct session *se
             }
     }
     aborting=0;
+    recursion--;
     return (ses);
 }
 

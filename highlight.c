@@ -74,6 +74,9 @@ struct colordef
         {112,"inverse"},
         {112,"reverse"},
         {135,"blink"},
+        {519,"underline"},
+        {519,"underlined"},
+        {263,"italic"},
         {-1,""},
     };
 

@@ -99,10 +99,10 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* blah */
+/* The range of Xes in /dev/ptyXY */
 #undef PTYRANGE0
 
-/* blah */
+/* The range of Ys in /dev/ptyXY */
 #undef PTYRANGE1
 
 /* Define as the return type of signal handlers (`int' or `void'). */
