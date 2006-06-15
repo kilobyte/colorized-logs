@@ -101,7 +101,7 @@
      #alias cc {#var message {$$0};#foreach {$clan} __cc}
      #alias __cc {tell $0 [clancomm] $message}
 
-0.3.3:                                           Mon Mar 26 23:00:00 CEST 2001
+0.3.3:                                           Mon Mar 26 23:00:00 CET 2001
 * pseudovariables $COLS and $LINES can be used to query the size of terminal
   window.  Note: size given is the raw window size (like 80x25), without
   subtracting one line for the input box and another for the status line.
@@ -115,7 +115,7 @@
 * $PATH pseudovariable queries the current path
 * documentation - #help <command>
 
-0.3.4:                                           Wed Mar 28 13:34:00 CEST 2001
+0.3.4:                                           Wed Mar 28 13:34:00 CET 2001
 * #var, #math, #tolower, etc. work instantly now, instead of taking effect
   with the beginning of the next alias
 * #foreach can now support more complex argument substitution.  Example:
@@ -127,30 +127,30 @@
                  c
              }
 
-0.3.5:                                           Thu Apr  5 15:21:42 CEST 2001
+0.3.5:                                           Thu Apr  5 15:21:42 CET 2001
 * "#var a {$b}" instead of "#var a {$$b}".  Quite a lot of commands required
   double dollar marks instead of one... Now only #alias, #action and the like
   show that behavior (because of quite obvious reasons).
 * events can be now removed (#unevent)
 
-0.3.6:                                           Wed Apr 11 12:59:35 CEST 2001
+0.3.6:                                           Wed Apr 11 12:59:35 CET 2001
 * loads of bugfixes
 * #dosubstitutes <var> <text> applies all substitutes to a line of text
 * #dohighlights <var> <text> does the same with highlights
 
-0.3.7:                                           Fri Apr 20 23:59:33 CEST 2001
+0.3.7:                                           Fri Apr 20 23:59:33 CET 2001
 * #sortlist <var> <list>
 * #match <action-like pattern> <text> <command> [#else <command if no match>]
 * #decolorize <var> <text> removes all the color codes from <text>
 
-0.3.8:                                           Mon Jul  9 13:14:49 CEST 2001
+0.3.8:                                           Mon Jul  9 13:14:49 CET 2001
 * error messages are now more verbose, to make debugging scripts easier
 * #shell <command> works as #system, allowing using full-screen programs
   Examples:
      #sys {echo '#var kills' `cat kills|wc -l` >tmp}
      #shell {mc}
 
-0.3.9:                                           Fri Aug 31 22:01:31 CEST 2001
+0.3.9:                                           Fri Aug 31 22:01:31 CET 2001
 * you can give multiple config files to #read on the command line
   Example:
      KBtin main pal bashes gags
@@ -164,10 +164,36 @@
 * substitutes can trigger multiple times per line:
   #sub A B will result in xAxAxAxA -> xBxBxBxB
 
-0.4.0:
+0.4.0:                                           Mon Sep 17 04:50:54 CET 2001
 * TELNET protocol support.  KBtin can negotiate about terminal type, window
   size and echoing.
 * "make install" should work.  At least it does so on my Debian Linux.
 
-0.4.1:
-fixme... user.c "RESTORE"
+0.4.1:                                           Sun Jan 13 17:52:02 CET 2002
+* #atoi <var> <text> can convert 42xyz -> 42
+* #verbatim <line>, almost same as \<line> except for variable substitution
+* #strcmp <string1> <string2> <command> [#else <command>], to cope with
+  limitations of #if {[string1==string2]} (the latter doesn't allow =s, !s
+  and ]s inside the strings)
+
+0.4.2:                                           Wed Mar 27 19:37:35 CET 2002
+* variable substitution, aliases and command parsing use faster data
+  structures (O(1) instead of O(n)).  This usually causes your scripts
+  to work at least an order of magnitude faster.
+* #unpathdir was missing.  Duh.
+* bugfixes, bugfixes, bugfixes
+* A warning is printed if you try to define an alias containing spaces.
+
+0.4.3:
+* action/promptaction priority of 10 no longer sorts between 1 and 2
+* new #message type: error.  Turn it on to prevent error messages from
+  being lost even if their appropiate message type is hidden.
+* #verbose allows turning the -v flag on and off
+* #verbatim, #blank, #echo, #speedwalk, #togglesub, #presub and #message
+  are now local to each session.
+
+0.4.4:
+* #dogoto <from> <to> [<distvar> <locvar> <pathvar>] [#else ...] will
+  run an simulated #goto and retrieve the path length, visited locations
+  and on-path commands.  Or, you can use "#dogoto <from> <to>" to display
+  the path.

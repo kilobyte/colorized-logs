@@ -36,12 +36,11 @@ extern void show_list(struct listnode *listhead);
 
 extern pvars_t *pvars;	/* the %0, %1, %2,....%9 variables */
 extern int antisubnum;
-extern int mesvar[7];
 
-/***************************/
-/* the #substitute command */
-/***************************/
-void parse_antisub(char *arg, struct session *ses)
+/*******************************/
+/* the #antisubstitute command */
+/*******************************/
+void antisubstitute_command(char *arg, struct session *ses)
 {
     /* char left[BUFFER_SIZE], right[BUFFER_SIZE], result[BUFFER_SIZE]; */
     char left[BUFFER_SIZE];
@@ -62,7 +61,7 @@ void parse_antisub(char *arg, struct session *ses)
             deletenode_list(myantisubs, ln);
         insertnode_list(myantisubs, left, left, 0, ALPHA);
         antisubnum++;
-        if (mesvar[2])
+        if (ses->mesvar[2])
             tintin_printf(ses, "Ok. Any line with {%s} will not be subbed.", left);
     }
 }
@@ -80,13 +79,13 @@ void unantisubstitute_command(char *arg, struct session *ses)
     arg = get_arg_in_braces(arg, left, 1);
     while ((ln = search_node_with_wild(temp, left)) != NULL)
     {
-        if (mesvar[2])
+        if (ses->mesvar[2])
             tintin_printf(ses,"#Ok. Lines with {%s} will now be subbed.", ln->left);
         deletenode_list(myantisubs, ln);
         flag = TRUE;
         /* temp=ln; */
     }
-    if (!flag && mesvar[2])
+    if (!flag && ses->mesvar[2])
         tintin_printf(ses,"#THAT ANTISUBSTITUTE (%s) IS NOT DEFINED.", left);
 }
 

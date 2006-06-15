@@ -37,10 +37,13 @@ extern void substitute_vars(char *arg, char *result);
 extern void tintin_printf(struct session *ses, char *format, ...);
 extern void user_condump(FILE *f);
 extern char *space_out(char *s);
+extern struct listnode* hash2list(struct hashtable *h, char *pat);
+extern void zap_list(struct listnode *nptr);
+extern char* get_hash(struct hashtable *h, char *key);
+extern void write_line_mud(char *line, struct session *ses);
 
 extern int puts_echoing;
-extern int alnum, acnum, subnum, hinum, varnum, antisubnum, routnum, bindnum;
-extern int verbose;
+extern int alnum, acnum, subnum, hinum, varnum, antisubnum, routnum, bindnum, pdnum;
 extern char tintin_char;
 
 int in_read=0;
@@ -138,7 +141,7 @@ void read_complete(void)
 /*******************************/
 /* remove file from filesystem */
 /*******************************/
-void unlink_file(char *arg, struct session *ses)
+void unlink_command(char *arg, struct session *ses)
 {
     char file[BUFFER_SIZE], temp[BUFFER_SIZE];
 
@@ -285,7 +288,7 @@ struct session *read_command(char *filename, struct session *ses)
         prompt(NULL);
         return ses;
     }
-    if (!verbose)
+    if (!ses->verbose)
         puts_echoing = FALSE;
     if (!in_read)
     {
@@ -297,6 +300,7 @@ struct session *read_command(char *filename, struct session *ses)
         antisubnum = 0;
         routnum=0;
         bindnum=0;
+        pdnum=0;
     }
     in_read++;
     *buffer=0;
@@ -309,7 +313,7 @@ struct session *read_command(char *filename, struct session *ses)
         {
             puts_echoing = TRUE;
             char_command(line, ses);
-            if (!verbose)
+            if (!ses->verbose)
                 puts_echoing = FALSE;
             flag = FALSE;
         }
@@ -325,7 +329,7 @@ struct session *read_command(char *filename, struct session *ses)
                 tintin_printf(ses,"#ERROR! LINE %d TOO LONG IN %s, TRUNCATING", nl, filename);
                 *line=0;
                 ignore_lines=1;
-                puts_echoing=verbose;
+                puts_echoing=ses->verbose;
             }
             else
             {
@@ -345,7 +349,7 @@ struct session *read_command(char *filename, struct session *ses)
     if (*buffer)
         ses=parse_input(buffer,1,ses);
     in_read--;
-    if (!verbose && !in_read)
+    if (!ses->verbose && !in_read)
     {
         puts_echoing = TRUE;
         if (alnum > 0)
@@ -364,6 +368,8 @@ struct session *read_command(char *filename, struct session *ses)
             tintin_printf(ses, "#OK. %d ROUTES LOADED.", routnum);
         if (bindnum > 0)
             tintin_printf(ses, "#OK. %d BINDS LOADED.", bindnum);
+        if (pdnum > 0)
+            tintin_printf(ses, "#OK. %d PATHDIRS LOADED.", pdnum);
     }
     fclose(myfile);
     prompt(NULL);
@@ -377,7 +383,7 @@ void write_command(char *filename, struct session *ses)
 {
     FILE *myfile;
     char buffer[BUFFER_SIZE];
-    struct listnode *nodeptr;
+    struct listnode *nodeptr, *templist;
     struct routenode *rptr;
     int nr;
 
@@ -397,12 +403,14 @@ void write_command(char *filename, struct session *ses)
         prompt(NULL);
         return;
     }
-    nodeptr = ses->aliases;
+
+    nodeptr = templist = hash2list(ses->aliases, "*");
     while ((nodeptr = nodeptr->next))
     {
-        prepare_for_write("alias", nodeptr->left, nodeptr->right, "\0", buffer);
+        prepare_for_write("alias", nodeptr->left, nodeptr->right, 0, buffer);
         fputs(buffer, myfile);
     }
+    zap_list(templist);
 
     nodeptr = ses->actions;
     while ((nodeptr = nodeptr->next))
@@ -415,7 +423,7 @@ void write_command(char *filename, struct session *ses)
     nodeptr = ses->antisubs;
     while ((nodeptr = nodeptr->next))
     {
-        prepare_for_write("antisub", nodeptr->left, 0, "\0", buffer);
+        prepare_for_write("antisub", nodeptr->left, 0, 0, buffer);
         fputs(buffer, myfile);
     }
 
@@ -423,30 +431,35 @@ void write_command(char *filename, struct session *ses)
     while ((nodeptr = nodeptr->next))
     {
         if (strcmp( nodeptr->right, EMPTY_LINE))
-            prepare_for_write("sub", nodeptr->left, nodeptr->right, "\0", buffer);
+            prepare_for_write("sub", nodeptr->left, nodeptr->right, 0, buffer);
         else
-            prepare_for_write("gag", nodeptr->left, 0, "\0", buffer);
+            prepare_for_write("gag", nodeptr->left, 0, 0, buffer);
         fputs(buffer, myfile);
     }
 
-    nodeptr = ses->myvars;
+    nodeptr = templist = hash2list(ses->myvars, "*");
     while ((nodeptr = nodeptr->next))
     {
         prepare_for_write("var", nodeptr->left, nodeptr->right, "\0", buffer);
         fputs(buffer, myfile);
     }
+    zap_list(templist);
+    
     nodeptr = ses->highs;
     while ((nodeptr = nodeptr->next))
     {
         prepare_for_write("highlight", nodeptr->right, nodeptr->left, "\0", buffer);
         fputs(buffer, myfile);
     }
-    nodeptr = ses->pathdirs;
+    
+    nodeptr = templist = hash2list(ses->pathdirs, "*");
     while ((nodeptr = nodeptr->next))
     {
-        prepare_for_write("pathdir", nodeptr->right, nodeptr->left, "\0", buffer);
+        prepare_for_write("pathdir", nodeptr->left, nodeptr->right, 0, buffer);
         fputs(buffer, myfile);
     }
+    zap_list(templist);
+
     for (nr=0;nr<MAX_LOCATIONS;nr++)
         if ((rptr=ses->routes[nr]))
             do
@@ -460,12 +473,15 @@ void write_command(char *filename, struct session *ses)
                         rptr->distance,
                         rptr->cond);
             } while((rptr=rptr->next));
-    nodeptr = ses->binds;
+            
+    nodeptr = templist = hash2list(ses->binds, "*");
     while ((nodeptr = nodeptr->next))
     {
-        prepare_for_write("bind", nodeptr->right, nodeptr->left, "\0", buffer);
+        prepare_for_write("bind", nodeptr->left, nodeptr->right, 0, buffer);
         fputs(buffer, myfile);
     }
+    zap_list(templist);
+
     fclose(myfile);
     tintin_puts("#COMMANDS-FILE WRITTEN.", ses);
     return;
@@ -502,7 +518,7 @@ int route_exists(char *A,char *B,char *path,int dist,char *cond, struct session 
 void writesession_command(char *filename, struct session *ses)
 {
     FILE *myfile;
-    char buffer[BUFFER_SIZE];
+    char buffer[BUFFER_SIZE], *val;
     struct listnode *nodeptr,*onptr;
     struct routenode *rptr;
     int nr;
@@ -529,15 +545,17 @@ void writesession_command(char *filename, struct session *ses)
         prompt(NULL);
         return;
     }
-    nodeptr = ses->aliases;
+    
+    nodeptr = onptr = hash2list(ses->aliases,"*");
     while ((nodeptr = nodeptr->next))
     {
-        if ((onptr=searchnode_list(nullsession->aliases, nodeptr->left)))
-            if (!strcmp(onptr->right,nodeptr->right))
+        if ((val=get_hash(nullsession->aliases, nodeptr->left)))
+            if (!strcmp(val,nodeptr->right))
                 continue;
-        prepare_for_write("alias", nodeptr->left, nodeptr->right, "\0", buffer);
+        prepare_for_write("alias", nodeptr->left, nodeptr->right, 0, buffer);
         fputs(buffer, myfile);
     }
+    zap_list(onptr);
 
     nodeptr = ses->actions;
     while ((nodeptr = nodeptr->next))
@@ -557,7 +575,7 @@ void writesession_command(char *filename, struct session *ses)
         if ((onptr=searchnode_list(nullsession->antisubs, nodeptr->left)))
             if (!strcmp(onptr->right,nodeptr->right))
                 continue;
-        prepare_for_write("antisubstitute", nodeptr->left, 0, "\0", buffer);
+        prepare_for_write("antisubstitute", nodeptr->left, 0, 0, buffer);
         fputs(buffer, myfile);
     }
 
@@ -568,21 +586,22 @@ void writesession_command(char *filename, struct session *ses)
             if (!strcmp(onptr->right,nodeptr->right))
                 continue;
         if (strcmp( nodeptr->right, EMPTY_LINE))
-            prepare_for_write("sub", nodeptr->left, nodeptr->right, "\0", buffer);
+            prepare_for_write("sub", nodeptr->left, nodeptr->right, 0, buffer);
         else
-            prepare_for_write("gag", nodeptr->left, 0, "\0", buffer);
+            prepare_for_write("gag", nodeptr->left, 0, 0, buffer);
         fputs(buffer, myfile);
     }
 
-    nodeptr = ses->myvars;
+    nodeptr = onptr = hash2list(ses->myvars,"*");
     while ((nodeptr = nodeptr->next))
     {
-        if ((onptr=searchnode_list(nullsession->myvars, nodeptr->left)))
-            if (!strcmp(onptr->right,nodeptr->right))
+        if ((val=get_hash(nullsession->myvars, nodeptr->left)))
+            if (!strcmp(val,nodeptr->right))
                 continue;
-        prepare_for_write("var", nodeptr->left, nodeptr->right, "\0", buffer);
+        prepare_for_write("var", nodeptr->left, nodeptr->right, 0, buffer);
         fputs(buffer, myfile);
     }
+    zap_list(onptr);
 
     nodeptr = ses->highs;
     while ((nodeptr = nodeptr->next))
@@ -590,9 +609,21 @@ void writesession_command(char *filename, struct session *ses)
         if ((onptr=searchnode_list(nullsession->highs, nodeptr->left)))
             if (!strcmp(onptr->right,nodeptr->right))
                 continue;
-        prepare_for_write("highlight", nodeptr->right, nodeptr->left, "\0", buffer);
+        prepare_for_write("highlight", nodeptr->right, nodeptr->left, 0, buffer);
         fputs(buffer, myfile);
     }
+    
+    nodeptr = onptr = hash2list(ses->pathdirs,"*");
+    while ((nodeptr = nodeptr->next))
+    {
+        if ((val=get_hash(nullsession->pathdirs, nodeptr->left)))
+            if (!strcmp(val,nodeptr->right))
+                continue;
+        prepare_for_write("pathdirs", nodeptr->left, nodeptr->right, 0, buffer);
+        fputs(buffer, myfile);
+    }
+    zap_list(onptr);
+    
     for (nr=0;nr<MAX_LOCATIONS;nr++)
         if ((rptr=ses->routes[nr]))
             do
@@ -612,16 +643,17 @@ void writesession_command(char *filename, struct session *ses)
                             rptr->distance,
                             rptr->cond);
             } while((rptr=rptr->next));
-
-    nodeptr = ses->binds;
+    
+    nodeptr = onptr = hash2list(ses->binds,"*");
     while ((nodeptr = nodeptr->next))
     {
-        if ((onptr=searchnode_list(nullsession->binds, nodeptr->left)))
-            if (!strcmp(onptr->right,nodeptr->right))
+        if ((val=get_hash(nullsession->binds, nodeptr->left)))
+            if (!strcmp(val,nodeptr->right))
                 continue;
-        prepare_for_write("bind", nodeptr->left, nodeptr->right, "\0", buffer);
+        prepare_for_write("bind", nodeptr->left, nodeptr->right, 0, buffer);
         fputs(buffer, myfile);
     }
+    zap_list(onptr);
 
     fclose(myfile);
     tintin_puts("#COMMANDS-FILE WRITTEN.", ses);
@@ -643,7 +675,7 @@ void prepare_for_write(char *command, char *left, char *right, char *pr, char *r
         strcat(result, right);
         strcat(result, "}");
     };
-    if (strlen(pr) != 0)
+    if (pr && strlen(pr))
     {
         strcat(result, " {");
         strcat(result, pr);
@@ -689,4 +721,37 @@ void prepare_quotes(char *string)
             *cpdest++ = *cpsource++;
     }
     *cpdest = '\0';
+}
+
+/**********************************/
+/* load a file for input to mud.  */
+/**********************************/
+void textin_command(char *arg, struct session *ses)
+{
+    FILE *myfile;
+    char buffer[BUFFER_SIZE], *cptr;
+
+    get_arg_in_braces(arg, arg, 1);
+    if (ses == nullsession)
+    {
+        tintin_puts("You can't read any text in without a session being active.", NULL);
+        prompt(NULL);
+        return;
+    }
+    if ((myfile = fopen(arg, "r")) == NULL)
+    {
+        tintin_puts("ERROR: No file exists under that name.\n", ses);
+        prompt(ses);
+        return;
+    }
+    while (fgets(buffer, sizeof(buffer), myfile))
+    {
+        for (cptr = buffer; *cptr && *cptr != '\n'; cptr++) ;
+        *cptr = '\0';
+        write_line_mud(buffer, ses);
+    }
+    fclose(myfile);
+    tintin_puts("File read - Success.\n", ses);
+    prompt(ses);
+
 }

@@ -1,0 +1,1385 @@
+                ********************************************
+                ***********   KBtin commands   *************
+                ********************************************
+System commands:
+   end         suspend     system      shell
+Session management:
+   session     run         zap         <session>   all         snoop
+Input/output:
+   verbatim    char        echo        history     cr          mudcolors
+   blank       speedwalk   showme      status      margins     bell
+Aliases:
+   alias       unalias
+Triggers:
+   action      unaction    ignore      promptaction    unpromptaction
+Substitutions:
+   substitute unsubstitute antisubstitute          unantisubstitute
+   highlight  unhighlight  gag         ungag       togglesub   presub
+   dosubstitutes           dohighlights
+Information:
+   help        info        messages    news        version
+Keys:
+   bind        unbind      keypad
+Control statements:
+   <number>    if          loop        foreach     match       strcmp
+Files:
+   condump     deathlog    log         unlink      read        textin
+   vervose     write       writesession
+Comments:
+   nop         remark
+Variables:
+   math        random      variable    unvariable
+Text variables:
+   firstupper  tolower     toupper     substring   prepad      postpad
+   reverse     strip       strlen      decolorize  atoi
+Time:
+   ctime       time
+Lists:
+   finditem    deleteitems foreach     finditem    getitem     isatom
+   listlength  splitlist   implode     explode     sortlist
+Tickers:
+   tick        tickon      tickoff     ticksize
+Events:
+   delay=event remove=unevent
+Routes:
+   goto        >           route       unroute     dogoto
+Misc:
+   killall
+Paths:
+   map         mark        path        unmap       pathdir     return
+   savepath    unpathdir
+
+General info topics (not commands):
+   syntax      colorcodes  keys
+
+Scroll back using PgUp/PgDn to read the whole help index.
+For help on specific command, #help <command>
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~syntax
+Tin-Tin parses the text you type in the following way:
+1. a line of text is divided on ";" marks.
+   This way, you can do more than one thing at once in actions, etc.
+2. variables ($something) are substituted
+3. if the first character of a line is #, the line is a command.
+   If not, the line is sent to the MUD.
+   You can change # to something else using the #char command.
+4. Arguments for the command are separated by spaces.  You can enclose
+   an argument in curly brackets ("{" and "}") to ignore spaces or semicolons.
+
+Special characters:
+;                  - command separator
+\ on the beginning - pass the whole line verbatim to the MUD
+\ before a char    - quote next char. Examples: \;, \$
+# on the beginning - the line is a tintin command, not a MUD one
+""                 - prevents spaces from working as separators. Doesn't
+                     prevent ;s and $s from working - use \; and \$.
+{}                 - the best way to enclose arguments and list items
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~colorcodes
+The color codes for KBtin are enclosed by tilde (~) chars.  The general
+syntax is: ~foreground[:background[:blink]]~
+Foreground colors:
+ 0 - ~0~black~-1~       4 - ~4~red~-1~       8 - ~8~dark gray~-1~    12 - ~12~lt. red~-1~
+ 1 - ~1~blue~-1~        5 - ~5~magenta~-1~   9 - ~9~lt. blue~-1~     13 - ~13~pink~-1~
+ 2 - ~2~green~-1~       6 - ~6~brown~-1~    10 - ~10~lt. green~-1~    14 - ~14~yellow~-1~
+ 3 - ~3~cyan~-1~        7 - ~7~lt. gray~-1~ 11 - ~11~aqua~-1~         15 - ~15~white~-1~
+Background colors:
+ 0 - ~:0~black~-1~       2 - ~0:2~green~-1~     4 - ~0:4~red~-1~           6 - ~0:6~brown~-1~
+ 1 - ~:1~blue~-1~        3 - ~0:3~cyan~-1~      5 - ~0:5~magenta~-1~       7 - ~0:7~lt. gray~-1~
+Blink:
+ 0 - normal text 1 - ~::1~blinking~-1~
+
+You can omit a field to retain the old color, for example: ::1 turns
+blinking on without affecting neither foreground nor background, and 4:
+changes foreground color to red leaving the background unchanged.
+
+When KBtin translates the ANSI codes coming from MUD, it uses the shortest
+possible code, without omitting any fields.  That is: ~2~2~-1~, ~0:7~0:7~-1~ or ~12:0:1~12:0:1~-1~.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~keys
+~keyboard
+Editing keys:
+  Backspace, ^H          - erase character left from cursor
+  Del                    - erase character at cursor
+  left/right arrows      - move cursor
+  Home                   - place cursor at the beginning of the input line
+  End                    - place cursor at the end of the input line
+  Esc                    - erase the input line
+  Tab                    - switch input buffers
+Scrollback:
+  PgUp                   - scroll back
+  PgDn                   - scroll forward
+History:
+  up/down arrows         - recall a line from the history
+
+The "Tab" key needs some explanation.  Let's assume you are typing in a very
+long tell, and something which requires your immediate attention happened.
+You could use "Esc" to clear your input, however that would forfeit your tell.
+Solution: press "Tab" to switch input lines, do whatever you need, then press
+"Tab" again and continue your tell.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~<session>
+
+#<name>
+switches to session <name>
+
+#<name> <command>
+executes <command> in session <name>
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~all
+
+#all <command>
+executes <command> in all sessions
+
+Example:
+#all shout I'm multiplaying!
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~snoop
+
+#snoop
+toggles snooping of the active session
+
+Text from snooped sessions is displayed even if they're not the active
+session.  Any output is prefixed with "%<name>".
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~finditem
+
+#finditem <dest.var> <needle> {haystack}
+searches for <needle> in the list <haystack>.  If found, <dest.var> is set
+to the index of found item, if not - <dest.var> becomes 0.
+
+Finditem can be used also as an inline in expressions:
+(#finditem <needle> {haystack})
+
+Examples:
+#finditem result d {a b c d e}            ->  result = 4
+#find result a*b {db ac akg afgh}         ->  result = 3
+#math result {5+2*#find g {a b c}}        ->  result = 5
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~deleteitems
+
+#deleteitem <dest.var> {list} <pattern>
+removes from {list} all items matching <pattern> and stores result in
+<dest.var>
+
+Example:
+#delete result {ab b ac cad k} a*         ->  result = {b cad k}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~foreach
+
+#foreach {list} <command>
+Executes <command> for each item of {list}.
+
+Examples:
+#foreach {a b c d} {#showme Letter:}
+#foreach {1.drow 2.drow 3.drow 4.drow} {bash $0;stand}
+
+The substitution of arguments to the <command> uses the same rules if it was
+an alias, this means that:
+#foreach {a {b c d} {e f}} {#showme 0:[$0] 1:[$1] 2:[$2] 3:[$3]} will yield:
+    0:[a]       1:[a]   2:[]    3:[]
+    0:[b c d]   1:[b]   2:[c]   3:[d]
+    0:[e f]     1:[e]   2:[f]   3:[]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~getitem
+
+#getitem <dest.var> <index> {list}
+Returns item <index> from the {list} and stores it into <dest.var>.
+If not found, <dest.var> becomes empty.
+
+Example:
+#getitem result 3 {a b c d e}         -> result = "c"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~isatom
+
+#isatom <dest.var> <item>
+inline in expressions: #isatom <item>
+Checks if <item> is neither a list with length>1 nor something enclosed in
+curly braces.
+
+#isatom {a}   -> 1
+#isatom {{a}} -> 0
+#isatom {a b} -> 0
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~listlength
+
+#listlength <dest.var> {list}
+inline #listlength {list}
+Calculates the number of items in {list} and stores it into <dest.var>.
+Items can be separated by spaces or enclosed in curly brackets ({}).
+
+Examples:
+#listl a {a b c}               -> a=3
+#math a {#listl {a {b c} d}}   -> a=3
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~splitlist
+
+#splitlist <head.var> <tail.var> {list} [<head length>]
+Divides {list} into two parts, storing items 1..<head length> into <head.var>
+and the rest into <tail.var>.  If <head length> is not specified, it is
+assumed to be 1.
+
+Example:
+#split head tail {smile {say Hi} {bounce a}} 2
+  head = "smile {say Hi}"
+  tail = "{bounce a}"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~implode
+
+#implode <dest.var> <delimiter> {list}
+Stuffs the {list} into <dest.var>, separating items by <delimiter>.
+
+Example:
+#implode result , {a {b c d} e f}   -> result = "a,b c d,e,f"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~explode
+
+#explode <dest.var> <delimiter> <text>
+Divides <text> into pieces separated by <delimiter> and stores the resulting
+list into <dest.var>.
+
+Example
+#explode result , {do 2n,5w,se}     -> result = "{do 2n} 5w se"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~sortlist
+
+#sortlist <dest.var> {list}
+Sorts the {list} in asciibetical order and saves the result into <dest.var>.
+
+Example:
+#sortlist result {c a b}            -> result = "a b c"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~verbatim
+
+#verbatim
+Turns off all input parsing.  In this mode, everything you type is sent
+directly to the MUD, without substituting variables, dividing lines on ";"s,
+parsing commands, etc.
+To resume normal work, type #verbatim again.
+
+Notes:
+- in normal mode you can prefix a line with "\" to pass it without parsing,
+  as in #verbatim mode
+- #verbatim is the only command which can be abbreviated to just "#"
+  (or whatever your tintin-char is)
+- since KBtin-0.2.9, actions and binds ignore #verbatim.  Especially useful
+  for immortals who spend most time with parsing turned off.
+
+#verbatim <line>
+Passes <line> to the MUD without almost any parsing, with just variables
+subsituted.  Useful for overriding KBtin aliases, like:
+#alias w {#math x {$x-1};#verbatim w}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~char
+
+#char <char>
+Sets the tintin-char to punctuation character <char>.  The tintin-char
+is the symbol you use to prefix commands.
+
+Example:
+#char ~    -> commands are now "~char", etc instead of "#char"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~cr
+
+#cr
+Echoes a new-line character to the MUD.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~echo
+
+#echo [<boolean>]
+Toggles the local echo.  With echo on, the commands you type are being
+copied to the current output window as if they were part of the text which
+came from the MUD or as output from TinTin's commands.
+
+Note: some programs have their own echo which cannot be disabled.  This can
+cause double echoing if #echo is on.
+
+Valid boolean values:
+  0     no    false off   yes   true  on
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~history
+
+#history
+Displays last 30 commands typed in this session.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~mudcolors
+
+This command controls how TinTin should translate colors codes (~n~) found
+in the text being sent to the MUD.
+
+#mudcolors OFF
+#mudcolors 0
+The color codes will be sent verbatim.
+
+#mudcolors {}
+Color codes will be ignored.
+
+#mudcolors c0 c1 c2 c3 c4 c5 c6 c7 c8 c9 c10 c11 c12 c13 c14 c15
+Initializes the color translation table to {c0..c15}.
+Color numbers:
+ 0 - ~0~black~-1~    4 - ~4~red~-1~        8 - ~8~dark gray~-1~   12 - ~12~lt. red~-1~
+ 1 - ~1~blue~-1~     5 - ~5~magenta~-1~    9 - ~9~lt. blue~-1~    13 - ~13~pink~-1~
+ 2 - ~2~green~-1~    6 - ~6~brown~-1~     10 - ~10~lt. green~-1~   14 - ~14~yellow~-1~
+ 3 - ~3~cyan~-1~     7 - ~7~lt. gray~-1~  11 - ~11~aqua~-1~        15 - ~15~white~-1~
+This command doesn't support background colors and blink (yet?).
+
+Example (color table for T2T):
+#mudcolors $0$ $BLU$ $GRN$ $CYN$ $RED$ $MAG$ $YEL$ $0$ $0$ $HIB$ $HIG$ $HIC$
+$HIR$ $HIM$ $HIY$ $BOLD$
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~showme
+
+#showme <text>
+Echoes <text> to the user.
+
+#example
+#showme {Terminal size: $COLSx$LINES}
+#action {%1's mighty bash sends you sprawling} {#showme =======BASHED========}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~speedwalk
+
+#speedwalk [<boolean>]
+Toggles the "speedwalk" function.
+
+Speedwalks are usable only on MUDs which use only the 6 basic directions:
+ ~15~n~-1~, ~15~w~-1~, ~15~s~-1~, ~15~e~-1~, ~15~u~-1~, ~15~d~-1~.  Speedwalking allows typing for example "nw4neun"
+as a shortcut for "n;w;n;n;n;n;e;u;n".
+
+Notes:
+- if your MUD sometimes uses diagonal directions (nw, ne, sw, se) but they
+  happen _very_ rarely (Duris for example), you can still use speedwalks.
+  Just type "\nw" in case such an exit happens.
+- the "news" command found on some MUDs accidentally happens to consist of
+  only legal speedwalking letters... Again, you have to type "\news".
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~action
+
+#action [<pattern>]
+Lists all actions matching <pattern> (or all if no pattern given).
+
+#action <text> <command> [<priority>]
+Sets a trigger on <text> to execute <command>.  The action will fire at most
+once for a single line of text ("#action blah command" won't trigger twice
+on "blah blah").  The priority affects the order in which matching actions
+will be executed, however all actions which match will fire.
+The <text> can contain "%0", "%1" .. "%9" symbols, which match any
+substring.  You can then use "$1" or "%1" in the <command>, which will be
+substituted by the substring which matched "%1" in <text>.
+
+Example: #action {You are attacked by %1!} {#tolower victim $1}
+
+The difference between %n and $n is that $n removes all semicolons.  It's
+often a good thing because semicolons can wreak havoc on many commands.
+An example:
+#action {says in %0 'target=%1'} {kill %1}
+Butthead says in common 'target=;#sys rm -rf ~/*'.
+
+Actions don't ignore color codes!!!  In other words, an action "Illithid
+enters" won't trigger on: "~13~An Illithid~7~ enters~-1~" - you have to use the color
+code (#action {Illithid~15~~~14~7~15~~~-1~ enters}).  This may seem cumbersome, however after
+a while you will realize this a very powerful feature, allowing you to
+completely ignore people emoting things to fool your triggers.
+
+If "^" is the first character of <text>, the action will trigger only if the
+text is found on the beginning of a line.
+Example:
+#action {^Your studies are complete.} {stand}
+Your studies are complete.                           -> match
+Butthead says in common 'Your studies are complete.' -> no match
+Note: beware of prompts and color codes!
+
+To be able to specify the priority, you have to enclose your <command>
+in curly brackets.  This may seem a bug, however because of rare use of
+priorities you don't have to use brackets as often.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~unaction
+
+#unaction <pattern>
+Removes all actions matching <pattern>.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~ignore
+
+#ignore [<boolean>]
+Toggles ignoring the actions.
+
+The "ignore" command allows you to temporarily disable all actions and
+promptactions.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~promptaction
+
+#promptaction [<pattern>]
+Shows all prompt-actions matching <pattern>.
+
+#promptaction <text> <command> [<priority>]
+Adds a prompt-action on <text> to execute <command>.
+
+Prompt-actions are actions which work on incomplete lines as well, as opposed
+to normal actions which are postponed until the end-of-line character is
+received.
+
+Example:
+#prompt {HP:%1 EP:%2 >} {#var hp $1;#var ep $2}
+
+Note: since promptactions are checked every time a piece of text comes from
+the MUD, a single prompt-action can trigger several times even for the same
+line of text.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~unpromptaction
+
+#unpromptaction <pattern>
+Removes all prompt-actions matching <pattern>.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~alias
+
+#alias [<pattern>]
+Lists all aliases matching <pattern>.
+
+#alias <name> <command>
+Defines a new alias <name>.
+
+Arguments substitution rules:
+1. if the <command> is a simple alias (that is, without any semicolons or
+variables of any type), any arguments found are appended to the command.
+Example:
+#alias fh cast 'full heal'
+fh aethia                             -> "cast 'full heal' aethia"
+
+2. if any positional variables are found, their meaning is:
+$0 - all arguments given (whole command line except the alias name)
+$1 - first word/braces after the alias name
+$2 - second argument
+$3 - third argument
+...
+$9 - nineth argument.
+That is, if "blargh" is an alias, typing "blargh a {b c} d" means:
+$0 = "a {b c} d"
+$1 = "a"
+$2 = "b c"
+$3 = "d"
+$4=$5=$6=$7=$8=$9 = ""
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~unalias
+
+#unalias <pattern>
+Removes all aliases whose name matches <pattern>.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~substitute
+
+#substitute [<pattern>]
+Lists all substitutes and gags matching the pattern.
+
+#substitute <pattern> <new text>
+Defines an substitution for text incoming from the MUD.  It can be used to
+highlight stuff, remind you about items stats, etc.
+<pattern> can include positional variables %0..%9, which can be used in <new
+text> as well.
+Note:
+subsitutions, similarily to actions, do NOT ignore color codes.
+
+Examples:
+#sub {Your mighty bash sends %1 sprawling.} {~~-1~15:1~BASH SUCCESS: [$1]~~-1~7~}
+
+#sub {%1 the %2 Master Assassin (%3} {%1 the %2 ass18 (Master Assassin) (%3}
+#sub {%1 the %2 Lady Death (%3} {%1 the %2 ass19 (Lady Death) (%3}
+#sub {%1 the %2 Deathmaster (%3} {%1 the %2 ass19 (Deathmaster) (%3}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~unsubstitute
+
+#unsubstitute <pattern>
+Removes all substitutes and gags matching <pattern>.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~antisubstitute
+
+#antisubstitute <pattern>
+Inhibits substitutions and gags on any lines containing <pattern>.
+
+Examples:
+#antisub {Rank: Lord (male)}
+#sub {%1 Lord (%2} {%1 civ16 (Lord) (%2}
+This way, immortal title "Lord" won't be confused with civilian 16 title
+"Lord".
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~unantisubstitute
+
+#unantisubstitute <pattern>
+Removes all antisubs matching <pattern>.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~highlight
+
+#highlight
+Lists all highlights.
+
+#highlist list
+Shows all available color names.
+
+#highlight <color> <pattern>
+From now, all occurences of <pattern> will be colored <color>.
+
+<pattern> can contain * as wildcards (not %n as it was the case with
+substitutes).  Highlight is _the_only_ KBtin command which ignores color
+codes in the input text.  This means, you can highlight "~6~le~2~av~10~es~6~-co~10~ve~6~re~2~d~-1~"
+by typing "#hi <color> leaves-covered".
+You can use standard KBtin color-codes (without the ~s), or english color
+names (type "#highlight list" to get the list).
+
+Color patterns are allowed as well; separate colors in your pattern
+with '/'s.  For example, using 4/6 as the highlight color will make
+your text look ~4~l~6~i~4~k~6~e~4~ ~6~t~4~h~6~i~4~s~-1~.
+
+Examples:
+#hi 10 {A young lad trudges off to war}
+#hi 10 {A worried merchant flees off to safety}
+#foreach {$SoU} #hi 4
+#hi 13:2 {* swiches targets..}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~unhighlight
+
+#unhighlight <pattern>
+You got it, this command removes all highlights matching <pattern>.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~presub
+
+#presub [<boolean>]
+This toggle decides whether actions and promptactions should be performed on
+the raw text which came from the MUD, or after all substitutes/gags have been
+done.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~gag
+
+#gag <pattern>
+Completely hides any line containing <pattern> from your view.  If #presub
+is not on, any matching actions will still be done.
+
+Examples:
+#gag {Do: starting commands.}
+#gag {Do: commands completed.}
+#gag {Rauko tells you:}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~ungag
+
+#ungag <pattern>
+Removes all gags matching <pattern>.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~togglesub
+
+#togglesub [<boolean>]
+Toggles whether substitutions/gags/highlights should be done at all.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~dosubstitutes
+
+#dosubstitutes <dest.var> <text>
+Does all substitutes on <text> just as if it was text which came from the
+MUD, and stores the result into <dest.var>.
+
+Note: It may be tempting to use this command to do some text-processing --
+but that's a bad idea because that would clutter up the substitutions used
+for processing incoming text.  Use this command only for text which will end
+up displayed by #showme or #status.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~dohighlights
+
+#dohighlights <dest.var> <text>
+Passes the <text> through highlights as if came from the MUD, then stores
+the result into <dest.var>.
+
+As a side effect, unneeded color codes from <text> will be removed,
+retaining the same visual effect.  Example: ~~-1~3~bl~~-1~7~~~-1~2~ah -> ~~-1~3~bl~~-1~2~ah
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~bell
+
+#bell
+Beeps.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~bind
+
+#bind [<pattern>]
+Lists all binds or those matching <pattern>.
+
+#bind <keycode> <command>
+Binds the key whose code is <keycode> to <command>.
+If you are not sure about the keycode (they can differ across various
+systems, too), press the key in question.
+
+Examples:
+#bind F1 {k galdor}
+#bind F2 {#loop 1,$nhorses {mount horse $0};spur;k elven scout}
+#bind F3 {whoa;dismount horse;#loop 1,$nhorses {get all from corpse into
+panniers $0}}
+
+#bind ^L {ed $cwf;1,10000d;i;#text $cwf;I;x;update}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~unbind
+
+#unbind <pattern>
+Unbinds all keys matching <pattern>.
+For all you quakers out here, the command to nuke all keybindings is
+"#unbind *", not "#unbindall" :P
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~keypad
+
+#keypad [<boolean>]
+Switches the keypad (rightmost part of keyboard) between the standard mode
+(where it works as either arrow keys or numbers, depending on NumLock state)
+and the alternate mode, where it can be used for keybindings.
+You will prefer the alternate mode if you enjoy walking using the keypad
+keys.
+
+Example:
+#keypad on
+#bind Kpad7 nw
+#bind Kpad8 n
+#bind Kpad9 ne
+#bind Kpad4 w
+#bind Kpad5 out
+#bind Kpad6 e
+#bind Kpad1 sw
+#bind Kpad2 s
+#bind Kpad3 se
+#bind KpadMinus u
+#bind KpadPlus d
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~blank
+
+#blank [<boolean>]
+Toggles whether blank lines incoming from the MUD should be displayed or not.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~condump
+
+#condump <filename>
+Dumps all your scrollback buffer into file <filename>.  The dumped log will
+contain ANSI color codes, you will probably want to pipe it through the
+log2txt utility (bundled with KBtin) to get plain text log, or through
+log2html to get a nice log to put on your web page.
+
+Note: the text dumped is not the real log, but only the text you have in your
+scrollback.  This means, all your gags, substitutions, #showmes and the like
+will take effect on the log.  Use #log if you want exactly the text you
+received from the MUD.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~deathlog
+
+#deathlog <filename> <line of text>
+Appends a single line of text to <filename>.
+
+Example:
+#action {You killed %1.} {#deatlog kills {$1}}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~log
+
+#log <filename>
+Turns logging on.
+
+#log
+Disables logging.
+
+The log produced by this command is exactly what came from the MUD to you.
+No gags, no subsitutions, no spam generated by TinTin.  The log includes
+even the ANSI color codes -- if you want a plain-text log, pipe it through
+log2txt, log2html or similar.
+
+If the <filename> ends in ".gz", the log will get compressed on the fly.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~read
+
+#read <filename>
+Reads in a file, as if you typed in its contents.
+The text gets then processed by TinTin, so you can use this command to read
+in your config files containing aliases, actions, etc.  If you prefer to get
+your file sent directly to the MUD, use #textin instead.
+
+The first character in file, if it is a valid tintin-char, it becomes one.
+That is, a #char command is implied.
+
+You can split long lines -- any line that begins with whitespace is assumed
+to be the continuation of the last line -- as long as the result is no longer
+than 1024 characters.
+
+Example:
+#alias abc
+    {
+        #showme {First few squares:};
+        #loop 1,5
+        {
+            #math sqr {$0*$0};
+            #prepad sqr 2 {$sqr};
+            #showme { $0: $sqr}
+        }
+    }
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~verbose
+
+#verbose [<boolean>]
+Toggles whether #read should hide the loading process.  Equivalent to -v
+specified from command line at startup.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~textin
+
+#textin <filename>
+Reads in a file, passing it verbatim to the MUD.
+No variable substitutions, alias parsing, not even color-code substitution
+is done.  This command is useful to prevent TinTin from garbling your
+descriptions, mails, etc you painstakingly formatted.
+For reading a bunch of TinTin commands, use #read instead.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~unlink
+
+#unlink <filename>
+Deletes a file.
+This command cannot be abbreviated, you have to type its whole name.
+The command does the same work as "#sys rm -f <filename>", however it
+doesn't support wildcards (which can be good).
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~write
+
+#write <filename>
+Writes all your current TinTin aliases, actions, substitutes, antisubs,
+gags, variables, pathdirs, routes and binds to a file.
+Use this command to save your config as one file.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~writesession
+
+#writesession <filename>
+Writes all aliases, actions, substitutions, antisubs, gags, variables,
+pathdirs, routes and binds you added since the current session have been
+started.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~ctime
+
+#ctime
+Prints the current time in human-readable form.
+
+#ctime <dest.var>
+Sets <dest.var> to the current time, in human-readable form.
+
+#ctime <dest.var> <time>
+Converts <time> given as seconds since 1970 to human-readable form and
+stores it into <dest.var>.
+
+Example:
+#ctime NOW               -> NOW = "Mon Mar 26 01:08:29 2001"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~time
+
+#time
+Prints the current time as seconds since 1970.
+
+#time <dest.var>
+Sets <dest.var> to the number of seconds elapsed since 1970.
+
+#time <dest.var> <time>
+Parses the string <time> and converts it to seconds.  Allowed formats are:
+* "345"                                    assumed to be given in seconds
+* "1y 245d 15h 30m 4s"
+* "11 hours, 59 minutes and 45 seconds"
+
+Examples:
+#time now
+
+#action {The armoury will reset in %1.} {
+		#time armreset $1;
+		#math arm {$armreset-$now-1800};
+		#delay $arm {#showme Armoury reset in 30 minutes!}
+	}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~delay
+~event
+
+#delay
+#event
+Shows all pending timed events.
+
+#delay <time> <command>
+#event <time> <command>
+Adds a timed event to be executed after <time>.
+
+Example:
+#action {~~-1~7~%1 starts casting fireball at you} {#delay 4 {counter $1}}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~remove
+~unevent
+
+#remove <pattern>
+#unevent <pattern>
+Kills all timed events which _command_ (not delay!) matches <pattern>.
+
+Example:
+#action {~~-1~7~%1 leaves } {#unevent {counter $1}}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~tick
+
+#tick
+Shows time until next tick.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~tickon
+
+#tickon
+Turns the TinTin's ticker on.
+
+At 10 seconds to tick, you will receive a message "#10 SECONDS TO TICK!!!",
+and when the tick actually happens, the message is "#TICK!!!".  These
+messages are for commands (except log) same as if they came from the MUD --
+this means, you can #action them, #gag, etc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~tickoff
+
+#tickoff
+Disables TinTin's ticker.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~ticksize
+
+#ticksize <time>
+Sets the tick size to <time> seconds.  Use #tickon to turn the ticker on,
+and "#action {#TICK!!!}" to actually do something on ticks.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~end
+
+#end
+Exits TinTin.
+
+Note: if any sessions are still active, they will be #zap-ped first.
+
+On mosts systems, the INTR key (usually ^C) will have similar effect.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~session
+
+#session
+Lists all active sessions, marking whether they're active, snooped or logged.
+
+#session <name> <host> <port>
+Starts a new session <name> by starting a TCP-IP connection to <host> on
+<port>.  It's same as "#run <name> telnet <host> <port>" save for telnet's
+ugly way of handling local echo.
+
+Note: the <name> is required.
+
+Example:
+#ses t2t towers.angband.com 9999
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~run
+
+#run
+Lists all active sessions, marking whether they're active, snooped or logged.
+
+#run <name> <command>
+Starts a local <command> and handles if it was a remote MUD connection.
+A new pseudo-terminal is allocated to allow you to use programs which don't
+like to have their input/output redirected, like ssh.
+
+Note: the <name> is required.
+
+Examples:
+#run a bash
+#run sql sqlplus
+#run adventure /usr/games/advent
+#run t2t ssh charybda.icm.edu.pl;telnet towers.angband.com 9999
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~zap
+
+#zap
+Kills the current session.  If there is none, exit TinTin.
+
+Note: this command won't issue the 'quit', 'rent' or any similar command
+to the MUD.  Your connection will be simply terminated, which puts your
+character in linkdead state.
+
+Example:
+#action {Without warning, %1 stabs you from behind!} {:has no guts.;#zap}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~suspend
+
+#suspend
+Suspends TinTin (just like ^Z on mosts systems does).
+Type 'fg' to return.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~system
+
+#system <command>
+Executes <command> using /bin/sh.
+Sorry tcsh people, POSIX specifies /bin/sh as the only shell which is
+guaranteed to exist.  Anyway, tcsh sucks, switch to bash :P
+
+The command is executed _synchronously_, this means TinTin is suspended
+during the execution of your command.  The command's input is /dev/null,
+while the output is piped to TinTin -- because of this way, running full-
+screen programs using #system is not a good idea.  Use #shell for that.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~shell
+
+#shell <command>
+Executes <command> using /bin/sh.
+
+This command is the alternative to #system with support for full-screen
+programs.  Unfortunately, for ordinary line-based ones the output is lost.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~firstupper
+
+#firstupper <dest.var> <text>
+Converts <text> to lowercase, capitalizes first character, then stores it
+into <dest.var>.
+
+Examples:
+#firstu result wAreZ D00d       -> result = "Warez d00d"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~tolower
+
+#tolower <dest.var> <text>
+Converts <text> to lowercase and stores it into <dest.var>.
+
+Example:
+#action {You attack %1.} {#tolower victim {$1}}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~toupper
+
+#toupper <dest.var> <text>
+Converts <text> into ALL UPPERCASE and stores it into <dest.var>.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~substring
+
+#substr <dest.var> <l>[,<r>] <text>
+Cuts characters <l>..<r> from <text> and stores them into <dest.var>.
+
+Examples:
+#substr result 3 abcde          -> result = "c"
+#substr result 2,3 abcde        -> result = "bc"
+#substr result 4,1000 abcde     -> result = "de"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~prepad
+
+#prepad <dest.var> <n> <text>
+Stuffs <text> into a <n>-character wide field, prefixing it with spaces if
+necessary.  The text is truncated if it's longer that <n>.  The result of
+padding/truncating is then stored into <dest.var>.
+
+Examples:
+#prepad result 10 {Joe}                 -> result = "       Joe"
+#prepad result 10 {a very long name}    -> result = "a very lon"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~postpad
+
+#postpad <dest.var> <n> <text>
+Stores <n> first characters of <text> into <dest.var>, adding spaces after
+the end of <text> until it's <n> character long.
+
+Examples:
+#postpad result 10 {Joe}                -> result = "Joe       "
+#postpad result 10 {a very long name}   -> result = "a very lon"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~reverse
+
+#reverse <dest.var> <text>
+Stores the <text> into <dest.var> backwards.
+
+Example:
+#rev result abcde            -> result = "edcba"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~strip
+
+#strip <dest.var> <text>
+Replaces spaces in <text> by underscores, cuts <text> at the first comma.
+I don't give a fuck why this command exists, but the person who added it
+probably had a reason...
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~strlen
+
+#strlen <dest.var> <text>
+Stores the length of <text> into <dest.var>.
+
+inline #strlen <text>
+Evaluates to the length of <text>.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~decolorize
+
+#decolorize <dest.var> <text>
+Removes all the KBtin color codes from <text>.
+Example:
+#decolorize res {a ~~-1~2~le~~-1~10~av~~-1~6~es~~-1~2~-c~~-1~10~ov~~-1~6~er~~-1~2~ed~~-1~10~ h~~-1~6~el~~-1~2~me~~-1~10~t}
+                             -> res = "a leaves-covered helmet"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~atoi
+
+#atoi <dest.var> <text>
+Converts the initial part of <text> to a number, ignoring the rest.
+Examples:
+#atoi res {42a}    -> res = "42"
+#atoi res {blah}   -> res = ""
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~help
+
+#help
+Shows you the help index.
+
+#help <command>
+Gives you help on <command>.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~info
+
+#info
+Gives you some statistics about your config.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~messages
+
+#messages
+Shows you what kinds of messages are shown and what don't.
+
+#messages <type> [<boolean>]
+Toggles displaying messages about <type>.
+Types of messages supported by this command:
+* aliases
+* actions
+* substitutes
+* events (#delay-ed commands)
+* highlights
+* variables
+* routes
+* gotos
+* binds
+* #system
+* errors
+* all - all of the above
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~news
+
+Gives you an idea about latest KBtin improvements.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~version
+
+Shows the version number.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~<number>
+
+#<n> <command>
+Repeats <command> <n> times.
+
+Example:
+#1000 shout I am a dumb spammer!
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~if/elif/else
+
+#if <expr> <command> [#elif <expr2> <command2>[...]] [#else <command3>]
+Calculates expression <expr>, if it evaluates to a non-zero value executes
+<command>.  If <expr> is zero, next #elif clause is evaluated (if present).
+Multiple #elif clauses can be used.  If all expressions evaluate to 0, the
+command after #else is executed.
+Note: if an expression contains spaces, it has to be enclosed in curly
+braces ('{' and '}'), even if it is already enclosed in square braces as in
+string comparison, see below.
+
+Examples:
+#action {The attack breaks your concentration} {#if {$autofire} cast fireball}
+#if $hp*4<$maxhp {#var hpcolor ~~-1~4~} #elif $hp*2<$maxhp {#var hpcolor ~~-1~6~}
+ #elif $hp*4>$maxhp*3 {#var hpcolor ~~-1~14~} #elif $hp<$maxhp {#var hpcolor
+ ~~-1~10~} #else {#var hpcolor ~~-1~15~}
+#act {~~-1~7~%1 invited you to join h} {#if {#find $1 {$SoU $CoU}} {party join $1}}
+
+Comparing strings:
+To compare values as strings, you have to enclose the comparison in square
+braces ('[' and ']').  Valid string comparison operators are:
+* == equals
+* != not equals
+* =~ matches with '*' wildcards
+* !~ not matches with '*'s
+
+Examples:
+#action {~~-1~12~%1 tells you} {#if [$1!=Rauko] tell $1 bugger off, fool}
+#action {~~-1~7~%1 is bleeding} {#if {[$1=Elven *]} kill}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~loop
+
+#loop <a>,<b> <command>
+For all numbers from <a> to <b>, executes <command>.  During the execution,
+the current loop index can be accessed as $0 (for the same reason,
+positional paremeter $0 is lost).
+If <a> is greater than <b>, the loop iterates with a step of -1.
+
+Example:
+#loop 1,$nhorses {get all from corpse into panniers $0}
+invis players;#loop 1,10 {^:$0: there is more than one of me!}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~match
+
+#match <text> <line> <command> [#elif/#else ...]
+If <text> can be found in the <line>, <command> is executed.  Both <text>
+and <command> can contain positional variables %0..%9, which will be filled
+according to the text in <line> which matched a given variable in <text>.
+It is usually safer to use $0..$9 instead of %0..%9 as $ removes all
+semicolons from the variables.
+In case of no match, <command2> is executed.
+
+Examples:
+#match {Elven %0} {$Victim} {#showme {Next elven scum to die: $0}}
+#action {~~-1~11~%1(%2)} {#match {%1 and %2} {~4~$2~-1~}
+                         {#explode exits {, } {~2~$1~-1~, ~2~$2~-1~}}
+                      #else
+                         {#var exits ~4~$2~-1~}}
+                     }
+Note:
+to use positional variables from outside #match (for example, if #match is a
+part of an alias or action), you have to use multiple $$s.
+Example:
+ #alias a {#match {[%1]} {$0} {#showme ~4~$$1~-1~ ~2~$1~-1~}}
+ #alias a {#match {[%1]} {$0} {#showme {~2~$1~-1~ ~2~$$1~-1~ ~4~$$$1~-1~}}}
+ #alias a {#match {[%1]} {$0} {#showme {{$1 ~2~$$1~-1~ ~2~$$$1~-1~ ~4~$$$$1~-1~}}}}
+ ~2~Green~-1~ variables will use the values from #match, ~4~red~-1~ ones -- from #alias.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~strcmp
+
+#strcmp <string1> <string2> <command> [#elif/#else ...]
+If <string1> is equal to <string2>, execute <command>, otherwise do the
+elif/else clause(s).  It's a way to avoid the limitations of #if [a==b],
+as the only character that can damage things is '}'.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~goto
+~>
+
+#goto <a> <b>
+a>b
+Travel from location <a> to <b> using the paths defined using #route
+commands.  If more than one way is possible between <a> and <b>, the
+shortest one will be chosen.
+At the end, the "loc" variable will be set to <b>.
+
+>b
+Travel from location stored in $loc to <b>.
+
+Examples:
+#goto rh mt
+rh>mt
+
+It is not necessary to give routes every each pair of locations, as TinTin
+is capable of combining the paths for you.  For example, if you defined the
+following paths:
+#route a b {alias1} 5
+#route b c {alias2} 10
+#route a d {alias3} 3
+#route d c {alias4} 20
+and then type "a>c", KBtin will combine alias1 and alias2, as the path
+a>b>c (length=15) is shorter than a>d>c (length=23).
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~route
+
+#route [<a> [<b>]]
+Lists all routes, all routes going from <a>, or the route from <a> to <b>.
+Hint: if you want all the routes going _to_ b, type "#route * b".
+
+#route <a> <b> <commands> [<distance> [{condition}]]
+Teaches KBtin that to go from <a> to <b> you have to type <commands>.
+The <distance> is the relative length of these <commands> - usually it's
+just their length, but in some cases you may want to assign a higher values
+to routes where it is easy to be attacked, etc.  If no distance is given,
+it defaults to 10.
+If a <condition> is specified, this means the route is not always available.
+
+Examples:
+#ro li da {do 5n,2w,2n,30w,2n} 41
+#ro da li {do 2s,30e,2s,2e,5s} 41
+#ro we mo {do l inside well,2e,search walls,e,7s} 12 {[$prof!=minion]}
+#ro cg lo {do 3s,2sw,3s,e,2n,3e} 14
+#ro lo cg {do 3w,2s,w,3n,2ne,3n} 14 {$align>0}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~unroute
+
+#unroute <pattern a> <pattern b>
+Kills all direct routes whose starting location matches <pattern a> and
+destination matches <pattern b>.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~dogoto
+
+#dogoto <
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~killall
+
+#killall
+Removes all aliases, substitutions, antisubs, actions, variables, routes,
+binds, highlights, etc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~nop
+~remark
+
+#nop [<any text>]
+#remark [<any text>]
+Do nothing.  Use these commands as comments.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~map
+
+#map <dir>
+Adds <dir> to the end of your current path, if there exists a pathdir for
+<dir>.  If there is no such pathdir, nothing happens.
+
+Don't use this command to follow the way _you_ go.  This is already done as
+long as your movement commands are among your #pathdirs.  Use it in case of
+following a leader, victim, etc.
+
+Example:
+#action {You follow your leader %1.} {#map $1}
+
+Note:
+TinTin auto-adds only simple commands line "n" or "nw" listed among
+pathdirs, and those commands executed as a part of a speedwalk or one of
+TinTin's compound commands.  In-mud compound commands can vary, thus there
+is no way TinTin can know about commands like "do n,nw,3n" -- you have to
+add them yourself using #map.  Hint: #explode and #atoi can be your friends.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~mark
+
+#mark
+Clears your current path, and marks the place you return to.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~path
+
+#path
+Shows your current path.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~unmap
+
+#unmap
+Removes last move from your path.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~pathdir
+
+#pathdir <dir> <return>
+Tells TinTin to add <dir> to the end of your path every time you type that
+command.  When you'll use the #return command, TinTin will use <return> to
+move you back.
+
+Examples:
+#pathdir n s
+#pathdir s n
+#pathdir w e
+#pathdir e w
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~unpathdir
+
+#unpathdir <pattern>
+Deletes all pathdirs matching <pattern>.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~return
+
+#return
+Goes a step back through your path.
+
+#return all
+Returns all the way back, until most recent #mark.  Also, the path
+remembered is limited to 256 (customizable) moves.
+
+#return <num>
+Goes <num> steps back.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~savepath
+
+#savepath <alias>
+Stores the current path as <alias>.
+
+This command is left only for compatibility, as the same functionality (and
+much more!) can be achieved by using the $PATH pseudovariable and
+list-oriented commands, for example: "#implode alias {;} {$PATH}".
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~margins
+
+#margins <left> <right>
+Highlights characters <left>..<right> on the input box, to make writing
+mails, etc easier.
+Use the command again to disable the highlight.
+
+Example:
+#margins 64 75
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~status
+
+#status <text>
+Puts <text> on the status bar.
+
+#status
+Hides the status bar.
+
+Note:
+The <text> is treated as a static text, this means you have to use #status
+every time the data you are going to display on the status bar have been
+changed.
+
+Example:
+#status {HP:$hp EP:$ep    Currently killing:$victim}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~math
+
+#math <dest.var> <expression>
+Calculates the value of <expression> and stores the result into <dest.var>.
+
+Operators                    Function
+------------------------------------------------
+!                            logical not
+*                            integer multiply
+/                            integer divide
++                            integer addition
+-                            integer subtraction
+>                            greater than
+>=                           greater than or equal
+<                            less than
+<=                           less than or equal
+= or ==                      equals
+!=                           not equal
+& or &&                      boolean and
+| or ||                      boolean or
+
+Examples:
+#math maxhp {40+$level*10 - ($level>19)*($level-19)*10}
+#action {You killed %1.} {#math frags $frags+1}
+#math statuslen {(#strlen $victim)+35}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~random
+
+#random <dest.var> <min>,<max>
+inline (#random <min>,<max>)
+Sets <dest.var> to a random number within range of <min>..<max>.
+
+Example:
+#random result 1,3               -> result = 1, 2 or 3
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~variable
+
+#variable [<pattern>]
+Lists all variables, or only those which match <pattern>.
+
+#variable <name> <value>
+Stores <value> into variable <name>.
+You can later use "$name" which means "value".  An alternate syntax is
+"${name}", which allows more complex variable names.
+
+KBtin provides you with several pseudo-variables which can be queried using
+normal variable syntax, but don't show on the variables list:
+* secstotick       - seconds till next tick
+* COLS, LINES      - screen size
+* PATH             - the current path
+
+Note: several commands like #alias, #action, #substitute and the like don't
+substitute any variables in arguments enclosed in curly braces.  To override
+this behavior, use two dollar signs instead of one ($$var instead of $var),
+or to be more general: add one dollar sign for every level of braces.
+Example:
+#alias /hunt {#action {$Victim leaves %1} {$1}}
+    This will cause you to follow the person whose name is specified in
+    $Victim.  If $Victim changes, you will start following another person.
+#alias /hunt {#action {$$Victim leaves %1} {$1}}
+    This will follow the person whose name was the $Victim in the moment you
+    typed '/hunt'.  Any further changes to $Victim don't apply unless you
+    type '/hunt' again.
+#alias /hunt {#action {$$$Victim leaves %1} {$1}}
+    Typing '/hunt' causes you to follow the person whose name was $Victim in
+    the moment of defining the /hunt alias.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~unvariable
+
+#unvariable <pattern>
+Removes all variables whose name matches <pattern>.
+
+Example:
+#unvar tell*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~retab
+~tablist
+~tabadd
+~tabdelete
+Tab-completion is disabled in KBtin.  The current usage of the Tab key is more
+convenient in my opinion.  If you disagree, lemme know, we can think of a
+better solution.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~*end*

@@ -17,6 +17,7 @@
 
 #include "tintin.h"
 #include <stdlib.h>
+#include <ctype.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -28,7 +29,9 @@ extern void kill_routes(struct session *ses);
 extern void check_all_promptactions(char *line, struct session *ses);
 extern void prompt(struct session *ses);
 extern void tintin_printf(struct session *ses,char *format,...);
-extern void user_done(void);
+extern void syserr(char *msg);
+extern struct hashtable* init_hash();
+extern void kill_hash(struct hashtable* h);
 
 
 /***************************************/
@@ -39,11 +42,7 @@ struct listnode *init_list(void)
     struct listnode *listhead;
 
     if ((listhead = (struct listnode *)(malloc(sizeof(struct listnode)))) == NULL)
-    {
-        fprintf(stderr, "couldn't alloc listhead\n");
-        user_done();
-        exit(1);
-    }
+        syserr("couldn't alloc listhead");
     listhead->next = NULL;
     return (listhead);
 }
@@ -56,10 +55,7 @@ void kill_list(struct listnode *nptr)
     struct listnode *nexttodel;
 
     if (nptr == NULL)
-    {
-        fprintf(stderr, "NULL PTR\n");
-        return;
-    }
+        syserr("NULL PTR");
     nexttodel = nptr->next;
     free(nptr);
 
@@ -72,6 +68,28 @@ void kill_list(struct listnode *nptr)
         free(nptr);
     }
 }
+
+
+/***********************************************************/
+/* zap only the list structure, without freeing the string */
+/***********************************************************/
+void zap_list(struct listnode *nptr)
+{
+    struct listnode *nexttodel;
+
+    if (nptr == NULL)
+        syserr("NULL PTR");
+    nexttodel = nptr->next;
+    free(nptr);
+
+    for (nptr = nexttodel; nptr; nptr = nexttodel)
+    {
+        nexttodel = nptr->next;
+        free(nptr);
+    }
+}
+
+
 /********************************************************************
 **   This function will clear all lists associated with a session  **
 ********************************************************************/
@@ -82,14 +100,14 @@ void kill_all(struct session *ses, int mode)
     case CLEAN:
         if (ses != NULL)
         {
-            kill_list(ses->aliases);
-            ses->aliases = init_list();
+            kill_hash(ses->aliases);
+            ses->aliases = init_hash();
             kill_list(ses->actions);
             ses->actions = init_list();
             kill_list(ses->prompts);
             ses->prompts = init_list();
-            kill_list(ses->myvars);
-            ses->myvars = init_list();
+            kill_hash(ses->myvars);
+            ses->myvars = init_hash();
             kill_list(ses->highs);
             ses->highs = init_list();
             kill_list(ses->subs);
@@ -98,14 +116,16 @@ void kill_all(struct session *ses, int mode)
             ses->antisubs = init_list();
             kill_list(ses->path);
             ses->path = init_list();
-            kill_list(ses->pathdirs);
-            ses->pathdirs = init_list();
+            kill_hash(ses->binds);
+            ses->binds = init_hash();
+            kill_hash(ses->pathdirs);
+            ses->pathdirs = init_hash();
             kill_routes(ses);
             tintin_printf(ses,"#Lists cleared.");
             prompt(NULL);
         }
         else
-        {
+        {       /* can't happen */
             tintin_printf(0,"#Can't clean the common lists (yet).");
             prompt(NULL);
         }
@@ -114,15 +134,16 @@ void kill_all(struct session *ses, int mode)
     case END:
         if (ses != NULL)
         {
-            kill_list(ses->aliases);
+            kill_hash(ses->aliases);
             kill_list(ses->actions);
             kill_list(ses->prompts);
-            kill_list(ses->myvars);
+            kill_hash(ses->myvars);
             kill_list(ses->highs);
             kill_list(ses->subs);
             kill_list(ses->antisubs);
             kill_list(ses->path);
-            kill_list(ses->pathdirs);
+            kill_hash(ses->pathdirs);
+            kill_hash(ses->binds);
             kill_routes(ses);
         }				/* If */
         break;
@@ -144,6 +165,26 @@ struct listnode *copy_list(struct listnode *sourcelist,int mode)
     return (resultlist);
 }
 
+/******************************************************************/
+/* compare priorities of a and b in a semi-lexicographical order: */
+/* strings generally sort in ASCIIbetical order, however numbers  */
+/* sort according to their numerical values.                      */
+/******************************************************************/
+int prioritycmp(char *a, char *b)
+{
+    while(*a && *b && *a==*b)
+    {
+        a++;
+        b++;
+    }
+    if (!a && !b)
+        return 0;
+    if(isdigit(*a)&&isdigit(*b))
+        return (strtoul(a,0,10)<strtoul(b,0,10))? -1:1;
+    else
+        return (*a<*b)? -1:1;
+}
+
 /*****************************************************************/
 /* create a node containing the ltext, rtext fields and stuff it */
 /* into the list - in lexicographical order, or by numerical     */
@@ -154,11 +195,7 @@ void insertnode_list(struct listnode *listhead, char *ltext, char *rtext, char *
     struct listnode *nptr, *nptrlast, *newnode;
 
     if ((newnode = (struct listnode *)(malloc(sizeof(struct listnode)))) == NULL)
-    {
-        user_done();
-        fprintf(stderr, "couldn't malloc listhead");
-        exit(1);
-    }
+        syserr("couldn't malloc listhead");
     newnode->left = (char *)malloc(strlen(ltext) + 1);
     newnode->right = (char *)malloc(strlen(rtext) + 1);
     newnode->pr = prtext? (char *)malloc(strlen(prtext) + 1) : 0;
@@ -173,18 +210,18 @@ void insertnode_list(struct listnode *listhead, char *ltext, char *rtext, char *
     case PRIORITY:
         while ((nptrlast = nptr) && (nptr = nptr->next))
         {
-            if (strcmp(prtext, nptr->pr) < 0)
+            if (prioritycmp(prtext, nptr->pr) < 0)
             {
                 newnode->next = nptr;
                 nptrlast->next = newnode;
                 return;
             }
-            else if (strcmp(prtext, nptr->pr) == 0)
+            else if (prioritycmp(prtext, nptr->pr) == 0)
             {
                 while ((nptrlast) && (nptr) &&
-                        (strcmp(prtext, nptr->pr) == 0))
+                        (prioritycmp(prtext, nptr->pr) == 0))
                 {
-                    if (strcmp(ltext, nptr->left) <= 0)
+                    if (prioritycmp(ltext, nptr->left) <= 0)
                     {
                         newnode->next = nptr;
                         nptrlast->next = newnode;
@@ -261,43 +298,6 @@ struct listnode *searchnode_list(struct listnode *listhead, char *cptr)
            else if(i>0)
            return NULL;
          */
-    }
-    return NULL;
-}
-/********************************************************/
-/* search for a node that has cptr as a beginning       */
-/* return: ptr to node on succes / NULL on failure      */
-/* Mods made by Joann Ellsworth - 2/2/94                */
-/********************************************************/
-struct listnode *searchnode_list_begin(struct listnode *listhead, char *cptr, int mode)
-{
-    int i;
-
-    switch (mode)
-    {
-    case PRIORITY:
-        while ((listhead = listhead->next))
-        {
-            if ((i = strncmp(listhead->left, cptr, strlen(cptr))) == 0 &&
-                    (*(listhead->left + strlen(cptr)) == ' ' ||
-                     *(listhead->left + strlen(cptr)) == '\0'))
-                return listhead;
-        }
-        return NULL;
-        break;
-
-    case ALPHA:
-        while ((listhead = listhead->next))
-        {
-            if ((i = strncmp(listhead->left, cptr, strlen(cptr))) == 0 &&
-                    (*(listhead->left + strlen(cptr)) == ' ' ||
-                     *(listhead->left + strlen(cptr)) == '\0'))
-                return listhead;
-            else if (i > 0)
-                return NULL;
-        }
-        return NULL;
-        break;
     }
     return NULL;
 }
@@ -395,11 +395,7 @@ void addnode_list(struct listnode *listhead, char *ltext, char *rtext, char *prt
     struct listnode *newnode;
 
     if ((newnode = (struct listnode *)malloc(sizeof(struct listnode))) == NULL)
-    {
-        user_done();
-        fprintf(stderr, "couldn't malloc listhead");
-        exit(1);
-    }
+        syserr("couldn't malloc listhead");
     newnode->left = (char *)malloc(strlen(ltext) + 1);
     newnode->right = (char *)malloc(strlen(rtext) + 1);
     if (prtext)

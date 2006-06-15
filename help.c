@@ -47,7 +47,7 @@ FILE *check_file(char *filestring)
 #endif
 }
 
-void help_command(char *arg)
+void help_command(char *arg,struct session *ses)
 {
     FILE *myfile=NULL;
     char text[BUFFER_SIZE], line[BUFFER_SIZE], filestring[BUFFER_SIZE];

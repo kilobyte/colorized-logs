@@ -1,7 +1,36 @@
+0.4.4:
+*	#dogoto
+*	bugfix: #ticksize 0, #ticksize 123blah
+*	bugfix: #gag with invalid syntax was handled incorrectly
+------priorities-------
+
+0.4.3:
+*	action/promptaction priorities are sorted in a semi-lexicographic
+	order, so numbers sort properly
+*	new #message type: error (to show error messages even if they would
+	be otherwise hidden)
+*	#verbose
+*	the following flags are now local to sessions: verbose, verbatim,
+	blank, echo, speedwalk, togglesub, presub and the #message toggles
+*	csh-style "!!" history commands will now obey #verbatim
+
+0.4.2:
+*	bugfix: #writeses doesn't forget about pathdirs anymore
+*	bugfix: #killall doesn't forget about binds (+plus a memory leak)
+*	hash tables instead of lists for: variables, aliases, binds and
+	pathdirs
+*	#unpathdir
+*	bugfix: lines of background color no longer appear on the screen
+*	the list of commands is no longer hardcoded as a looong list of
+	is_abrev()s; we use a generated hash table of code pointers instead
+*	KBtin_help is now distributed in uncompressed form
+*	protection against division by zero in #math and friends
+
 0.4.1:
-*	#cr doesn't send two lines instead of one
+*	bugfix: #cr doesn't send two lines instead of one any longer
 *	#atoi
 *	#verbatim <line>
+*	#strcmp
 
 0.4.0:
 *	TELNET protocol support.  KBtin understands the following options:
@@ -10,7 +39,9 @@
 	-	TERMINAL-TYPE     (type sent is "KBtin")
 	-	NAWS              (window size updated every SIGWINCH)
 *	catching SIGCONT to redraw screen after being stopped
-*	--More-- kludge
+*	--More-- kludge.  We now hide the input line by default once the
+	remote end tells us to turn echo off, to protect passwords on
+	non-English MUDs.
 *	"make install" will install NEWS and KBtin_help.gz
 *	TERM environment option in #run passed as "KBtin"
 

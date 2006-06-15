@@ -36,7 +36,6 @@ extern void substitute_vars(char *arg, char *result);
 extern void tintin_printf(struct session *ses, char *format, ...);
 
 extern int hinum;
-extern int mesvar[7];
 extern inline int getcolor(char **ptr,int *color,const int flag);
 extern inline int setcolor(char *txt,int c);
 
@@ -124,7 +123,7 @@ int get_high(char *hig)
 /***************************/
 /* the #highlight command  */
 /***************************/
-void parse_high(char *arg, struct session *ses)
+void highlight_command(char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
     struct listnode *myhighs, *ln;
@@ -166,7 +165,7 @@ void parse_high(char *arg, struct session *ses)
         {
             if (!*right)
             {
-                if (mesvar[4])
+                if (ses->mesvar[4] || ses->mesvar[11])
                     tintin_printf(ses,"#Highlight WHAT?");
                 return;
             }
@@ -175,7 +174,7 @@ void parse_high(char *arg, struct session *ses)
             sprintf(tmp3,"%d",strlen(right));
             insertnode_list(myhighs, right, left,tmp3,PRIORITY);
             hinum++;
-            if (mesvar[4])
+            if (ses->mesvar[4])
                 tintin_printf(ses,"#Ok. {%s} is now highlighted %s.", right, left);
         }
         else
@@ -225,13 +224,13 @@ void unhighlight_command(char *arg, struct session *ses)
     substitute_myvars(result, left, ses);
     while ((ln = search_node_with_wild(temp, left)) != NULL)
     {
-        if (mesvar[4])
+        if (ses->mesvar[4])
             tintin_printf(ses, "Ok. {%s} is no longer %s.", ln->left, ln->right);
         deletenode_list(myhighs, ln);
         flag = TRUE;
         /*temp = ln;*/
     }
-    if (!flag && mesvar[4])
+    if (!flag && ses->mesvar[4])
         tintin_printf(ses, "#THAT HIGHLIGHT IS NOT DEFINED.");
 }
 

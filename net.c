@@ -145,7 +145,6 @@ void write_line_mud(char *line, struct session *ses)
 
     if (write(ses->socket, outtext, strlen(outtext)) == -1)
         syserr("write in write_to_mud");
-    ses->idle_since=time(0);
 }
 
 
@@ -210,7 +209,6 @@ int read_buffer_mud(char *buffer, struct session *ses)
             	i-=2;
             	didget-=2;
             	cpsource+=2;
-/*            	*cpdest++=164;*/
             	if (!i)
             		ses->ga=1;
             	break;

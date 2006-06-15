@@ -23,121 +23,13 @@
 #include <unistd.h>
 #endif
 
+#include "commands.h"
+typedef void (*t_command)(char*, struct session*);
+typedef struct session *(*t_c_command)(char*, struct session*);
+
 struct session *parse_tintin_command(char *command, char *arg,struct session *ses);
 void do_speedwalk(char *cp, struct session *ses);
 char *get_arg_with_spaces(char *s, char *arg);
-extern struct listnode *searchnode_list_begin(struct listnode *listhead, char *cptr, int mode);
-
-extern void            action_command(char *arg, struct session *ses);
-extern struct session *all_command(char *arg, struct session *ses);
-extern struct session *read_command(char *filename, struct session *ses);
-extern struct session *session_command(char *arg,struct session *ses);
-extern struct session *status_command(char*arg,struct session *ses);
-extern struct session *run_command(char *arg,struct session *ses);
-extern void            unhighlight_command(char *arg, struct session *ses);
-extern void            promptaction_command(char *arg, struct session *ses);
-extern void            unpromptaction_command(char *arg, struct session *ses);
-extern void            write_command(char *filename, struct session *ses);
-extern void            writesession_command(char *filename, struct session *ses);
-extern struct session *zap_command(struct session *ses);
-extern void            alias_command(char *arg, struct session *ses);
-extern void            unalias_command(char *arg, struct session *ses);
-extern void            bell_command(struct session *ses);
-extern void            bind_command(char *arg, struct session *ses);
-extern void            unbind_command(char *arg, struct session *ses);
-extern void            blank_command(char *arg,struct session *ses);
-extern void            char_command(char *arg,struct session *ses);
-extern void            check_insert_path(char *command, struct session *ses, int force);
-extern void            condump_command(char *arg, struct session *ses);
-extern void            cr_command(struct session *ses);
-extern void            ctime_command(char *arg,struct session *ses);
-extern void            deathlog_command(char *arg, struct session *ses);
-extern void            delay_command(char *arg, struct session *ses);
-extern void            deleteitems_command(char *arg,struct session *ses);
-extern void            display_info(struct session *ses);
-extern void            echo_command(char *arg,struct session *ses);
-extern void            end_command(char *command, struct session *ses);
-extern void            explode_command(char *arg, struct session *ses);
-extern void            finditem_command(char *arg,struct session *ses);
-extern void            firstupper_command(char *arg,struct session *ses);
-extern void            foreach_command(char *arg,struct session *ses);
-extern void            getitem_command(char *arg,struct session *ses);
-extern void            goto_command(char *arg,struct session *ses);
-extern void            help_command(char *arg);
-extern void            history_command(struct session *ses);
-extern void            if_command(char *line, struct session *ses);
-extern void            ignore_command(char *arg,struct session *ses);
-extern void            implode_command(char *arg, struct session *ses);
-extern void            isatom_command(char *line,struct session *ses);
-extern void            keypad_command(char *arg,struct session *ses);
-extern void            kill_all(struct session *ses, int mode);
-extern void            listlength_command(char *arg,struct session *ses);
-extern void            deathlog_command(char *arg, struct session *ses);
-extern void            log_command(char *arg, struct session *ses);
-extern void            loop_command(char *arg, struct session *ses);
-extern void            map_command(char *arg,struct session *ses);
-extern void            unmap_command(struct session *ses);
-extern void            showpath_command(struct session *ses);
-extern void            margins_command(char *arg,struct session *ses);
-extern void            mark_command(struct session *ses);
-extern void            math_command(char *line, struct session *ses);
-extern void            message_command(char *arg,struct session *ses);
-extern void            mudcolors_command(char *arg,struct session *ses);
-extern void            news_command(struct session *ses);
-extern void            parse_antisub(char *arg, struct session *ses);
-extern void            parse_high(char *arg, struct session *ses);
-extern void            parse_sub(char *arg,int gag,struct session *ses);
-extern void            path_command(char *arg, struct session *ses);
-extern void            savepath_command(char *arg, struct session *ses);
-extern void            pathdir_command(char *arg,struct session *ses);
-extern void            postpad_command(char *arg,struct session *ses);
-extern void            prepad_command(char *arg,struct session *ses);
-extern void            presub_command(char *arg,struct session *ses);
-extern void            random_command(char *arg,struct session *ses);
-extern void            read_file(char *arg, struct session *ses);
-extern void            return_command(char *arg,struct session *ses);
-extern void            reverse_command(char *arg,struct session *ses);
-extern void            route_command(char *arg,struct session *ses);
-extern void            unroute_command(char *arg,struct session *ses);
-extern void            savepath_command(char *arg, struct session *ses);
-extern void            showme_command(char *arg,struct session *ses);
-extern void            snoop_command(char *arg,struct session *ses);
-extern void            speedwalk_command(char *arg,struct session *ses);
-extern void            splitlist_command(char *arg,struct session *ses);
-extern void            strip_command(char *arg,struct session *ses);
-extern void            strlen_command(char *arg, struct session *ses);
-extern void            substr_command(char *arg,struct session *ses);
-extern void            shell_command(char *arg,struct session *ses);
-extern void            system_command(char *arg,struct session *ses);
-extern void            tick_command(struct session *ses);
-extern void            tickoff_command(struct session *ses);
-extern void            tickon_command(struct session *ses);
-extern void            ticksize_command(char *arg,struct session *ses);
-extern void            ctime_command(char *arg,struct session *ses);
-extern void            ctime_command(char *arg,struct session *ses);
-extern void            time_command(char *arg,struct session *ses);
-extern void            togglesubs_command(char *arg,struct session *ses);
-extern void            tolower_command(char *arg,struct session *ses);
-extern void            toupper_command(char *arg,struct session *ses);
-extern void            unaction_command(char *arg, struct session *ses);
-extern void            unalias_command(char *arg, struct session *ses);
-extern void            unantisubstitute_command(char *arg, struct session *ses);
-extern void            unbind_command(char *arg, struct session *ses);
-extern void            unlink_file(char *arg, struct session *ses);
-extern void            unmap_command(struct session *ses);
-extern void            unroute_command(char *arg,struct session *ses);
-extern void            unsubstitute_command(char *arg,int gag,struct session *ses);
-extern void            unvar_command(char *arg,struct session *ses);
-extern void            var_command(char *arg,struct session *ses);
-extern void            verbatim_command(char *arg,struct session *ses);
-extern void            version_command(void);
-extern void            remove_command(char *arg, struct session *ses);
-extern void            dosubstitutes_command(char *arg,struct session *ses);
-extern void            dohighlights_command(char *arg,struct session *ses);
-extern void            sortlist_command(char *arg,struct session *ses);
-extern void            match_command(char *arg, struct session *ses);
-extern void            decolorize_command(char *arg,struct session *ses);
-extern void            atoi_command(char *arg,struct session *ses);
 
 extern int is_abrev(char *s1, char *s2);
 extern int is_speedwalk_dirs(char *cp);
@@ -148,17 +40,21 @@ extern void write_line_mud(char *line, struct session *ses);
 extern int do_goto(char *txt,struct session *ses);
 extern void do_out_MUD_colors(char *line);
 extern struct completenode *complete_head;
-extern struct listnode *searchnode_list(struct listnode *listhead, char *cptr);
 extern char *space_out(char *s);
 extern char *get_arg_in_braces(char *s,char *arg,int flag);
 void write_com_arg_mud(char *command, char *argument, int nsp, struct session *ses);
 void prompt(struct session *ses);
+extern char* get_hash(struct hashtable *h, char *key);
+extern char* set_hash_nostring(struct hashtable *h, char *key, char *value);
+extern struct hashtable *init_hash();
+extern void end_command(char *arg, struct session *ses);
+extern void unlink_command(char *arg, struct session *ses);
+extern void check_insert_path(char *command, struct session *ses, int force);
 
 extern struct session *sessionlist, *activesession, *nullsession;
 extern pvars_t *pvars;	/* the %0, %1, %2,....%9 variables */
 extern char tintin_char, verbatim_char;
-extern int term_echoing, verbatim;
-extern int speedwalk;
+extern int term_echoing;
 extern char *get_arg_stop_spaces(char *s, char *arg);
 extern char *get_command(char *s, char *arg);
 extern char *cryptkey;
@@ -167,15 +63,14 @@ extern void tstphandler(int sig);
 int in_alias=0;
 extern int in_read;
 extern int aborting;
+struct hashtable *commands, *c_commands;
 
 /**************************************************************************/
 /* parse input, check for TINTIN commands and aliases and send to session */
 /**************************************************************************/
 struct session *parse_input(char *input,int override_verbatim,struct session *ses)
 {
-    char command[BUFFER_SIZE], arg[BUFFER_SIZE], result[BUFFER_SIZE];
-    char *a,*b;
-    struct listnode *ln;
+    char command[BUFFER_SIZE], arg[BUFFER_SIZE], result[BUFFER_SIZE], *al;
     int nspaces;
 
     if (!ses->server_echo && activesession == ses)
@@ -196,7 +91,7 @@ struct session *parse_input(char *input,int override_verbatim,struct session *se
         verbatim_command("",ses);
         return ses;
     }
-    if (verbatim && !override_verbatim && (ses!=nullsession))
+    if (ses->verbatim && !override_verbatim && (ses!=nullsession))
     {
         write_line_mud(input, ses);
         return ses;
@@ -267,7 +162,7 @@ struct session *parse_input(char *input,int override_verbatim,struct session *se
     
         if (*command == tintin_char)
             ses = parse_tintin_command(command + 1, arg, ses);
-        else if ((ln = searchnode_list_begin(ses->aliases, command, ALPHA)) != NULL)
+        else if ((al = get_hash(ses->aliases, command)))
         {
             int i;
             char *cpsource;
@@ -280,11 +175,11 @@ struct session *parse_input(char *input,int override_verbatim,struct session *se
             in_alias=1;
             lastpvars=pvars;
             pvars=&vars;
-            strcpy(arg, ln->right); /* alias can #unalias itself */
+            strcpy(arg, al); /* alias can #unalias itself */
             ses = parse_input(arg,1,ses);
             pvars=lastpvars;
         }
-        else if (speedwalk && !*arg && is_speedwalk_dirs(command))
+        else if (ses->speedwalk && !*arg && is_speedwalk_dirs(command))
             do_speedwalk(command, ses);
         else
 #ifdef GOTO_CHAR
@@ -376,14 +271,13 @@ int do_goto(char *txt,struct session *ses)
     else
     {
         char tmp[BUFFER_SIZE];
-        struct listnode *ln;
 
-        if (!(ln=searchnode_list(ses->myvars, "loc"))||(!*ln->right))
+        if (!(ch=get_hash(ses->myvars, "loc"))||(!*ch))
         {
             tintin_printf(ses,"#Cannot goto from $loc, it is not set!");
             return 1;
         }
-        sprintf(tmp,"{%s} {%s}",ln->right,txt+1);
+        sprintf(tmp,"{%s} {%s}",ch,txt+1);
         goto_command(tmp,ses);
     }
     return 1;
@@ -395,6 +289,7 @@ int do_goto(char *txt,struct session *ses)
 struct session *parse_tintin_command(char *command, char *arg,struct session *ses)
 {
     struct session *sesptr;
+    char *func;
 
     for (sesptr = sessionlist; sesptr; sesptr = sesptr->next)
         if ((strcmp(sesptr->name, command) == 0)&&(sesptr!=nullsession))
@@ -430,372 +325,15 @@ struct session *parse_tintin_command(char *command, char *arg,struct session *se
         return (ses);
     }
         
-    else if (is_abrev(command, "verbatim")) /* possible in blah;#verb */
-        verbatim_command(arg, ses);
-        
-    else if (is_abrev(command, "action"))
-        action_command(arg, ses);
-
-    else if (is_abrev(command, "alias"))
-        alias_command(arg, ses);
-
-    else if (is_abrev(command, "all"))
-        ses = all_command(arg, ses);
-
-    else if (is_abrev(command, "antisubstitute"))
-        parse_antisub(arg, ses);
-
-    else if (is_abrev(command, "bell"))
-        bell_command(ses);
-
-    else if (is_abrev(command, "bind"))
-        bind_command(arg, ses);
-
-    else if (is_abrev(command, "blank"))
-        blank_command(arg,ses);
-
-    else if (is_abrev(command, "char"))
-        char_command(arg, ses);
-
-#ifdef UI_FULLSCREEN
-    else if (is_abrev(command, "condump"))
-        condump_command(arg, ses);
-#endif
-
-    else if (is_abrev(command, "ctime"))
-        ctime_command(arg, ses);
-
-    else if (is_abrev(command, "cr"))
-        cr_command(ses);
-
-    else if (is_abrev(command, "delay"))
-        delay_command(arg, ses);
-    else if (is_abrev(command, "event"))
-        delay_command(arg, ses);
-
-    else if (is_abrev(command, "deleteitems"))
-        deleteitems_command(arg, ses);
-
-    else if (is_abrev(command, "deathlog"))
-        deathlog_command(arg, ses);
-
-    else if (is_abrev(command, "echo"))
-        echo_command(arg,ses);
-
-    else if (is_abrev(command, "end"))
-        end_command(command, ses);
-
-    else if (is_abrev(command, "explode"))
-        explode_command(arg, ses);
-
-    else if (is_abrev(command, "foreach"))
-        foreach_command(arg, ses);
-
-    else if (is_abrev(command, "firstupper"))
-        firstupper_command(arg, ses);
-
-    else if (is_abrev(command, "help"))
-        help_command(arg);
-
-    else if (is_abrev(command, "highlight"))
-        parse_high(arg, ses);
-
-    else if (is_abrev(command, "history"))
-        history_command(ses);
-
-    else if (is_abrev(command, "if"))
-        if_command(arg, ses);
-
-    else if (is_abrev(command, "else"))
-        tintin_printf(ses,"#ELSE WITHOUT IF.");
-
-    else if (is_abrev(command, "elif"))
-        tintin_printf(ses,"#ELIF WITHOUT IF.");
-
-    else if (is_abrev(command, "finditem"))
-        finditem_command(arg, ses);
-
-    else if (is_abrev(command, "getitem"))
-        getitem_command(arg, ses);
-
-    else if (is_abrev(command, "goto"))
-        goto_command(arg, ses);
-
-    else if (is_abrev(command, "ignore"))
-        ignore_command(arg, ses);
-
-    else if (is_abrev(command, "implode"))
-        implode_command(arg, ses);
-    else if (is_abrev(command, "info"))
-        display_info(ses);
-
-    else if (is_abrev(command, "isatom"))
-        isatom_command(arg, ses);
-
-    else if (is_abrev(command, "keypad"))
-        keypad_command(arg, ses);
-
-    else if (is_abrev(command, "killall"))
-        kill_all(ses, CLEAN);
-
-    else if (is_abrev(command, "listlength"))
-        listlength_command(arg, ses);
-
-    else if (is_abrev(command, "log"))
-        log_command(arg, ses);
-
-    else if (is_abrev(command, "loop"))
-        loop_command(arg, ses);
-
-            /*
-               some people think it's not #No-OPeration,
-               but something else.  It doesn't hurt to check
-               for the longer version.
-            */
-    else if (is_abrev(command, "nope")) ;
-
-    else if (is_abrev(command, "map"))
-        map_command(arg, ses);
-
-#ifdef UI_FULLSCREEN
-    else if (is_abrev(command, "margins"))
-        margins_command(arg, ses);
-#endif
-
-    else if (is_abrev(command, "math"))
-        math_command(arg, ses);
-        
-    else if (is_abrev(command, "match"))
-        match_command(arg, ses);
-
-    else if (is_abrev(command, "mark"))
-        mark_command(ses);
-
-    else if (is_abrev(command, "messages"))
-        message_command(arg, ses);
-
-    else if (is_abrev(command, "mudcolors"))
-        mudcolors_command(arg, ses);
-
-    else if (is_abrev(command, "news"))
-        news_command(ses);
-
-    else if (is_abrev(command, "path"))
-        showpath_command(ses);
-
-    else if (is_abrev(command, "pathdir"))
-        pathdir_command(arg, ses);
-
-    else if (is_abrev(command, "presub"))
-        presub_command(arg, ses);
-
-    else if (is_abrev(command, "prepad"))
-        prepad_command(arg, ses);
-
-    else if (is_abrev(command, "promptaction"))
-        promptaction_command(arg, ses);
-
-    else if (is_abrev(command, "postpad"))
-        postpad_command(arg, ses);
-
-    else if (is_abrev(command, "random"))
-        random_command(arg, ses);
-
-    else if (is_abrev(command, "remark")) ;
-    
-    else if (is_abrev(command, "removeevent"))
-        remove_command(arg, ses);
-    else if (is_abrev(command, "unevent"))
-        remove_command(arg, ses);
-    
-    /*
-      else if (is_abrev(command, "retab"))
-        read_complete();
-    */
-    else if (is_abrev(command, "return"))
-        return_command(arg, ses);
-
-    else if (is_abrev(command, "read"))
-        ses = read_command(arg, ses);
-
-    else if (is_abrev(command, "reverse"))
-        reverse_command(arg, ses);
-
-    else if (is_abrev(command, "route"))
-        route_command(arg, ses);
-
-    else if (is_abrev(command, "savepath"))
-        savepath_command(arg, ses);
-
-    else if (is_abrev(command, "session"))
-        ses = session_command(arg, ses);
-
-    else if (is_abrev(command, "run"))
-        ses = run_command(arg, ses);
-
-    else if (is_abrev(command, "showme"))
-        showme_command(arg, ses);
-/*
-    else if (is_abrev(command, "showpath"))
-        showpath_command(ses);
-*/
-    else if (is_abrev(command, "snoop"))
-        snoop_command(arg, ses);
-
-    else if (is_abrev(command, "speedwalk"))
-        speedwalk_command(arg, ses);
-
-    else if (is_abrev(command, "splitlist"))
-        splitlist_command(arg, ses);
-
-    else if (is_abrev(command, "strip"))
-        strip_command(arg, ses);
-
-    /* CHANGED to allow suspending from within tintin. */
-    /* I know, I know, this is a hack *yawn* */
-    else if (is_abrev(command, "suspend"))
-        tstphandler(SIGTSTP);
-        
-    else if (is_abrev(command, "shell"))
-        shell_command(arg,ses);
-
-    else if (is_abrev(command, "status"))
-        status_command(arg,ses);
-    /*
-      else if (is_abrev(command, "tablist"))
-        tablist(complete_head);
-
-      else if (is_abrev(command, "tabadd"))
-        tab_add(arg);
-
-      else if (is_abrev(command, "tabdelete"))
-        tab_delete(arg);
-    */
-    else if (is_abrev(command, "textin"))
-        read_file(arg, ses);
-
-    else if (is_abrev(command, "time"))
-        time_command(arg, ses);
-
-    else if (!strcmp(command, "unlink"))
-        unlink_file(arg, ses);
-        
-    else if (is_abrev(command, "sortlist"))
-        sortlist_command(arg, ses);
-
-    else if (is_abrev(command, "substitute"))
-        parse_sub(arg, 0, ses);
-
-    else if (is_abrev(command, "gag"))
+    else if ((func=get_hash(c_commands, command)))
     {
-        if (*arg)
-        {
-            if (*arg != '{')
-            {
-                strcpy(command, arg);
-                strcpy(arg, "{");
-                strcat(arg, command);
-                strcat(arg, "} ");
-            }
-            strcat(arg, " {"EMPTY_LINE"}");
-            parse_sub(arg, 1, ses);
-        }
-        else
-            parse_sub("", 1, ses);
+        ses=((t_c_command)func)(arg, ses);
     }
-
-    else if (is_abrev(command, "substring"))
-        substr_command(arg, ses);
-
-    else if (is_abrev(command, "strlen"))
-        strlen_command(arg,ses);
-
-    else if (is_abrev(command, "system"))
-        system_command(arg, ses);
-
-    else if (is_abrev(command, "tick"))
-        tick_command(ses);
-
-    else if (is_abrev(command, "tickoff"))
-        tickoff_command(ses);
-
-    else if (is_abrev(command, "tickon"))
-        tickon_command(ses);
-
-    else if (is_abrev(command, "ticksize"))
-        ticksize_command(arg, ses);
-
-    else if (is_abrev(command, "tolower"))
-        tolower_command(arg, ses);
-
-    else if (is_abrev(command, "togglesubs"))
-        togglesubs_command(arg,ses);
-
-    else if (is_abrev(command, "toupper"))
-        toupper_command(arg, ses);
-
-    else if (is_abrev(command, "unaction"))
-        unaction_command(arg, ses);
-
-    else if (is_abrev(command, "unalias"))
-        unalias_command(arg, ses);
-
-    else if (is_abrev(command, "unantisubstitute"))
-        unantisubstitute_command(arg, ses);
-
-    else if (is_abrev(command, "unbind"))
-        unbind_command(arg, ses);
-
-    else if (is_abrev(command, "unhighlight"))
-        unhighlight_command(arg, ses);
-
-    else if (is_abrev(command, "unsubstitute"))
-        unsubstitute_command(arg, 0, ses);
-
-    else if (is_abrev(command, "ungag"))
-        unsubstitute_command(arg, 1, ses);
-
-    else if (is_abrev(command, "unpath"))
-        unmap_command(ses);
-
-    else if (is_abrev(command, "unpromptaction"))
-        unpromptaction_command(arg, ses);
-
-    else if (is_abrev(command, "unmap"))
-        unmap_command(ses);
-
-    else if (is_abrev(command, "unroute"))
-        unroute_command(arg, ses);
-
-    else if (is_abrev(command, "variable"))
-        var_command(arg, ses);
-
-    else if (is_abrev(command, "version"))
-        version_command();
-
-    else if (is_abrev(command, "unvariable"))
-        unvar_command(arg, ses);
-
-    else if (is_abrev(command, "write"))
-        write_command(arg, ses);
-
-    else if (is_abrev(command, "writesession"))
-        writesession_command(arg, ses);
-
-    else if (is_abrev(command, "zap"))
-        ses = zap_command(ses);
-
-    else if (is_abrev(command, "dosubstitutes"))
-        dosubstitutes_command(arg, ses);
-
-    else if (is_abrev(command, "dohighlights"))
-        dohighlights_command(arg, ses);
-        
-    else if (is_abrev(command, "decolorize"))
-        decolorize_command(arg, ses);
-        
-    else if (is_abrev(command, "atoi"))
-        atoi_command(arg, ses);
+    
+    else if ((func=get_hash(commands, command)))
+    {
+        ((t_command)func)(arg, ses);
+    }
                 
     else
     {
@@ -803,6 +341,34 @@ struct session *parse_tintin_command(char *command, char *arg,struct session *se
         prompt(ses);
     }
     return (ses);
+}
+
+void add_command(struct hashtable *h, char *command, t_command func)
+{
+    char cmd[BUFFER_SIZE];
+    int n;
+
+    if (get_hash(c_commands, command) || get_hash(commands, command))
+    {
+        fprintf(stderr, "Cannot add command: {%s}.\n", command);
+        exit(1);
+    }
+    strcpy(cmd, command);
+    for(n=strlen(cmd); n; n--)
+    {
+        cmd[n]=0;
+        if (!get_hash(c_commands, cmd) && !get_hash(commands, cmd))
+            set_hash_nostring(h, cmd, (char*)func);
+    }
+}
+
+void init_parse()
+{
+    commands=init_hash();
+    c_commands=init_hash();
+    set_hash_nostring(commands, "end", (char*)end_command);
+    set_hash_nostring(commands, "unlink", (char*)unlink_command);
+#include "load_commands.h"
 }
 
 

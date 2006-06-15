@@ -41,6 +41,7 @@ extern void textout_draft(char *txt);
 extern void tintin_puts(char *cptr, struct session *ses);
 extern void tintin_puts1(char *cptr, struct session *ses);
 extern void tintin_printf(struct session *ses,char *format,...);
+extern struct hashtable* copy_hash(struct hashtable *h);
 
 extern struct session *sessionlist, *activesession, *nullsession;
 
@@ -204,16 +205,16 @@ struct session *new_session(char *name,char *address,int sock,int issocket,struc
   newsession->snoopstatus = FALSE;
   newsession->logfile = NULL;
   newsession->ignore = DEFAULT_IGNORE;
-  newsession->aliases = copy_list(nullsession->aliases, ALPHA);
+  newsession->aliases = copy_hash(nullsession->aliases);
   newsession->actions = copy_list(nullsession->actions, PRIORITY);
   newsession->prompts = copy_list(nullsession->prompts, PRIORITY);
   newsession->subs = copy_list(nullsession->subs, ALPHA);
-  newsession->myvars = copy_list(nullsession->myvars, ALPHA);
+  newsession->myvars = copy_hash(nullsession->myvars);
   newsession->highs = copy_list(nullsession->highs, ALPHA);
-  newsession->pathdirs = copy_list(nullsession->pathdirs, ALPHA);
+  newsession->pathdirs = copy_hash(nullsession->pathdirs);
   newsession->socket = sock;
   newsession->antisubs = copy_list(nullsession->antisubs, ALPHA);
-  newsession->binds = copy_list(nullsession->binds, ALPHA);
+  newsession->binds = copy_hash(nullsession->binds);
   newsession->socketbit = 1 << sock;
   newsession->issocket = issocket;
   newsession->naws = 0;
@@ -229,6 +230,14 @@ struct session *new_session(char *name,char *address,int sock,int issocket,struc
   newsession->path_length = 0;
   newsession->more_coming = 0;
   newsession->events = NULL;
+  newsession->verbose = nullsession->verbose;
+  newsession->blank = nullsession->blank;
+  newsession->echo = nullsession->echo;
+  newsession->speedwalk = nullsession->speedwalk;
+  newsession->togglesubs = nullsession->togglesubs;
+  newsession->presub = nullsession->presub;
+  newsession->verbatim = nullsession->verbatim;
+  memcpy(newsession->mesvar, nullsession->mesvar, sizeof(*newsession->mesvar));
   for (i=0;i<MAX_LOCATIONS;i++)
   {
   	newsession->routes[i]=0;
@@ -236,7 +245,6 @@ struct session *new_session(char *name,char *address,int sock,int issocket,struc
   };
   copyroutes(nullsession,newsession);
   newsession->last_line[0]=0;
-  newsession->idle_since=time(0);
   sessionlist = newsession;
   activesession = newsession;
 

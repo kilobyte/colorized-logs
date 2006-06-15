@@ -177,8 +177,8 @@ long UPDC32(b, c)
 
 int crc(char *str)
 {
-    register int c=0xfffffff;
+    register int c=0xffffffff;
     for (;*str;str++)
-        UPDC32(*str,c);
+        c=UPDC32(*str,c);
     return c;
 }

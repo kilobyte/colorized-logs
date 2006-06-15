@@ -15,21 +15,21 @@
 /* color ANSI numbers */
 /**********************/
 #ifdef UI_FULLSCREEN
-#define COLOR_BLACK	0
-#define COLOR_BLUE	4
-#define COLOR_GREEN	2
-#define COLOR_CYAN	6
-#define COLOR_RED	1
+#define COLOR_BLACK 	0
+#define COLOR_BLUE  	4
+#define COLOR_GREEN	    2
+#define COLOR_CYAN	    6
+#define COLOR_RED	    1
 #define COLOR_MAGENTA	5
 #define COLOR_YELLOW	3
-#define COLOR_WHITE	7
+#define COLOR_WHITE	    7
 #endif
 
 /*************************/
 /* telnet protocol stuff */
 /*************************/
 #define TERM                    "KBtin"   /* terminal type */
-/*#define TELNET_DEBUG    /* uncomment to show TELNET negotiations */
+/*#define TELNET_DEBUG*/    /* uncomment to show TELNET negotiations */
 
 /************************************************************************/
 /* Do you want to use help compression or not:  with it, space is saved */
@@ -41,25 +41,20 @@
 #define COMPRESSED_HELP TRUE
 #endif
 
-#ifdef HAVE_BCOPY
-#define memcpy(s1, s2, n) bcopy(s2, s1, n)
-#endif
-
 /***********************************************/
 /* Some default values you might wanna change: */
 /***********************************************/
 #ifdef UI_FULLSCREEN
-#define CONSOLE_LENGTH 40960
+#define CONSOLE_LENGTH 32768
 #define STATUS_COLOR COLOR_BLACK
+#define INPUT_COLOR  COLOR_BLUE
+#define MARGIN_COLOR COLOR_RED
+/* FIXME: neither INPUT_COLOR nor MARGIN_COLOR can be COLOR_WHITE */
 #endif
 /*#define GRAY2 */    /* if you have problems with the dark gray (~8~) color */
 /*#define IGNORE_INT*//* uncomment to disable INT (usually ^C) from keyboard */
 #define GOTO_CHAR '>'	/* be>mt -> #goto be mt */
 		/*Comment last line out to disable this behavior */
-#define ALPHA 1
-#define PRIORITY 0
-#define CLEAN 0
-#define END 1
 #define OLD_LOG 0 /* set to one to use old-style logging */
 #define DEFAULT_OPEN '{' /*character that starts an argument */
 #define DEFAULT_CLOSE '}' /*character that ends an argument */
@@ -87,8 +82,8 @@
 #define DEFAULT_ECHO TRUE                 /* echo */         
 #define DEFAULT_IGNORE FALSE              /* ignore */
 #define DEFAULT_SPEEDWALK FALSE           /* speedwalk */
-	/* note: speedwalks are possible only on some primitive MUDs
-	   with only 4 basic directions (w,e,n,s)                    */
+	/* note: classic speedwalks are possible only on some primitive
+	   MUDs with only 4 basic directions (w,e,n,s)                   */
 #define DEFAULT_PRESUB FALSE              /* presub before actions */
 #define DEFAULT_TOGGLESUBS FALSE          /* turn subs on and off FALSE=ON*/
 #define DEFAULT_KEYPAD FALSE              /* start in standard keypad mode */
@@ -105,6 +100,7 @@
 #define DEFAULT_BIND_MESS TRUE
 #define DEFAULT_SYSTEM_MESS TRUE
 #define DEFAULT_PATH_MESS TRUE
+#define DEFAULT_ERROR_MESS TRUE
 /*#define PARTIAL_LINE_MARKER "\376"*/       /* comment out to disable */
 /**************************************************************************/
 /* Should a prompt appear whenever TINTIN has written something to the    */
@@ -130,9 +126,6 @@
 /*************************************************************************/
 #define PROMPT_FOR_MORE_TEXT "*line * of *"
 
-#define STOP_AT_SPACES 0
-#define WITH_SPACES 1
-
 #define REMOVE_ONEELEM_BRACES /* remove braces around one element list in 
 				 #splitlist command i.e. {atom} -> atom
 				 similar to #getitemnr command behaviour */
@@ -143,13 +136,34 @@
 /* The stuff below here shouldn't be modified unless you know what you're */
 /* doing........                                                          */
 /**************************************************************************/ 
+#define STOP_AT_SPACES 0
+#define WITH_SPACES 1
+#define ALPHA 1
+#define PRIORITY 0
+#define CLEAN 0
+#define END 1
+
 #define BUFFER_SIZE 2048
-#define MAX_MESVAR 11
-#define VERSION_NUM "0.4.1"
+#define MAX_MESVAR 12
+#define VERSION_NUM "0.4.4"
 /************************ structures *********************/
 struct listnode {
   struct listnode *next;
   char *left, *right, *pr;
+};
+
+struct hashentry
+{
+    char *left;
+    char *right;
+};
+
+struct hashtable
+{
+    int size;               /* allocated size */
+    int nent;               /* current number of entries */
+    int nval;               /* current number of values (entries-deleted) */
+    struct hashentry *tab;  /* entries table */
 };
 
 struct completenode {
@@ -183,20 +197,21 @@ struct session {
   int snoopstatus;
   FILE *logfile;
   int ignore;
-  struct listnode *aliases, *actions, *prompts, *subs, *myvars, *highs, *antisubs, *binds;
+  struct listnode *actions, *prompts, *subs, *highs, *antisubs;
+  struct hashtable *aliases, *myvars, *pathdirs, *binds;
   char *history[HISTORY_SIZE];
-  struct listnode *path, *pathdirs;
+  struct listnode *path;
   struct routenode *routes[MAX_LOCATIONS];
   char *locations[MAX_LOCATIONS];
   struct eventnode *events;
   int path_length, no_return;
   int socket, socketbit, issocket, naws, ga, gas;
   int server_echo; /* 0=not negotiated, 1=we shouldn't echo, 2=we can echo */
-  int idle_since;
   int more_coming;
   char last_line[BUFFER_SIZE];
   int telnet_buf;
+  int verbose,blank,echo,speedwalk,togglesubs,presub,verbatim;
+  int mesvar[MAX_MESVAR+1];
 };
 
 typedef char pvars_t[10][BUFFER_SIZE];
-typedef char* hashtable;

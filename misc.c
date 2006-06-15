@@ -22,16 +22,8 @@
 extern struct session *sessionlist,*activesession,*nullsession;
 extern struct completenode *complete_head;
 extern char tintin_char;
-extern int echo;
-extern int speedwalk;
-extern int presub;
-extern int blank;
-extern int togglesubs;
-extern int blank;
 extern int keypad;
 extern pvars_t *pvars;	/* the %0, %1, %2,....%9 variables */
-extern int mesvar[7];
-extern int verbatim;
 extern char status[BUFFER_SIZE];
 extern int margins,marginl,marginr;
 extern FILE *mypopen(char *command);
@@ -63,6 +55,7 @@ extern void do_all_sub(char *line, struct session *ses);
 extern inline int getcolor(char **ptr,int *color,const int flag);
 extern void user_pause(void);
 extern void user_resume(void);
+extern void kill_all(struct session *ses, int mode);
 
 int yes_no(char *txt)
 {
@@ -116,7 +109,7 @@ void togglebool(int *b, char *arg, struct session *ses, char *msg1, char *msg2)
 /****************************/
 /* the #cr command          */
 /****************************/
-void cr_command(struct session *ses)
+void cr_command(char *arg,struct session *ses)
 {
     if (ses != nullsession)
         write_line_mud("", ses);
@@ -125,10 +118,10 @@ void cr_command(struct session *ses)
 /****************************/
 /* the #version command     */
 /****************************/
-void version_command(void)
+void version_command(char *arg,struct session *ses)
 {
-    tintin_printf(0, "#You are using KBtin %s\n", VERSION_NUM);
-    prompt(NULL);
+    tintin_printf(ses, "#You are using KBtin %s\n", VERSION_NUM);
+    prompt(ses);
 }
 
 /****************************/
@@ -145,10 +138,10 @@ void verbatim_command(char *arg,struct session *ses)
         write_line_mud(temp1,ses);
         return;
     }
-    if ((verbatim=!verbatim))
-        tintin_printf(0,"#All text is now sent 'as is'.");
+    if ((ses->verbatim=!ses->verbatim))
+        tintin_printf(ses,"#All text is now sent 'as is'.");
     else
-        tintin_printf(0,"#Text is no longer sent 'as is'.");
+        tintin_printf(ses,"#Text is no longer sent 'as is'.");
 }
 
 /********************/
@@ -173,7 +166,7 @@ struct session *all_command(char *arg,struct session *ses)
 /*********************/
 /* the #bell command */
 /*********************/
-void bell_command(struct session *ses)
+void bell_command(char *arg,struct session *ses)
 {
     user_beep();
 }
@@ -200,7 +193,7 @@ void char_command(char *arg,struct session *ses)
 /*********************/
 void echo_command(char *arg,struct session *ses)
 {
-    togglebool(&echo,arg,ses,
+    togglebool(&ses->echo,arg,ses,
                "#ECHO IS NOW ON.",
                "#ECHO IS NOW OFF.");
 }
@@ -219,29 +212,23 @@ void keypad_command(char *arg,struct session *ses)
 /*********************/
 /* the #end command */
 /*********************/
-void end_command(char *command, struct session *ses)
+void end_command(char *arg, struct session *ses)
 {
     struct session *sp;
+    struct session *sesptr;
 
-    if (strcmp(command, "end"))
-        tintin_printf(ses,"#YOU HAVE TO WRITE #end - NO LESS, TO END!");
-    else
+    for (sesptr = sessionlist; sesptr; sesptr = sp)
     {
-        struct session *sesptr;
-
-        for (sesptr = sessionlist; sesptr; sesptr = sp)
-        {
-            sp = sesptr->next;
-            if (sesptr!=nullsession)
-                cleanup_session(sesptr);
-        }
-        ses = NULL;  /* a message from DIKUs... we can leave it though */
-        tintin_printf(ses,"TINTIN suffers from bloodlack, and the lack of a beating heart...");
-        tintin_printf(ses,"TINTIN is dead! R.I.P.");
-        tintin_printf(ses,"Your blood freezes as you hear TINTIN's death cry.");
-        user_done();
-        exit(0);
+        sp = sesptr->next;
+        if (sesptr!=nullsession)
+            cleanup_session(sesptr);
     }
+    ses = NULL;  /* a message from DIKUs... we can leave it though */
+    tintin_printf(ses,"TINTIN suffers from bloodlack, and the lack of a beating heart...");
+    tintin_printf(ses,"TINTIN is dead! R.I.P.");
+    tintin_printf(ses,"Your blood freezes as you hear TINTIN's death cry.");
+    user_done();
+    exit(0);
 }
 
 /***********************/
@@ -262,7 +249,7 @@ void ignore_command(char *arg,struct session *ses)
 /**********************/
 void presub_command(char *arg,struct session *ses)
 {
-    togglebool(&presub,arg,ses,
+    togglebool(&ses->presub,arg,ses,
                "#ACTIONS ARE NOW PROCESSED ON SUBSTITUTED BUFFER.",
                "#ACTIONS ARE NO LONGER DONE ON SUBSTITUTED BUFFER.");
 }
@@ -272,7 +259,7 @@ void presub_command(char *arg,struct session *ses)
 /**********************/
 void blank_command(char *arg,struct session *ses)
 {
-    togglebool(&blank,arg,ses,
+    togglebool(&ses->blank,arg,ses,
                "#INCOMING BLANK LINES ARE NOW DISPLAYED.",
                "#INCOMING BLANK LINES ARE NO LONGER DISPLAYED.");
 }
@@ -282,9 +269,19 @@ void blank_command(char *arg,struct session *ses)
 /**************************/
 void togglesubs_command(char *arg,struct session *ses)
 {
-    togglebool(&togglesubs,arg,ses,
+    togglebool(&ses->togglesubs,arg,ses,
                "#SUBSTITUTES ARE NOW IGNORED.",
                "#SUBSTITUTES ARE NO LONGER IGNORED.");
+}
+
+/************************/
+/* the #verbose command */
+/************************/
+void verbose_command(char *arg,struct session *ses)
+{
+    togglebool(&ses->verbose,arg,ses,
+               "#Output from #reads will now be shown.",
+               "#The #read command will no longer output messages.");
 }
 
 /************************/
@@ -429,13 +426,14 @@ char *msNAME[]=
         "binds",
         "#system",
         "paths",
+        "errors",
         "all"
     };
 
-/************************/
-/* the #message command */
-/************************/
-void message_command(char *arg,struct session *ses)
+/*************************/
+/* the #messages command */
+/*************************/
+void messages_command(char *arg,struct session *ses)
 {
     char offon[2][20];
     int mestype;
@@ -453,7 +451,7 @@ void message_command(char *arg,struct session *ses)
     {
         for (mestype=0;mestype<MAX_MESVAR;++mestype)
             tintin_printf(ses, "#Messages concerning %s are %s",
-                    msNAME[mestype], offon[mesvar[mestype]]);
+                    msNAME[mestype], offon[ses->mesvar[mestype]]);
         return;
     };
     mestype = 0;
@@ -468,20 +466,20 @@ void message_command(char *arg,struct session *ses)
             switch(yes_no(onoff))
             {
             case 0:
-                mesvar[mestype]=0;
+                ses->mesvar[mestype]=0;
                 break;
             case 1:
-                mesvar[mestype]=1;
+                ses->mesvar[mestype]=1;
                 break;
             case -1:
                 tintin_printf(ses, "#Hey! What should I do with %s? Specify a boolean value, not {%s}.",
                         msNAME[mestype],onoff);
                 return;
             default:
-                mesvar[mestype]=!mesvar[mestype];
+                ses->mesvar[mestype]=!ses->mesvar[mestype];
             };
             tintin_printf(ses,"#Ok. messages concerning %s are now %s",
-                    msNAME[mestype], offon[mesvar[mestype]]);
+                    msNAME[mestype], offon[ses->mesvar[mestype]]);
         }
         else
         {
@@ -495,11 +493,11 @@ void message_command(char *arg,struct session *ses)
             {
                 b=1;
                 for (mestype=0;mestype<MAX_MESVAR;mestype++)
-                    if (mesvar[mestype])	/* at least one type is ON? */
+                    if (ses->mesvar[mestype])	/* at least one type is ON? */
                         b=0;			/* disable them all */
             };
             for (mestype=0;mestype<MAX_MESVAR;mestype++)
-                mesvar[mestype]=b;
+                ses->mesvar[mestype]=b;
             if (b)
                 tintin_printf(ses,"#Ok. All messages are now ON.");
             else
@@ -550,7 +548,7 @@ void snoop_command(char *arg,struct session *ses)
 /**************************/
 void speedwalk_command(char *arg,struct session *ses)
 {
-    togglebool(&speedwalk,arg,ses,
+    togglebool(&ses->speedwalk,arg,ses,
                "#SPEEDWALK IS NOW ON.",
                "#SPEEDWALK IS NOW OFF.");
 }
@@ -592,7 +590,7 @@ void system_command(char *arg,struct session *ses)
         FILE *output;
         char buf[BUFFER_SIZE];
         
-        if (mesvar[9])
+        if (ses->mesvar[9])
             tintin_puts1("#EXECUTING SHELL COMMAND.", ses);
         if (!(output = mypopen(arg)))
         {
@@ -603,7 +601,7 @@ void system_command(char *arg,struct session *ses)
         while (fgets(buf,BUFFER_SIZE,output))
             textout(buf);
         fclose(output);
-        if (mesvar[9])
+        if (ses->mesvar[9])
             tintin_puts1("#OK COMMAND EXECUTED.", ses);
     }
     else
@@ -624,12 +622,12 @@ void shell_command(char *arg,struct session *ses)
     substitute_myvars(temp, arg, ses);
     if (*arg)
     {
-        if (mesvar[9])
+        if (ses->mesvar[9])
             tintin_puts1("#EXECUTING SHELL COMMAND.", ses);
         user_pause();
         system(arg);
         user_resume();
-        if (mesvar[9])
+        if (ses->mesvar[9])
             tintin_puts1("#OK COMMAND EXECUTED.", ses);
     }
     else
@@ -642,8 +640,13 @@ void shell_command(char *arg,struct session *ses)
 /********************/
 /* the #zap command */
 /********************/
-struct session *zap_command(struct session *ses)
+struct session *zap_command(char *arg, struct session *ses)
 {
+    if (*arg)
+    {
+        tintin_puts("#ZAP <ses> is still unimplemented.", ses); /* FIXME */
+        return ses;
+    }
     if (ses!=nullsession)
     {
         tintin_puts("#ZZZZZZZAAAAAAAAPPPP!!!!!!!!! LET'S GET OUTTA HERE!!!!!!!!", ses);
@@ -655,7 +658,7 @@ struct session *zap_command(struct session *ses)
     return 0;   /* stupid lint */
 }
 
-void news_command(struct session *ses)
+void news_command(char *arg, struct session *ses)
 {
     char line[BUFFER_SIZE];
     FILE* news=fopen( NEWS_FILE , "r");
@@ -829,7 +832,7 @@ void tab_delete(char *arg)
     }
 }
 
-void display_info(struct session *ses)
+void info_command(char *arg, struct session *ses)
 {
     int actions   = 0;
     int practions = 0;
@@ -841,15 +844,17 @@ void display_info(struct session *ses)
     int locs      = 0;
     int routes    = 0;
     int binds     = 0;
+    int pathdirs  = 0;
 
     actions   = count_list(ses->actions);
     practions = count_list(ses->prompts);
-    aliases   = count_list(ses->aliases);
+    aliases   = ses->aliases->nval;
     subs      = count_list(ses->subs);
     antisubs  = count_list(ses->antisubs);
-    vars      = count_list(ses->myvars);
+    vars      = ses->myvars->nval;
     highs     = count_list(ses->highs);
-    binds     = count_list(ses->binds);
+    binds     = ses->binds->nval;
+    pathdirs  = ses->pathdirs->nval;
     {
         int i;
         for (i=0;i<MAX_LOCATIONS;i++)
@@ -865,9 +870,13 @@ void display_info(struct session *ses)
     tintin_printf(ses, "Highlights : %d", highs);
     tintin_printf(ses, "Routes : %d between %d locations",routes,locs);
     tintin_printf(ses, "Binds : %d",binds);
-    tintin_printf(ses, "Echo : %d (1 - on, 0 - off)    Speedwalking : %d     Blank : %d", echo, speedwalk, blank);
-    tintin_printf(ses, "Toggle Subs: %d  Ignore Actions : %d  PreSub-ing: %d", togglesubs, ses->ignore, presub);
-    tintin_printf(ses, "Terminal size: %dx%d", COLS,LINES);
+    tintin_printf(ses, "Pathdirs : %d",pathdirs);
+    tintin_printf(ses, "Flags: echo=%d, speedwalking=%d, blank=%d, verbatim=%d",
+        ses->echo, ses->speedwalk, ses->blank, ses->verbatim);
+    tintin_printf(ses, " toggle subs=%d, ignore actions=%d, PreSub=%d, verbose=%d",
+        ses->togglesubs, ses->ignore, ses->presub, ses->verbose);
+    tintin_printf(ses, "Terminal size: %dx%d,  keypad: %s",
+        COLS,LINES,keypad?"alt mode":"cursor/numeric mode");
     prompt(ses);
 }
 
@@ -994,7 +1003,6 @@ void decolorize_command(char *arg,struct session *ses)
 void atoi_command(char *arg,struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE], temp[BUFFER_SIZE], *a;
-    int c;
 
     arg = get_arg_in_braces(arg, left, 0);
     arg = get_arg_in_braces(arg, right, 1);
@@ -1014,4 +1022,33 @@ void atoi_command(char *arg,struct session *ses)
             *right=0;
         set_variable(left,right,ses);
     }
+}
+
+/***********************/
+/* the #remark command */
+/***********************/
+void remark_command(char *arg, struct session *ses)
+{
+}
+
+/***********************/
+/* the #nop(e) command */
+/***********************/
+void nope_command(char *arg, struct session *ses)
+{
+}
+
+void else_command(char *arg, struct session *ses)
+{
+    tintin_printf(ses, "#ELSE WITHOUT IF.");
+}
+
+void elif_command(char *arg, struct session *ses)
+{
+    tintin_printf(ses, "#ELIF WITHOUT IF.");
+}
+
+void killall_command(char *arg, struct session *ses)
+{
+    kill_all(ses, CLEAN);
 }

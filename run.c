@@ -1,18 +1,16 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #ifdef HAVE_CONFIG_H
-#include "config.h"
-#ifdef HAVE_ASM_TERMIOS_H
-#include <asm/termios.h>
-#else
-#ifdef HAVE_TERMIOS_H
-#include <termios.h>
-#endif
-#endif
+# include "config.h"
+# if HAVE_TERMIOS_H
+#  include <termios.h>
+# endif
+# if GWINSZ_IN_SYS_IOCTL
+#  include <sys/ioctl.h>
+# endif
 #endif
 #include <sys/stropts.h>
 #include <stdlib.h>

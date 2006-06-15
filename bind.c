@@ -10,22 +10,20 @@
 #include "tintin.h"
 
 extern char *get_arg_in_braces(char *s,char *arg,int flag);
-extern struct listnode *search_node_with_wild(struct listnode *listhead, char *cptr);
-extern struct listnode *searchnode_list(struct listnode *listhead, char *cptr);
-extern struct listnode *init_list(void);
-extern void deletenode_list(struct listnode *listhead, struct listnode *nptr);
-extern void insertnode_list(struct listnode *listhead, char *ltext, char *rtext, char *prtext, int mode);
 extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
-extern void prompt(struct session *ses);
-extern void show_list(struct listnode *listhead);
-extern void shownode_list(struct listnode *nptr);
 extern void tintin_printf(struct session *ses,char *format,...);
+extern char* get_hash(struct hashtable *h, char *key);
+extern void set_hash(struct hashtable *h, char *key, char *value);
+extern void show_hashlist(struct session *ses, struct hashtable *h, char *pat, const char *msg_all, const char *msg_none);
+extern void delete_hashlist(struct session *ses, struct hashtable *h, char *pat, const char *msg_ok, const char *msg_none);
+extern struct hashtable* init_hash();
+extern void substitute_myvars(char *arg,char *result,struct session *ses);
+extern void substitute_vars(char *arg, char *result);
 
 
 extern int bindnum;
-extern int mesvar[];
 
-struct listnode *keynames;
+struct hashtable *keynames;
 
 char *KEYNAMES[]=
     {
@@ -90,38 +88,21 @@ char *KEYNAMES[]=
 void bind_command(char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
-    struct listnode *mybinds, *ln;
 
-    mybinds = ses->binds;
     arg = get_arg_in_braces(arg, left, 0);
     arg = get_arg_in_braces(arg, right, 1);
 
-    if (!*left)
+    if (*left && *right)
     {
-        tintin_printf(ses,"#Bound keys:");
-        show_list(mybinds);
-        prompt(ses);
-    }
-    else if (*left && !*right)
-    {
-        if ((ln = search_node_with_wild(mybinds, left)) != NULL)
-        {
-            while ((mybinds = search_node_with_wild(mybinds, left)) != NULL)
-                shownode_list(mybinds);
-            prompt(ses);
-        }
-        else if (mesvar[8])
-            tintin_printf(ses, "#No match(es) found for {%s}", left);
-    }
-    else
-    {
-        if ((ln = searchnode_list(mybinds, left)) != NULL)
-            deletenode_list(mybinds, ln);
-        insertnode_list(mybinds, left, right, 0, ALPHA);
-        if (mesvar[8])
+        set_hash(ses->binds, left, right);
+        if (ses->mesvar[8])
             tintin_printf(ses,"#Ok. {%s} is now bound to {%s}.", left, right);
         bindnum++;
+        return;
     }
+    show_hashlist(ses, ses->binds, left,
+        "#Bound keys:",
+        "#No match(es) found for {%s}");
 }
 
 /***********************/
@@ -129,52 +110,45 @@ void bind_command(char *arg, struct session *ses)
 /***********************/
 void unbind_command(char *arg, struct session *ses)
 {
-    char left[BUFFER_SIZE];
-    struct listnode *mybinds, *ln, *temp;
-    int flag;
+    char left[BUFFER_SIZE], result[BUFFER_SIZE];
 
-    flag = FALSE;
-    mybinds = ses->binds;
-    temp = mybinds;
     arg = get_arg_in_braces(arg, left, 1);
-    while ((ln = search_node_with_wild(temp, left)) != NULL)
-    {
-        flag = TRUE;
-        if (mesvar[8])
-            tintin_printf(ses,"#Ok. {%s} is no longer bound.", ln->left);
-        /* temp=ln; */
-        deletenode_list(mybinds, ln);
-    }
-    if (!flag && mesvar[8])
-        tintin_printf(ses, "#No match(es) found for {%s}", left);
+    substitute_vars(left, result);
+    substitute_myvars(result, left, ses);
+    delete_hashlist(ses, ses->binds, left,
+        ses->mesvar[8]? "#Ok. {%s} is no longer bound." : 0,
+        ses->mesvar[8]? "#No match(es) found for {%s}" : 0);
 }
 
 
 int find_bind(char *key,int msg,struct session *ses)
 {
-    struct listnode *ln;
+    char *val;
 
-    if ((ln=searchnode_list(ses->binds,key)))
+    if ((val=get_hash(ses->binds,key)))
     {          /* search twice, both for raw key code and key name */
-        parse_input(ln->right,1,ses);
+        parse_input(val,1,ses);
         return 1;
     };
-    if ((ln=searchnode_list(keynames,key)))
-        key=ln->right;
-    if ((ln=searchnode_list(ses->binds,key)))
+    if ((val=get_hash(keynames,key)))
     {
-        parse_input(ln->right,1,ses);
-        return 1;
+        key=val;
+        if ((val=get_hash(ses->binds,key)))
+        {
+            parse_input(val,1,ses);
+            return 1;
+        }
     }
     if (msg)
         tintin_printf(ses,"#Unbound keycode: %s",key);
     return 0;
 }
 
+
 void init_bind(void)
 {
     char**n;
-    keynames=init_list();
+    keynames=init_hash();
     for(n=KEYNAMES;**n;n+=2)
-        insertnode_list(keynames,n[0],n[1],0,ALPHA);
+        set_hash(keynames,n[0],n[1]);
 }

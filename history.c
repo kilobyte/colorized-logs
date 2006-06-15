@@ -32,7 +32,7 @@ extern void tintin_printf(struct session *ses,char *format,...);
 /************************/
 /* the #history command */
 /************************/
-void history_command(struct session *ses)
+void history_command(char *arg, struct session *ses)
 {
     if (ses)
     {
@@ -53,9 +53,7 @@ void do_history(char *buffer, struct session *ses)
 {
     char result[BUFFER_SIZE], *cptr;
 
-    cptr = space_out(buffer);
-
-    if (*cptr)
+    if (!ses->verbatim && *(cptr=space_out(buffer)))
     {
 
         if (*cptr == '!')

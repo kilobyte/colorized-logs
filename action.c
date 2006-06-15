@@ -23,7 +23,6 @@ extern pvars_t *pvars;	/* the %0, %1, %2,....%9 variables */
 extern int term_echoing;
 extern char tintin_char;
 extern int acnum;
-extern int mesvar[6];
 extern char *get_arg_in_braces(char *s,char *arg,int flag);
 extern struct listnode *search_node_with_wild(struct listnode *listhead, char *cptr);
 extern struct listnode *searchnode_list(struct listnode *listhead, char *cptr);
@@ -130,7 +129,7 @@ void action_command(char *arg, struct session *ses)
                 shownode_list_action(myactions);
             prompt(ses);
         }
-        else if (mesvar[1])
+        else if (ses->mesvar[1])
             tintin_printf(ses,"#That action (%s) is not defined.",left);
     }
     else
@@ -138,7 +137,7 @@ void action_command(char *arg, struct session *ses)
         if ((ln = searchnode_list(myactions, left)) != NULL)
             kill_action(myactions, ln);
         insertnode_list(myactions, left, right, pr, PRIORITY);
-        if (mesvar[1])
+        if (ses->mesvar[1])
             tintin_printf(ses,"#Ok. {%s} now triggers {%s} @ {%s}", left, right, pr);
         acnum++;
     }
@@ -173,7 +172,7 @@ void promptaction_command(char *arg, struct session *ses)
                 shownode_list_action(myprompts);
             prompt(ses);
         }
-        else if (mesvar[1])
+        else if (ses->mesvar[1])
             tintin_printf(ses,"#That promptaction (%s) is not defined.", left);
     }
     else
@@ -181,7 +180,7 @@ void promptaction_command(char *arg, struct session *ses)
         if ((ln = searchnode_list(myprompts, left)) != NULL)
             kill_action(myprompts, ln);
         insertnode_list(myprompts, left, right, pr, PRIORITY);
-        if (mesvar[1])
+        if (ses->mesvar[1])
             tintin_printf(ses,"#Ok. {%s} now triggers {%s} @ {%s}", left, right, pr);
         acnum++;
     }
@@ -204,13 +203,13 @@ void unaction_command(char *arg, struct session *ses)
     arg = get_arg_in_braces(arg, left, 1);
     while ((ln = search_node_with_wild(temp, left)) != NULL)
     {
-        if (mesvar[1])
+        if (ses->mesvar[1])
             tintin_printf(ses,"#Ok. {%s} is no longer a trigger.", ln->left);
         kill_action(myactions, ln);
         flag = TRUE;
         /* temp=ln;*/
     }
-    if (!flag && mesvar[1])
+    if (!flag && ses->mesvar[1])    /* is it an error or no? */
         tintin_printf(ses, "#No match(es) found for {%s}", left);
 }
 
@@ -229,13 +228,13 @@ void unpromptaction_command(char *arg, struct session *ses)
     arg = get_arg_in_braces(arg, left, 1);
     while ((ln = search_node_with_wild(temp, left)) != NULL)
     {
-        if (mesvar[1])
+        if (ses->mesvar[1])
             tintin_printf(ses,"#Ok. {%s} is no longer a trigger.", ln->left);
         kill_action(myactions, ln);
         flag = TRUE;
         /* temp=ln;*/
     }
-    if (!flag && mesvar[1])
+    if (!flag && ses->mesvar[1])
         tintin_printf(ses, "#No match(es) found for {%s}", left);
 }
 
@@ -385,7 +384,7 @@ void check_all_actions(char *line, struct session *ses)
         {
             lastpvars = pvars;
             pvars = &vars;
-            if (mesvar[1] && activesession == ses)
+            if (ses->mesvar[1] && activesession == ses)
             {
                 char buffer[BUFFER_SIZE];
 
@@ -420,7 +419,7 @@ void check_all_promptactions(char *line, struct session *ses)
         {
             lastpvars=pvars;
             pvars=&vars;
-            if (mesvar[1] && activesession == ses)
+            if (ses->mesvar[1] && activesession == ses)
             {
                 char buffer[BUFFER_SIZE];
 

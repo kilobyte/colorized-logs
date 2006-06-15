@@ -13,7 +13,6 @@ int stacks[100][3];
 extern char *get_arg_in_braces(char *s,char *arg,int flag);
 extern char *space_out(char *s);
 extern char *get_inline(char *s,char *dest);
-extern struct listnode *searchnode_list(struct listnode *listhead, char *cptr);
 extern int conv_to_ints(char *arg,struct session *ses);
 extern int do_one_inside(int begin, int end);
 extern int eval_expression(char *arg,struct session *ses);
@@ -32,7 +31,6 @@ extern void tintin_printf(struct session *ses,char *format,...);
 
 
 extern char tintin_char;
-extern int mesvar[5];
 
 /*********************/
 /* the #math command */
@@ -41,10 +39,8 @@ void math_command(char *line, struct session *ses)
 {
     /* char left[BUFFER_SIZE], right[BUFFER_SIZE], arg2[BUFFER_SIZE], */
     char left[BUFFER_SIZE], right[BUFFER_SIZE], temp[BUFFER_SIZE], result[BUFFER_SIZE];
-    struct listnode *my_vars;
     int i;
 
-    my_vars = ses->myvars;
     line = get_arg_in_braces(line, left, 0);
     line = get_arg_in_braces(line, right, 1);
     if (!*left||!*right)
@@ -83,6 +79,44 @@ void if_command(char *line, struct session *ses)
         parse_input(right,1,ses);
     else
     {
+        line = get_arg_in_braces(line, left, 0);
+        if (*left == tintin_char)
+        {
+
+            if (is_abrev(left + 1, "else"))
+            {
+                line = get_arg_in_braces(line, right, 1);
+                parse_input(right,1,ses);
+            }
+            if (is_abrev(left + 1, "elif"))
+                if_command(line, ses);
+        }
+    }
+}
+
+
+/***********************/
+/* the #strcmp command */
+/***********************/
+void strcmp_command(char *line, struct session *ses)
+{
+    char left[BUFFER_SIZE], right[BUFFER_SIZE], temp[BUFFER_SIZE];
+
+    line = get_arg_in_braces(line, left, 0);
+    substitute_vars(left, temp);
+    substitute_myvars(temp, left, ses);
+    line = get_arg_in_braces(line, right, 0);
+    substitute_vars(right, temp);
+    substitute_myvars(temp, right, ses);
+    
+    if (!strcmp(left,right))
+    {
+        line=get_arg_in_braces(line, right, 1);
+        parse_input(right,1,ses);
+    }
+    else
+    {
+        line = get_arg_in_braces(line, right, 1);
         line = get_arg_in_braces(line, left, 0);
         if (*left == tintin_char)
         {
@@ -282,7 +316,7 @@ int conv_to_ints(char *arg,struct session *ses)
         /* jku: undefined variables are now assigned value 0 (false) */
         else if (*ptr == '$')
         {
-            if (mesvar[5])
+            if (ses->mesvar[5])
                 tintin_printf(ses, "#Undefined variable in {%s}.", arg);
             stacks[i][1] = 15;
             stacks[i][2] = 0;
@@ -431,7 +465,13 @@ int do_one_inside(int begin, int end)
                 break;
             case 4:			/* highest priority is / */
                 stacks[ploc][0] = stacks[next][0];
-                stacks[ploc][2] /= stacks[next][2];
+                if (stacks[next][2])
+                    stacks[ploc][2] /= stacks[next][2];
+                else
+                {
+                    stacks[ploc][2]=0;
+                    tintin_printf(0, "#Error: Division by zero.");
+                }
                 break;
             case 5:			/* highest priority is + */
                 stacks[ploc][0] = stacks[next][0];

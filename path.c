@@ -49,14 +49,17 @@ extern void shownode_list(struct listnode *nptr);
 extern void tintin_puts(char *cptr, struct session *ses);
 extern void tintin_puts1(char *cptr, struct session *ses);
 extern void tintin_printf(struct session *ses,char *format,...);
-
+extern void prepare_actionalias(char *string, char *result, struct session *ses);
+extern char* get_hash(struct hashtable *h, char *key);
+extern void set_hash(struct hashtable *h, char *key, char *value);
+extern void show_hashlist(struct session *ses, struct hashtable *h, char *pat, const char *msg_all, const char *msg_none);
+extern void delete_hashlist(struct session *ses, struct hashtable *h, char *pat, const char *msg_ok, const char *msg_none);
 
 extern char tintin_char;
 extern int pdnum;
-extern int mesvar[];
 extern int COLS,LINES;
 
-void mark_command(struct session *ses)
+void mark_command(char *arg, struct session *ses)
 {
     if (ses!=nullsession)
     {
@@ -64,7 +67,7 @@ void mark_command(struct session *ses)
         ses->path = init_list();
         ses->path_length = 0;
         ses->no_return = 0;
-        if (mesvar[10])
+        if (ses->mesvar[10])
             tintin_puts("#Beginning of path marked.", ses);
     }
     else
@@ -184,7 +187,7 @@ void path2var(char *var, struct session *ses)
 }
 
 
-void showpath_command(struct session *ses)
+void showpath_command(char *arg, struct session *ses)
 {
     if (ses!=nullsession)
     {
@@ -278,7 +281,7 @@ void return_command(char *arg,struct session *ses)
         tintin_puts("#No session active => NO PATH!", ses);
 }
 
-void unmap_command(struct session *ses)
+void unmap_command(char *arg, struct session *ses)
 {
     if (ses!=nullsession)
         if (ses->path_length)
@@ -297,17 +300,19 @@ void unmap_command(struct session *ses)
         tintin_puts("#No session active => NO PATH!", ses);
 }
 
+void unpath_command(char *arg, struct session *ses)
+{
+    unmap_command(arg, ses);
+}
+
 void check_insert_path(char *command, struct session *ses, int force)
 {
-    struct listnode *ln;
     char *ret;
 
     if (!return_flag)
         return;
 
-    if ((ln = searchnode_list(ses->pathdirs, command)))
-        ret=ln->right;
-    else
+    if (!(ret=get_hash(ses->pathdirs, command)))
     {
         if (!force)
             return;
@@ -326,37 +331,31 @@ void check_insert_path(char *command, struct session *ses, int force)
 void pathdir_command(char *arg,struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
-    struct listnode *mypathdirs, *ln;
 
-    mypathdirs = ses->pathdirs;
     arg = get_arg_in_braces(arg, left, 0);
     arg = get_arg_in_braces(arg, right, 1);
 
-    if (!*left)
+    if (*left && *right)
     {
-        tintin_printf(ses,"#These PATHDIRS have been defined:");
-        show_list(mypathdirs);
-        prompt(ses);
-    }
-    else if (*left && !*right)
-    {
-        if ((ln = search_node_with_wild(mypathdirs, left)) != NULL)
-        {
-            while ((mypathdirs = search_node_with_wild(mypathdirs, left)) != NULL)
-                shownode_list(mypathdirs);
-            prompt(ses);
-        }
-        else if (mesvar[10])
-            tintin_printf(ses,"#That PATHDIR (%s) is not defined.",left);
-    }
-    else
-    {
-        if ((ln = searchnode_list(mypathdirs, left)) != NULL)
-            deletenode_list(mypathdirs, ln);
-        insertnode_list(mypathdirs, left, right, 0, ALPHA);
-        if (mesvar[10])
+        set_hash(ses->pathdirs, left, right);
+        if (ses->mesvar[10])
             tintin_printf(ses, "#Ok.  {%s} is marked in #path. {%s} is it's #return.",
                     left, right);
         pdnum++;
+        return;
     }
+    show_hashlist(ses, ses->pathdirs, left,
+        "#These PATHDIRS have been defined:",
+        "#That PATHDIR (%s) is not defined.");
+}
+
+void unpathdir_command(char *arg,struct session *ses)
+{
+    char left[BUFFER_SIZE];
+
+    arg = get_arg_in_braces(arg, left, 1);
+    prepare_actionalias(left, left, ses);
+    delete_hashlist(ses, ses->pathdirs, left,
+        ses->mesvar[10]? "#Ok. $%s is no longer recognized as a pathdir." : 0,
+        ses->mesvar[10]? "#THAT PATHDIR (%s) IS NOT DEFINED." : 0);
 }

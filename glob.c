@@ -58,6 +58,13 @@ int match(char *regex, char *string)
   return ('\0' == *sp);
 }
 
+
+int is_literal(char *txt)
+{
+    return !strchr(txt, '*');
+}
+
+
 int find(char *text,char *pat,int *from,int *to)
 {
 	char *a,*b,*txt,*m1,*m2;

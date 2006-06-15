@@ -264,7 +264,7 @@ sbloop:
         ses->gas=1;
         return -2;
     case IAC:       /* IAC IAC is the escape for literal 255 byte */
-        return 2;	    /* ... but we ignore it */
+        return 2;	    /* ... but we ignore it */  /* FIXME */
     default:
         /* other 2-byte command, ignore */
 #ifdef TELNET_DEBUG

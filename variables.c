@@ -7,20 +7,27 @@
 /*********************************************************************/
 #include "config.h"
 #ifdef HAVE_STRING_H
-#include <string.h>
+# include <string.h>
 #else
-#ifdef HAVE_STRINGS_H
-#include <strings.h>
-#endif
+# ifdef HAVE_STRINGS_H
+#  include <strings.h>
+# endif
 #endif
 #include <ctype.h>
 #include "tintin.h"
 #include <stdlib.h>
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
+# include <unistd.h>
 #endif
-#ifdef HAVE_TIME_H
-#include <time.h>
+#if TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# if HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
 #endif
 
 void substitute_myvars(char *arg,char *result,struct session *ses);
@@ -44,9 +51,14 @@ extern void substitute_vars(char *arg, char *result);
 extern int timetilltick(struct session *ses);
 extern void tintin_printf(struct session *ses, char *format, ...);
 extern char *mystrdup(char *s);
+extern void zap_list(struct listnode *nptr);
+extern char* get_hash(struct hashtable *h, char *key);
+extern void set_hash(struct hashtable *h, char *key, char *value);
+extern struct listnode* hash2list(struct hashtable *h, char *pat);
+extern void show_hashlist(struct session *ses, struct hashtable *h, char *pat, const char *msg_all, const char *msg_none);
+extern void delete_hashlist(struct session *ses, struct hashtable *h, char *pat, const char *msg_ok, const char *msg_none);
 
 extern int varnum;
-extern int mesvar[];
 extern pvars_t *pvars;
 extern int LINES,COLS;
 extern int in_alias;
@@ -54,17 +66,9 @@ extern int aborting;
 
 void set_variable(char *left,char *right,struct session *ses)
 {
-    struct listnode *ln;
-
-    if ((ln = searchnode_list(ses->myvars, left)) != NULL)
-    {       /* no need to delete and reinsert */
-        free(ln->right);
-        ln->right=mystrdup(right);
-    }
-    else
-        insertnode_list(ses->myvars, left, right, 0, ALPHA);
-    varnum++;
-    if (mesvar[5])
+    set_hash(ses->myvars, left, right);
+    varnum++;       /* we don't care for exactness of this */
+    if (ses->mesvar[5])
         tintin_printf(ses, "#Ok. $%s is now set to {%s}.", left, right);
 }
 
@@ -83,15 +87,11 @@ void set_variable(char *left,char *right,struct session *ses)
 /*************************************************************************/
 void substitute_myvars(char *arg,char *result,struct session *ses)
 {
-    /* int varflag=FALSE;
-       char *right; */
-    char varname[BUFFER_SIZE], value[BUFFER_SIZE];
+    char varname[BUFFER_SIZE], value[BUFFER_SIZE], *v;
     int nest = 0, counter, varlen, valuelen;
     int specvar;
-    struct listnode *ln, *tempvars;
     int len=strlen(arg);
 
-    tempvars = ses->myvars;
     while (*arg)
     {
 
@@ -129,9 +129,9 @@ void substitute_myvars(char *arg,char *result,struct session *ses)
 
             if (counter == nest + 1)
             {
-                if ((ln = searchnode_list(tempvars, varname)) != NULL)
+                if ((v=get_hash(ses->myvars, varname)))
                 {
-                    valuelen = strlen(ln->right);
+                    valuelen = strlen(v);
                     if ((len+=valuelen-counter-varlen) > BUFFER_SIZE-10)
                     {
                         if (!aborting)
@@ -143,7 +143,7 @@ void substitute_myvars(char *arg,char *result,struct session *ses)
                         len-=valuelen-counter-varlen;
                         goto novar;
                     }
-                    strcpy(result, ln->right);
+                    strcpy(result, v);
                     result += valuelen;
                     arg += counter + varlen;
                 }
@@ -161,9 +161,6 @@ void substitute_myvars(char *arg,char *result,struct session *ses)
                     else
                     if (strcmp(varname,"PATH")==0)
                         path2var(value,ses);
-                    else
-                    if (strcmp(varname,"IDLETIME")==0)
-                        sprintf(value,"%d",time(0)-ses->idle_since);
                     else
                         goto novar;
                     valuelen=strlen(value);
@@ -218,14 +215,12 @@ novar:
 /*************************/
 /* the #variable command */
 /*************************/
-void var_command(char *arg,struct session *ses)
+void variable_command(char *arg,struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE], temp[BUFFER_SIZE];
-    struct listnode *tempvars, *ln;
     int r;
 
     /* char right2[BUFFER_SIZE]; */
-    tempvars = ses->myvars;
     arg = get_arg_in_braces(arg, left, 0);
     r=*space_out(arg);
     arg = get_arg_in_braces(arg, right, 1);
@@ -233,53 +228,29 @@ void var_command(char *arg,struct session *ses)
     substitute_myvars(temp, left, ses);
     substitute_vars(right, temp);
     substitute_myvars(temp, right, ses);
-    if (!*left)
+    if (*left && r)
     {
-        tintin_printf(ses,"#THESE VARIABLES HAVE BEEN SET:");
-        show_list(tempvars);
-        prompt(ses);
-    }
-    else if (*left && !r)
-    {
-        if ((ln = search_node_with_wild(tempvars, left)) != NULL)
-        {
-            while ((tempvars = search_node_with_wild(tempvars, left)) != NULL)
-                shownode_list(tempvars);
-            prompt(ses);
-        }
-        else
-            if (mesvar[5])
-                tintin_printf(ses,"#THAT VARIABLE IS NOT DEFINED.");
-    }
-    else
         set_variable(left,right,ses);
+        return;
+    }
+    show_hashlist(ses, ses->myvars, left,
+        "#THESE VARIABLES HAVE BEEN SET:",
+        "#THAT VARIABLE IS NOT DEFINED.");
 }
 
 /**********************/
 /* the #unvar command */
 /**********************/
-void unvar_command(char *arg,struct session *ses)
+void unvariable_command(char *arg,struct session *ses)
 {
     char left[BUFFER_SIZE], result[BUFFER_SIZE];
-    struct listnode *tempvars, *ln, *temp;
-    int flag;
 
-    flag = FALSE;
-    tempvars= ses->myvars;
-    temp = tempvars;
     arg = get_arg_in_braces(arg, left, 1);
     substitute_vars(left, result);
     substitute_myvars(result, left, ses);
-    while ((ln = search_node_with_wild(temp, left)) != NULL)
-    {
-        if (mesvar[5])
-            tintin_printf(ses, "#Ok. $%s is no longer a variable.", ln->left);
-        deletenode_list(tempvars, ln);
-        flag = TRUE;
-        /*temp = ln; */ /* FIXME */
-    }
-    if (!flag && mesvar[5])
-        tintin_printf(ses,"#THAT VARIABLE (%s) IS NOT DEFINED.",left);
+    delete_hashlist(ses, ses->myvars, left,
+        ses->mesvar[5]? "#Ok. $%s is no longer a variable." : 0,
+        ses->mesvar[5]? "#THAT VARIABLE (%s) IS NOT DEFINED." : 0);
 }
 
 
@@ -452,7 +423,7 @@ void getitem_command(char *arg,struct session *ses)
                 else
                 {
                     set_variable(destvar,"",ses);
-                    if (mesvar[5])
+                    if (ses->mesvar[5] || ses->mesvar[11])
                         tintin_printf(ses,"#Item doesn't exist!");
                 }
             }
@@ -1119,8 +1090,7 @@ void reverse_command(char *arg,struct session *ses)
 
         revstr(revstring, origstring);
 
-        sprintf(temp,"{%s} {%s}",destvar,revstring);
-        var_command(temp, ses);
+        set_variable(destvar, revstring, ses);
     }
 }
 
@@ -1362,8 +1332,7 @@ void postpad_command(char *arg,struct session *ses)
                 for(i = len; i < length; i++)
                     newtextstr[i] = ' ';
             }
-            sprintf(temp,"{%s} {%s}",destvar,newtextstr);
-            var_command(temp, ses);
+            set_variable(destvar, newtextstr, ses);
         }
     }
 }
@@ -1410,9 +1379,8 @@ void prepad_command(char *arg,struct session *ses)
                 newtextstr[i] = ' ';
 
             strncpy(newtextstr + len_diff, textstr, length);
-            newtextstr[length] = '\0';
-            sprintf(temp,"{%s} {%s}",destvar,newtextstr);
-            var_command(temp, ses);
+            newtextstr[length] = 0;
+            set_variable(destvar, newtextstr, ses);
         }
     }
 }
@@ -1444,8 +1412,6 @@ bad:
             tt++;
         switch (tolower(*tt))
         {
-        case 0:
-            goto seconds;
         case 'y':
             w*=365;
         case 'd':
@@ -1457,7 +1423,7 @@ bad:
         case 's':
             while (isalpha(*tt))
                 tt++;
-seconds:
+        case 0:
             t+=w;
             break;
         default:
@@ -1543,7 +1509,7 @@ void time_command(char *arg,struct session *ses)
 /**************************/
 /* the #substring command */
 /**************************/
-void substr_command(char *arg,struct session *ses)
+void substring_command(char *arg,struct session *ses)
 {
     char left[BUFFER_SIZE], mid[BUFFER_SIZE], right[BUFFER_SIZE],
          arg2[BUFFER_SIZE], *p;

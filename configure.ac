@@ -1,24 +1,25 @@
 # Process this file with autoconf to produce a configure script.
 AC_INIT
-AC_CONFIG_SRCDIR([acconfig.h])
+AM_INIT_AUTOMAKE(KBtin, 0.4.4)
+AC_CONFIG_SRCDIR([action.c])
 AM_CONFIG_HEADER(config.h)
 
-PACKAGE=KBtin
-AC_SUBST(PACKAGE)
-VERSION=0.4.1
-AC_SUBST(VERSION)
+# No stinking -g!
+CFLAGS=-O6
 
 # Checks for programs.
 AC_PROG_AWK
 AC_PROG_CC
-AC_PROG_LN_S
 AC_PROG_INSTALL
+AC_PROG_LN_S
 
 # Checks for libraries.
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([arpa/inet.h errno.h fcntl.h netdb.h netinet/in.h stdlib.h string.h strings.h sys/socket.h time.h sys/time.h sys/wait.h termios.h unistd.h asm/termios.h])
+AC_HEADER_SYS_WAIT
+AC_HEADER_TIOCGWINSZ
+AC_CHECK_HEADERS([stdlib.h strings.h string.h sys/time.h termios.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -27,13 +28,11 @@ AC_HEADER_TIME
 
 # Checks for library functions.
 AC_PROG_GCC_TRADITIONAL
-AC_FUNC_MALLOC
 AC_TYPE_SIGNAL
-AC_CHECK_FUNCS([alarm dup2 gethostbyname putenv select socket strcasecmp strchr strspn strstr strtol strtoul getpt ptsname _getpty vsnprintf])
+AC_FUNC_VPRINTF
+AC_CHECK_FUNCS([memcpy getpt ptsname vsnprintf _getpty])
 
 AC_LBL_LIBRARY_NET
-
-AC_ARG_PROGRAM
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

@@ -8,14 +8,25 @@
 #include "config.h"
 #include <stdlib.h>
 #ifdef STDC_HEADERS
-#include <string.h>
-#include <stdlib.h>
+# include <string.h>
+# include <stdlib.h>
 #else
-#ifndef HAVE_MEMCPY
-#define memcpy(d, s, n) bcopy ((s), (d), (n))
-#define memmove(d, s, n) bcopy ((s), (d), (n))
+# ifndef HAVE_MEMCPY
+#  define memcpy(d, s, n) bcopy ((s), (d), (n))
+#  define memmove(d, s, n) bcopy ((s), (d), (n))
+# endif
 #endif
+#if TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# if HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
 #endif
+
 #include <stdarg.h>
 
 #include <signal.h>
@@ -23,7 +34,6 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/wait.h>
-#include <sys/time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -35,15 +45,9 @@
 typedef void (*sighandler_t)(int);
 
 /*************** globals ******************/
-int blank = DEFAULT_DISPLAY_BLANK;
 int term_echoing = TRUE;
-int echo = DEFAULT_ECHO;
-int speedwalk = DEFAULT_SPEEDWALK;
-int togglesubs = DEFAULT_TOGGLESUBS;
-int presub = DEFAULT_PRESUB;
 int keypad= DEFAULT_KEYPAD;
 int puts_echoing = TRUE;
-int verbose = FALSE;
 int alnum = 0;
 int acnum = 0;
 int subnum = 0;
@@ -53,7 +57,6 @@ int routnum = 0;
 int pdnum = 0;
 int antisubnum = 0;
 int bindnum = 0;
-int verbatim = 0;
 char homepath[1025];
 char E = 27;
 int gotpassword=0;
@@ -69,7 +72,6 @@ struct session *sessionlist, *activesession, *nullsession;
 char **pvars;	/* the %0, %1, %2,....%9 variables */
 char tintin_char = DEFAULT_TINTIN_CHAR;
 char verbatim_char = DEFAULT_VERBATIM_CHAR;
-int mesvar[MAX_MESVAR+1];
 int split_line, term_columns;
 char prev_command[BUFFER_SIZE];
 void tintin(void);
@@ -119,6 +121,8 @@ extern void user_done(void);
 extern void user_passwd(int x);
 extern int iscompleteprompt(char *line);
 void echo_input(char *txt);
+extern struct hashtable* init_hash();
+extern void init_parse();
 
 #ifdef HAVE_TIME_H
 #include <time.h>
@@ -126,19 +130,6 @@ void echo_input(char *txt);
 extern void do_history(char *buffer, struct session *ses);
 extern int read_buffer_mud(char *buffer, struct session *ses);
 extern void cleanup_session(struct session *ses);
-
-#if defined(HAVE_SYS_TERMIO_H) && !defined(BSD_ECHO)
-#include <sys/termio.h>
-#ifdef HAVE_TCFLAG_T
-tcflag_t c_lflag;
-cc_t c_cc[NCCS];
-
-#else
-unsigned char c_cc[NCC];
-unsigned short c_lflag;
-
-#endif
-#endif
 
 void tstphandler(int sig)
 {
@@ -163,6 +154,13 @@ void sigsegv(void)
     exit(11);
 }
 
+void sigfpe(void)
+{
+    user_done();
+    write(2,"Floating point exception.\n",26);
+    exit(8);
+}
+
 int new_news(void)
 {
     struct stat KBtin, news;
@@ -175,6 +173,14 @@ int new_news(void)
 #endif
             return 0;       /* either no NEWS file, or can't stat it */
     return (news.st_ctime>=news.st_atime)||(KBtin.st_ctime+10>news.st_atime);
+}
+
+/************************/
+/* the #suspend command */
+/************************/
+void suspend_command(char *arg, struct session *ses)
+{
+    tstphandler(SIGTSTP);
 }
 
 /**************************************************************************/
@@ -190,29 +196,30 @@ int main(int argc, char **argv, char **environ)
 
     tintin_exec=argv[0];
     init_bind();
+    init_parse();
     strcpy(status,EMPTY_LINE);
     user_init();
     /*  read_complete();		no tab-completion */
     hist_num=-1;
     ses = NULL;
-    srand(getpid());
+    srand(getpid()^time(0));
     lastdraft=0;
 
-    tintin_printf(ses,"~2~##################################################");
-    tintin_printf(ses, "#~7~                ~12~K B ~3~t i n~7~     v %-15s ~2~#", VERSION_NUM);
-    tintin_printf(ses,"#~7~ current developer: ~9~Adam Borowski               ~2~#");
-    tintin_printf(ses,"#~7~                        (~9~kilobyte@mimuw.edu.pl~7~) ~2~#");
-    tintin_printf(ses,"#~7~ based on ~12~tintin++~7~ v 2.1.9 by Peter Unold,      ~2~#");
-    tintin_printf(ses,"#~7~  Bill Reiss, David A. Wagner, Joann Ellsworth, ~2~#");
-    tintin_printf(ses,"#~7~     Jeremy C. Jack, Ulan@GrimneMUD and         ~2~#");
-    tintin_printf(ses,"#~7~  Jacek Narebski (jnareb@jester.ds2.uw.edu.pl)  ~2~#");
-    tintin_printf(ses,"##################################################~7~");
-    tintin_printf(ses,"~15~#session <name> <host> <port> ~7~to connect to a remote server");
-    tintin_printf(ses,"                              ~8~#ses t2t towers.angband.com 9999");
-    tintin_printf(ses,"~15~#run <name> <command>         ~7~to run a local command");
-    tintin_printf(ses,"                              ~8~#run advent adventure");
-    tintin_printf(ses,"                              ~8~#run sql mysql");
-    tintin_printf(ses,"~15~#help                         ~7~to get the help index");
+    tintin_printf(0,"~2~##################################################");
+    tintin_printf(0, "#~7~                ~12~K B ~3~t i n~7~     v %-15s ~2~#", VERSION_NUM);
+    tintin_printf(0,"#~7~ current developer: ~9~Adam Borowski               ~2~#");
+    tintin_printf(0,"#~7~                        (~9~kilobyte@mimuw.edu.pl~7~) ~2~#");
+    tintin_printf(0,"#~7~ based on ~12~tintin++~7~ v 2.1.9 by Peter Unold,      ~2~#");
+    tintin_printf(0,"#~7~  Bill Reiss, David A. Wagner, Joann Ellsworth, ~2~#");
+    tintin_printf(0,"#~7~     Jeremy C. Jack, Ulan@GrimneMUD and         ~2~#");
+    tintin_printf(0,"#~7~  Jacek Narebski (jnareb@jester.ds2.uw.edu.pl)  ~2~#");
+    tintin_printf(0,"##################################################~7~");
+    tintin_printf(0,"~15~#session <name> <host> <port> ~7~to connect to a remote server");
+    tintin_printf(0,"                              ~8~#ses t2t towers.angband.com 9999");
+    tintin_printf(0,"~15~#run <name> <command>         ~7~to run a local command");
+    tintin_printf(0,"                              ~8~#run advent adventure");
+    tintin_printf(0,"                              ~8~#run sql mysql");
+    tintin_printf(0,"~15~#help                         ~7~to get the help index");
     if (new_news())
         tintin_printf(ses,"Check #news now!");
 
@@ -231,6 +238,8 @@ int main(int argc, char **argv, char **environ)
         syserr("signal SIGCHLD");
     if (signal(SIGSEGV,(sighandler_t)sigsegv) == BADSIG)
         syserr("signal SIGSEGV");
+    if (signal(SIGFPE,(sighandler_t)sigfpe) == BADSIG)
+        syserr("signal SIGFPE");
     if (signal(SIGPIPE, SIG_IGN) == BADSIG)
         syserr("signal SIGPIPE");
     time0 = time(NULL);
@@ -243,20 +252,26 @@ int main(int argc, char **argv, char **environ)
     nullsession->time0 = 0;
     nullsession->snoopstatus = TRUE;
     nullsession->logfile = NULL;
+    nullsession->blank = DEFAULT_DISPLAY_BLANK;
+    nullsession->echo = DEFAULT_ECHO;
+    nullsession->speedwalk = DEFAULT_SPEEDWALK;
+    nullsession->togglesubs = DEFAULT_TOGGLESUBS;
+    nullsession->presub = DEFAULT_PRESUB;
+    nullsession->verbatim = 0;
     nullsession->ignore = DEFAULT_IGNORE;
-    nullsession->aliases = init_list();
+    nullsession->aliases = init_hash();
     nullsession->actions = init_list();
     nullsession->prompts = init_list();
     nullsession->subs = init_list();
-    nullsession->myvars = init_list();
+    nullsession->myvars = init_hash();
     nullsession->highs = init_list();
-    nullsession->pathdirs = init_list();
+    nullsession->pathdirs = init_hash();
     nullsession->socket = 0;
     nullsession->issocket = 0;
     nullsession->naws = 0;
     nullsession->server_echo = 0;
     nullsession->antisubs = init_list();
-    nullsession->binds = init_list();
+    nullsession->binds = init_hash();
     nullsession->socketbit = 0;
     nullsession->next = 0;
     {
@@ -274,22 +289,24 @@ int main(int argc, char **argv, char **environ)
     nullsession->path_length = 0;
     nullsession->last_line[0] = 0;
     nullsession->events = NULL;
+    nullsession->verbose=0;
     sessionlist = nullsession;
     activesession = nullsession;
     pvars=0;
 
-    mesvar[0] = DEFAULT_ALIAS_MESS;
-    mesvar[1] = DEFAULT_ACTION_MESS;
-    mesvar[2] = DEFAULT_SUB_MESS;
-    mesvar[3] = DEFAULT_ANTISUB_MESS;
-    mesvar[4] = DEFAULT_HIGHLIGHT_MESS;
-    mesvar[5] = DEFAULT_VARIABLE_MESS;
-    mesvar[6] = DEFAULT_PATHDIR_MESS;
-    mesvar[7] = DEFAULT_ROUTE_MESS;
-    mesvar[8] = DEFAULT_GOTO_MESS;
-    mesvar[9] = DEFAULT_BIND_MESS;
-    mesvar[10]= DEFAULT_SYSTEM_MESS;
-    mesvar[11]= DEFAULT_PATH_MESS;
+    nullsession->mesvar[0] = DEFAULT_ALIAS_MESS;
+    nullsession->mesvar[1] = DEFAULT_ACTION_MESS;
+    nullsession->mesvar[2] = DEFAULT_SUB_MESS;
+    nullsession->mesvar[3] = DEFAULT_ANTISUB_MESS;
+    nullsession->mesvar[4] = DEFAULT_HIGHLIGHT_MESS;
+    nullsession->mesvar[5] = DEFAULT_VARIABLE_MESS;
+    nullsession->mesvar[6] = DEFAULT_PATHDIR_MESS;
+    nullsession->mesvar[7] = DEFAULT_ROUTE_MESS;
+    nullsession->mesvar[8] = DEFAULT_GOTO_MESS;
+    nullsession->mesvar[9] = DEFAULT_BIND_MESS;
+    nullsession->mesvar[10]= DEFAULT_SYSTEM_MESS;
+    nullsession->mesvar[11]= DEFAULT_PATH_MESS;
+    nullsession->mesvar[12]= DEFAULT_ERROR_MESS;
 
     *homepath = '\0';
     if (!strcmp(DEFAULT_FILE_DIR, "HOME"))
@@ -305,7 +322,7 @@ int main(int argc, char **argv, char **environ)
         if (*argv[1] == '-' && *(argv[1] + 1) == 'v')
         {
             arg_num = 2;
-            verbose = TRUE;
+            nullsession->verbose = TRUE;
         }
     }
     activesession=nullsession;
@@ -414,7 +431,7 @@ void tintin(void)
                     if (activesession && *done_input)
                         if (strcmp(done_input, prev_command))
                             do_history(done_input, activesession);
-                    if (echo)
+                    if (activesession->echo)
                         echo_input(done_input);
                 }
                 if (*done_input)
@@ -544,17 +561,17 @@ void do_one_line(char *line,int nl,struct session *ses)
     };
     do_in_MUD_colors(line);
     isnb=isnotblank(line,0);
-    if (!ses->ignore && (nl || isnotblank(line,0)))
+    if (!ses->ignore && (nl||isnb))
         check_all_promptactions(line, ses);
-    if (nl && !presub && !ses->ignore)
+    if (nl && !ses->presub && !ses->ignore)
         check_all_actions(line, ses);
-    if (!togglesubs && (nl||isnb) && !do_one_antisub(line, ses))
+    if (!ses->togglesubs && (nl||isnb) && !do_one_antisub(line, ses))
         do_all_sub(line, ses);
-    if (nl && presub && !ses->ignore)
+    if (nl && ses->presub && !ses->ignore)
         check_all_actions(line, ses);
-    if (isnb&&!togglesubs)
+    if (isnb&&!ses->togglesubs)
         do_all_high(line, ses);
-    if (isnotblank(line,blank))
+    if (isnotblank(line,ses->blank))
     {
         if (ses==activesession)
         {
@@ -613,16 +630,16 @@ void tintin_puts1(char *cptr, struct session *ses)
 
     strcpy(line,cptr);
 
-    if (!presub && !ses->ignore)
+    if (!ses->presub && !ses->ignore)
         check_all_actions(line, ses);
-    if (!togglesubs)
+    if (!ses->togglesubs)
         if (!do_one_antisub(line, ses))
             do_all_sub(line, ses);
-    if (presub && !ses->ignore)
+    if (ses->presub && !ses->ignore)
         check_all_actions(line, ses);
-    if (!togglesubs)
+    if (!ses->togglesubs)
         do_all_high(line, ses);
-    if (isnotblank(line,blank))
+    if (isnotblank(line,ses->blank))
         if (ses==activesession)
         {
             cptr=strchr(line,0);

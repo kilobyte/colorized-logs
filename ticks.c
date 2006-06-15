@@ -22,8 +22,15 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#ifdef HAVE_TIME_H
-#include <time.h>
+#if TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# if HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
 #endif
 
 /* externs */
@@ -41,7 +48,7 @@ int ticker_interrupted;
 /*********************/
 /* the #tick command */
 /*********************/
-void tick_command(struct session *ses)
+void tick_command(char *arg,struct session *ses)
 {
     if (ses)
     {
@@ -59,7 +66,7 @@ void tick_command(struct session *ses)
 /************************/
 /* the #tickoff command */
 /************************/
-void tickoff_command(struct session *ses)
+void tickoff_command(char *arg,struct session *ses)
 {
     if (ses)
     {
@@ -73,7 +80,7 @@ void tickoff_command(struct session *ses)
 /***********************/
 /* the #tickon command */
 /***********************/
-void tickon_command(struct session *ses)
+void tickon_command(char *arg,struct session *ses)
 {
     if (ses)
     {
@@ -91,24 +98,28 @@ void tickon_command(struct session *ses)
 /*************************/
 void ticksize_command(char *arg,struct session *ses)
 {
-    if (ses)
+    int x;
+    char *err;
+
+    if (!ses)
     {
-        if (*arg != '\0')
-        {
-            if (isdigit(*arg))
-            {
-                ses->tick_size = atoi(arg);
-                ses->time0 = time(NULL);
-                tintin_puts("#OK NEW TICKSIZE SET", ses);
-            }
-            else
-                tintin_puts("#SPECIFY A NUMBER!!!!TRYING TO CRASH ME EH?", ses);
-        }
-        else
-            tintin_puts("#SET THE TICK-SIZE TO WHAT?", ses);
+        tintin_printf(ses, "#NO SESSION ACTIVE => NO TICKER!");
+        return;
     }
-    else
-        tintin_puts("#NO SESSION ACTIVE => NO TICKER!", ses);
+    if (!*arg || !isdigit(*arg))
+    {
+        tintin_printf(ses, "#SYNTAX: #ticksize <number>");
+        return;
+    }
+    x=strtol(arg,&err,10);
+    if (*err || x<1 || x>=0x7fffffff)
+    {
+        tintin_printf(ses, "#TICKSIZE OUT OF RANGE (1..%d)", 0x7fffffff);
+        return;
+    }
+    ses->tick_size = x;
+    ses->time0 = time(NULL);
+    tintin_printf(ses, "#OK NEW TICKSIZE SET");
 }
 
 int timetilltick(struct session *ses)

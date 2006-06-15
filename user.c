@@ -4,21 +4,22 @@
 #include <stdlib.h>
 #include <ctype.h>
 #ifdef HAVE_CONFIG_H
-#include "config.h"
-#ifdef HAVE_ASM_TERMIOS_H
-#include <asm/termios.h>
-#else
-#ifdef HAVE_TERMIOS_H
-#include <termios.h>
-#endif
-#endif
-#ifdef HAVE_STRING_H
-#include <string.h>
-#else
-#ifdef HAVE_STRINGS_H
-#include <strings.h>
-#endif
-#endif
+# include "config.h"
+
+# if HAVE_TERMIOS_H
+#  include <termios.h>
+# endif
+# if GWINSZ_IN_SYS_IOCTL
+#  include <sys/ioctl.h>
+# endif
+
+# ifdef HAVE_STRING_H
+#  include <string.h>
+# else
+#  ifdef HAVE_STRINGS_H
+#   include <strings.h>
+#  endif
+# endif
 #endif
 
 #define B_LENGTH CONSOLE_LENGTH
@@ -106,14 +107,15 @@ void term_restore(void)
 
 void term_getsize(void)
 {
-    /*
-    	LINES=25;
-    	COLS=80;
-    */
     struct winsize ts;
 
     if (ioctl(1,TIOCGWINSZ,&ts))
-        syserr("ioctl(TIOCGWINSZ)");
+/*        syserr("ioctl(TIOCGWINSZ)");*/
+    {       /* not a terminal, let's quietly assume 80x25 */
+        LINES=25;
+        COLS=80;
+        return;
+    }
     LINES=ts.ws_row;
     COLS=ts.ws_col;
 }
@@ -145,13 +147,13 @@ void countpos(void)
 /**********************/
 void redraw_in(void)
 {
-    tbuf+=sprintf(tbuf,"\e[%d;1f\e[0;37;44m",scr_len+1);
+    tbuf+=sprintf(tbuf,"\e[%d;1f\e[0;37;4%dm",scr_len+1,INPUT_COLOR);
     if (k_pos<k_scrl)
         k_scrl=k_pos;
     if (k_pos-k_scrl+(k_scrl!=0)>=COLS)
         k_scrl=k_pos+2-COLS;
     if (k_scrl)
-        tbuf+=sprintf(tbuf,"\e[1m<\e[0;44m");
+        tbuf+=sprintf(tbuf,"\e[1m<\e[0;4%dm",INPUT_COLOR);
     if (user_getpassword)
     {
         int i,l;
@@ -179,7 +181,7 @@ void redraw_in(void)
                 l-=k;
                 k=0;
             };
-            tbuf+=sprintf(tbuf,"\e[41m");
+            tbuf+=sprintf(tbuf,"\e[4%dm",MARGIN_COLOR);
             k+=marginr-marginl+1;
             if (k>l)
                 k=l;
@@ -190,7 +192,7 @@ void redraw_in(void)
                 r+=k;
                 l-=k;
             };
-            tbuf+=sprintf(tbuf,"\e[44m");
+            tbuf+=sprintf(tbuf,"\e[4%dm",INPUT_COLOR);
             if (l>0)
             {
                 memcpy(tbuf,k_input+r,l);
@@ -301,7 +303,8 @@ void b_scroll(int b_to)
     if (b_screenb==b_bottom)
     {
         int x;
-        tbuf+=sprintf(tbuf,"\e[%d;1f\e[0;1;37;44m\e[2K\e[?25l",scr_len+1);
+        tbuf+=sprintf(tbuf,"\e[%d;1f\e[0;1;37;4%dm\e[2K\e[?25l",
+                scr_len+1,INPUT_COLOR);
         for (x=0;x<COLS;++x)
             *tbuf++='^';
     }
@@ -519,7 +522,9 @@ void b_canceldraft(void)
 {
     if (b_bottom==b_screenb)
     {
-        tbuf+=sprintf(tbuf,"\e8\e[2K");
+        tbuf+=(o_oldcolor&0x70)?
+                    sprintf(tbuf,"\e8\e[0m\e[2K"):
+                    sprintf(tbuf,"\e8\e[2K");
         while (b_current>b_last)
         {
             b_current--;
@@ -647,7 +652,6 @@ int process_kbd(struct session *ses)
                     strcpy(k_input,ses->history[++hist_num]);
                     countpos();
                     redraw_in();
-                    term_commit();
                     break;
                 case 'B':	/* down arrow */
                     if (b_bottom!=b_screenb)
@@ -664,7 +668,6 @@ int process_kbd(struct session *ses)
                         strcpy(k_input,ses->history[hist_num]);
                     countpos();
                     redraw_in();
-                    term_commit();
                     break;
                 case 'D':	/* left arrow */
                     if (b_bottom!=b_screenb)
@@ -676,10 +679,10 @@ int process_kbd(struct session *ses)
                     {
                         scr_curs=k_pos-k_scrl+(k_scrl!=0);
                         redraw_cursor();
+                        term_commit();
                     }
                     else
                         redraw_in();
-                    term_commit();
                     break;
                 case 'C':	/* right arrow */
                     if (b_bottom!=b_screenb)
@@ -691,10 +694,10 @@ int process_kbd(struct session *ses)
                     {
                         scr_curs=k_pos-k_scrl+(k_scrl!=0);
                         redraw_cursor();
+                        term_commit();
                     }
                     else
                         redraw_in();
-                    term_commit();
                     break;
                 default:
                     if (b_bottom!=b_screenb)
@@ -737,10 +740,10 @@ int process_kbd(struct session *ses)
                             {
                                 scr_curs=k_pos-k_scrl+(k_scrl!=0);
                                 redraw_cursor();
+                                term_commit();
                             }
                             else
                                 redraw_in();
-                            term_commit();
                             break;
                         case 4:		/* [End] */
                         case 8:
@@ -753,10 +756,10 @@ int process_kbd(struct session *ses)
                             {
                                 scr_curs=k_pos-k_scrl+(k_scrl!=0);
                                 redraw_cursor();
+                                term_commit();
                             }
                             else
                                 redraw_in();
-                            term_commit();
                             break;
                         case 3:		/* [Del] */
                             if (b_bottom!=b_screenb)
@@ -770,7 +773,6 @@ int process_kbd(struct session *ses)
                                 --k_len;
                             };
                             redraw_in();
-                            term_commit();
                             break;
                         default:
                             if (b_bottom!=b_screenb)
@@ -804,7 +806,6 @@ int process_kbd(struct session *ses)
         k_len=0;
         k_input[0]=0;
         redraw_in();
-        term_commit();
         /* fallthrough */
     case 0:
         switch(ch)
@@ -821,19 +822,19 @@ int process_kbd(struct session *ses)
             strcpy(done_input,k_input);
             k_len=k_pos=k_scrl=0;
             k_input[0]=0;
-            tbuf+=sprintf(tbuf,"\e[%d;1f\e[0;37;44m\e[2K",scr_len+1);
+            tbuf+=sprintf(tbuf,"\e[%d;1f\e[0;37;4%dm\e[2K",scr_len+1,INPUT_COLOR);
             if (margins&&(marginl<=COLS))
             {
                 int i;
-                tbuf+=sprintf(tbuf,"\e[%d;%df\e[0;37;41m",
-                              scr_len+1,marginl);
+                tbuf+=sprintf(tbuf,"\e[%d;%df\e[0;37;4%dm",
+                              scr_len+1,marginl,MARGIN_COLOR);
                 if (marginr<=COLS)
                     i=marginr+1-marginl;
                 else
                     i=COLS+1-marginl;
                 while (i--)
                     *tbuf++=' ';
-                tbuf+=sprintf(tbuf,"\e[1;37;44m\e[%d;1f",scr_len+1);
+                tbuf+=sprintf(tbuf,"\e[1;37;4%dm\e[%d;1f",INPUT_COLOR,scr_len+1);
             };
             scr_curs=0;
             term_commit();
@@ -852,7 +853,6 @@ int process_kbd(struct session *ses)
                 i=k_len; k_len=tk_len; tk_len=i;
             };
             redraw_in();
-            term_commit();
             break;
         case 4:			/* ^[D] */
             if (find_bind("^D",0,ses))
@@ -875,7 +875,6 @@ int process_kbd(struct session *ses)
                 --k_len;
             };
             redraw_in();
-            term_commit();
             break;
         default:
             if (b_bottom!=b_screenb)
@@ -901,10 +900,10 @@ int process_kbd(struct session *ses)
                 if ((k_len==k_pos)&&(k_len<COLS))
                 {
                     scr_curs++;
-                    tbuf+=sprintf(tbuf,"\e[0;37;4%cm%c",
+                    tbuf+=sprintf(tbuf,"\e[0;37;4%dm%c",
                                   margins&&
                                   (k_len>=marginl)&&(k_len<=marginr)
-                                  ? '1' : '4',
+                                  ? MARGIN_COLOR : INPUT_COLOR,
                                   user_getpassword?'*':ch);
                     term_commit();
                 }
@@ -929,7 +928,7 @@ void user_drawscreen(void)
     need_resize=0;
     scr_len=LINES-1-isstatus;
     tbuf+=sprintf(tbuf,"\e[0;37;40m\e[2J\e[0;37;40m\e[1;%dr\e7",scr_len);
-    tbuf+=sprintf(tbuf,"\e[%d;f\e[0;37;44m\e[2K",scr_len+1);
+    tbuf+=sprintf(tbuf,"\e[%d;f\e[0;37;4%dm\e[2K",scr_len+1,INPUT_COLOR);
     if (isstatus)
         tbuf+=sprintf(tbuf,"\e[%d;f\e[37;4%dm\e[2K",LINES,STATUS_COLOR);
 }
@@ -964,7 +963,6 @@ void user_resize(void)
     if (isstatus)
         redraw_status();
     redraw_in();
-    term_commit();
     
     telnet_resize_all();
 }
@@ -1064,7 +1062,6 @@ void user_resume(void)
     if (isstatus)
         redraw_status();
     redraw_in();
-    term_commit();
 }
 
 

@@ -7,10 +7,8 @@
 
 extern struct session *sessionlist;
 extern struct session *activesession;
-extern int echo;
 
 extern char *get_arg_in_braces(char *s,char *arg,int flag);
-extern int mesvar[];
 extern int match(char *regex, char *string);
 extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
 extern void tintin_printf(struct session *ses, const char *format, ...);
@@ -20,7 +18,7 @@ extern void substitute_vars(char *arg, char *result);
 
 void execute_event(struct eventnode *ev, struct session *ses)
 {
-    if(activesession==ses && mesvar[3])
+    if(activesession==ses && ses->mesvar[3])
         tintin_printf(ses, "[EVENT: %s]", ev->event);
     parse_input(ev->event,1,ses);
 }
@@ -131,6 +129,11 @@ void delay_command(char *arg, struct session *ses)
     }
 }
 
+void event_command(char *arg, struct session *ses)
+{
+    delay_command(arg, ses);
+}
+
 /* remove ev->next from list */
 void remove_event(struct eventnode **ev)
 {
@@ -145,7 +148,7 @@ void remove_event(struct eventnode **ev)
 }
 
 /* remove events matching regexp arg from list */
-void remove_command(char *arg, struct session *ses)
+void undelay_command(char *arg, struct session *ses)
 {
     char temp[BUFFER_SIZE], left[BUFFER_SIZE];
     int flag;
@@ -173,7 +176,7 @@ void remove_command(char *arg, struct session *ses)
         if (match(left, (*ev)->event))
         {
             flag=1;
-            if (ses==activesession && mesvar[3])
+            if (ses==activesession && ses->mesvar[3])
                 tintin_printf(ses, "#Ok. Event {%s} at %d won't be executed.",
                     (*ev)->event, (*ev)->time-time(0));
             remove_event(ev);
@@ -183,4 +186,14 @@ void remove_command(char *arg, struct session *ses)
         
     if (flag == 0)
         tintin_printf(ses,"#THAT EVENT IS NOT DEFINED.");
+}
+
+void removeevent_command(char *arg, struct session *ses)
+{
+    undelay_command(arg, ses);
+}
+
+void unevent_command(char *arg, struct session *ses)
+{
+    undelay_command(arg, ses);
 }
