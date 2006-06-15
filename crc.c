@@ -165,7 +165,7 @@ static long cr3tab[] =
 #endif
 
 #ifdef NFGM
-long UPDC32(b, c)
+static long UPDC32(b, c)
     long c;
 {
     return (cr3tab[((int) c ^ b) & 0xff] ^ ((c >> 8) & 0x00FFFFFF));

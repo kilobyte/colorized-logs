@@ -142,6 +142,7 @@
 /* echo is turned back on the next time the user types a return          */
 /*************************************************************************/
 #define PROMPT_FOR_PW_TEXT "*assword:*"
+#define PROMPT_FOR_PW_TEXT2 "*assphrase:*"
 /*************************************************************************/
 /* Whether the MUD tells us to echo off, let's check whether it's a      */
 /* password input prompt, or a --More-- prompt.  Unfortunately, both     */

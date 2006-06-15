@@ -321,6 +321,7 @@ sbloop:
 #endif
         return 2;
     }
+    /* not reached */
     return (cp-data);
 nego_too_long:
     tintin_eprintf(ses, "#error: unterminated TELNET subnegotiation received.");

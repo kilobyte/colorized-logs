@@ -73,7 +73,7 @@ void syserr(char *msg, ...)
 
 /* Is any compiler _that_ old still alive? */
 #ifndef HAVE_SNPRINTF
-int snprintf(char *str, int len, char *fmt, ...)
+/* not for protos.h */ int snprintf(char *str, int len, char *fmt, ...)
 {
     va_list ap;
     

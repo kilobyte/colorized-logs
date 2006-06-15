@@ -880,7 +880,9 @@ void do_one_line(char *line,int nl,struct session *ses)
     switch (ses->server_echo)
     {
     case 0:
-        if (match(PROMPT_FOR_PW_TEXT,line) && !gotpassword)
+        if ((match(PROMPT_FOR_PW_TEXT,line)
+            || match(PROMPT_FOR_PW_TEXT2,line))
+           && !gotpassword)
         {
             gotpassword=1;
             user_passwd(1);

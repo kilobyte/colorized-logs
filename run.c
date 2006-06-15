@@ -344,8 +344,6 @@ int run(char *command)
     default:
         return(fd);
     }
-
-    return 0;
 }
 
 

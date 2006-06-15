@@ -1,4 +1,9 @@
 #! /bin/sh
+#
+# Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006 Free Software
+# Foundation, Inc.
+# This test suite is free software; the Free Software Foundation gives
+# unlimited permission to copy, distribute and modify it.
 ## --------------------- ##
 ## M4sh Initialization.  ##
 ## --------------------- ##
@@ -10,66 +15,15 @@ if test -n "${ZSH_VERSION+set}" && (emulate sh) >/dev/null 2>&1; then
   # Zsh 3.x and 4.x performs word splitting on ${1+"$@"}, which
   # is contrary to our usage.  Disable this feature.
   alias -g '${1+"$@"}'='"$@"'
-elif test -n "${BASH_VERSION+set}" && (set -o posix) >/dev/null 2>&1; then
-  set -o posix
+  setopt NO_GLOB_SUBST
+else
+  case `(set -o) 2>/dev/null` in *posix*) set -o posix;; esac
 fi
+BIN_SH=xpg4; export BIN_SH # for Tru64
 DUALCASE=1; export DUALCASE # for MKS sh
 
-# Support unset when possible.
-if ( (MAIL=60; unset MAIL) || exit) >/dev/null 2>&1; then
-  as_unset=unset
-else
-  as_unset=false
-fi
 
-
-# Work around bugs in pre-3.0 UWIN ksh.
-$as_unset ENV MAIL MAILPATH
-PS1='$ '
-PS2='> '
-PS4='+ '
-
-# NLS nuisances.
-for as_var in \
-  LANG LANGUAGE LC_ADDRESS LC_ALL LC_COLLATE LC_CTYPE LC_IDENTIFICATION \
-  LC_MEASUREMENT LC_MESSAGES LC_MONETARY LC_NAME LC_NUMERIC LC_PAPER \
-  LC_TELEPHONE LC_TIME
-do
-  if (set +x; test -z "`(eval $as_var=C; export $as_var) 2>&1`"); then
-    eval $as_var=C; export $as_var
-  else
-    $as_unset $as_var
-  fi
-done
-
-# Required to use basename.
-if expr a : '\(a\)' >/dev/null 2>&1; then
-  as_expr=expr
-else
-  as_expr=false
-fi
-
-if (basename /) >/dev/null 2>&1 && test "X`basename / 2>&1`" = "X/"; then
-  as_basename=basename
-else
-  as_basename=false
-fi
-
-
-# Name of the executable.
-as_me=`$as_basename "$0" ||
-$as_expr X/"$0" : '.*/\([^/][^/]*\)/*$' \| \
-	 X"$0" : 'X\(//\)$' \| \
-	 X"$0" : 'X\(/\)$' \| \
-	 .     : '\(.\)' 2>/dev/null ||
-echo X/"$0" |
-    sed '/^.*\/\([^/][^/]*\)\/*$/{ s//\1/; q; }
-  	  /^X\/\(\/\/\)$/{ s//\1/; q; }
-  	  /^X\/\(\/\).*/{ s//\1/; q; }
-  	  s/.*/./; q'`
-
-
-# PATH needs CR, and LINENO needs CR and PATH.
+# PATH needs CR
 # Avoid depending upon Character Ranges.
 as_cr_letters='abcdefghijklmnopqrstuvwxyz'
 as_cr_LETTERS='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -90,124 +44,464 @@ if test "${PATH_SEPARATOR+set}" != set; then
   rm -f conf$$.sh
 fi
 
+# Support unset when possible.
+if ( (MAIL=60; unset MAIL) || exit) >/dev/null 2>&1; then
+  as_unset=unset
+else
+  as_unset=false
+fi
 
-  as_lineno_1=$LINENO
-  as_lineno_2=$LINENO
-  as_lineno_3=`(expr $as_lineno_1 + 1) 2>/dev/null`
-  test "x$as_lineno_1" != "x$as_lineno_2" &&
-  test "x$as_lineno_3"  = "x$as_lineno_2"  || {
-  # Find who we are.  Look in the path if we contain no path at all
-  # relative or not.
-  case $0 in
-    *[\\/]* ) as_myself=$0 ;;
-    *) as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+
+# IFS
+# We need space, tab and new line, in precisely that order.  Quoting is
+# there to prevent editors from complaining about space-tab.
+# (If _AS_PATH_WALK were called with IFS unset, it would disable word
+# splitting by setting IFS to empty value.)
+as_nl='
+'
+IFS=" ""	$as_nl"
+
+# Find who we are.  Look in the path if we contain no directory separator.
+case $0 in
+  *[\\/]* ) as_myself=$0 ;;
+  *) as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
 for as_dir in $PATH
 do
   IFS=$as_save_IFS
   test -z "$as_dir" && as_dir=.
   test -r "$as_dir/$0" && as_myself=$as_dir/$0 && break
 done
+IFS=$as_save_IFS
 
-       ;;
-  esac
-  # We did not find ourselves, most probably we were run as `sh COMMAND'
-  # in which case we are not to be found in the path.
-  if test "x$as_myself" = x; then
-    as_myself=$0
+     ;;
+esac
+# We did not find ourselves, most probably we were run as `sh COMMAND'
+# in which case we are not to be found in the path.
+if test "x$as_myself" = x; then
+  as_myself=$0
+fi
+if test ! -f "$as_myself"; then
+  echo "$as_myself: error: cannot find myself; rerun with an absolute file name" >&2
+  { (exit 1); exit 1; }
+fi
+
+# Work around bugs in pre-3.0 UWIN ksh.
+for as_var in ENV MAIL MAILPATH
+do ($as_unset $as_var) >/dev/null 2>&1 && $as_unset $as_var
+done
+PS1='$ '
+PS2='> '
+PS4='+ '
+
+# NLS nuisances.
+for as_var in \
+  LANG LANGUAGE LC_ADDRESS LC_ALL LC_COLLATE LC_CTYPE LC_IDENTIFICATION \
+  LC_MEASUREMENT LC_MESSAGES LC_MONETARY LC_NAME LC_NUMERIC LC_PAPER \
+  LC_TELEPHONE LC_TIME
+do
+  if (set +x; test -z "`(eval $as_var=C; export $as_var) 2>&1`"); then
+    eval $as_var=C; export $as_var
+  else
+    ($as_unset $as_var) >/dev/null 2>&1 && $as_unset $as_var
   fi
-  if test ! -f "$as_myself"; then
-    { echo "$as_me: error: cannot find myself; rerun with an absolute path" >&2
-   { (exit 1); exit 1; }; }
-  fi
-  case $CONFIG_SHELL in
-  '')
+done
+
+# Required to use basename.
+if expr a : '\(a\)' >/dev/null 2>&1 &&
+   test "X`expr 00001 : '.*\(...\)'`" = X001; then
+  as_expr=expr
+else
+  as_expr=false
+fi
+
+if (basename -- /) >/dev/null 2>&1 && test "X`basename -- / 2>&1`" = "X/"; then
+  as_basename=basename
+else
+  as_basename=false
+fi
+
+
+# Name of the executable.
+as_me=`$as_basename -- "$0" ||
+$as_expr X/"$0" : '.*/\([^/][^/]*\)/*$' \| \
+	 X"$0" : 'X\(//\)$' \| \
+	 X"$0" : 'X\(/\)' \| . 2>/dev/null ||
+echo X/"$0" |
+    sed '/^.*\/\([^/][^/]*\)\/*$/{
+	    s//\1/
+	    q
+	  }
+	  /^X\/\(\/\/\)$/{
+	    s//\1/
+	    q
+	  }
+	  /^X\/\(\/\).*/{
+	    s//\1/
+	    q
+	  }
+	  s/.*/./; q'`
+
+# CDPATH.
+$as_unset CDPATH
+
+
+if test "x$CONFIG_SHELL" = x; then
+  if (eval ":") 2>/dev/null; then
+  as_have_required=yes
+else
+  as_have_required=no
+fi
+
+  if test $as_have_required = yes && 	 (eval ":
+(as_func_return () {
+  (exit \$1)
+}
+as_func_success () {
+  as_func_return 0
+}
+as_func_failure () {
+  as_func_return 1
+}
+as_func_ret_success () {
+  return 0
+}
+as_func_ret_failure () {
+  return 1
+}
+
+exitcode=0
+if as_func_success; then
+  :
+else
+  exitcode=1
+  echo as_func_success failed.
+fi
+
+if as_func_failure; then
+  exitcode=1
+  echo as_func_failure succeeded.
+fi
+
+if as_func_ret_success; then
+  :
+else
+  exitcode=1
+  echo as_func_ret_success failed.
+fi
+
+if as_func_ret_failure; then
+  exitcode=1
+  echo as_func_ret_failure succeeded.
+fi
+
+if ( set x; as_func_ret_success y && test x = \"\$1\" ); then
+  :
+else
+  exitcode=1
+  echo positional parameters were not saved.
+fi
+
+test \$exitcode = 0) || { (exit 1); exit 1; }
+
+(
+  as_lineno_1=\$LINENO
+  as_lineno_2=\$LINENO
+  test \"x\$as_lineno_1\" != \"x\$as_lineno_2\" &&
+  test \"x\`expr \$as_lineno_1 + 1\`\" = \"x\$as_lineno_2\") || { (exit 1); exit 1; }
+") 2> /dev/null; then
+  :
+else
+  as_candidate_shells=
     as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in /bin$PATH_SEPARATOR/usr/bin$PATH_SEPARATOR$PATH
+for as_dir in /usr/bin/posix$PATH_SEPARATOR/bin$PATH_SEPARATOR/usr/bin$PATH_SEPARATOR$PATH
 do
   IFS=$as_save_IFS
   test -z "$as_dir" && as_dir=.
-  for as_base in sh bash ksh sh5; do
-	 case $as_dir in
+  case $as_dir in
 	 /*)
-	   if ("$as_dir/$as_base" -c '
+	   for as_base in sh bash ksh sh5; do
+	     as_candidate_shells="$as_candidate_shells $as_dir/$as_base"
+	   done;;
+       esac
+done
+IFS=$as_save_IFS
+
+
+      for as_shell in $as_candidate_shells $SHELL; do
+	 # Try only shells which exist, to save several forks.
+	 if test -f "$as_shell" &&
+		{ ("$as_shell") 2> /dev/null <<\_ASEOF
+# Be Bourne compatible
+if test -n "${ZSH_VERSION+set}" && (emulate sh) >/dev/null 2>&1; then
+  emulate sh
+  NULLCMD=:
+  # Zsh 3.x and 4.x performs word splitting on ${1+"$@"}, which
+  # is contrary to our usage.  Disable this feature.
+  alias -g '${1+"$@"}'='"$@"'
+  setopt NO_GLOB_SUBST
+else
+  case `(set -o) 2>/dev/null` in *posix*) set -o posix;; esac
+fi
+BIN_SH=xpg4; export BIN_SH # for Tru64
+DUALCASE=1; export DUALCASE # for MKS sh
+
+:
+_ASEOF
+}; then
+  CONFIG_SHELL=$as_shell
+	       as_have_required=yes
+	       if { "$as_shell" 2> /dev/null <<\_ASEOF
+# Be Bourne compatible
+if test -n "${ZSH_VERSION+set}" && (emulate sh) >/dev/null 2>&1; then
+  emulate sh
+  NULLCMD=:
+  # Zsh 3.x and 4.x performs word splitting on ${1+"$@"}, which
+  # is contrary to our usage.  Disable this feature.
+  alias -g '${1+"$@"}'='"$@"'
+  setopt NO_GLOB_SUBST
+else
+  case `(set -o) 2>/dev/null` in *posix*) set -o posix;; esac
+fi
+BIN_SH=xpg4; export BIN_SH # for Tru64
+DUALCASE=1; export DUALCASE # for MKS sh
+
+:
+(as_func_return () {
+  (exit $1)
+}
+as_func_success () {
+  as_func_return 0
+}
+as_func_failure () {
+  as_func_return 1
+}
+as_func_ret_success () {
+  return 0
+}
+as_func_ret_failure () {
+  return 1
+}
+
+exitcode=0
+if as_func_success; then
+  :
+else
+  exitcode=1
+  echo as_func_success failed.
+fi
+
+if as_func_failure; then
+  exitcode=1
+  echo as_func_failure succeeded.
+fi
+
+if as_func_ret_success; then
+  :
+else
+  exitcode=1
+  echo as_func_ret_success failed.
+fi
+
+if as_func_ret_failure; then
+  exitcode=1
+  echo as_func_ret_failure succeeded.
+fi
+
+if ( set x; as_func_ret_success y && test x = "$1" ); then
+  :
+else
+  exitcode=1
+  echo positional parameters were not saved.
+fi
+
+test $exitcode = 0) || { (exit 1); exit 1; }
+
+(
   as_lineno_1=$LINENO
   as_lineno_2=$LINENO
-  as_lineno_3=`(expr $as_lineno_1 + 1) 2>/dev/null`
   test "x$as_lineno_1" != "x$as_lineno_2" &&
-  test "x$as_lineno_3"  = "x$as_lineno_2" ') 2>/dev/null; then
-	     $as_unset BASH_ENV || test "${BASH_ENV+set}" != set || { BASH_ENV=; export BASH_ENV; }
-	     $as_unset ENV || test "${ENV+set}" != set || { ENV=; export ENV; }
-	     CONFIG_SHELL=$as_dir/$as_base
-	     export CONFIG_SHELL
-	     exec "$CONFIG_SHELL" "$0" ${1+"$@"}
-	   fi;;
-	 esac
-       done
-done
-;;
-  esac
+  test "x`expr $as_lineno_1 + 1`" = "x$as_lineno_2") || { (exit 1); exit 1; }
+
+_ASEOF
+}; then
+  break
+fi
+
+fi
+
+      done
+
+      if test "x$CONFIG_SHELL" != x; then
+  for as_var in BASH_ENV ENV
+        do ($as_unset $as_var) >/dev/null 2>&1 && $as_unset $as_var
+        done
+        export CONFIG_SHELL
+        exec "$CONFIG_SHELL" "$as_myself" ${1+"$@"}
+fi
+
+
+    if test $as_have_required = no; then
+  echo This script requires a shell more modern than all the
+      echo shells that I found on your system.  Please install a
+      echo modern shell, or manually run the script under such a
+      echo shell if you do have one.
+      { (exit 1); exit 1; }
+fi
+
+
+fi
+
+fi
+
+
+
+(eval "as_func_return () {
+  (exit \$1)
+}
+as_func_success () {
+  as_func_return 0
+}
+as_func_failure () {
+  as_func_return 1
+}
+as_func_ret_success () {
+  return 0
+}
+as_func_ret_failure () {
+  return 1
+}
+
+exitcode=0
+if as_func_success; then
+  :
+else
+  exitcode=1
+  echo as_func_success failed.
+fi
+
+if as_func_failure; then
+  exitcode=1
+  echo as_func_failure succeeded.
+fi
+
+if as_func_ret_success; then
+  :
+else
+  exitcode=1
+  echo as_func_ret_success failed.
+fi
+
+if as_func_ret_failure; then
+  exitcode=1
+  echo as_func_ret_failure succeeded.
+fi
+
+if ( set x; as_func_ret_success y && test x = \"\$1\" ); then
+  :
+else
+  exitcode=1
+  echo positional parameters were not saved.
+fi
+
+test \$exitcode = 0") || {
+  echo No shell found that supports shell functions.
+  echo Please tell autoconf@gnu.org about your system,
+  echo including any error possibly output before this
+  echo message
+}
+
+
+
+  as_lineno_1=$LINENO
+  as_lineno_2=$LINENO
+  test "x$as_lineno_1" != "x$as_lineno_2" &&
+  test "x`expr $as_lineno_1 + 1`" = "x$as_lineno_2" || {
 
   # Create $as_me.lineno as a copy of $as_myself, but with $LINENO
   # uniformly replaced by the line number.  The first 'sed' inserts a
-  # line-number line before each line; the second 'sed' does the real
-  # work.  The second script uses 'N' to pair each line-number line
-  # with the numbered line, and appends trailing '-' during
-  # substitution so that $LINENO is not a special case at line end.
+  # line-number line after each line using $LINENO; the second 'sed'
+  # does the real work.  The second script uses 'N' to pair each
+  # line-number line with the line containing $LINENO, and appends
+  # trailing '-' during substitution so that $LINENO is not a special
+  # case at line end.
   # (Raja R Harinath suggested sed '=', and Paul Eggert wrote the
-  # second 'sed' script.  Blame Lee E. McMahon for sed's syntax.  :-)
-  sed '=' <$as_myself |
+  # scripts with optimization help from Paolo Bonzini.  Blame Lee
+  # E. McMahon (1931-1989) for sed's syntax.  :-)
+  sed -n '
+    p
+    /[$]LINENO/=
+  ' <$as_myself |
     sed '
+      s/[$]LINENO.*/&-/
+      t lineno
+      b
+      :lineno
       N
-      s,$,-,
-      : loop
-      s,^\(['$as_cr_digits']*\)\(.*\)[$]LINENO\([^'$as_cr_alnum'_]\),\1\2\1\3,
+      :loop
+      s/[$]LINENO\([^'$as_cr_alnum'_].*\n\)\(.*\)/\2\1\2/
       t loop
-      s,-$,,
-      s,^['$as_cr_digits']*\n,,
+      s/-\n.*//
     ' >$as_me.lineno &&
-  chmod +x $as_me.lineno ||
+  chmod +x "$as_me.lineno" ||
     { echo "$as_me: error: cannot create $as_me.lineno; rerun with a POSIX shell" >&2
    { (exit 1); exit 1; }; }
 
   # Don't try to exec as it changes $[0], causing all sort of problems
   # (the dirname of $[0] is not the place where we might find the
-  # original and so on.  Autoconf is especially sensible to this).
-  . ./$as_me.lineno
+  # original and so on.  Autoconf is especially sensitive to this).
+  . "./$as_me.lineno"
   # Exit status is that of the last command.
   exit
 }
 
 
-case `echo "testing\c"; echo 1,2,3`,`echo -n testing; echo 1,2,3` in
-  *c*,-n*) ECHO_N= ECHO_C='
-' ECHO_T='	' ;;
-  *c*,*  ) ECHO_N=-n ECHO_C= ECHO_T= ;;
-  *)       ECHO_N= ECHO_C='\c' ECHO_T= ;;
+if (as_dir=`dirname -- /` && test "X$as_dir" = X/) >/dev/null 2>&1; then
+  as_dirname=dirname
+else
+  as_dirname=false
+fi
+
+ECHO_C= ECHO_N= ECHO_T=
+case `echo -n x` in
+-n*)
+  case `echo 'x\c'` in
+  *c*) ECHO_T='	';;	# ECHO_T is single tab character.
+  *)   ECHO_C='\c';;
+  esac;;
+*)
+  ECHO_N='-n';;
 esac
 
-if expr a : '\(a\)' >/dev/null 2>&1; then
+if expr a : '\(a\)' >/dev/null 2>&1 &&
+   test "X`expr 00001 : '.*\(...\)'`" = X001; then
   as_expr=expr
 else
   as_expr=false
 fi
 
 rm -f conf$$ conf$$.exe conf$$.file
+if test -d conf$$.dir; then
+  rm -f conf$$.dir/conf$$.file
+else
+  rm -f conf$$.dir
+  mkdir conf$$.dir
+fi
 echo >conf$$.file
 if ln -s conf$$.file conf$$ 2>/dev/null; then
-  # We could just check for DJGPP; but this test a) works b) is more generic
-  # and c) will remain valid once DJGPP supports symlinks (DJGPP 2.04).
-  if test -f conf$$.exe; then
-    # Don't use ln at all; we don't have any links
+  as_ln_s='ln -s'
+  # ... but there are two gotchas:
+  # 1) On MSYS, both `ln -s file dir' and `ln file dir' fail.
+  # 2) DJGPP < 2.04 has no symlinks; `ln -s' creates a wrapper executable.
+  # In both cases, we have to default to `cp -p'.
+  ln -s conf$$.file conf$$.dir 2>/dev/null && test ! -f conf$$.exe ||
     as_ln_s='cp -p'
-  else
-    as_ln_s='ln -s'
-  fi
 elif ln conf$$.file conf$$ 2>/dev/null; then
   as_ln_s=ln
 else
   as_ln_s='cp -p'
 fi
-rm -f conf$$ conf$$.exe conf$$.file
+rm -f conf$$ conf$$.exe conf$$.dir/conf$$.file conf$$.file
+rmdir conf$$.dir 2>/dev/null
 
 if mkdir -p . 2>/dev/null; then
   as_mkdir_p=:
@@ -216,7 +510,19 @@ else
   as_mkdir_p=false
 fi
 
-as_executable_p="test -f"
+# Find out whether ``test -x'' works.  Don't use a zero-byte file, as
+# systems may use methods other than mode bits to determine executability.
+cat >conf$$.file <<_ASEOF
+#! /bin/sh
+exit 0
+_ASEOF
+chmod +x conf$$.file
+if test -x conf$$.file >/dev/null 2>&1; then
+  as_executable_p="test -x"
+else
+  as_executable_p=:
+fi
+rm -f conf$$.file
 
 # Sed expression to map a string onto a valid CPP name.
 as_tr_cpp="eval sed 'y%*$as_cr_letters%P$as_cr_LETTERS%;s%[^_$as_cr_alnum]%_%g'"
@@ -224,15 +530,6 @@ as_tr_cpp="eval sed 'y%*$as_cr_letters%P$as_cr_LETTERS%;s%[^_$as_cr_alnum]%_%g'"
 # Sed expression to map a string onto a valid variable name.
 as_tr_sh="eval sed 'y%*+%pp%;s%[^_$as_cr_alnum]%_%g'"
 
-
-# IFS
-# We need space, tab and new line, in precisely that order.
-as_nl='
-'
-IFS=" 	$as_nl"
-
-# CDPATH.
-$as_unset CDPATH
 
 
 SHELL=${CONFIG_SHELL-/bin/sh}
@@ -248,11 +545,14 @@ do
    { (exit 1); exit 1; }; }
 done
 
-# atconfig delivers paths relative to the directory the test suite is
+# Autoconf <=2.59b set at_top_builddir instead of at_top_build_prefix:
+: ${at_top_build_prefix=$at_top_builddir}
+
+# atconfig delivers names relative to the directory the test suite is
 # in, but the groups themselves are run in testsuite-dir/group-dir.
 if test -n "$at_top_srcdir"; then
   builddir=../..
-  for at_dir in srcdir top_srcdir top_builddir
+  for at_dir in srcdir top_srcdir top_build_prefix
   do
     at_val=`eval echo '${'at_$at_dir'}'`
     eval "$at_dir=\$at_val/../.."
@@ -277,6 +577,8 @@ at_quiet=echo
 at_debug_p=false
 # Display help message?
 at_help_p=false
+# Display the version message?
+at_version_p=false
 # List test groups?
 at_list_p=false
 # Test groups to run
@@ -304,10 +606,10 @@ at_times_file=$at_suite_dir/at-times
 at_tested='KBtin'
 # List of the all the test groups.
 at_groups_all=' 1 2 3 4 5 6 7 8 9 10 11 12'
-# As many dots as there are digits in the last test group number.
+# As many question marks as there are digits in the last test group number.
 # Used to normalize the test group numbers so that `ls' lists them in
 # numerical order.
-at_format='..'
+at_format='??'
 # Description of all the test groups.
 at_help_all='1;version.at:1;#version;;
 2;tests.at:1;#showme;;
@@ -323,7 +625,6 @@ at_help_all='1;version.at:1;#version;;
 12;tests.at:164;#run 2;;
 '
 
-at_keywords=
 at_prev=
 for at_option
 do
@@ -333,7 +634,10 @@ do
     at_prev=
   fi
 
-  at_optarg=`expr "x$at_option" : 'x[^=]*=\(.*\)'`
+  case $at_option in
+  *=*) at_optarg=`expr "x$at_option" : 'x[^=]*=\(.*\)'` ;;
+  *)   at_optarg= ;;
+  esac
 
   # Accept the important Cygnus configure options, so we can diagnose typos.
 
@@ -347,12 +651,13 @@ do
 	;;
 
     --version | -V )
-	echo "$as_me (KBtin 1.0.7)"
-	exit 0
+	at_version_p=:
 	;;
 
     --clean | -c )
-	rm -rf $at_suite_dir $at_suite_log
+	test -d "$at_suite_dir" &&
+	  find "$at_suite_dir" -type d ! -perm -700 -exec chmod u+rwx \{\} \;
+	rm -f -r "$at_suite_dir" "$at_suite_log"
 	exit 0
 	;;
 
@@ -370,7 +675,7 @@ do
 	;;
 
     --trace | -x )
-	at_traceon='set -vx'; at_traceoff='set +vx'
+	at_traceon='set -x'; at_traceoff='set +x'
 	;;
 
     [0-9] | [0-9][0-9] | [0-9][0-9][0-9] | [0-9][0-9][0-9][0-9])
@@ -379,16 +684,16 @@ do
 
     # Ranges
     [0-9]- | [0-9][0-9]- | [0-9][0-9][0-9]- | [0-9][0-9][0-9][0-9]-)
-	at_range_start=`echo $at_option |tr -d '-'`
+	at_range_start=`echo $at_option |tr -d X-`
 	at_range=`echo " $at_groups_all " | \
-	  sed -e 's,^.* '$at_range_start' ,'$at_range_start' ,'`
+	  sed -e 's/^.* \('$at_range_start' \)/\1/'`
 	at_groups="$at_groups$at_range "
 	;;
 
     -[0-9] | -[0-9][0-9] | -[0-9][0-9][0-9] | -[0-9][0-9][0-9][0-9])
-	at_range_end=`echo $at_option |tr -d '-'`
+	at_range_end=`echo $at_option |tr -d X-`
 	at_range=`echo " $at_groups_all " | \
-	  sed -e 's, '$at_range_end' .*$, '$at_range_end','`
+	  sed -e 's/\( '$at_range_end'\) .*$/\1/'`
 	at_groups="$at_groups$at_range "
 	;;
 
@@ -398,12 +703,16 @@ do
     [0-9][0-9][0-9]-[0-9][0-9][0-9] | \
     [0-9][0-9][0-9]-[0-9][0-9][0-9][0-9] | \
     [0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9] )
-	at_range_start=`echo $at_option |sed 's,-.*,,'`
-	at_range_end=`echo $at_option |sed 's,.*-,,'`
-	# FIXME: Maybe test to make sure start <= end?
+	at_range_start=`expr $at_option : '\(.*\)-'`
+	at_range_end=`expr $at_option : '.*-\(.*\)'`
+	if test $at_range_start -gt $at_range_end; then
+	  at_tmp=$at_range_end
+	  at_range_end=$at_range_start
+	  at_range_start=$at_tmp
+	fi
 	at_range=`echo " $at_groups_all " | \
-	  sed -e 's,^.* '$at_range_start' ,'$at_range_start' ,' \
-	      -e 's, '$at_range_end' .*$, '$at_range_end','`
+	  sed -e 's/^.*\( '$at_range_start' \)/\1/' \
+	      -e 's/\( '$at_range_end'\) .*$/\1/'`
 	at_groups="$at_groups$at_range "
 	;;
 
@@ -412,21 +721,42 @@ do
 	at_prev=--keywords
 	;;
     --keywords=* )
-	at_keywords="$at_keywords,$at_optarg"
+	at_groups_selected=$at_help_all
+	at_save_IFS=$IFS
+	IFS=,
+	set X $at_optarg
+	shift
+	IFS=$at_save_IFS
+	for at_keyword
+	do
+	  at_invert=
+	  case $at_keyword in
+	  '!'*)
+	    at_invert="-v"
+	    at_keyword=`expr "X$at_keyword" : 'X!\(.*\)'`
+	    ;;
+	  esac
+	  # It is on purpose that we match the test group titles too.
+	  at_groups_selected=`echo "$at_groups_selected" |
+	      grep -i $at_invert "^[1-9][^;]*;.*[; ]$at_keyword[ ;]"`
+	done
+	at_groups_selected=`echo "$at_groups_selected" | sed 's/;.*//'`
+	# Smash the newlines.
+	at_groups="$at_groups`echo $at_groups_selected` "
 	;;
 
     *=*)
-  	at_envvar=`expr "x$at_option" : 'x\([^=]*\)='`
-  	# Reject names that are not valid shell variable names.
-  	expr "x$at_envvar" : ".*[^_$as_cr_alnum]" >/dev/null &&
-  	  { echo "$as_me: error: invalid variable name: $at_envvar" >&2
+	at_envvar=`expr "x$at_option" : 'x\([^=]*\)='`
+	# Reject names that are not valid shell variable names.
+	expr "x$at_envvar" : ".*[^_$as_cr_alnum]" >/dev/null &&
+	  { echo "$as_me: error: invalid variable name: $at_envvar" >&2
    { (exit 1); exit 1; }; }
-  	at_value=`echo "$at_optarg" | sed "s/'/'\\\\\\\\''/g"`
-  	eval "$at_envvar='$at_value'"
-  	export $at_envvar
+	at_value=`echo "$at_optarg" | sed "s/'/'\\\\\\\\''/g"`
+	eval "$at_envvar='$at_value'"
+	export $at_envvar
 	# Propagate to debug scripts.
-  	at_debug_args="$at_debug_args $at_option"
-  	;;
+	at_debug_args="$at_debug_args $at_envvar='$at_value'"
+	;;
 
      *) echo "$as_me: invalid option: $at_option" >&2
 	echo "Try \`$0 --help' for more information." >&2
@@ -435,31 +765,44 @@ do
   esac
 done
 
-# Process the --keywords
-if test -n "$at_keywords"; then
-  at_groups_selected=$at_help_all
-  for at_keyword in `IFS=,; set X $at_keywords; shift; echo ${1+$@}`
-  do
-    # It is on purpose that we match the test group titles too.
-    at_groups_selected=`echo "$at_groups_selected" |
-			grep -i "^[^;]*;[^;]*.*[; ]$at_keyword[ ;]"`
-  done
-  at_groups_selected=`echo "$at_groups_selected" | sed 's/;.*//'`
-  # Smash the end of lines.
-  at_groups_selected=`echo $at_groups_selected`
-  at_groups="$at_groups$at_groups_selected "
-fi
-
 # Selected test groups.
-test -z "$at_groups" && at_groups=$at_groups_all
+if test -z "$at_groups"; then
+  at_groups=$at_groups_all
+else
+  # Sort the tests, removing duplicates:
+  at_groups=`echo $at_groups | tr ' ' "$as_nl" | sort -nu`
+  # and add banners.  (Passing at_groups_all is tricky--see the comment
+  # starting with "Passing at_groups is tricky.")
+  at_groups=`echo "$at_groups$as_nl $at_groups_all" |
+    awk 'BEGIN { FS = "@" } # Effectively switch off field splitting.
+	/^$/ { next }  # Ignore the empty line.
+	!/ / { groups++; selected[$ 0] = 1; next }
+	# The last line, containing at_groups_all.
+	{
+		n = split($ 0, a, " ")
+		# If there are several tests, select their banners:
+		if (groups > 1) {
+			for (i = 1; i <= n; i++) {
+				if (a[i] ~ /^banner-/)
+					banner = a[i]
+				else if (banner != "" && selected[a[i]] == 1)
+					selected[banner] = 1
+			}
+		}
+		for (i = 1; i <= n; i++)
+			if (selected[a[i]] == 1)
+				list = list " " a[i]
+		print list
+	}'`
+fi
 
 # Help message.
 if $at_help_p; then
   cat <<_ATEOF
 Usage: $0 [OPTION]... [VARIABLE=VALUE]... [TESTS]
 
-Run all the tests, or the selected TESTS, and save a detailed log file.
-Upon failure, create debugging scripts.
+Run all the tests, or the selected TESTS, given by numeric ranges, and
+save a detailed log file.  Upon failure, create debugging scripts.
 
 You should not change environment variables unless explicitly passed
 as command line arguments.  Set \`AUTOTEST_PATH' to select the executables
@@ -484,12 +827,12 @@ cat <<_ATEOF
 
 Execution tuning:
   -k, --keywords=KEYWORDS
-	         select the tests matching all the comma separated KEYWORDS
-	         accumulates
+	         select the tests matching all the comma-separated KEYWORDS
+	         multiple \`-k' accumulate; prefixed \`!' negates a KEYWORD
   -e, --errexit  abort as soon as a test fails; implies --debug
   -v, --verbose  force more detailed output
 	         default for debugging scripts
-  -d, --debug    inhibit clean up and debug script creation
+  -d, --debug    inhibit clean up and top-level logging
 	         default for debugging scripts
   -x, --trace    enable tests shell tracing
 _ATEOF
@@ -503,19 +846,38 @@ fi
 # List of tests.
 if $at_list_p; then
   cat <<_ATEOF
-KBtin 1.0.7 test suite test groups:
+KBtin 1.0.7.a test suite test groups:
 
- NUM: FILENAME:LINE      TEST-GROUP-NAME
+ NUM: FILE-NAME:LINE     TEST-GROUP-NAME
       KEYWORDS
 
 _ATEOF
-  # "  1 42  45 " => "^(1|42|45);".
-  at_groups_pattern=`echo "$at_groups" | sed 's/^  *//;s/  *$//;s/  */|/g'`
-  echo "$at_help_all" |
+  # Passing at_groups is tricky.  We cannot use it to form a literal string
+  # or regexp because of the limitation of AIX awk.  And Solaris' awk
+  # doesn't grok more than 99 fields in a record, so we have to use `split'.
+  echo "$at_groups$as_nl$at_help_all" |
     awk 'BEGIN { FS = ";" }
-	 { if ($1 !~ /^('"$at_groups_pattern"')$/) next }
-	 { if ($1) printf " %3d: %-18s %s\n", $1, $2, $3
-	   if ($4) printf "      %s\n", $4 } '
+	 NR == 1 {
+	   for (n = split($ 0, a, " "); n; n--) selected[a[n]] = 1
+	   next
+	 }
+	 {
+	   if (selected[$ 1]) {
+	     printf " %3d: %-18s %s\n", $ 1, $ 2, $ 3
+	     if ($ 4) printf "      %s\n", $ 4
+	   }
+	 }'
+  exit 0
+fi
+if $at_version_p; then
+  echo "$as_me (KBtin 1.0.7.a)"
+  cat <<\_ACEOF
+
+Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006 Free Software
+Foundation, Inc.
+This test suite is free software; the Free Software Foundation gives
+unlimited permission to copy, distribute and modify it.
+_ACEOF
   exit 0
 fi
 
@@ -526,35 +888,37 @@ fi
 # For embedded test suites, AUTOTEST_PATH is relative to the top level
 # of the package.  Then expand it into build/src parts, since users
 # may create executables in both places.
-#
-# There might be directories that don't exist, but don't redirect
-# builtins' (eg., cd) stderr directly: Ultrix's sh hates that.
-AUTOTEST_PATH=`echo $AUTOTEST_PATH | tr ':' $PATH_SEPARATOR`
+AUTOTEST_PATH=`echo $AUTOTEST_PATH | sed "s&:&$PATH_SEPARATOR&g"`
 at_path=
 as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
 for as_dir in $AUTOTEST_PATH $PATH
 do
   IFS=$as_save_IFS
   test -z "$as_dir" && as_dir=.
-  case $as_dir in
+  test -n "$at_path" && at_path=$at_path$PATH_SEPARATOR
+case $as_dir in
   [\\/]* | ?:[\\/]* )
-    at_path=$at_path$PATH_SEPARATOR$as_dir
+    at_path=$at_path$as_dir
     ;;
   * )
-    if test -z "$at_top_builddir"; then
+    if test -z "$at_top_build_prefix"; then
       # Stand-alone test suite.
-      at_path=$at_path$PATH_SEPARATOR$as_dir
+      at_path=$at_path$as_dir
     else
       # Embedded test suite.
-      at_path=$at_path$PATH_SEPARATOR$at_top_builddir/$as_dir
-      at_path=$at_path$PATH_SEPARATOR$at_top_srcdir/$as_dir
+      at_path=$at_path$at_top_build_prefix$as_dir$PATH_SEPARATOR
+      at_path=$at_path$at_top_srcdir/$as_dir
     fi
     ;;
 esac
 done
+IFS=$as_save_IFS
 
 
 # Now build and simplify PATH.
+#
+# There might be directories that don't exist, but don't redirect
+# builtins' (eg., cd) stderr directly: Ultrix's sh hates that.
 PATH=
 as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
 for as_dir in $at_path
@@ -573,26 +937,31 @@ case $PATH in
    *) PATH=$PATH$PATH_SEPARATOR$as_dir ;;
 esac
 done
+IFS=$as_save_IFS
 
 export PATH
 
 # Setting up the FDs.
 # 5 is the log file.  Not to be overwritten if `-d'.
 
-$at_debug_p && at_suite_log=/dev/null
-exec 5>$at_suite_log
+if $at_debug_p; then
+  at_suite_log=/dev/null
+else
+  : >"$at_suite_log"
+fi
+exec 5>>"$at_suite_log"
 
 # Banners and logs.
 cat <<\_ASBOX
-## ----------------------- ##
-## KBtin 1.0.7 test suite. ##
-## ----------------------- ##
+## ------------------------- ##
+## KBtin 1.0.7.a test suite. ##
+## ------------------------- ##
 _ASBOX
 {
   cat <<\_ASBOX
-## ----------------------- ##
-## KBtin 1.0.7 test suite. ##
-## ----------------------- ##
+## ------------------------- ##
+## KBtin 1.0.7.a test suite. ##
+## ------------------------- ##
 _ASBOX
   echo
 
@@ -636,7 +1005,7 @@ uname -v = `(uname -v) 2>/dev/null || echo unknown`
 /bin/arch              = `(/bin/arch) 2>/dev/null              || echo unknown`
 /usr/bin/arch -k       = `(/usr/bin/arch -k) 2>/dev/null       || echo unknown`
 /usr/convex/getsysinfo = `(/usr/convex/getsysinfo) 2>/dev/null || echo unknown`
-hostinfo               = `(hostinfo) 2>/dev/null               || echo unknown`
+/usr/bin/hostinfo      = `(/usr/bin/hostinfo) 2>/dev/null      || echo unknown`
 /bin/machine           = `(/bin/machine) 2>/dev/null           || echo unknown`
 /usr/bin/oslevel       = `(/usr/bin/oslevel) 2>/dev/null       || echo unknown`
 /bin/universe          = `(/bin/universe) 2>/dev/null          || echo unknown`
@@ -650,6 +1019,7 @@ do
   test -z "$as_dir" && as_dir=.
   echo "PATH: $as_dir"
 done
+IFS=$as_save_IFS
 
 }
     echo
@@ -681,13 +1051,14 @@ for as_dir in $PATH
 do
   IFS=$as_save_IFS
   test -z "$as_dir" && as_dir=.
-  test -f $as_dir/$at_program && break
+  test -f "$as_dir/$at_program" && break
 done
+IFS=$as_save_IFS
 
-  if test -f $as_dir/$at_program; then
+  if test -f "$as_dir/$at_program"; then
     {
-      echo "testsuite.at:2: $as_dir/$at_program --version"
-      $as_dir/$at_program --version
+      echo "$at_srcdir/testsuite.at:2: $as_dir/$at_program --version"
+      "$as_dir/$at_program" --version
       echo
     } >&5 2>&1
   else
@@ -706,7 +1077,7 @@ _ASBOX
 } >&5
 
 at_start_date=`date`
-at_start_time=`(date +%s) 2>/dev/null`
+at_start_time=`date +%s 2>/dev/null`
 echo "$as_me: starting at: $at_start_date" >&5
 at_xpass_list=
 at_xfail_list=
@@ -716,10 +1087,10 @@ at_skip_list=
 at_group_count=0
 
 # Create the master directory if it doesn't already exist.
-test -d $at_suite_dir ||
-  mkdir $at_suite_dir ||
-  { { echo "$as_me:$LINENO: error: cannot create $at_suite_dir" >&5
-echo "$as_me: error: cannot create $at_suite_dir" >&2;}
+test -d "$at_suite_dir" ||
+  mkdir "$at_suite_dir" ||
+  { { echo "$as_me:$LINENO: error: cannot create '$at_suite_dir'" >&5
+echo "$as_me: error: cannot create '$at_suite_dir'" >&2;}
    { (exit 1); exit 1; }; }
 
 # Can we diff with `/dev/null'?  DU 5.0 refuses.
@@ -727,11 +1098,12 @@ if diff /dev/null /dev/null >/dev/null 2>&1; then
   at_devnull=/dev/null
 else
   at_devnull=$at_suite_dir/devnull
-  cp /dev/null $at_devnull
+  >"$at_devnull"
 fi
 
 # Use `diff -u' when possible.
-if diff -u $at_devnull $at_devnull >/dev/null 2>&1; then
+if at_diff=`diff -u "$at_devnull" "$at_devnull" 2>&1` && test -z "$at_diff"
+then
   at_diff='diff -u'
 else
   at_diff=diff
@@ -741,7 +1113,7 @@ fi
 for at_group in $at_groups
 do
   # Be sure to come back to the top test directory.
-  cd $at_suite_dir
+  cd "$at_suite_dir"
 
   case $at_group in
     banner-*)
@@ -749,28 +1121,70 @@ do
       ;;
 
     *)
-      # Skip tests we already run (using --keywords makes it easy to get
-      # duplication).
-      case " $at_pass_test $at_skip_test $at_fail_test " in
-	*" $at_group "* ) continue;;
-      esac
+      at_group_normalized=$at_group
 
-      # Normalize the test group number.
-      at_group_normalized=`expr "00000$at_group" : ".*\($at_format\)"`
+  while :; do
+    case $at_group_normalized in #(
+    $at_format*) break;;
+    esac
+    at_group_normalized=0$at_group_normalized
+  done
+
 
       # Create a fresh directory for the next test group, and enter.
       at_group_dir=$at_suite_dir/$at_group_normalized
       at_group_log=$at_group_dir/$as_me.log
-      rm -rf $at_group_dir
-      mkdir $at_group_dir ||
-	{ { echo "$as_me:$LINENO: error: cannot create $at_group_dir" >&5
-echo "$as_me: error: cannot create $at_group_dir" >&2;}
-   { (exit 1); exit 1; }; }
+      if test -d "$at_group_dir"; then
+	find "$at_group_dir" -type d ! -perm -700 -exec chmod u+rwx \{\} \;
+	rm -fr "$at_group_dir"
+      fi
+      # Be tolerant if the above `rm' was not able to remove the directory.
+      { as_dir=$at_group_dir
+  case $as_dir in #(
+  -*) as_dir=./$as_dir;;
+  esac
+  test -d "$as_dir" || { $as_mkdir_p && mkdir -p "$as_dir"; } || {
+    as_dirs=
+    while :; do
+      case $as_dir in #(
+      *\'*) as_qdir=`echo "$as_dir" | sed "s/'/'\\\\\\\\''/g"`;; #(
+      *) as_qdir=$as_dir;;
+      esac
+      as_dirs="'$as_qdir' $as_dirs"
+      as_dir=`$as_dirname -- "$as_dir" ||
+$as_expr X"$as_dir" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
+	 X"$as_dir" : 'X\(//\)[^/]' \| \
+	 X"$as_dir" : 'X\(//\)$' \| \
+	 X"$as_dir" : 'X\(/\)' \| . 2>/dev/null ||
+echo X"$as_dir" |
+    sed '/^X\(.*[^/]\)\/\/*[^/][^/]*\/*$/{
+	    s//\1/
+	    q
+	  }
+	  /^X\(\/\/\)[^/].*/{
+	    s//\1/
+	    q
+	  }
+	  /^X\(\/\/\)$/{
+	    s//\1/
+	    q
+	  }
+	  /^X\(\/\).*/{
+	    s//\1/
+	    q
+	  }
+	  s/.*/./; q'`
+      test -d "$as_dir" && break
+    done
+    test -z "$as_dirs" || eval "mkdir $as_dirs"
+  } || test -d "$as_dir" || { { echo "$as_me:$LINENO: error: cannot create directory $as_dir" >&5
+echo "$as_me: error: cannot create directory $as_dir" >&2;}
+   { (exit 1); exit 1; }; }; }
       cd $at_group_dir
       ;;
   esac
 
-  echo 0 > $at_status_file
+  echo 0 > "$at_status_file"
 
   # Clearly separate the test groups when verbose.
   test $at_group_count != 0 && $at_verbose
@@ -778,9 +1192,9 @@ echo "$as_me: error: cannot create $at_group_dir" >&2;}
   # In verbose mode, append to the log file *and* show on
   # the standard output; in quiet mode only write to the log
   if test $at_verbose = echo; then
-    at_tee_pipe="tee -a $at_group_log"
+    at_tee_pipe='tee -a "$at_group_log"'
   else
-    at_tee_pipe="cat >> $at_group_log"
+    at_tee_pipe='cat >> "$at_group_log"'
   fi
 
   case $at_group in
@@ -789,6 +1203,7 @@ echo "$as_me: error: cannot create $at_group_dir" >&2;}
     at_desc='#version'
     $at_quiet $ECHO_N "  1: #version                                     $ECHO_C"
     at_xfail=no
+    echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
       echo "1. version.at:1: testing ..."
       $at_traceon
@@ -799,29 +1214,41 @@ cat >testin <<'_ATEOF'
 _ATEOF
 
 cat >expout <<'_ATEOF'
-#You are using KBtin 1.0.7
+#You are using KBtin 1.0.7.a
 _ATEOF
 
 $at_traceoff
-echo "version.at:7: runtest.sh"
-echo version.at:7 >$at_check_line_file
-( $at_traceon; runtest.sh ) >$at_stdout 2>$at_stder1
-at_status=$?
-grep '^ *+' $at_stder1 >&2
-grep -v '^ *+' $at_stder1 >$at_stderr
+echo "$at_srcdir/version.at:7: runtest.sh"
+echo version.at:7 >"$at_check_line_file"
+
+at_trace_this=
+if test -n "$at_traceon"; then
+    at_trace_this=yes
+fi
+
+if test -n "$at_trace_this"; then
+    ( $at_traceon; runtest.sh ) >"$at_stdout" 2>"$at_stder1"
+    at_status=$?
+    grep '^ *+' "$at_stder1" >&2
+    grep -v '^ *+' "$at_stder1" >"$at_stderr"
+else
+    ( :; runtest.sh ) >"$at_stdout" 2>"$at_stderr"
+    at_status=$?
+fi
+
 at_failed=false
-$at_diff $at_devnull $at_stderr || at_failed=:
-$at_diff expout $at_stdout || at_failed=:
+$at_diff "$at_devnull" "$at_stderr" || at_failed=:
+$at_diff expout "$at_stdout" || at_failed=:
 case $at_status in
-   77) echo 77 > $at_status_file
-            exit 77;;
+   77) echo 77 > "$at_status_file"; exit 77;;
    0) ;;
-   *) echo "version.at:7: exit code was $at_status, expected 0"
+   *) echo "$at_srcdir/version.at:7: exit code was $at_status, expected 0"
       at_failed=:;;
 esac
 if $at_failed; then
 
-  echo 1 > $at_status_file
+
+  echo 1 > "$at_status_file"
   exit 1
 fi
 
@@ -829,9 +1256,9 @@ $at_traceon
 
 
       $at_traceoff
-      $at_times_p && times >$at_times_file
+      $at_times_p && times >"$at_times_file"
     ) 5>&1 2>&1 | eval $at_tee_pipe
-    at_status=`cat $at_status_file`
+    at_status=`cat "$at_status_file"`
     ;;
 
   2 ) # 2. tests.at:1: #showme
@@ -839,6 +1266,7 @@ $at_traceon
     at_desc='#showme'
     $at_quiet $ECHO_N "  2: #showme                                      $ECHO_C"
     at_xfail=no
+    echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
       echo "2. tests.at:1: testing ..."
       $at_traceon
@@ -859,34 +1287,46 @@ foo
 _ATEOF
 
 $at_traceoff
-echo "tests.at:13: runtest.sh"
-echo tests.at:13 >$at_check_line_file
-( $at_traceon; runtest.sh ) >$at_stdout 2>$at_stder1
-at_status=$?
-grep '^ *+' $at_stder1 >&2
-grep -v '^ *+' $at_stder1 >$at_stderr
+echo "$at_srcdir/tests.at:13: runtest.sh"
+echo tests.at:13 >"$at_check_line_file"
+
+at_trace_this=
+if test -n "$at_traceon"; then
+    at_trace_this=yes
+fi
+
+if test -n "$at_trace_this"; then
+    ( $at_traceon; runtest.sh ) >"$at_stdout" 2>"$at_stder1"
+    at_status=$?
+    grep '^ *+' "$at_stder1" >&2
+    grep -v '^ *+' "$at_stder1" >"$at_stderr"
+else
+    ( :; runtest.sh ) >"$at_stdout" 2>"$at_stderr"
+    at_status=$?
+fi
+
 at_failed=false
-$at_diff $at_devnull $at_stderr || at_failed=:
-$at_diff expout $at_stdout || at_failed=:
+$at_diff "$at_devnull" "$at_stderr" || at_failed=:
+$at_diff expout "$at_stdout" || at_failed=:
 case $at_status in
-   77) echo 77 > $at_status_file
-            exit 77;;
+   77) echo 77 > "$at_status_file"; exit 77;;
    0) ;;
-   *) echo "tests.at:13: exit code was $at_status, expected 0"
+   *) echo "$at_srcdir/tests.at:13: exit code was $at_status, expected 0"
       at_failed=:;;
 esac
 if $at_failed; then
 
-  echo 1 > $at_status_file
+
+  echo 1 > "$at_status_file"
   exit 1
 fi
 
 $at_traceon
 
       $at_traceoff
-      $at_times_p && times >$at_times_file
+      $at_times_p && times >"$at_times_file"
     ) 5>&1 2>&1 | eval $at_tee_pipe
-    at_status=`cat $at_status_file`
+    at_status=`cat "$at_status_file"`
     ;;
 
   3 ) # 3. tests.at:17: no profiling
@@ -894,6 +1334,7 @@ $at_traceon
     at_desc='no profiling'
     $at_quiet $ECHO_N "  3: no profiling                                 $ECHO_C"
     at_xfail=no
+    echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
       echo "3. tests.at:17: testing ..."
       $at_traceon
@@ -908,34 +1349,46 @@ cat >expout <<'_ATEOF'
 _ATEOF
 
 $at_traceoff
-echo "tests.at:23: runtest.sh"
-echo tests.at:23 >$at_check_line_file
-( $at_traceon; runtest.sh ) >$at_stdout 2>$at_stder1
-at_status=$?
-grep '^ *+' $at_stder1 >&2
-grep -v '^ *+' $at_stder1 >$at_stderr
+echo "$at_srcdir/tests.at:23: runtest.sh"
+echo tests.at:23 >"$at_check_line_file"
+
+at_trace_this=
+if test -n "$at_traceon"; then
+    at_trace_this=yes
+fi
+
+if test -n "$at_trace_this"; then
+    ( $at_traceon; runtest.sh ) >"$at_stdout" 2>"$at_stder1"
+    at_status=$?
+    grep '^ *+' "$at_stder1" >&2
+    grep -v '^ *+' "$at_stder1" >"$at_stderr"
+else
+    ( :; runtest.sh ) >"$at_stdout" 2>"$at_stderr"
+    at_status=$?
+fi
+
 at_failed=false
-$at_diff $at_devnull $at_stderr || at_failed=:
-$at_diff expout $at_stdout || at_failed=:
+$at_diff "$at_devnull" "$at_stderr" || at_failed=:
+$at_diff expout "$at_stdout" || at_failed=:
 case $at_status in
-   77) echo 77 > $at_status_file
-            exit 77;;
+   77) echo 77 > "$at_status_file"; exit 77;;
    0) ;;
-   *) echo "tests.at:23: exit code was $at_status, expected 0"
+   *) echo "$at_srcdir/tests.at:23: exit code was $at_status, expected 0"
       at_failed=:;;
 esac
 if $at_failed; then
 
-  echo 1 > $at_status_file
+
+  echo 1 > "$at_status_file"
   exit 1
 fi
 
 $at_traceon
 
       $at_traceoff
-      $at_times_p && times >$at_times_file
+      $at_times_p && times >"$at_times_file"
     ) 5>&1 2>&1 | eval $at_tee_pipe
-    at_status=`cat $at_status_file`
+    at_status=`cat "$at_status_file"`
     ;;
 
   4 ) # 4. tests.at:27: #reverse
@@ -943,6 +1396,7 @@ $at_traceon
     at_desc='#reverse'
     $at_quiet $ECHO_N "  4: #reverse                                     $ECHO_C"
     at_xfail=no
+    echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
       echo "4. tests.at:27: testing ..."
       $at_traceon
@@ -958,34 +1412,46 @@ cbaćśęąhalb
 _ATEOF
 
 $at_traceoff
-echo "tests.at:34: runtest.sh"
-echo tests.at:34 >$at_check_line_file
-( $at_traceon; runtest.sh ) >$at_stdout 2>$at_stder1
-at_status=$?
-grep '^ *+' $at_stder1 >&2
-grep -v '^ *+' $at_stder1 >$at_stderr
+echo "$at_srcdir/tests.at:34: runtest.sh"
+echo tests.at:34 >"$at_check_line_file"
+
+at_trace_this=
+if test -n "$at_traceon"; then
+    at_trace_this=yes
+fi
+
+if test -n "$at_trace_this"; then
+    ( $at_traceon; runtest.sh ) >"$at_stdout" 2>"$at_stder1"
+    at_status=$?
+    grep '^ *+' "$at_stder1" >&2
+    grep -v '^ *+' "$at_stder1" >"$at_stderr"
+else
+    ( :; runtest.sh ) >"$at_stdout" 2>"$at_stderr"
+    at_status=$?
+fi
+
 at_failed=false
-$at_diff $at_devnull $at_stderr || at_failed=:
-$at_diff expout $at_stdout || at_failed=:
+$at_diff "$at_devnull" "$at_stderr" || at_failed=:
+$at_diff expout "$at_stdout" || at_failed=:
 case $at_status in
-   77) echo 77 > $at_status_file
-            exit 77;;
+   77) echo 77 > "$at_status_file"; exit 77;;
    0) ;;
-   *) echo "tests.at:34: exit code was $at_status, expected 0"
+   *) echo "$at_srcdir/tests.at:34: exit code was $at_status, expected 0"
       at_failed=:;;
 esac
 if $at_failed; then
 
-  echo 1 > $at_status_file
+
+  echo 1 > "$at_status_file"
   exit 1
 fi
 
 $at_traceon
 
       $at_traceoff
-      $at_times_p && times >$at_times_file
+      $at_times_p && times >"$at_times_file"
     ) 5>&1 2>&1 | eval $at_tee_pipe
-    at_status=`cat $at_status_file`
+    at_status=`cat "$at_status_file"`
     ;;
 
   5 ) # 5. tests.at:38: #postpad
@@ -993,6 +1459,7 @@ $at_traceon
     at_desc='#postpad'
     $at_quiet $ECHO_N "  5: #postpad                                     $ECHO_C"
     at_xfail=no
+    echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
       echo "5. tests.at:38: testing ..."
       $at_traceon
@@ -1017,34 +1484,46 @@ a ć  |
 _ATEOF
 
 $at_traceoff
-echo "tests.at:54: runtest.sh"
-echo tests.at:54 >$at_check_line_file
-( $at_traceon; runtest.sh ) >$at_stdout 2>$at_stder1
-at_status=$?
-grep '^ *+' $at_stder1 >&2
-grep -v '^ *+' $at_stder1 >$at_stderr
+echo "$at_srcdir/tests.at:54: runtest.sh"
+echo tests.at:54 >"$at_check_line_file"
+
+at_trace_this=
+if test -n "$at_traceon"; then
+    at_trace_this=yes
+fi
+
+if test -n "$at_trace_this"; then
+    ( $at_traceon; runtest.sh ) >"$at_stdout" 2>"$at_stder1"
+    at_status=$?
+    grep '^ *+' "$at_stder1" >&2
+    grep -v '^ *+' "$at_stder1" >"$at_stderr"
+else
+    ( :; runtest.sh ) >"$at_stdout" 2>"$at_stderr"
+    at_status=$?
+fi
+
 at_failed=false
-$at_diff $at_devnull $at_stderr || at_failed=:
-$at_diff expout $at_stdout || at_failed=:
+$at_diff "$at_devnull" "$at_stderr" || at_failed=:
+$at_diff expout "$at_stdout" || at_failed=:
 case $at_status in
-   77) echo 77 > $at_status_file
-            exit 77;;
+   77) echo 77 > "$at_status_file"; exit 77;;
    0) ;;
-   *) echo "tests.at:54: exit code was $at_status, expected 0"
+   *) echo "$at_srcdir/tests.at:54: exit code was $at_status, expected 0"
       at_failed=:;;
 esac
 if $at_failed; then
 
-  echo 1 > $at_status_file
+
+  echo 1 > "$at_status_file"
   exit 1
 fi
 
 $at_traceon
 
       $at_traceoff
-      $at_times_p && times >$at_times_file
+      $at_times_p && times >"$at_times_file"
     ) 5>&1 2>&1 | eval $at_tee_pipe
-    at_status=`cat $at_status_file`
+    at_status=`cat "$at_status_file"`
     ;;
 
   6 ) # 6. tests.at:57: #prepad
@@ -1052,6 +1531,7 @@ $at_traceon
     at_desc='#prepad'
     $at_quiet $ECHO_N "  6: #prepad                                      $ECHO_C"
     at_xfail=no
+    echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
       echo "6. tests.at:57: testing ..."
       $at_traceon
@@ -1076,34 +1556,46 @@ dęfgh|
 _ATEOF
 
 $at_traceoff
-echo "tests.at:73: runtest.sh"
-echo tests.at:73 >$at_check_line_file
-( $at_traceon; runtest.sh ) >$at_stdout 2>$at_stder1
-at_status=$?
-grep '^ *+' $at_stder1 >&2
-grep -v '^ *+' $at_stder1 >$at_stderr
+echo "$at_srcdir/tests.at:73: runtest.sh"
+echo tests.at:73 >"$at_check_line_file"
+
+at_trace_this=
+if test -n "$at_traceon"; then
+    at_trace_this=yes
+fi
+
+if test -n "$at_trace_this"; then
+    ( $at_traceon; runtest.sh ) >"$at_stdout" 2>"$at_stder1"
+    at_status=$?
+    grep '^ *+' "$at_stder1" >&2
+    grep -v '^ *+' "$at_stder1" >"$at_stderr"
+else
+    ( :; runtest.sh ) >"$at_stdout" 2>"$at_stderr"
+    at_status=$?
+fi
+
 at_failed=false
-$at_diff $at_devnull $at_stderr || at_failed=:
-$at_diff expout $at_stdout || at_failed=:
+$at_diff "$at_devnull" "$at_stderr" || at_failed=:
+$at_diff expout "$at_stdout" || at_failed=:
 case $at_status in
-   77) echo 77 > $at_status_file
-            exit 77;;
+   77) echo 77 > "$at_status_file"; exit 77;;
    0) ;;
-   *) echo "tests.at:73: exit code was $at_status, expected 0"
+   *) echo "$at_srcdir/tests.at:73: exit code was $at_status, expected 0"
       at_failed=:;;
 esac
 if $at_failed; then
 
-  echo 1 > $at_status_file
+
+  echo 1 > "$at_status_file"
   exit 1
 fi
 
 $at_traceon
 
       $at_traceoff
-      $at_times_p && times >$at_times_file
+      $at_times_p && times >"$at_times_file"
     ) 5>&1 2>&1 | eval $at_tee_pipe
-    at_status=`cat $at_status_file`
+    at_status=`cat "$at_status_file"`
     ;;
 
   7 ) # 7. tests.at:76: #substr
@@ -1111,6 +1603,7 @@ $at_traceon
     at_desc='#substr'
     $at_quiet $ECHO_N "  7: #substr                                      $ECHO_C"
     at_xfail=no
+    echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
       echo "7. tests.at:76: testing ..."
       $at_traceon
@@ -1130,34 +1623,46 @@ bćd
 _ATEOF
 
 $at_traceoff
-echo "tests.at:87: runtest.sh"
-echo tests.at:87 >$at_check_line_file
-( $at_traceon; runtest.sh ) >$at_stdout 2>$at_stder1
-at_status=$?
-grep '^ *+' $at_stder1 >&2
-grep -v '^ *+' $at_stder1 >$at_stderr
+echo "$at_srcdir/tests.at:87: runtest.sh"
+echo tests.at:87 >"$at_check_line_file"
+
+at_trace_this=
+if test -n "$at_traceon"; then
+    at_trace_this=yes
+fi
+
+if test -n "$at_trace_this"; then
+    ( $at_traceon; runtest.sh ) >"$at_stdout" 2>"$at_stder1"
+    at_status=$?
+    grep '^ *+' "$at_stder1" >&2
+    grep -v '^ *+' "$at_stder1" >"$at_stderr"
+else
+    ( :; runtest.sh ) >"$at_stdout" 2>"$at_stderr"
+    at_status=$?
+fi
+
 at_failed=false
-$at_diff $at_devnull $at_stderr || at_failed=:
-$at_diff expout $at_stdout || at_failed=:
+$at_diff "$at_devnull" "$at_stderr" || at_failed=:
+$at_diff expout "$at_stdout" || at_failed=:
 case $at_status in
-   77) echo 77 > $at_status_file
-            exit 77;;
+   77) echo 77 > "$at_status_file"; exit 77;;
    0) ;;
-   *) echo "tests.at:87: exit code was $at_status, expected 0"
+   *) echo "$at_srcdir/tests.at:87: exit code was $at_status, expected 0"
       at_failed=:;;
 esac
 if $at_failed; then
 
-  echo 1 > $at_status_file
+
+  echo 1 > "$at_status_file"
   exit 1
 fi
 
 $at_traceon
 
       $at_traceoff
-      $at_times_p && times >$at_times_file
+      $at_times_p && times >"$at_times_file"
     ) 5>&1 2>&1 | eval $at_tee_pipe
-    at_status=`cat $at_status_file`
+    at_status=`cat "$at_status_file"`
     ;;
 
   8 ) # 8. tests.at:90: late var substitution
@@ -1165,6 +1670,7 @@ $at_traceon
     at_desc='late var substitution'
     $at_quiet $ECHO_N "  8: late var substitution                        $ECHO_C"
     at_xfail=no
+    echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
       echo "8. tests.at:90: testing ..."
       $at_traceon
@@ -1215,34 +1721,46 @@ A3
 _ATEOF
 
 $at_traceoff
-echo "tests.at:132: runtest.sh"
-echo tests.at:132 >$at_check_line_file
-( $at_traceon; runtest.sh ) >$at_stdout 2>$at_stder1
-at_status=$?
-grep '^ *+' $at_stder1 >&2
-grep -v '^ *+' $at_stder1 >$at_stderr
+echo "$at_srcdir/tests.at:132: runtest.sh"
+echo tests.at:132 >"$at_check_line_file"
+
+at_trace_this=
+if test -n "$at_traceon"; then
+    at_trace_this=yes
+fi
+
+if test -n "$at_trace_this"; then
+    ( $at_traceon; runtest.sh ) >"$at_stdout" 2>"$at_stder1"
+    at_status=$?
+    grep '^ *+' "$at_stder1" >&2
+    grep -v '^ *+' "$at_stder1" >"$at_stderr"
+else
+    ( :; runtest.sh ) >"$at_stdout" 2>"$at_stderr"
+    at_status=$?
+fi
+
 at_failed=false
-$at_diff $at_devnull $at_stderr || at_failed=:
-$at_diff expout $at_stdout || at_failed=:
+$at_diff "$at_devnull" "$at_stderr" || at_failed=:
+$at_diff expout "$at_stdout" || at_failed=:
 case $at_status in
-   77) echo 77 > $at_status_file
-            exit 77;;
+   77) echo 77 > "$at_status_file"; exit 77;;
    0) ;;
-   *) echo "tests.at:132: exit code was $at_status, expected 0"
+   *) echo "$at_srcdir/tests.at:132: exit code was $at_status, expected 0"
       at_failed=:;;
 esac
 if $at_failed; then
 
-  echo 1 > $at_status_file
+
+  echo 1 > "$at_status_file"
   exit 1
 fi
 
 $at_traceon
 
       $at_traceoff
-      $at_times_p && times >$at_times_file
+      $at_times_p && times >"$at_times_file"
     ) 5>&1 2>&1 | eval $at_tee_pipe
-    at_status=`cat $at_status_file`
+    at_status=`cat "$at_status_file"`
     ;;
 
   9 ) # 9. tests.at:135: #system
@@ -1250,6 +1768,7 @@ $at_traceon
     at_desc='#system'
     $at_quiet $ECHO_N "  9: #system                                      $ECHO_C"
     at_xfail=no
+    echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
       echo "9. tests.at:135: testing ..."
       $at_traceon
@@ -1266,34 +1785,46 @@ abc
 _ATEOF
 
 $at_traceoff
-echo "tests.at:143: runtest.sh"
-echo tests.at:143 >$at_check_line_file
-( $at_traceon; runtest.sh ) >$at_stdout 2>$at_stder1
-at_status=$?
-grep '^ *+' $at_stder1 >&2
-grep -v '^ *+' $at_stder1 >$at_stderr
+echo "$at_srcdir/tests.at:143: runtest.sh"
+echo tests.at:143 >"$at_check_line_file"
+
+at_trace_this=
+if test -n "$at_traceon"; then
+    at_trace_this=yes
+fi
+
+if test -n "$at_trace_this"; then
+    ( $at_traceon; runtest.sh ) >"$at_stdout" 2>"$at_stder1"
+    at_status=$?
+    grep '^ *+' "$at_stder1" >&2
+    grep -v '^ *+' "$at_stder1" >"$at_stderr"
+else
+    ( :; runtest.sh ) >"$at_stdout" 2>"$at_stderr"
+    at_status=$?
+fi
+
 at_failed=false
-$at_diff $at_devnull $at_stderr || at_failed=:
-$at_diff expout $at_stdout || at_failed=:
+$at_diff "$at_devnull" "$at_stderr" || at_failed=:
+$at_diff expout "$at_stdout" || at_failed=:
 case $at_status in
-   77) echo 77 > $at_status_file
-            exit 77;;
+   77) echo 77 > "$at_status_file"; exit 77;;
    0) ;;
-   *) echo "tests.at:143: exit code was $at_status, expected 0"
+   *) echo "$at_srcdir/tests.at:143: exit code was $at_status, expected 0"
       at_failed=:;;
 esac
 if $at_failed; then
 
-  echo 1 > $at_status_file
+
+  echo 1 > "$at_status_file"
   exit 1
 fi
 
 $at_traceon
 
       $at_traceoff
-      $at_times_p && times >$at_times_file
+      $at_times_p && times >"$at_times_file"
     ) 5>&1 2>&1 | eval $at_tee_pipe
-    at_status=`cat $at_status_file`
+    at_status=`cat "$at_status_file"`
     ;;
 
   10 ) # 10. tests.at:146: #shell
@@ -1301,6 +1832,7 @@ $at_traceon
     at_desc='#shell'
     $at_quiet $ECHO_N " 10: #shell                                       $ECHO_C"
     at_xfail=no
+    echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
       echo "10. tests.at:146: testing ..."
       $at_traceon
@@ -1314,34 +1846,46 @@ abc
 _ATEOF
 
 $at_traceoff
-echo "tests.at:151: runtest.sh"
-echo tests.at:151 >$at_check_line_file
-( $at_traceon; runtest.sh ) >$at_stdout 2>$at_stder1
-at_status=$?
-grep '^ *+' $at_stder1 >&2
-grep -v '^ *+' $at_stder1 >$at_stderr
+echo "$at_srcdir/tests.at:151: runtest.sh"
+echo tests.at:151 >"$at_check_line_file"
+
+at_trace_this=
+if test -n "$at_traceon"; then
+    at_trace_this=yes
+fi
+
+if test -n "$at_trace_this"; then
+    ( $at_traceon; runtest.sh ) >"$at_stdout" 2>"$at_stder1"
+    at_status=$?
+    grep '^ *+' "$at_stder1" >&2
+    grep -v '^ *+' "$at_stder1" >"$at_stderr"
+else
+    ( :; runtest.sh ) >"$at_stdout" 2>"$at_stderr"
+    at_status=$?
+fi
+
 at_failed=false
-$at_diff $at_devnull $at_stderr || at_failed=:
-$at_diff expout $at_stdout || at_failed=:
+$at_diff "$at_devnull" "$at_stderr" || at_failed=:
+$at_diff expout "$at_stdout" || at_failed=:
 case $at_status in
-   77) echo 77 > $at_status_file
-            exit 77;;
+   77) echo 77 > "$at_status_file"; exit 77;;
    0) ;;
-   *) echo "tests.at:151: exit code was $at_status, expected 0"
+   *) echo "$at_srcdir/tests.at:151: exit code was $at_status, expected 0"
       at_failed=:;;
 esac
 if $at_failed; then
 
-  echo 1 > $at_status_file
+
+  echo 1 > "$at_status_file"
   exit 1
 fi
 
 $at_traceon
 
       $at_traceoff
-      $at_times_p && times >$at_times_file
+      $at_times_p && times >"$at_times_file"
     ) 5>&1 2>&1 | eval $at_tee_pipe
-    at_status=`cat $at_status_file`
+    at_status=`cat "$at_status_file"`
     ;;
 
   11 ) # 11. tests.at:154: #run 1
@@ -1349,6 +1893,7 @@ $at_traceon
     at_desc='#run 1'
     $at_quiet $ECHO_N " 11: #run 1                                       $ECHO_C"
     at_xfail=no
+    echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
       echo "11. tests.at:154: testing ..."
       $at_traceon
@@ -1364,34 +1909,46 @@ FIN
 _ATEOF
 
 $at_traceoff
-echo "tests.at:161: runtest.sh"
-echo tests.at:161 >$at_check_line_file
-( $at_traceon; runtest.sh ) >$at_stdout 2>$at_stder1
-at_status=$?
-grep '^ *+' $at_stder1 >&2
-grep -v '^ *+' $at_stder1 >$at_stderr
+echo "$at_srcdir/tests.at:161: runtest.sh"
+echo tests.at:161 >"$at_check_line_file"
+
+at_trace_this=
+if test -n "$at_traceon"; then
+    at_trace_this=yes
+fi
+
+if test -n "$at_trace_this"; then
+    ( $at_traceon; runtest.sh ) >"$at_stdout" 2>"$at_stder1"
+    at_status=$?
+    grep '^ *+' "$at_stder1" >&2
+    grep -v '^ *+' "$at_stder1" >"$at_stderr"
+else
+    ( :; runtest.sh ) >"$at_stdout" 2>"$at_stderr"
+    at_status=$?
+fi
+
 at_failed=false
-$at_diff $at_devnull $at_stderr || at_failed=:
-$at_diff expout $at_stdout || at_failed=:
+$at_diff "$at_devnull" "$at_stderr" || at_failed=:
+$at_diff expout "$at_stdout" || at_failed=:
 case $at_status in
-   77) echo 77 > $at_status_file
-            exit 77;;
+   77) echo 77 > "$at_status_file"; exit 77;;
    0) ;;
-   *) echo "tests.at:161: exit code was $at_status, expected 0"
+   *) echo "$at_srcdir/tests.at:161: exit code was $at_status, expected 0"
       at_failed=:;;
 esac
 if $at_failed; then
 
-  echo 1 > $at_status_file
+
+  echo 1 > "$at_status_file"
   exit 1
 fi
 
 $at_traceon
 
       $at_traceoff
-      $at_times_p && times >$at_times_file
+      $at_times_p && times >"$at_times_file"
     ) 5>&1 2>&1 | eval $at_tee_pipe
-    at_status=`cat $at_status_file`
+    at_status=`cat "$at_status_file"`
     ;;
 
   12 ) # 12. tests.at:164: #run 2
@@ -1399,6 +1956,7 @@ $at_traceon
     at_desc='#run 2'
     $at_quiet $ECHO_N " 12: #run 2                                       $ECHO_C"
     at_xfail=no
+    echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
       echo "12. tests.at:164: testing ..."
       $at_traceon
@@ -1414,34 +1972,46 @@ FIN
 _ATEOF
 
 $at_traceoff
-echo "tests.at:171: runtest.sh"
-echo tests.at:171 >$at_check_line_file
-( $at_traceon; runtest.sh ) >$at_stdout 2>$at_stder1
-at_status=$?
-grep '^ *+' $at_stder1 >&2
-grep -v '^ *+' $at_stder1 >$at_stderr
+echo "$at_srcdir/tests.at:171: runtest.sh"
+echo tests.at:171 >"$at_check_line_file"
+
+at_trace_this=
+if test -n "$at_traceon"; then
+    at_trace_this=yes
+fi
+
+if test -n "$at_trace_this"; then
+    ( $at_traceon; runtest.sh ) >"$at_stdout" 2>"$at_stder1"
+    at_status=$?
+    grep '^ *+' "$at_stder1" >&2
+    grep -v '^ *+' "$at_stder1" >"$at_stderr"
+else
+    ( :; runtest.sh ) >"$at_stdout" 2>"$at_stderr"
+    at_status=$?
+fi
+
 at_failed=false
-$at_diff $at_devnull $at_stderr || at_failed=:
-$at_diff expout $at_stdout || at_failed=:
+$at_diff "$at_devnull" "$at_stderr" || at_failed=:
+$at_diff expout "$at_stdout" || at_failed=:
 case $at_status in
-   77) echo 77 > $at_status_file
-            exit 77;;
+   77) echo 77 > "$at_status_file"; exit 77;;
    0) ;;
-   *) echo "tests.at:171: exit code was $at_status, expected 0"
+   *) echo "$at_srcdir/tests.at:171: exit code was $at_status, expected 0"
       at_failed=:;;
 esac
 if $at_failed; then
 
-  echo 1 > $at_status_file
+
+  echo 1 > "$at_status_file"
   exit 1
 fi
 
 $at_traceon
 
       $at_traceoff
-      $at_times_p && times >$at_times_file
+      $at_times_p && times >"$at_times_file"
     ) 5>&1 2>&1 | eval $at_tee_pipe
-    at_status=`cat $at_status_file`
+    at_status=`cat "$at_status_file"`
     ;;
 
 
@@ -1453,22 +2023,22 @@ $at_traceon
 
   # Be sure to come back to the suite directory, in particular
   # since below we might `rm' the group directory we are in currently.
-  cd $at_suite_dir
+  cd "$at_suite_dir"
 
   case $at_group in
     banner-*) ;;
     *)
-      if test ! -f $at_check_line_file; then
+      if test ! -f "$at_check_line_file"; then
 	sed "s/^ */$as_me: warning: /" <<_ATEOF
 	A failure happened in a test group before any test could be
 	run. This means that test suite is improperly designed.  Please
 	report this failure to <castamir@users.sf.net>.
 _ATEOF
-    	echo "$at_setup_line" >$at_check_line_file
+	echo "$at_setup_line" >"$at_check_line_file"
       fi
       at_group_count=`expr 1 + $at_group_count`
       $at_verbose $ECHO_N "$at_group. $at_setup_line: $ECHO_C"
-      echo $ECHO_N "$at_group. $at_setup_line: $ECHO_C" >> $at_group_log
+      echo $ECHO_N "$at_group. $at_setup_line: $ECHO_C" >> "$at_group_log"
       case $at_xfail:$at_status in
 	yes:0)
 	    at_msg="UNEXPECTED PASS"
@@ -1481,22 +2051,23 @@ _ATEOF
 	    at_errexit=false
 	    ;;
 	*:77)
-	    at_msg="skipped (`cat $at_check_line_file`)"
+	    at_msg='skipped ('`cat "$at_check_line_file"`')'
 	    at_skip_list="$at_skip_list $at_group"
 	    at_errexit=false
 	    ;;
 	yes:*)
-	    at_msg="expected failure (`cat $at_check_line_file`)"
+	    at_msg='expected failure ('`cat "$at_check_line_file"`')'
 	    at_xfail_list="$at_xfail_list $at_group"
 	    at_errexit=false
 	    ;;
 	no:*)
-	    at_msg="FAILED (`cat $at_check_line_file`)"
+	    at_msg='FAILED ('`cat "$at_check_line_file"`')'
 	    at_fail_list="$at_fail_list $at_group"
 	    at_errexit=$at_errexit_p
 	    ;;
       esac
-      echo $at_msg
+      # Make sure there is a separator even with long titles.
+      echo " $at_msg"
       at_log_msg="$at_group. $at_desc ($at_setup_line): $at_msg"
       case $at_status in
 	0|77)
@@ -1504,33 +2075,48 @@ _ATEOF
 	  # We're not including the group log, so the success message
 	  # is written in the global log separately.  But we also
 	  # write to the group log in case they're using -d.
-	  if test -f $at_times_file; then
-	    at_log_msg="$at_log_msg	(`sed 1d $at_times_file`)"
-	    rm -f $at_times_file
+	  if test -f "$at_times_file"; then
+	    at_log_msg="$at_log_msg	("`sed 1d "$at_times_file"`')'
+	    rm -f "$at_times_file"
           fi
-	  echo "$at_log_msg" >> $at_group_log
+	  echo "$at_log_msg" >> "$at_group_log"
 	  echo "$at_log_msg" >&5
 
 	  # Cleanup the group directory, unless the user wants the files.
-	  $at_debug_p || rm -rf $at_group_dir
-	  ;;
-	*)
-	  # Upon failure, include the log into the testsuite's global
-	  # log.  The failure message is written in the group log.  It
-	  # is later included in the global log.
-	  echo "$at_log_msg" >> $at_group_log
-
-	  # Upon failure, keep the group directory for autopsy, and
-	  # create the debugging script.
-	  {
+	  if $at_debug_p ; then
+	    	  {
 	    echo "#! /bin/sh"
 	    echo 'test "${ZSH_VERSION+set}" = set && alias -g '\''${1+"$@"}'\''='\''"$@"'\'''
-	    echo "cd $at_dir"
+	    echo "cd '$at_dir'"
 	    echo 'exec ${CONFIG_SHELL-'"$SHELL"'}' "$0" \
 	         '-v -d' "$at_debug_args" "$at_group" '${1+"$@"}'
 	    echo 'exit 1'
 	  } >$at_group_dir/run
 	  chmod +x $at_group_dir/run
+
+	  elif test -d "$at_group_dir"; then
+	    find "$at_group_dir" -type d ! -perm -700 -exec chmod u+rwx \{\} \;
+	    rm -fr "$at_group_dir"
+	  fi
+	  ;;
+	*)
+	  # Upon failure, include the log into the testsuite's global
+	  # log.  The failure message is written in the group log.  It
+	  # is later included in the global log.
+	  echo "$at_log_msg" >> "$at_group_log"
+
+	  # Upon failure, keep the group directory for autopsy, and
+	  # create the debugging script.
+	  	  {
+	    echo "#! /bin/sh"
+	    echo 'test "${ZSH_VERSION+set}" = set && alias -g '\''${1+"$@"}'\''='\''"$@"'\'''
+	    echo "cd '$at_dir'"
+	    echo 'exec ${CONFIG_SHELL-'"$SHELL"'}' "$0" \
+	         '-v -d' "$at_debug_args" "$at_group" '${1+"$@"}'
+	    echo 'exit 1'
+	  } >$at_group_dir/run
+	  chmod +x $at_group_dir/run
+
 	  $at_errexit && break
 	  ;;
       esac
@@ -1539,21 +2125,23 @@ _ATEOF
 done
 
 # Back to the top directory.
-cd $at_dir
+cd "$at_dir"
 
 # Compute the duration of the suite.
 at_stop_date=`date`
-at_stop_time=`(date +%s) 2>/dev/null`
+at_stop_time=`date +%s 2>/dev/null`
 echo "$as_me: ending at: $at_stop_date" >&5
-at_duration_s=`(expr $at_stop_time - $at_start_time) 2>/dev/null`
-at_duration_m=`(expr $at_duration_s / 60) 2>/dev/null`
-at_duration_h=`(expr $at_duration_m / 60) 2>/dev/null`
-at_duration_s=`(expr $at_duration_s % 60) 2>/dev/null`
-at_duration_m=`(expr $at_duration_m % 60) 2>/dev/null`
-at_duration="${at_duration_h}h ${at_duration_m}m ${at_duration_s}s"
-if test "$at_duration" != "h m s"; then
-  echo "$as_me: test suite duration: $at_duration" >&5
-fi
+case $at_start_time,$at_stop_time in
+  [0-9]*,[0-9]*)
+    at_duration_s=`expr $at_stop_time - $at_start_time`
+    at_duration_m=`expr $at_duration_s / 60`
+    at_duration_h=`expr $at_duration_m / 60`
+    at_duration_s=`expr $at_duration_s % 60`
+    at_duration_m=`expr $at_duration_m % 60`
+    at_duration="${at_duration_h}h ${at_duration_m}m ${at_duration_s}s"
+    echo "$as_me: test suite duration: $at_duration" >&5
+    ;;
+esac
 
 # Wrap up the test suite with summary statistics.
 at_skip_count=`set dummy $at_skip_list; shift; echo $#`
@@ -1663,17 +2251,17 @@ _ASBOX
     # Summary of failed and skipped tests.
     if test $at_fail_count != 0; then
       echo "Failed tests:"
-      $SHELL $0 $at_fail_list --list
+      $SHELL "$0" $at_fail_list --list
       echo
     fi
     if test $at_skip_count != 0; then
       echo "Skipped tests:"
-      $SHELL $0 $at_skip_list --list
+      $SHELL "$0" $at_skip_list --list
       echo
     fi
     if test $at_xpass_count != 0; then
       echo "Unexpected passes:"
-      $SHELL $0 $at_xpass_list --list
+      $SHELL "$0" $at_xpass_list --list
       echo
     fi
     if test $at_fail_count != 0; then
@@ -1685,21 +2273,25 @@ _ASBOX
       echo
       for at_group in $at_fail_list
       do
-        # Normalize the test group number.
-        at_group_normalized=`expr "00000$at_group" : ".*\($at_format\)"`
-        # Create a fresh directory for the next test group, and enter.
-        at_group_dir=$at_suite_dir/$at_group_normalized
-        at_group_log=$at_group_dir/$as_me.log
-        cat $at_group_log
+        at_group_normalized=$at_group
+
+  while :; do
+    case $at_group_normalized in #(
+    $at_format*) break;;
+    esac
+    at_group_normalized=0$at_group_normalized
+  done
+
+        cat "$at_suite_dir/$at_group_normalized/$as_me.log"
         echo
       done
       echo
     fi
     if test -n "$at_top_srcdir"; then
       sed 'h;s/./-/g;s/^.../## /;s/...$/ ##/;p;x;p;x' <<_ASBOX
-## $at_top_builddir/config.log ##
+## ${at_top_build_prefix}config.log ##
 _ASBOX
-      sed 's/^/| /' $at_top_builddir/config.log
+      sed 's/^/| /' ${at_top_build_prefix}config.log
       echo
     fi
   } >&5
@@ -1709,20 +2301,22 @@ _ASBOX
 _ASBOX
 
   echo
-  echo "Please send \`$as_me.log' and all information you think might help:"
+  echo "Please send \`${at_testdir+${at_testdir}/}$as_me.log' and all information you think might help:"
   echo
   echo "   To: <castamir@users.sf.net>"
-  echo "   Subject: [KBtin 1.0.7] $as_me:$at_fail_list${at_fail_list:+ failed${at_xpass_list:+,}}$at_xpass_list${at_xpass_list:+ passed unexpectedly}"
+  echo "   Subject: [KBtin 1.0.7.a] $as_me:$at_fail_list${at_fail_list:+ failed${at_xpass_list:+,}}$at_xpass_list${at_xpass_list:+ passed unexpectedly}"
   echo
   if test $at_debug_p = false; then
     echo
     echo 'You may investigate any problem if you feel able to do so, in which'
-    echo 'case the test suite provides a good starting point.'
+    echo 'case the test suite provides a good starting point.  Its output may'
+    echo "be found below \`${at_testdir+${at_testdir}/}$as_me.dir'."
     echo
   fi
     exit 1
 fi
 
 exit 0
+
 
 

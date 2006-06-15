@@ -1,3 +1,6 @@
+1.0.8:
+*	"assphrase:" will trigger password protection as well.
+
 1.0.7:
 *	end-of-file ends KBtin when in non-fullscreen UI and no sessions are
 	left
