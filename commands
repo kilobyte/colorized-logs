@@ -157,3 +157,6 @@ grep
 #ifdef UI_FULLSCREEN
 retain
 #endif
+
+ifexists
+ifstrequal

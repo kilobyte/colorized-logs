@@ -1,3 +1,8 @@
+//dodac xterm w putty
+//zglosic buga ze putty kaszani kolor tla
+//zrobic coby #session uzywalo get_arg()
+
+
 /******************************************************************/
 /* file: tintin.h - the include file for KBtin                    */
 /******************************************************************/
@@ -153,7 +158,7 @@
 
 #define BUFFER_SIZE 2048
 #define INPUT_CHUNK 512
-#define VERSION_NUM "1.0.4a"
+#define VERSION_NUM "1.0.4c"
 #define MSG_ALIAS       0
 #define MSG_ACTION      1
 #define MSG_SUBSTITUTE  2

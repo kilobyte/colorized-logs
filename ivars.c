@@ -100,40 +100,6 @@ void if_command(char *line, struct session *ses)
 }
 
 
-/***********************/
-/* the #strcmp command */
-/***********************/
-void strcmp_command(char *line, struct session *ses)
-{
-    char left[BUFFER_SIZE], right[BUFFER_SIZE];
-
-    line = get_arg(line, left, 0, ses);
-    line = get_arg(line, right, 0, ses);
-
-    if (!strcmp(left,right))
-    {
-        line=get_arg_in_braces(line, right, 1);
-        parse_input(right,1,ses);
-    }
-    else
-    {
-        line = get_arg_in_braces(line, right, 1);
-        line = get_arg_in_braces(line, left, 0);
-        if (*left == tintin_char)
-        {
-
-            if (is_abrev(left + 1, "else"))
-            {
-                line = get_arg_in_braces(line, right, 1);
-                parse_input(right,1,ses);
-            }
-            if (is_abrev(left + 1, "elif"))
-                if_command(line, ses);
-        }
-    }
-}
-
-
 int do_inline(char *line,int *res,struct session *ses)
 {
     char command[BUFFER_SIZE],*ptr;

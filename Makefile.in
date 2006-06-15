@@ -363,38 +363,6 @@ distdir: $(DISTFILES)
 	    || cp -p $$d/$$file $(distdir)/$$file || :; \
 	  fi; \
 	done
-action.o: action.c config.h tintin.h
-alias.o: alias.c config.h tintin.h
-ansi2html.o: ansi2html.c
-ansi2txt.o: ansi2txt.c
-antisub.o: antisub.c config.h tintin.h
-bind.o: bind.c config.h tintin.h
-colors.o: colors.c tintin.h config.h
-crc.o: crc.c
-events.o: events.c config.h tintin.h
-files.o: files.c config.h tintin.h
-glob.o: glob.c config.h
-hash.o: hash.c tintin.h config.h
-help.o: help.c config.h tintin.h
-highlight.o: highlight.c config.h tintin.h
-history.o: history.c config.h tintin.h
-ivars.o: ivars.c config.h tintin.h
-llist.o: llist.c config.h tintin.h
-main.o: main.c config.h tintin.h
-misc.o: misc.c config.h tintin.h
-net.o: net.c config.h tintin.h
-parse.o: parse.c config.h tintin.h commands.h load_commands.h
-path.o: path.c config.h tintin.h
-regexp.o: regexp.c config.h tintin.h
-routes.o: routes.c tintin.h config.h
-run.o: run.c config.h tintin.h
-session.o: session.c config.h tintin.h
-substitute.o: substitute.c config.h tintin.h
-telnet.o: telnet.c config.h tintin.h
-ticks.o: ticks.c config.h tintin.h
-user.o: user.c tintin.h config.h
-utils.o: utils.c config.h tintin.h
-variables.o: variables.c config.h tintin.h
 
 info-am:
 info: info-am
