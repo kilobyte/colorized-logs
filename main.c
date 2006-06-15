@@ -402,11 +402,11 @@ void do_one_line(line, ses)
     check_all_actions(line, ses);
   if (!togglesubs)
     if (!do_one_antisub(line, ses))
-      do_one_sub(line, ses);
+      do_all_sub(line, ses);
   if (presub && !ses->ignore)
     check_all_actions(line, ses);
-  do_one_high(line, ses);
-  if (strcmp(line,"."))
+  do_all_high(line, ses);
+  if (isnotblank(line))
       if (ses==activesession)
 	textout(line);
       else

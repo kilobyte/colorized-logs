@@ -37,6 +37,7 @@ extern int presub;
 extern int blank;
 extern int togglesubs;
 extern int mudcolors;
+extern int blank;
 extern char vars[10][BUFFER_SIZE];	/* the %0, %1, %2,....%9 variables */
 extern int mesvar[7];
 extern int verbatim;
@@ -545,10 +546,10 @@ struct session *ses;
     FILE* news=fopen("news","r");
     if (news)
     {
-	textout("\033[32;2m");
+	textout("~2~");
 	while (fgets(line,BUFFER_SIZE,news))
 	    textout(line);
-	textout("\033[0;37;2m\n");
+	textout("~7~\n");
     }
     else
 	textout("`news' file not found!\n");
@@ -768,4 +769,32 @@ void display_info(ses)
 
 
   prompt(ses);
+}
+
+int isnotblank(char *line)
+{
+	if (!strcmp(line,"."))
+		return 0;
+	if (!blank)
+		return 1;
+	if (!line)
+		return 0;
+	while (*line=='~')
+		if (!strncmp(line,"~-1~",4))
+			line+=4;
+		else
+		if ((*(line+1)>='0')&&(*(line+1)<='9')
+		    &&(*(line+2)=='~'))
+			line+=3;
+		else
+		if ((*(line+1)=='1')
+		    &&(*(line+2)>='0')&&(*(line+2)<='9')
+		    &&(*(line+3)=='~'))
+			line+=4;
+		else
+		if (*line==' ')
+			line++;
+		else
+			return(0);
+	return(*line);
 }

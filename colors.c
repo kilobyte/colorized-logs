@@ -53,7 +53,7 @@ void do_in_MUD_colors(char *txt)
 							*out++='~';
 							break;
 						case '0':
-							ccolor=ccolor&8|7;
+							ccolor=7;
 							goto again;
 						case '1':
 							ccolor|=8;
@@ -67,6 +67,14 @@ void do_in_MUD_colors(char *txt)
 							if ((*txt>'0')&&(*txt<'8'))
 							{
 								ccolor=ccolor&8|colors[*txt-'0'];
+								goto again;
+							};
+						case '4':
+							if (!*++txt)
+								{txt=back;break;};
+							if ((*txt>'0')&&(*txt<'8'))
+							{
+								/* ignore */
 								goto again;
 							};
 						default:

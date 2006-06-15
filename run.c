@@ -1,3 +1,4 @@
+#include <tintin.h>
 #include <stdio.h>
 #include <pty.h>
 extern char **environ;
@@ -5,7 +6,15 @@ extern char **environ;
 int run(char *command)
 {
 	int fd;
-	switch(forkpty(&fd,0,0,0))
+	
+	struct termios ta;
+	ta.c_iflag=0;
+	ta.c_oflag=0;
+	ta.c_cflag=0;
+	ta.c_lflag=0;
+	cfmakeraw(&ta);
+	
+	switch(forkpty(&fd,0,&ta,0))
 	{
 		case -1:
 			return(0);

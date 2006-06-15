@@ -1,9 +1,9 @@
 bin_PROGRAMS=KBtin
 
 KBtin_SOURCES=action.c alias.c antisub.c files.c glob.c help.c highlight.c history.c ivars.c llist.c main.c misc.c net.c parse.c path.c session.c substitute.c text.c ticks.c utils.c variables.c events.c user.c run.c colors.c
-KBtin_LDADD=-lcurses
+KBtin_LDADD=-lcurses -lutil
 
-EXTRA_DIST=tintin.h
+EXTRA_DIST=tintin.h news
 
 # since tt is almost never installed by "make install" strip it at once :)
 # all-local:

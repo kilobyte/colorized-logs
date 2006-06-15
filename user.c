@@ -6,14 +6,36 @@
 
 char done_input[BUFFER_SIZE],k_input[BUFFER_SIZE],kh_input[BUFFER_SIZE],out_line[BUFFER_SIZE];
 int k_len,k_pos,k_spos;
-int o_len,o_pos,o_color,o_oldcolor;
+int o_len,o_pos,o_color,o_oldcolor,o_prevcolor;
 int b_first,b_current,b_screenb;
 char *b_output[B_LENGTH];
 WINDOW *w_in,*w_out,*w_status;
 int hist_num;
 int need_resize;
+int user_getpassword;
 
 extern char status[BUFFER_SIZE];
+
+char *cANSI[]=
+{
+	"\033[0;30m",
+	"\033[0;34m",
+	"\033[0;32m",
+	"\033[0;36m",
+	"\033[0;31m",
+	"\033[0;35m",
+	"\033[0;33m",
+	"\033[2;37;0m",
+	"\033[0;34m",
+	"\033[0;37;2m",
+	"\033[1;34m",
+	"\033[1;32m",
+	"\033[1;36m",
+	"\033[1;31m",
+	"\033[1;35m",
+	"\033[1;33m",
+	"\033[1;37m",	
+};
 
 void countpos()
 {
@@ -40,7 +62,16 @@ void redraw_in()
 		k_spos=k_pos+2-COLS;
 	if (k_spos)
 		waddch(w_in,'<'|A_BOLD);
-	waddnstr(w_in,&(k_input[k_spos]),COLS-2+(k_spos==0));
+	if (user_getpassword)
+		{
+			int i,l;
+			l=strlen(&(k_input[k_spos]));
+			l=(l<COLS-2+(k_spos==0))?l:COLS-2+(k_spos==0);
+			for (i=0;i<l;i++)
+				waddch(w_in,'*');
+		}
+	else
+		waddnstr(w_in,&(k_input[k_spos]),COLS-2+(k_spos==0));
 	if (k_spos+COLS-2<k_len)
 		waddch(w_in,'>'|A_BOLD);
 	else
@@ -161,7 +192,7 @@ void b_addline()
 	if (b_current==b_first+B_LENGTH)
 		b_shorten();
 	b_output[b_current%B_LENGTH]=new;
-	o_len=o_color<10 ? 3:4;
+	o_len=(o_prevcolor=o_color)<10 ? 3:4;
 	o_pos=0;
 	sprintf(out_line,"~%d~",o_oldcolor=o_color);
 	b_current++;
@@ -194,7 +225,7 @@ void textout(char *txt)
 						case 'm':
 							break;
 						case '0':
-							o_color=o_color&8|7;
+							o_color=7;
 							goto again;
 						case '1':
 							o_color|=8;
@@ -212,7 +243,18 @@ void textout(char *txt)
 							}
 							else
 								--txt;
-							break;		
+							break;
+						case '4':
+							if (!*++txt)
+								{--txt;break;};
+							if ((*txt>'0')&&(*txt<'8'))
+							{
+								/* ignore */
+								goto again;
+							}
+							else
+								--txt;
+							break;
 						default:
 							--txt;
 					};
@@ -229,6 +271,14 @@ void textout(char *txt)
 				b_addline();
 				break;
 			case '~':
+				if ((*(txt+1)=='-')&&
+				    (*(txt+2)=='1')&&
+				    (*(txt+3)=='~'))
+				{
+					o_color=o_prevcolor;
+					txt+=3;
+					break;
+				};
 				if (*(txt+1)=='1')
 				        if ((*(txt+2)>='0')&&(*(txt+2)<'6')
 					    &&(*(txt+3)=='~'))
@@ -281,7 +331,7 @@ int process_kbd(struct session *ses)
 		case KEY_ENTER:
 			if (b_current!=b_screenb)
 				b_scroll(b_current);
-		
+			user_getpassword=0;
 			strcpy(done_input,k_input);
 			k_len=k_pos=k_spos=0;
 			k_input[0]=0;
@@ -424,7 +474,10 @@ int process_kbd(struct session *ses)
                 };
                 k_input[k_pos++]=ch;
                 if (((k_len+1)==k_pos)&&(k_len<COLS))
-   	            	waddch(w_in,ch);
+   	            	if (user_getpassword)
+   	            		waddch(w_in,'*');
+   	            	else
+   	            		waddch(w_in,ch);
                 else
                 	redraw_in();
 				wrefresh(w_in);
@@ -557,8 +610,9 @@ void user_init()
 	out_line[0]=0;
 	o_len=0;
 	o_pos=0;
-	o_color=16|7;
-	o_oldcolor=16|7;
+	o_color=7;
+	o_oldcolor=7;
+	o_prevcolor=7;
 	textout("~12~KB~3~tin ~7~");
 	textout(VERSION_NUM);
 	textout(" by ~11~kilobyte@mimuw.edu.pl~9~\n");
@@ -574,6 +628,7 @@ void user_init()
 		    "If you're using an xterm, I suggest copying /etc/terminfo/l/linux\n"
 		    "(or a definition of another decent terminal) to ~/.terminfo/x/xterm\n");
 	textout("~7~");
+	user_getpassword=0;
 }
 
 void user_pause()
@@ -590,4 +645,38 @@ void user_done()
 {
 	endwin();
 	write(1,"\n",1);
+}
+
+void fwrite_out(FILE *f,char *pos)
+{
+	for (;*pos;pos++)
+	{
+		if (*pos=='~')
+			if ((*(pos+1)=='1')&&(*(pos+2)>='0')&&(*(pos+2)<'6')
+			    &&(*(pos+3)=='~'))
+			{
+				fprintf(f,cANSI[(*(pos+2)+2-'0')&7]);
+				pos+=3;
+				continue;
+			}
+			else if ((*(pos+1)>='0')&&(*(pos+1)<='9')&&(*(pos+2)=='~'))
+			{
+				fprintf(f,cANSI[(*(pos+1)-'0')&7]);
+				pos+=2;
+				continue;
+			};
+		if (*pos!='\n')
+			fprintf(f,"%c",*pos);
+	}
+}
+
+void user_condump(FILE *f)
+{
+	int i;
+	for (i=b_first;i<b_current;i++)
+	{
+		fwrite_out(f,b_output[i%B_LENGTH]);
+		fprintf(f,"\n");
+	};
+	fwrite_out(f,out_line);
 }

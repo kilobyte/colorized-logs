@@ -141,6 +141,31 @@ void deathlog_command(arg, ses)
   prompt(NULL);
 }
 
+/************************/
+/* the #condump command */
+/************************/
+void condump_command(arg, ses)
+     char *arg;
+     struct session *ses;
+{
+  FILE *fh;
+  char fname[BUFFER_SIZE], temp[BUFFER_SIZE];
+
+  if (*arg) {
+    arg = get_arg_in_braces(arg, fname, 0);
+    substitute_vars(fname, temp);
+    if (ses)
+      substitute_myvars(temp, fname, ses);
+    if ((fh = fopen(fname, "a"))) {
+      user_condump(fh);
+      fclose(fh);
+    } else
+      tintin_puts("#COULDN'T OPEN FILE.", ses);
+  } else
+    tintin_puts("#Syntax: #condump <file>", ses);
+  prompt(NULL);
+}
+
 /********************/
 /* the #log command */
 /********************/

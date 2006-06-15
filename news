@@ -2,8 +2,6 @@ To jest moja przerobki TinTina.
 
 - przed podlaczeniem do sesji nie dzialaja strzalki gora/dol. Tak bylo
   w oryginalnym tintinie 2.1.9 - bede musial poprawic z powrotem.
-- nie mialem jak przetestowac wpisywania hasla. Moze wyswietlac je na
-  ekranie (tak wiec uwaga na podgladaczy). Niedlugo poprawie.
 - przewijanie: nie uzywac Scroll-Locka. Przewija sie PgUp/PgDn (bez SHIFTa).
   Bufor przewijania jest cokolwiek wiekszy (4096 linii) i sie nie czysci
   po przejsciu na inna sesje. Jesli tyle (ok. 320KB) to dla kogos za malo,
@@ -20,9 +18,8 @@ To jest moja przerobki TinTina.
   kolejnosci zamierzam dodac zbiory (zbior stringow, np. friends/enemies)
   oraz #bind (np. #bind F9 {tell laryn list}).
   Jestem otwarty na propozycje :)
-  
  
-Druga wersja:
+ver 0.2.0:
 
 - dodane polecenie #run (jak #ses, np. #run rainbow {ssh -l ab171958 rainbow})
 - poprawiony blad z ucinaniem niepelnych linii tekstu z MUDa
@@ -55,5 +52,12 @@ Druga wersja:
     4) puscic mail do mnie (kilobyte@mimuw.edu.pl) - przerobie to tak zeby
        dzialalo w ogolnym przypadku (tak w zasadzie to powinno to byc zrobione
        od poczatku - po prostu mi sie nie chce ;-) )
+
+ver 0.2.3:
+
+- highlighty dzialaja. Uwaga: highlighty ignoruja kody kolorow, tak wiec do
+  wzorca "abcd" bedzie pasowalo tez "ab~5~cd~-1~"
+- mozna robic kilka highlightow w jednej linii, a nawet zagniezdzonych
+- w czasie wpisywania hasla wyswietlaja sie gwiazdki - podgladacze sorry ;-)
 
 	KiloByte

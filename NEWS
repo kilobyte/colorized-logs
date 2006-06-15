@@ -1,3 +1,8 @@
+0.2.3:
+* highlights fixed!
+* multiple hightlights per line are now allowed
+* highlights ignore inline color codes: "ab~5~cd" matches "abcd"
+
 0.2.0:
 NEW:
 * consistent system of colors (~0~..~15~)

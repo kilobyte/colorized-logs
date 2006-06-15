@@ -17,6 +17,9 @@
 
 #undef _HPUX_SOURCE
 
+/* Define if you have the getpt function.  */
+#undef HAVE_GETPT
+
 /* Define if you have the select function.  */
 #undef HAVE_SELECT
 

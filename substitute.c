@@ -99,7 +99,7 @@ void unsubstitute_command(arg, ses)
 }
 
 
-void do_one_sub(line, ses)
+void do_all_sub(line, ses)
      char *line;
      struct session *ses;
 {

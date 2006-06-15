@@ -262,6 +262,11 @@ struct session *parse_tintin_command(command, arg, ses)
   else if (is_abrev(command, "char"))
     char_command(arg, ses);
 
+#ifdef UI_FULLSCREEN
+  else if (is_abrev(command, "condump"))
+    condump_command(arg, ses);
+#endif
+
   else if (is_abrev(command, "ctime"))
     ctime_command(arg, ses);
 

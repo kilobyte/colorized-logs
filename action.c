@@ -28,6 +28,7 @@ extern int mesvar[6];
 extern char *get_arg_in_braces();
 extern struct listnode *search_node_with_wild();
 extern struct listnode *searchnode_list();
+extern int user_getpassword;
 void substitute_vars();
 int var_len[10];
 char *var_ptr[10];
@@ -223,7 +224,7 @@ void check_all_actions(line, ses)
   char strng[BUFFER_SIZE];
 
   if (check_one_action(line, temp, ses) && ses == activesession) {
-//    term_noecho();	// KB:??
+    user_getpassword=TRUE;
     term_echoing = FALSE;
   }
   ln = (ses) ? ses->actions : common_actions;

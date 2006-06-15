@@ -78,14 +78,7 @@
 /* TINTIN print it's own pseudo prompt instead.                           */
 /**************************************************************************/
 #define PSEUDO_PROMPT TRUE
-/**************************************************************************/
-/* the codes below are used for highlighting text, and is set for the     */
-/* codes for VT-100 terminal emulation. If you are using a different      */
-/* teminal type, replace the codes below with the correct codes and       */
-/* change the codes set up in highlight.c                                 */
-/**************************************************************************/
-#define DEFAULT_BEGIN_COLOR "["
-#define DEFAULT_END_COLOR "[m"
+#define UI_FULLSCREEN
 /*************************************************************************/
 /* The text below is checked for. If it trickers then echo is turned off */
 /* echo is turned back on the next time the user types a return          */
@@ -97,7 +90,7 @@
 /* doing........                                                          */
 /**************************************************************************/ 
 #define BUFFER_SIZE 2048
-#define VERSION_NUM "0.2.2"
+#define VERSION_NUM "0.2.3"
 /************************ structures *********************/
 struct listnode {
   struct listnode *next;
