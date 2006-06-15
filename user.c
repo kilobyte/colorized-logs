@@ -47,10 +47,8 @@ char done_input[BUFFER_SIZE];
 extern char status[BUFFER_SIZE];
 extern int find_bind(char *key,int msg,struct session *ses);
 extern int keypad,retain;
-#ifdef EXT_INLINE
-extern inline int getcolor(char **ptr,int *color,const int flag);
-extern inline int setcolor(char *txt,int c);
-#endif
+extern int getcolor(char **ptr,int *color,const int flag);
+extern int setcolor(char *txt,int c);
 extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
 extern void syserr(char *msg, ...);
 extern struct session *activesession, *lastdraft;
@@ -75,6 +73,7 @@ int retaining;
 #ifdef XTERM_TITLE
 int xterm;
 #endif
+int putty;
 
 char term_buf[BUFFER_SIZE],*tbuf;
 
@@ -116,6 +115,7 @@ int term_init(void)
 
 void term_restore(void)
 {
+    tcdrain(0);
     tcsetattr(0,TCSADRAIN,&old_tattr);
 }
 
@@ -164,6 +164,8 @@ void countpos(void)
 /**********************/
 void redraw_in(void)
 {
+    int i,l,r,k;
+
     tbuf+=sprintf(tbuf,"\033[%d;1f\033[0;37;4%dm",scr_len+1,INPUT_COLOR);
     if (k_pos<k_scrl)
         k_scrl=k_pos;
@@ -175,7 +177,6 @@ void redraw_in(void)
        tbuf+=sprintf(tbuf,"\033[2m");
     if (user_getpassword)
     {
-        int i,l;
         l=strlen(&(k_input[k_scrl]));
         l=(l<COLS-2+(k_scrl==0))?l:COLS-2+(k_scrl==0);
         for (i=0;i<l;i++)
@@ -183,7 +184,6 @@ void redraw_in(void)
     }
     else
     {
-        int l,r,k;
         l=COLS-2+(k_scrl==0);
         if (margins)
         {
@@ -230,7 +230,11 @@ void redraw_in(void)
     if (k_scrl+COLS-2<k_len)
         tbuf+=sprintf(tbuf,"\033[1m>");
     else
-        tbuf+=sprintf(tbuf,"\033[0K");
+        if (!putty)
+            tbuf+=sprintf(tbuf,"\033[0K");
+        else
+            for(i=l;i<COLS-!!k_scrl;i++)
+                *tbuf++=' ';
     scr_curs=(k_scrl!=0)+k_pos-k_scrl;
     redraw_cursor();
     term_commit();
@@ -1317,10 +1321,17 @@ key_alt_tab:
 /******************************/
 void user_drawscreen(void)
 {
+    int i;
+
     need_resize=0;
     scr_len=LINES-1-isstatus;
     tbuf+=sprintf(tbuf,"\033[0;37;40m\033[2J\033[0;37;40m\033[1;%dr\0337",scr_len);
-    tbuf+=sprintf(tbuf,"\033[%d;f\033[0;37;4%dm\033[2K",scr_len+1,INPUT_COLOR);
+    tbuf+=sprintf(tbuf,"\033[%d;1f\033[0;37;4%dm",scr_len+1,INPUT_COLOR);
+    if (!putty)
+        tbuf+=sprintf(tbuf,"\033[2K");
+    else
+        for(i=0;i<COLS;i++)
+            *tbuf++=' ';
     if (isstatus)
         tbuf+=sprintf(tbuf,"\033[%d;f\033[37;4%dm\033[2K",LINES,STATUS_COLOR);
 }
@@ -1385,9 +1396,13 @@ void show_status(void)
 
 void user_init(void)
 {
+    char* term;
+
 #ifdef XTERM_TITLE
-    xterm|=getenv("DISPLAY")&&getenv("WINDOWID");
+    xterm=getenv("DISPLAY")&&(getenv("WINDOWID")||getenv("KONSOLE_DCOP_SESSION"));
 #endif
+    /* some versions of PuTTY and screen badly support bg colors */
+    putty=(term=getenv("TERM"))&&(!strcasecmp(term,"xterm")||!strncasecmp(term,"screen",6));
     term_getsize();
     term_init();
     tbuf=term_buf+sprintf(term_buf,"\033[?7l");
@@ -1424,6 +1439,9 @@ void user_init(void)
     o_draftlen=0;
     o_strongdraft=0;
     o_lastcolor=7;
+    
+    tbuf+=sprintf(tbuf,"\033[1;1f\0337");
+    
     sprintf(done_input,"~12~KB~3~tin ~7~%s by ~11~kilobyte@mimuw.edu.pl~9~\n",VERSION_NUM);
     textout(done_input);
     {

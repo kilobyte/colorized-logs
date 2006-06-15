@@ -28,3 +28,21 @@
 1.0.4:
 * #grep, true regexp match.
 * #retain, zMud-like behaviour of the input box.
+
+1.0.5:
+* Bugfixes, bugfixes, bugfixes.  Even a remote buffer overflow fixed.
+* You can start a new session (-s, -r) or execute a command (-c) when
+  invoking KBtin -- peruse the new, shiny man page.
+* #pretick -- control the '#10 SECONDS TO TICK' messages
+* New inlines: #grep, #match and #strcmp can be used in expressions.
+* #collate and #expand can save you writing hairy scripts when converting
+  to and from TMI2 style (3ne,4e,s) and ;-based (10n;10n;e;s;e) aliases.
+* You can add '#hook's to be notified of events such as:
+  OPEN		session opening,
+  CLOSE		session closing (so you can save your config)
+  ZAP           session being aborted (#zap, #end, ^C, etc)
+  SEND          text being sent to the MUD (so you can use it for mapping
+                without having to alias everything).
+  ACTIVATE      switching sessions
+  DEACTIVATE       ''        ''
+* #logcomment, for writing things to the log

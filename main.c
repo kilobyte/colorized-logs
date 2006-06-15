@@ -62,6 +62,7 @@ int routnum = 0;
 int pdnum = 0;
 int antisubnum = 0;
 int bindnum = 0;
+int hooknum = 0;
 int gotpassword=0;
 int got_more_kludge=0;
 extern int hist_num;
@@ -73,6 +74,9 @@ struct session *lastdraft;
 int aborting=0;
 extern int recursion;
 char *_;
+#ifdef UI_FULLSCREEN
+extern int o_lastcolor;
+#endif
 
 struct session *sessionlist, *activesession, *nullsession;
 char **pvars;	/* the %0, %1, %2,....%9 variables */
@@ -134,6 +138,7 @@ extern int read_buffer_mud(char *buffer, struct session *ses);
 extern void cleanup_session(struct session *ses);
 extern void user_title(char *fmt,...);
 void make_name(char *str, char *basis, int run);
+extern struct session* do_hook(struct session *ses, int t, char *data, int blockzap);
 
 void tstphandler(int sig)
 {
@@ -424,7 +429,8 @@ ever wants to read -- that is what docs are for.
     nullsession->pretick = DEFAULT_PRETICK;
     nullsession->time0 = 0;
     nullsession->snoopstatus = TRUE;
-    nullsession->logfile = NULL;
+    nullsession->logfile = 0;
+    nullsession->logname = 0;
     nullsession->blank = DEFAULT_DISPLAY_BLANK;
     nullsession->echo = DEFAULT_ECHO;
     nullsession->speedwalk = DEFAULT_SPEEDWALK;
@@ -449,6 +455,7 @@ ever wants to read -- that is what docs are for.
     nullsession->next = 0;
     nullsession->sessionstart=nullsession->idle_since=time(0);
     nullsession->debuglogfile=0;
+    nullsession->debuglogname=0;
     {
         int i;
         for (i=0;i<HISTORY_SIZE;i++)
@@ -458,6 +465,8 @@ ever wants to read -- that is what docs are for.
             nullsession->routes[i]=0;
             nullsession->locations[i]=0;
         }
+        for(i=0;i<NHOOKS;i++)
+            nullsession->hooks[i]=0;
     };
     nullsession->path = init_list();
     nullsession->no_return = 0;
@@ -465,6 +474,7 @@ ever wants to read -- that is what docs are for.
     nullsession->last_line[0] = 0;
     nullsession->events = NULL;
     nullsession->verbose=0;
+    nullsession->closing=0;
     sessionlist = nullsession;
     activesession = nullsession;
     pvars=0;
@@ -481,6 +491,7 @@ ever wants to read -- that is what docs are for.
     nullsession->mesvar[9] = DEFAULT_SYSTEM_MESS;
     nullsession->mesvar[10]= DEFAULT_PATH_MESS;
     nullsession->mesvar[11]= DEFAULT_ERROR_MESS;
+    nullsession->mesvar[12]= DEFAULT_HOOK_MESS;
 
     parse_options(argc, argv, environ);
     tintin();
@@ -515,7 +526,7 @@ int check_events(void)
 /***************************/
 void tintin(void)
 {
-    int done, result;
+    int done, result, maxfd;
     struct session *sesptr, *t;
     struct timeval tv;
     fd_set readfdmask;
@@ -537,15 +548,20 @@ void tintin(void)
         }
 # endif
 #endif
+        maxfd=0;
         FD_ZERO(&readfdmask);
         FD_SET(0, &readfdmask);
         for (sesptr = sessionlist; sesptr; sesptr = sesptr->next)
+        {
             FD_SET(sesptr->socket, &readfdmask);
+            if (sesptr->socket>maxfd)
+                maxfd=sesptr->socket;
+        }
 
         tv.tv_sec = check_events();
         tv.tv_usec = 0;
 
-        result = select(8*sizeof(fd_set), &readfdmask, 0, 0, &tv);
+        result = select(maxfd+1, &readfdmask, 0, 0, &tv);
 
 #ifdef UI_FULLSCREEN
         if (need_resize)
@@ -583,6 +599,12 @@ void tintin(void)
                             do_history(done_input, activesession);
                     if (activesession->echo)
                         echo_input(done_input);
+                    if (activesession->logfile)
+                        if (fprintf(activesession->logfile, LOG_INPUT, done_input)<1)
+                        {
+                            activesession->logfile=0;
+                            tintin_eprintf(activesession, "#WRITE ERROR -- LOGGING DISABLED.  Disk full?");
+                        }
                 }
                 if (*done_input)
                     strcpy(prev_command, done_input);
@@ -652,7 +674,7 @@ abort_log:
             }
         }
         else
-            if (fwrite(buffer, didget, 1, ses->logfile)<didget)
+            if (fwrite(buffer, didget, 1, ses->logfile)<1)
                 goto abort_log;
     }
 
@@ -873,8 +895,16 @@ void tintin_eprintf(struct session *ses, const char *format, ...)
 void echo_input(char *txt)
 {
     char out[BUFFER_SIZE],*cptr,*optr;
+#ifdef UI_FULLSCREEN
+    int c;
+    textout("");
+    c=o_lastcolor;
+#endif
     
     optr=out;
+#ifdef UI_FULLSCREEN
+    optr+=sprintf(optr, ECHO_COLOR);
+#endif
     cptr=txt;
     while (*cptr)
     {
@@ -883,8 +913,12 @@ void echo_input(char *txt)
         if (optr-out > BUFFER_SIZE-10)
             break;
     }
+#ifdef UI_FULLSCREEN
+    optr+=sprintf(optr, "~%d~\n", c);
+#else
     *optr++='\n';
     *optr=0;
+#endif
     textout(out);
 }
 
@@ -898,10 +932,17 @@ static void myquitsig(void)
     for (sesptr = sessionlist; sesptr; sesptr = t)
     {
         t = sesptr->next;
-        if (sesptr!=nullsession)
+        if (sesptr!=nullsession && !sesptr->closing)
+        {
+            sesptr->closing=1;
+            do_hook(sesptr, HOOK_ZAP, 0, 1);
+            sesptr->closing=0;
             cleanup_session(sesptr);
+        }
     }
-    sesptr = NULL;
+    activesession = nullsession;
+    do_hook(nullsession, HOOK_END, 0, 1);
+    activesession = NULL;
 
 #ifndef UI_FULLSCREEN
     if (!tty)

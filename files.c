@@ -52,11 +52,15 @@ extern void zap_list(struct listnode *nptr);
 extern char* get_hash(struct hashtable *h, char *key);
 extern void write_line_mud(char *line, struct session *ses);
 extern FILE *mypopen(const char *command, int wr);
+extern char *mystrdup(char *s);
+extern char *get_arg(char *s,char *arg,int flag,struct session *ses);
 
 extern int puts_echoing;
-extern int alnum, acnum, subnum, hinum, varnum, antisubnum, routnum, bindnum, pdnum;
+extern int alnum, acnum, subnum, hinum, varnum, antisubnum, routnum, bindnum, pdnum, hooknum;
 extern char tintin_char;
 extern int recursion;
+extern char *hook_names[];
+extern int keypad, retain;
 
 int in_read=0;
 
@@ -206,6 +210,31 @@ void deathlog_command(char *arg, struct session *ses)
         tintin_eprintf(ses, "#ERROR: valid syntax is: #deathlog <file> <text>");
 }
 
+/***************************/
+/* the #logcomment command */
+/***************************/
+void logcomment_command(char *arg, struct session *ses)
+{
+    char text[BUFFER_SIZE];
+
+    if (!arg)
+    {
+    	tintin_eprintf(ses, "#Logcomment what?");
+    	return;
+    }
+    if (!ses->logfile)
+    {
+        tintin_eprintf(ses, "#You're not logging.");
+        return;
+    }
+    arg=get_arg(arg, text, 1, ses);
+    if (fprintf(ses->logfile, "%s\n", text)<1)
+    {
+	    ses->logfile=0;
+        tintin_eprintf(ses, "#WRITE ERROR -- LOGGING DISABLED.  Disk full?");
+    }
+}
+
 #ifdef UI_FULLSCREEN
 /************************/
 /* the #condump command */
@@ -254,6 +283,9 @@ void log_command(char *arg, struct session *ses)
             {
                 fclose(ses->logfile);
                 tintin_printf(ses, "#OK. LOGGING TURNED OFF.");
+                ses->logfile = NULL;
+                free(ses->logname);
+                ses->logname = NULL;
             }
             get_arg_in_braces(arg, temp, 1);
             substitute_vars(temp, fname);
@@ -269,11 +301,15 @@ void log_command(char *arg, struct session *ses)
                     tintin_printf(ses, "#OK. LOGGING TO {%s} .....", fname);
                 else
                     tintin_eprintf(ses, "#ERROR: COULDN'T OPEN PIPE: {gzip -9 >%s}.", fname);
+            if (ses->logfile)
+                ses->logname=mystrdup(fname);
         }
         else if (ses->logfile)
         {
             fclose(ses->logfile);
             ses->logfile = NULL;
+            free(ses->logname);
+            ses->logname = NULL;
             tintin_printf(ses, "#OK. LOGGING TURNED OFF.");
         }
         else
@@ -297,6 +333,9 @@ void debuglog_command(char *arg, struct session *ses)
         {
             fclose(ses->debuglogfile);
             tintin_printf(ses, "#OK. DEBUGLOG TURNED OFF.");
+            ses->debuglogfile = NULL;
+            free(ses->debuglogname);
+            ses->debuglogname = NULL;
         }
         get_arg_in_braces(arg, temp, 1);
         substitute_vars(temp, fname);
@@ -312,11 +351,15 @@ void debuglog_command(char *arg, struct session *ses)
                 tintin_printf(ses, "#OK. DEBUGLOG SET TO {%s} .....", fname);
             else
                 tintin_eprintf(ses, "#ERROR: COULDN'T OPEN PIPE: {gzip -9 >%s}.", fname);
+        if (ses->debuglogfile)
+            ses->debuglogname=mystrdup(fname);
     }
     else if (ses->debuglogfile)
     {
         fclose(ses->debuglogfile);
         ses->debuglogfile = NULL;
+        free(ses->debuglogname);
+        ses->debuglogname = NULL;
         tintin_printf(ses, "#OK. DEBUGLOG TURNED OFF.");
     }
     else
@@ -370,6 +413,7 @@ struct session *do_read(FILE *myfile, char *filename, struct session *ses)
         routnum=0;
         bindnum=0;
         pdnum=0;
+        hooknum=0;
     }
     in_read++;
     *buffer=0;
@@ -444,6 +488,8 @@ struct session *do_read(FILE *myfile, char *filename, struct session *ses)
             tintin_printf(ses, "#OK. %d BINDS LOADED.", bindnum);
         if (pdnum > 0)
             tintin_printf(ses, "#OK. %d PATHDIRS LOADED.", pdnum);
+        if (hooknum > 0)
+            tintin_printf(ses, "#OK. %d HOOKS LOADED.", hooknum);
     }
     fclose(myfile);
     prompt(NULL);
@@ -480,13 +526,20 @@ struct session *read_command(char *filename, struct session *ses)
 }
 
 
+#define WFLAG(name,var,org)		if(var!=org)                                \
+                                    {                                       \
+                                        sprintf(num, "%d", var);            \
+                                        prepare_for_write(name, num, 0, 0, buffer); \
+                                        fputs(buffer, myfile);              \
+                                    }
+#define SFLAG(name,var,org)     WFLAG(name,ses->var,org)
 /**********************/
 /* the #write command */
 /**********************/
 void write_command(char *filename, struct session *ses)
 {
     FILE *myfile;
-    char buffer[BUFFER_SIZE];
+    char buffer[BUFFER_SIZE], num[32];
     struct listnode *nodeptr, *templist;
     struct routenode *rptr;
     int nr;
@@ -508,6 +561,31 @@ void write_command(char *filename, struct session *ses)
         return;
     }
 
+    WFLAG("keypad", keypad, DEFAULT_KEYPAD);
+    WFLAG("retain", retain, DEFAULT_RETAIN);
+    SFLAG("echo", echo, DEFAULT_ECHO);
+    SFLAG("ignore", ignore, DEFAULT_IGNORE);
+    SFLAG("speedwalk", speedwalk, DEFAULT_SPEEDWALK);
+    SFLAG("presub", presub, DEFAULT_PRESUB);
+    SFLAG("togglesubs", togglesubs, DEFAULT_TOGGLESUBS);
+    SFLAG("verbose", verbose, 0);
+    SFLAG("blank", blank, DEFAULT_DISPLAY_BLANK);
+    SFLAG("messages aliases", mesvar[0], DEFAULT_ALIAS_MESS);
+    SFLAG("messages actions", mesvar[1], DEFAULT_ACTION_MESS);
+    SFLAG("messages substitutes", mesvar[2], DEFAULT_SUB_MESS);
+    SFLAG("messages events", mesvar[3], DEFAULT_EVENT_MESS);
+    SFLAG("messages highlights", mesvar[4], DEFAULT_HIGHLIGHT_MESS);
+    SFLAG("messages variables", mesvar[5], DEFAULT_VARIABLE_MESS);
+    SFLAG("messages routes", mesvar[6], DEFAULT_ROUTE_MESS);
+    SFLAG("messages gotos", mesvar[7], DEFAULT_GOTO_MESS);
+    SFLAG("messages binds", mesvar[8], DEFAULT_BIND_MESS);
+    SFLAG("messages #system", mesvar[9], DEFAULT_SYSTEM_MESS);
+    SFLAG("messages paths", mesvar[10], DEFAULT_PATH_MESS);
+    SFLAG("messages errors", mesvar[11], DEFAULT_ERROR_MESS);
+    SFLAG("messages hooks", mesvar[12], DEFAULT_HOOK_MESS);
+    SFLAG("verbatim", verbatim, 0);
+    SFLAG("ticksize", tick_size, DEFAULT_TICK_SIZE);
+    SFLAG("pretick", pretick, DEFAULT_PRETICK);
     nodeptr = templist = hash2list(ses->aliases, "*");
     while ((nodeptr = nodeptr->next))
     {
@@ -585,6 +663,13 @@ void write_command(char *filename, struct session *ses)
         fputs(buffer, myfile);
     }
     zap_list(templist);
+    
+    for(nr=0;nr<NHOOKS;nr++)
+        if (ses->hooks[nr])
+        {
+            prepare_for_write("hook", hook_names[nr], ses->hooks[nr], 0, buffer);
+            fputs(buffer, myfile);
+        }
 
     fclose(myfile);
     tintin_printf(ses, "#COMMANDS-FILE WRITTEN.");
@@ -622,7 +707,7 @@ int route_exists(char *A,char *B,char *path,int dist,char *cond, struct session 
 void writesession_command(char *filename, struct session *ses)
 {
     FILE *myfile;
-    char buffer[BUFFER_SIZE], *val;
+    char buffer[BUFFER_SIZE], *val, num[32];
     struct listnode *nodeptr,*onptr;
     struct routenode *rptr;
     int nr;
@@ -649,6 +734,32 @@ void writesession_command(char *filename, struct session *ses)
         prompt(NULL);
         return;
     }
+
+#undef SFLAG
+#define SFLAG(name,var,dummy) WFLAG(name,ses->var,nullsession->var);
+    SFLAG("echo", echo, DEFAULT_ECHO);
+    SFLAG("ignore", ignore, DEFAULT_IGNORE);
+    SFLAG("speedwalk", speedwalk, DEFAULT_SPEEDWALK);
+    SFLAG("presub", presub, DEFAULT_PRESUB);
+    SFLAG("togglesubs", togglesubs, DEFAULT_TOGGLESUBS);
+    SFLAG("verbose", verbose, 0);
+    SFLAG("blank", blank, DEFAULT_DISPLAY_BLANK);
+    SFLAG("messages aliases", mesvar[0], DEFAULT_ALIAS_MESS);
+    SFLAG("messages actions", mesvar[1], DEFAULT_ACTION_MESS);
+    SFLAG("messages substitutes", mesvar[2], DEFAULT_SUB_MESS);
+    SFLAG("messages events", mesvar[3], DEFAULT_EVENT_MESS);
+    SFLAG("messages highlights", mesvar[4], DEFAULT_HIGHLIGHT_MESS);
+    SFLAG("messages variables", mesvar[5], DEFAULT_VARIABLE_MESS);
+    SFLAG("messages routes", mesvar[6], DEFAULT_ROUTE_MESS);
+    SFLAG("messages gotos", mesvar[7], DEFAULT_GOTO_MESS);
+    SFLAG("messages binds", mesvar[8], DEFAULT_BIND_MESS);
+    SFLAG("messages #system", mesvar[9], DEFAULT_SYSTEM_MESS);
+    SFLAG("messages paths", mesvar[10], DEFAULT_PATH_MESS);
+    SFLAG("messages errors", mesvar[11], DEFAULT_ERROR_MESS);
+    SFLAG("messages hooks", mesvar[12], DEFAULT_HOOK_MESS);
+    SFLAG("verbatim", verbatim, 0);
+    SFLAG("ticksize", tick_size, DEFAULT_TICK_SIZE);
+    SFLAG("pretick", pretick, DEFAULT_PRETICK);
     
     nodeptr = onptr = hash2list(ses->aliases,"*");
     while ((nodeptr = nodeptr->next))
@@ -758,6 +869,15 @@ void writesession_command(char *filename, struct session *ses)
         fputs(buffer, myfile);
     }
     zap_list(onptr);
+    
+    for(nr=0;nr<NHOOKS;nr++)
+        if (ses->hooks[nr])
+            if (!nullsession->hooks[nr] ||
+                strcmp(ses->hooks[nr],nullsession->hooks[nr]))
+                {
+                    prepare_for_write("hook", hook_names[nr], ses->hooks[nr], 0, buffer);
+                    fputs(buffer, myfile);
+                }
 
     fclose(myfile);
     tintin_printf(ses, "#COMMANDS-FILE WRITTEN.");

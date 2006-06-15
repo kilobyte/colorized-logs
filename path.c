@@ -305,10 +305,12 @@ void unmap_command(char *arg, struct session *ses)
         tintin_puts("#No session active => NO PATH!", ses);
 }
 
+#if 0
 void unpath_command(char *arg, struct session *ses)
 {
     unmap_command(arg, ses);
 }
+#endif
 
 void check_insert_path(char *command, struct session *ses, int force)
 {

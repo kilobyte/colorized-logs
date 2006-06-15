@@ -65,16 +65,16 @@ extern void write_line_mud(char *line, struct session *ses);
 extern void set_variable(char *left,char *right,struct session *ses);
 extern void do_all_high(char *line,struct session *ses);
 extern void do_all_sub(char *line, struct session *ses);
-#ifdef EXT_INLINE
-extern inline int getcolor(char **ptr,int *color,const int flag);
-#else
 extern int getcolor(char **ptr,int *color,const int flag);
-#endif
 extern void user_pause(void);
 extern void user_resume(void);
 extern void kill_all(struct session *ses, int mode);
 extern void do_in_MUD_colors(char *txt,int quotetype);
 extern int puts_echoing,in_read;
+extern struct session* do_hook(struct session *ses, int t, char *data, int blockzap);
+#ifndef UI_FULLSCREEN
+extern int tty;
+#endif
 
 int yes_no(char *txt)
 {
@@ -261,13 +261,25 @@ void end_command(char *arg, struct session *ses)
     for (sesptr = sessionlist; sesptr; sesptr = sp)
     {
         sp = sesptr->next;
-        if (sesptr!=nullsession)
+        if (sesptr!=nullsession && !sesptr->closing)
+        {
+            sesptr->closing=1;
+            do_hook(sesptr, HOOK_ZAP, 0, 1);
+            sesptr->closing=0;
             cleanup_session(sesptr);
+        }
     }
-    ses = NULL;  /* a message from DIKUs... we can leave it though */
-    tintin_printf(ses,"TINTIN suffers from bloodlack, and the lack of a beating heart...");
-    tintin_printf(ses,"TINTIN is dead! R.I.P.");
-    tintin_printf(ses,"Your blood freezes as you hear TINTIN's death cry.");
+    activesession = nullsession;
+    do_hook(nullsession, HOOK_END, 0, 1);
+    activesession = NULL;
+#ifndef UI_FULLSCREEN
+    if (!tty)   
+        exit(0);
+#endif
+    /* a message from DIKUs... we can leave it though */
+    tintin_printf(0,"TINTIN suffers from bloodlack, and the lack of a beating heart...");
+    tintin_printf(0,"TINTIN is dead! R.I.P.");
+    tintin_printf(0,"Your blood freezes as you hear TINTIN's death cry.");
 #ifdef UI_FULLSCREEN
     user_done();
 #endif
@@ -465,6 +477,7 @@ char *msNAME[]=
         "#system",
         "paths",
         "errors",
+        "hooks",
         "all"
     };
 
@@ -678,7 +691,16 @@ struct session *zap_command(char *arg, struct session *ses)
     }
     if (ses!=nullsession)
     {
+    	if(ses->closing)
+    	{
+    	    if (ses->closing==-1)
+    	    	tintin_eprintf(ses, "#You can't use #ZAP from here.");
+    	    return ses;
+    	}
         tintin_puts("#ZZZZZZZAAAAAAAAPPPP!!!!!!!!! LET'S GET OUTTA HERE!!!!!!!!", ses);
+        ses->closing=1;
+        do_hook(ses, HOOK_ZAP, 0, 1);
+        ses->closing=0;
         cleanup_session(ses);
         return flag?newactive_session():activesession;
     }
@@ -920,6 +942,14 @@ void info_command(char *arg, struct session *ses)
 #else
     tintin_printf(ses, "Non-fullscreen mode");
 #endif
+    if(ses->logfile)
+        tintin_printf(ses, "Logging to: {%s}", ses->logname);
+    else
+        tintin_printf(ses, "Not logging");
+    if (ses->debuglogfile)
+        tintin_printf(ses, "Debuglog: {%s}", ses->debuglogname);
+    if (ses->closing)
+    	tintin_printf(ses, "The session has it's closing mark set to %d!", ses->closing);
     prompt(ses);
 }
 
@@ -1037,7 +1067,7 @@ void atoi_command(char *arg,struct session *ses)
 
     arg = get_arg(arg, left, 0, ses);
     arg = get_arg(arg, right, 1, ses);
-    if (!*left || !*right)
+    if (!*left)
         tintin_eprintf(ses,"#Syntax: #atoi <var> <text>");
     else
     {

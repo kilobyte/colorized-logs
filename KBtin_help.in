@@ -13,6 +13,7 @@ Aliases:
    alias       unalias
 Triggers:
    action      unaction    ignore      promptaction    unpromptaction
+   hook        unhook
 Substitutions:
    substitute unsubstitute antisubstitute          unantisubstitute
    highlight  unhighlight  gag         ungag       togglesub   presub
@@ -25,8 +26,8 @@ Control statements:
    <number>    if          loop        foreach     match       strcmp
    grep
 Files:
-   condump     deathlog    log         unlink      read        textin
-   verbose     write       writesession
+   condump     deathlog    log         logcomment  unlink      read
+   textin      verbose     write       writesession
 Comments:
    nop         remark
 Variables:
@@ -38,7 +39,8 @@ Time:
    ctime       time
 Lists:
    finditem    deleteitems foreach     finditem    getitem     isatom
-   listlength  splitlist   implode     explode     sortlist
+   listlength  splitlist   implode     explode     sortlist    collate
+   expand
 Tickers:
    tick        tickon      tickoff     ticksize    pretick
 Events:
@@ -49,7 +51,7 @@ Misc:
    killall     timecommand
 Paths:
    map         mark        path        unmap       pathdir     return
-   savepath    unpathdir
+   savepath    unpathdir   unpath
 
 General info topics (not commands):
    syntax      colorcodes  keys
@@ -258,7 +260,7 @@ Divides <text> into pieces separated by <delimiter> and stores the resulting
 list into <dest.var>.
 
 Example
-#explode result , {do 2n,5w,se}     -> result = "{do 2n} 5w se"
+#explode result , {2n,5w,se}     -> result = "2n 5w se"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~sortlist
 
@@ -267,6 +269,30 @@ Sorts the {list} in asciibetical order and saves the result into <dest.var>.
 
 Example:
 #sortlist result {c a b}            -> result = "a b c"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~collate
+
+#collate <dest.var> {list}
+Replaces repeating sequences of {list} elements by a single one, prefixed by
+the number of occurences.  If an element is already prefixed by a number x,
+it is considered to be x already collated elements.
+
+Example:
+#collate result {n n n n n}        -> result = "5n"
+#collate result {2n n ne e}        -> result = "3n ne e"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~expand
+
+#expand <dest.var> {list}
+Replaces all elements of {list} prefixed by a number by that element
+repeated the given number of times.
+
+Hint: you may use #explode to convert a comma- semicolon-separated path
+to a space-separated list before using #expand.
+
+Example:
+#expand result {10n}              -> result = "n n n n n n n n n n"
+#expand result {3n e 2s}          -> result = "n n n e s s"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~verbatim
 
@@ -452,6 +478,31 @@ line of text.
 #unpromptaction <pattern>
 Removes all prompt-actions matching <pattern>.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~hook
+
+#hook [<event>]
+Shows all hooks, or the hook for <event>.
+
+#hook <event> <command>
+Tells KBtin to do <command> whenever an internal <event> happens.
+You can hook the following events:
+open                     This session has just started
+close                    Session is being closed
+zap                      Session is being aborted (called before close)
+end                      KBtin shuts down
+send                     %1 just got sent to the MUD
+activate                 Session is being switched to
+deactivate               Session is being switched from
+
+Examples:
+#hook close {#write myconfig}
+ -- will make your configuration be automatically saved
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~unhook
+
+#unhook <event>
+Removes the hook from <event>.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~alias
 
 #alias [<pattern>]
@@ -532,7 +583,7 @@ Removes all antisubs matching <pattern>.
 #highlight
 Lists all highlights.
 
-#highlist list
+#highlight list
 Shows all available color names.
 
 #highlight <color> <pattern>
@@ -557,6 +608,7 @@ Examples:
 #hi 10 {A worried merchant flees off to safety}
 #foreach {$SoU} #hi 4
 #hi 13:2 {* swiches targets..}
+#hi 13:2 {* is enveloped by * as * tries to pass through the shimmering wall.}
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~unhighlight
 
@@ -659,7 +711,9 @@ Switches the keypad (rightmost part of keyboard) between the standard mode
 and the alternate mode, where it can be used for keybindings.  You will
 prefer the alternate mode if you enjoy walking using the keypad keys.
 NOTE: The support for this command is broken on some terminals which don't
-implement vt100 codes properly.
+implement vt100 codes properly.  Ones that do work correctly include the
+Linux console, PuTTY, aterm and recent versions of rxvt;  some others (like
+xterm) can be coerced with some xmodmap tinkering (see the KEYPAD file).
 
 Example:
 #keypad on
@@ -720,6 +774,15 @@ even the ANSI color codes -- if you want a plain-text log, pipe it through
 ansi2txt, ansi2html or similar.
 
 If the <filename> ends in ".gz", the log will get compressed on the fly.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~logcomment
+
+#logcomment <text>
+Puts a line of <text> into the log at the current position.  Useful for
+timestamping, automatically writing some comments, etc.
+
+Example:
+#ctime NOW;#logcomment {==== Time mark: $NOW ====}
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~read
 
@@ -951,6 +1014,7 @@ Kills the current session.  If there is none, exit TinTin.
 Note: this command won't issue the 'quit', 'rent' or any similar command
 to the MUD.  Your connection will be simply terminated, which puts your
 character in linkdead state.
+This command can not be used from most #hooks -- use '#delay 0 #zap' instead.
 
 Example:
 #action {Without warning, %1 stabs you from behind!} {:has no guts.;#zap}
@@ -1097,6 +1161,7 @@ Types of messages supported by this command:
 * binds
 * #system
 * errors
+* hooks
 * all - all of the above
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~news
@@ -1320,7 +1385,7 @@ TinTin auto-adds only simple commands line "n" or "nw" listed among
 pathdirs, and those commands executed as a part of a speedwalk or one of
 TinTin's compound commands.  In-mud compound commands can vary, thus there
 is no way TinTin can know about commands like "do n,nw,3n" -- you have to
-add them yourself using #map.  Hint: #explode and #atoi can be your friends.
+add them yourself using #map.  Hint: #explode and #expand can be your friends.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~mark
 
@@ -1483,6 +1548,7 @@ special properties (they can still be restored by #unvar).
 * SESSION          - the current session
 * ASESSION         - the foreground (active) session
 * SESSIONS         - a list of all sessions defined
+* LOGFILE          - the name of log file, or empty string if not logging
 * LINE, _          - (only in a #action or #promptaction): the current line
                      of input
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -21,9 +21,6 @@ const int colors[8]={0,4,2,6,1,5,3,7};
 int mudcolors=3;    /* 0=disabled, 1=on, 2=null, 3=null+warning */
 char *MUDcolors[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
-#ifdef EXT_INLINE
-inline
-#endif
 int getcolor(char **ptr,int *color,const int flag)
 {
     int fg,bg,blink;
@@ -87,9 +84,6 @@ int getcolor(char **ptr,int *color,const int flag)
     return 1;
 }
 
-#ifdef EXT_INLINE
-inline
-#endif
 int setcolor(char *txt,int c)
 {
     if (c==-1)

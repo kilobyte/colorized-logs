@@ -193,6 +193,7 @@ int prioritycmp(char *a, char *b)
 void insertnode_list(struct listnode *listhead, char *ltext, char *rtext, char *prtext, int mode)
 {
     struct listnode *nptr, *nptrlast, *newnode;
+    int lo,ln;
 
     if ((newnode = (struct listnode *)(malloc(sizeof(struct listnode)))) == NULL)
         syserr("couldn't malloc listhead");
@@ -220,6 +221,42 @@ void insertnode_list(struct listnode *listhead, char *ltext, char *rtext, char *
             {
                 while ((nptrlast) && (nptr) &&
                         (prioritycmp(prtext, nptr->pr) == 0))
+                {
+                    if (prioritycmp(ltext, nptr->left) <= 0)
+                    {
+                        newnode->next = nptr;
+                        nptrlast->next = newnode;
+                        return;
+                    }
+                    nptrlast = nptr;
+                    nptr = nptr->next;
+                }
+                nptrlast->next = newnode;
+                newnode->next = nptr;
+                return;
+            }
+        }
+        nptrlast->next = newnode;
+        newnode->next = NULL;
+        return;
+        break;
+
+
+    case LENGTH:
+    	ln=strlen(ltext);
+        while ((nptrlast = nptr) && (nptr = nptr->next))
+        {
+        	lo=strlen(nptr->left);
+            if (ln<lo)
+            {
+                newnode->next = nptr;
+                nptrlast->next = newnode;
+                return;
+            }
+            else if (ln==lo)
+            {
+                while ((nptrlast) && (nptr) &&
+                        (ln==lo))
                 {
                     if (prioritycmp(ltext, nptr->left) <= 0)
                     {

@@ -24,7 +24,7 @@ extern char *get_arg_in_braces(char *s,char *arg,int flag);
 extern struct listnode *searchnode_list(struct listnode *listhead, char *cptr);
 extern struct listnode *search_node_with_wild(struct listnode *listhead, char *cptr);
 extern void deletenode_list(struct listnode *listhead, struct listnode *nptr);
-extern int find(char *text,char *pat,int *from,int *to);
+extern int find(char *text,char *pat,int *from,int *to,char *fastener);
 extern int finditem_inline(char *arg,struct session *ses);
 extern void finditem_command(char *arg,struct session *ses);
 extern void insertnode_list(struct listnode *listhead, char *ltext, char *rtext, char *prtext, int mode);
@@ -35,15 +35,11 @@ extern void substitute_myvars(char *arg,char *result,struct session *ses);
 extern void substitute_vars(char *arg, char *result);
 extern void tintin_printf(struct session *ses, char *format, ...);
 extern void tintin_eprintf(struct session *ses, char *format, ...);
+extern char* get_fastener(const char *);
 
 extern int hinum;
-#ifdef EXT_INLINE
-extern inline int getcolor(char **ptr,int *color,const int flag);
-extern inline int setcolor(char *txt,int c);
-#else
 extern int getcolor(char **ptr,int *color,const int flag);
 extern int setcolor(char *txt,int c);
-#endif
 extern int puts_echoing;
 
 struct colordef
@@ -181,8 +177,7 @@ void highlight_command(char *arg, struct session *ses)
             }
             if ((ln = searchnode_list(myhighs, right)) != NULL)
                 deletenode_list(myhighs, ln);
-            sprintf(tmp3,"%d",strlen(right));
-            insertnode_list(myhighs, right, left,tmp3,PRIORITY);
+            insertnode_list(myhighs, right, left,get_fastener(right),LENGTH);
             hinum++;
             if (ses->mesvar[4])
                 tintin_printf(ses,"#Ok. {%s} is now highlighted %s.", right, left);
@@ -276,7 +271,7 @@ void do_all_high(char *line,struct session *ses)
         *atr++=c;
         continue;
 color:
-        ; /* Why the lack of a semicolon here causes a warning is beyone me. */
+        ; /* Why the lack of a semicolon here causes a warning is beyond me. */
     };
     *txt=0;
     *atr=c;
@@ -284,7 +279,7 @@ color:
     while ((ln=ln->next))
     {
         txt=text;
-        while (*txt&&find(txt,ln->left,&l,&r))
+        while (*txt&&find(txt,ln->left,&l,&r,ln->pr))
         {
             if (!get_high(ln->right))
                 break;

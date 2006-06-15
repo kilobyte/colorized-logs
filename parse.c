@@ -40,13 +40,7 @@ extern void tintin_eprintf(struct session *ses,char *format,...);
 extern void write_line_mud(char *line, struct session *ses);
 extern int do_goto(char *txt,struct session *ses);
 extern void do_out_MUD_colors(char *line);
-#ifdef EXT_INLINE
-inline
-#endif
 char *space_out(char *s);
-#ifdef EXT_INLINE
-inline
-#endif
 char *get_arg_in_braces(char *s,char *arg,int flag);
 void write_com_arg_mud(char *command, char *argument, int nsp, struct session *ses);
 void prompt(struct session *ses);
@@ -67,6 +61,7 @@ extern char *cryptkey;
 extern char *get_arg_all(char *s, char *arg);
 extern void tstphandler(int sig);
 extern void debuglog(struct session *ses, const char *format, ...);
+extern struct session* do_hook(struct session *ses, int t, char *data, int blockzap);
 int in_alias=0;
 extern int in_read;
 extern int aborting;
@@ -339,7 +334,8 @@ struct session *parse_tintin_command(char *command, char *arg,struct session *se
             {
                 activesession = sesptr;
                 tintin_printf(ses, "#SESSION '%s' ACTIVATED.", sesptr->name);
-                return (sesptr);
+                do_hook(ses, HOOK_DEACTIVATE, 0, 1);  /* FIXME: blockzap */
+                return do_hook(sesptr, HOOK_ACTIVATE, 0, 0);
             }
         }
     if (isdigit(*command))
@@ -524,9 +520,6 @@ inline char *get_arg_with_spaces(char *s, char *arg)
     return s;
 }
 
-#ifdef EXT_INLINE
-inline
-#endif
 char *get_arg_in_braces(char *s,char *arg,int flag)
 {
     int nest = 0;
@@ -657,9 +650,6 @@ char *get_command(char *s, char *arg)
 /* spaceout - advance ptr to next none-space */
 /* return: ptr to the first none-space       */
 /*********************************************/
-#ifdef EXT_INLINE
-inline
-#endif
 char *space_out(char *s)
 {
     while (isspace(*s))
@@ -695,13 +685,6 @@ void write_com_arg_mud(char *command, char *argument, int nsp, struct session *s
         }
         do_out_MUD_colors(outtext);
         write_line_mud(outtext, ses);
-        outtext[i = strlen(outtext)] = '\n';
-        if (ses->logfile)
-            if (fwrite(outtext, i + 1, 1, ses->logfile)<1)
-            {
-                ses->logfile=0;
-                tintin_eprintf(ses, "#WRITE ERROR -- LOGGING DISABLED.  Disk full?");
-            };
     }
 }
 

@@ -63,6 +63,7 @@ extern void tintin_eprintf(struct session *ses, char *format, ...);
 extern void prompt(struct session *ses);
 extern void telnet_write_line(char *line, struct session *ses);
 extern void pty_write_line(char *line, struct session *ses);
+extern struct session* do_hook(struct session *ses, int t, char *data, int blockzap);
 
 /**************************************************/
 /* try connect to the mud specified by the args   */
@@ -156,6 +157,7 @@ void write_line_mud(char *line, struct session *ses)
         tintin_eprintf(ses, "#spurious output: %s", line);  /* CHANGE ME */
     else
         pty_write_line(line, ses);
+    do_hook(ses, HOOK_SEND, line, 1);
 }
 
 

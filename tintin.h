@@ -57,6 +57,8 @@
 #define XTERM_TITLE "KBtin - %s"
 #endif
 #undef  PTY_ECHO_HACK   /* not working yet */
+#define ECHO_COLOR "~8~"
+#define LOG_INPUT "%s\n" /* you can add ANSI codes, etc here */
 #define RESET_RAW       /* reset pseudo-terminals to raw mode every write */
 #define GOTO_CHAR '>'	/* be>mt -> #goto be mt */
 		/*Comment last line out to disable this behavior */
@@ -110,6 +112,7 @@
 #define DEFAULT_SYSTEM_MESS TRUE
 #define DEFAULT_PATH_MESS TRUE
 #define DEFAULT_ERROR_MESS TRUE
+#define DEFAULT_HOOK_MESS TRUE
 #define DEFAULT_PRETICK 10
 /*#define PARTIAL_LINE_MARKER "\376"*/       /* comment out to disable */
 /**************************************************************************/
@@ -151,13 +154,14 @@
 #define WITH_SPACES 1
 #define ALPHA 1
 #define PRIORITY 0
+#define LENGTH 2
 #define CLEAN 0
 #define END 1
 #define K_ACTION_MAGIC "#X~4~~2~~12~[This action is being deleted!]~7~X"
 
 #define BUFFER_SIZE 2048
 #define INPUT_CHUNK 512
-#define VERSION_NUM "1.0.4e"
+#define VERSION_NUM "1.0.5"
 #define MSG_ALIAS       0
 #define MSG_ACTION      1
 #define MSG_SUBSTITUTE  2
@@ -170,11 +174,16 @@
 #define MSG_SYSTEM      9
 #define MSG_PATH        10
 #define MSG_ERROR       11
-#define MAX_MESVAR 12
-#define HOOK_DISCONNECT 0
-#define HOOK_ZAP        1
-#define HOOK_SEND       2
-#define MAX_HOOK        3
+#define MSG_HOOK        12
+#define MAX_MESVAR      13
+#define HOOK_OPEN       0
+#define HOOK_CLOSE      1
+#define HOOK_ZAP        2
+#define HOOK_END        3
+#define HOOK_SEND       4
+#define HOOK_ACTIVATE	5
+#define HOOK_DEACTIVATE	6
+#define NHOOKS          7
 
 /************************ structures *********************/
 #include <stdio.h>
@@ -231,6 +240,7 @@ struct session
   int tick_size,pretick;
   int snoopstatus;
   FILE *logfile,*debuglogfile;
+  char *logname,*debuglogname;
   int ignore;
   struct listnode *actions, *prompts, *subs, *highs, *antisubs;
   struct hashtable *aliases, *myvars, *pathdirs, *binds;
@@ -249,6 +259,8 @@ struct session
   int mesvar[MAX_MESVAR+1];
   int idle_since;
   int sessionstart;
+  char *hooks[NHOOKS];
+  int closing;
 };
 
 typedef char pvars_t[10][BUFFER_SIZE];

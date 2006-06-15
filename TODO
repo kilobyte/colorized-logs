@@ -1,0 +1,5 @@
+* fix ansi2html before releasing!!!
+* #hook
+  - check aliases and help
+* cryosphere.org 6666
+* no color bleeding in ECHO_OUTPUT

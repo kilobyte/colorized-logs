@@ -54,6 +54,7 @@ extern void tintin_eprintf(struct session *ses,char *format,...);
 extern struct hashtable* copy_hash(struct hashtable *h);
 extern void do_in_MUD_colors(char *txt,int quotetype);
 extern int isatom(char *arg);
+extern struct session* do_hook(struct session *ses, int t, char *data, int blockzap);
 
 extern struct session *sessionlist, *activesession, *nullsession;
 
@@ -250,13 +251,14 @@ struct session *newactive_session(void)
 
         sprintf(buf, "#SESSION '%s' ACTIVATED.", activesession->name);
         tintin_puts1(buf, activesession);
+        return do_hook(activesession, HOOK_ACTIVATE, 0, 0);
     }
     else
     {
         activesession=nullsession;
         tintin_puts1("#THERE'S NO ACTIVE SESSION NOW.", activesession);
+        return do_hook(activesession, HOOK_ACTIVATE, 0, 0);
     }
-    return activesession;
 }
 
 
@@ -276,8 +278,9 @@ struct session *new_session(char *name,char *address,int sock,int issocket,struc
     newsession->tick_size = ses->tick_size;
     newsession->pretick = ses->pretick;
     newsession->time0 = 0;
-    newsession->snoopstatus = FALSE;
-    newsession->logfile = NULL;
+    newsession->snoopstatus = 0;
+    newsession->logfile = 0;
+    newsession->logname = 0;
     newsession->ignore = ses->ignore;
     newsession->aliases = copy_hash(ses->aliases);
     newsession->actions = copy_list(ses->actions, PRIORITY);
@@ -313,6 +316,7 @@ struct session *new_session(char *name,char *address,int sock,int issocket,struc
     newsession->verbatim = ses->verbatim;
     newsession->sessionstart=newsession->idle_since=time(0);
     newsession->debuglogfile=0;
+    newsession->debuglogname=0;
     memcpy(newsession->mesvar, ses->mesvar, sizeof(int)*(MAX_MESVAR+1));
     for (i=0;i<MAX_LOCATIONS;i++)
     {
@@ -321,10 +325,16 @@ struct session *new_session(char *name,char *address,int sock,int issocket,struc
     };
     copyroutes(ses,newsession);
     newsession->last_line[0]=0;
+    for (i=0;i<NHOOKS;i++)
+        if(ses->hooks[i])
+            newsession->hooks[i]=mystrdup(ses->hooks[i]);
+        else
+            newsession->hooks[i]=0;
+    newsession->closing=0;
     sessionlist = newsession;
     activesession = newsession;
 
-    return (newsession);
+    return do_hook(newsession, HOOK_OPEN, 0, 0);
 }
 
 /*****************************************************************************/
@@ -334,7 +344,12 @@ void cleanup_session(struct session *ses)
 {
     int i;
     char buf[BUFFER_SIZE];
-    struct session *sesptr;
+    struct session *sesptr, *act;
+    
+    if (ses->closing)
+    	return;
+    ses->closing=2;
+    do_hook(act=ses, HOOK_CLOSE, 0, 1);
 
     kill_all(ses, END);
     /* printf("DEBUG: Hist: %d \n\r",HISTORY_SIZE); */
@@ -369,6 +384,10 @@ void cleanup_session(struct session *ses)
         syserr("close in cleanup");
     if (ses->logfile)
         fclose(ses->logfile);
+    if (ses->debuglogfile)
+        fclose(ses->debuglogfile);
+    for(i=0;i<NHOOKS;i++)
+    	free(ses->hooks[i]);
 
     free(ses);
 }

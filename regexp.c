@@ -103,8 +103,6 @@ void grep_command(char *arg, struct session *ses)
         tintin_eprintf(ses,"#ERROR: cruft after #grep: {%s}",left);
 }
 
-int ng=4;
-int rrrr;
 
 /********************/
 /* the #grep inline */
@@ -121,13 +119,7 @@ int grep_inline(char *arg, struct session *ses)
         tintin_eprintf(ses,"#ERROR: valid syntax is: (#grep <pattern> <line>)");
         return 0;
     }
-    if (!--ng)
-        tintin_printf(ses,"--Comparing {%s} to {%s}",line,left);
-
-    rrrr=check_regexp(line, left, 0, 0, ses);
-    if (!ng)
-        tintin_printf(ses,"--Res=%d",rrrr);
-    return rrrr;
+    return check_regexp(line, left, 0, 0, ses);
 }
 
 

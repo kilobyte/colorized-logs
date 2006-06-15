@@ -188,6 +188,9 @@ void substitute_myvars(char *arg,char *result,struct session *ses)
                     if (strcmp(varname,"ASESSION")==0)
                         strcpy(value,activesession->name);
                     else
+                    if (strcmp(varname,"LOGFILE")==0)
+                        strcpy(value,ses->logfile?ses->logname:"");
+                    else
                         goto novar;
                     valuelen=strlen(value);
                     if ((len+=valuelen-counter-varlen) > BUFFER_SIZE-10)
@@ -1122,6 +1125,127 @@ void implode_command(char *arg, struct session *ses)
             r+=sprintf(r, "%s%s", del, temp);
         }
         set_variable(left,res,ses);
+    }
+}
+
+
+/************************/
+/* the #collate command */
+/************************/
+void collate_command(char *arg,struct session *ses)
+{
+    char left[BUFFER_SIZE], list[BUFFER_SIZE],
+         cur[BUFFER_SIZE], last[BUFFER_SIZE], out[BUFFER_SIZE], *outptr;
+    int i,j;
+
+    arg = get_arg(arg, left,0,ses);
+    if (!*left)
+        tintin_eprintf(ses,"#Error - Syntax: #collate {dest var} {list}");
+    else
+    {
+        strcpy(last, K_ACTION_MAGIC);
+        *(outptr=out)=0;
+        get_arg(arg, list, 1, ses);
+        arg = list;
+        i=0;
+        while(*arg)
+        {
+            arg=space_out(arg);
+            if (isdigit(*arg))
+                j=strtol(arg, &arg, 10);
+            else
+                j=1;
+            if (!*arg || *arg==' ')
+            	continue;
+            arg = get_arg_in_braces(arg, cur, 0);
+            if (j)
+            {
+                if(strcmp(cur,last))
+                {
+                    if (isatom(last))
+                    {
+                        if (i>1)
+                            outptr+=sprintf(outptr,"%d",i);
+                        if (i)
+                            outptr+=sprintf(outptr,"%s ",last);
+                    }
+                    else
+                    {
+                        if (i>1)
+                            outptr+=sprintf(outptr,"%d",i);
+                        if (i)
+                            outptr+=sprintf(outptr,"{%s} ",last);
+                    }
+                    strcpy(last, cur);
+                    i=j;
+                }
+                else
+                    i+=j;
+             }
+        };
+        if (isatom(last))
+        {
+            if (i>1)
+                outptr+=sprintf(outptr,"%d",i);
+            if (i)
+                outptr+=sprintf(outptr,"%s",last);
+        }
+        else
+        {
+            if (i>1)
+                outptr+=sprintf(outptr,"%d",i);
+            if (i)
+                outptr+=sprintf(outptr,"{%s}",last);
+        }
+        set_variable(left,out,ses);
+    }
+}
+
+
+/***********************/
+/* the #expand command */
+/***********************/
+void expand_command(char *arg,struct session *ses)
+{
+    char left[BUFFER_SIZE], list[BUFFER_SIZE],
+         cur[BUFFER_SIZE], out[BUFFER_SIZE], *outptr;
+    int i,j;
+
+    arg = get_arg(arg, left,0,ses);
+    if (!*left)
+        tintin_eprintf(ses,"#Error - Syntax: #expand {dest var} {list}");
+    else
+    {
+        *(outptr=out)=0;
+        get_arg(arg, list, 1, ses);
+        arg = list;
+        i=0;
+        while(*arg)
+        {
+            arg=space_out(arg);
+            if (isdigit(*arg))
+                j=strtol(arg, &arg, 10);
+            else
+                j=1;
+            if (!*arg || *arg==' ')
+            	continue;
+            arg = get_arg_in_braces(arg, cur, 0);
+            if(j>BUFFER_SIZE/2)
+                    j=BUFFER_SIZE/2;
+            for(i=0;i<j;i++)
+            {
+                if (isatom(cur))
+                    outptr+=snprintf(outptr, out+BUFFER_SIZE-outptr, " %s", cur);
+                else
+                    outptr+=snprintf(outptr, out+BUFFER_SIZE-outptr, " {%s}", cur);
+                if (outptr>=out+BUFFER_SIZE-1)
+                {
+                    tintin_eprintf(ses, "#ERROR: expanded line too long in {%s}", list); 
+                    return;
+                }
+            }
+        }
+        set_variable(left,(*out)?out+1:out,ses);
     }
 }
 

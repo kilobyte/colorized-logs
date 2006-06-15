@@ -114,18 +114,6 @@ AC_DEFUN(AC_LBL_LIBRARY_NET, [
 
 
 
-dnl check whether actual code is generated for inlined functions
-dnl The code below is an UGLY hack, but it works.
-AC_DEFUN(AC_EXT_INLINE, [
-AC_MSG_CHECKING(whether inline functions can be used extern)
-AC_COMPILE_IFELSE([[
-extern inline void blah();int main(){return 0;}
-]],[AC_DEFINE(EXT_INLINE,[],[Define if inline functions can be called extern])
-AC_MSG_RESULT([yes])],
-AC_MSG_RESULT([no])
-)
-])
-
 # Do all the work for Automake.  This macro actually does too much --
 # some checks are only needed if your package does certain things.
 # But this isn't really a big deal.

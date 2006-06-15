@@ -14,6 +14,7 @@
 #endif
 #endif
 #include <stdlib.h>
+#include "tintin.h"
  
 int match(char *regex, char *string)
 {
@@ -65,99 +66,130 @@ int is_literal(char *txt)
 }
 
 
-int find(char *text,char *pat,int *from,int *to)
+int find(char *text,char *pat,int *from,int *to,char *fastener)
 {
-	char *a,*b,*txt,*m1,*m2;
-	int i;
-	txt=text;
-	if (*pat=='^')
-	{
-		for (pat++;(*pat)&&(*pat!='*');)
-			if (*(pat++)!=*(txt++))
-				return(0);
-		if (!*pat)
-		{
-			*from=0;
-			*to=txt-text-1;
-			return 1;
-		};
-		m1=malloc(strlen(pat)+1);
-		strcpy(m1,pat);
-		pat=m1;
-		goto start;
-	};
-	if (!(b=strchr(pat,'*')))
-	{
-		a=strstr(txt,pat);
-		if (a)
-		{
-			*from=a-text;
-			*to=*from+strlen(pat)-1;
-			return 1;
-		}
-		else
-			return 0;
-	};
-	i=b-pat;
-	m1=malloc(strlen(pat)+1);
-	strcpy(m1,pat);
-	pat=m1;
-	pat[i]=0;
-	txt=strstr(txt,pat);
-	if (!txt)
-	{
-		free(m1);
-		return 0;
-	};
-	*from=txt-text;
-	txt+=i;
-	pat+=i+1;
-	while (*pat=='*')
-		pat++;
+    char *a,*b,*txt,m1[BUFFER_SIZE],m2[BUFFER_SIZE];
+    int i;
+
+    if (fastener)
+    {
+        txt=strstr(text,fastener);
+        if (!txt)
+            return 0;
+        *from=txt-text;
+        if(strchr(pat,'*'))
+            *to=strlen(text)-1;
+        else
+            *to=*from+strlen(fastener)-1;
+        return 1;
+    }
+    
+    txt=text;
+    if (*pat=='^')
+    {
+        for (pat++;(*pat)&&(*pat!='*');)
+            if (*(pat++)!=*(txt++))
+                return(0);
+        if (!*pat)
+        {
+            *from=0;
+            *to=txt-text-1;
+            return 1;
+        };
+        strcpy(m1,pat);
+        pat=m1;
+        goto start;
+    };
+    if (!(b=strchr(pat,'*')))
+    {
+        a=strstr(txt,pat);
+        if (a)
+        {
+            *from=a-text;
+            *to=*from+strlen(pat)-1;
+            return 1;
+        }
+        else
+            return 0;
+    };
+    i=b-pat;
+    strcpy(m1,pat);
+    pat=m1;
+    pat[i]=0;
+    txt=strstr(txt,pat);
+    if (!txt)
+    {
+        return 0;
+    };
+    *from=txt-text;
+    txt+=i;
+    pat+=i+1;
+    while (*pat=='*')
+        pat++;
 start:
-	i=strlen(pat);
-	if (!*pat)
-	{
-		*to=strlen(text)-1;
-		free(m1);
-		return 1;
-	};
-	a=pat;
-	b=pat+i-1;
-	while (a<b)
-	{
-		char c=*a;
-		*a++=*b;
-		*b--=c;
-	};
-	i=strlen(txt);
-	m2=malloc(i+1);
-	for (a=m2+i-1;*txt;)
-		*a--=*txt++;
-	m2[i]=0;
-	txt=m2;
-	*to=-1;
-	do
-	{
-		b=strchr(pat,'*');
-		if (b)
-			*b=0;
-		a=strstr(txt,pat);
-		if (!a)
-		{
-			free(m1);
-			free(m2);
-			return 0;
-		};
-		if (*to==-1)
-			*to=strlen(text)-(a-txt)-1;
-		txt=a+strlen(pat);
-		if (b)
-			pat=b;
-		else
-			pat=strchr(pat,0);
-	} while (*pat);
-	free(m1);
-	free(m2);
-	return 1;
+    i=strlen(pat);
+    if (!*pat)
+    {
+        *to=strlen(text)-1;
+        return 1;
+    };
+    a=pat;
+    b=pat+i-1;
+    while (a<b)
+    {
+        char c=*a;
+        *a++=*b;
+        *b--=c;
+    };
+    i=strlen(txt);
+    for (a=m2+i-1;*txt;)
+        *a--=*txt++;
+    m2[i]=0;
+    txt=m2;
+    *to=-1;
+    do
+    {
+        b=strchr(pat,'*');
+        if (b)
+            *b=0;
+        a=strstr(txt,pat);
+        if (!a)
+            return 0;
+        if (*to==-1)
+            *to=strlen(text)-(a-txt)-1;
+        txt=a+strlen(pat);
+        if (b)
+            pat=b;
+        else
+            pat=strchr(pat,0);
+    } while (*pat);
+    return 1;
+}
+
+
+char *get_fastener(char *txt)
+{
+    char *m,*mbl;
+
+    if (*txt=='^')
+        return 0;
+    if (*txt=='*')
+        return 0;
+    m=txt;
+    while(*m && *m!='*')
+        m++;
+    if (*m=='*')
+    {
+        if (*(m+1))
+            return 0;
+    }
+    else
+    {
+        if (*m)
+            return 0;
+    }
+    mbl=malloc(m+1-txt);
+    memcpy(mbl, txt, m-txt);
+    *(mbl+(m-txt))=0;
+    return mbl;
 }

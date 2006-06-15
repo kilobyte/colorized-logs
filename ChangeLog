@@ -1,4 +1,4 @@
-1.0.4alpha:
+1.0.5:
 *	added a symlink kbtin -> KBtin to avoid mixed-case executable
 	name while retaining old name as well
 *	\e[39m, \e[49m
@@ -23,11 +23,11 @@
 *	bugfix: \e[K and \e[D used to swallow some text
 *	core dumps will now be properly generated when appropiate
 *	#pretick
-*	tintin++ 1.86 compatibility:
+*	some tintin++ 1.86 compatibility:
 	*	#ifexists
 	*	#ifstrequal (=#strcmp)
 	*	#show_pretick (=#pretick)
-*TESTME	bugfix: no more corrupted logs when KBtin gets killed by a SIGINT (^C)
+*	bugfix: no more corrupted logs when KBtin gets killed by a SIGINT (^C)
 	or a SIGHUP (disconnect)
 *	\e[J clears the current line (\e[1J and \e[2J still don't work ok)
 *	bugfix: #grep's regexp can now contain variables
@@ -35,8 +35,20 @@
 *	bugfix: hangup if >29 sessions (oh well... :p)
 *	bugfix: #act {blah} {#unact *} no longer causes an infinite loop
 *	inlines: #grep, #match, #strcmp
-*TESTME	pty handling code changed
+*	pty handling code changed
 *	consider \r to be an end-of-line char in #read, for M$-DOS files
+*	workaround for dorky bg color handling in PuTTY and screen.  Will
+        slow down innocent xterm users, too :(
+*	information about logging in #info
+*	the echo for player's input has it's own color (#define ECHO_COLOR)
+*	#collate
+*	#expand
+*	#hook/#unhook
+*	all (?) flags are saved by #write and #writesession
+*	You can use #delay with a delay of 0.
+*	log only commands explicitely typed by the player
+*	#logcomment
+*	Use exec when invoking something using /bin/sh
 
 1.0.4:
 *	changes needed to compile on Tru64:

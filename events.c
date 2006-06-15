@@ -102,9 +102,9 @@ void delay_command(char *arg, struct session *ses)
         return;
     }
 
-    if (!*left || (delay=strtol(left,&cptr,10))<=0 || *cptr)
+    if (!*left || (delay=strtol(left,&cptr,10))<0 || *cptr)
     {
-        tintin_eprintf(ses, "#EVENT IGNORED (DELAY={%s}), HAS TO BE A NUMBER >0",left);
+        tintin_eprintf(ses, "#EVENT IGNORED (DELAY={%s}), NEGATIVE DELAY",left);
         return;
     }
 

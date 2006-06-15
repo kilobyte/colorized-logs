@@ -338,9 +338,12 @@ int run(char *command)
     case 0:
         {
             char *argv[4];
+            char cmd[BUFFER_SIZE+5];
+            
+            sprintf(cmd, "exec %s", command);
             argv[0]="sh";
             argv[1]="-c";
-            argv[2]=command;
+            argv[2]=cmd;
             argv[3]=0;
             putenv("TERM=" TERM); /* TERM=KBtin.  Or should we lie? */
             execve("/bin/sh",argv,environ);
@@ -369,7 +372,7 @@ FILE *mypopen(char *command, int wr)
         return 0;
     case 0:
         {
-            char *argv[4];
+            char *argv[4], cmd[BUFFER_SIZE+5];
 
             if(!wr)
             {
@@ -391,9 +394,10 @@ FILE *mypopen(char *command, int wr)
                 signal(SIGHUP, SIG_IGN);
                 signal(SIGTSTP, SIG_IGN);
             }
+            sprintf(cmd, "exec %s", command);
             argv[0]="sh";
             argv[1]="-c";
-            argv[2]=command;
+            argv[2]=cmd;
             argv[3]=0;
             execve("/bin/sh",argv,environ);
             fprintf(stderr,"#ERROR: Couldn't exec `%s'\n",command);

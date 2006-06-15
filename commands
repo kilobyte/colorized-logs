@@ -123,7 +123,6 @@ unbind
 unhighlight
 unsubstitute
 ungag
-unpath
 unpromptaction
 unmap
 unroute
@@ -161,3 +160,8 @@ termdebug
 
 pretick
 show_pretick
+collate
+expand
+hooks
+unhook
+logcomment

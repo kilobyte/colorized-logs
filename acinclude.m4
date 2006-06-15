@@ -99,17 +99,3 @@ AC_DEFUN(AC_LBL_LIBRARY_NET, [
     # DLPI needs putmsg under HPUX so test for -lstr while we're at it
     AC_CHECK_LIB(str, putmsg)
     ])
-
-
-
-dnl check whether actual code is generated for inlined functions
-dnl The code below is an UGLY hack, but it works.
-AC_DEFUN(AC_EXT_INLINE, [
-AC_MSG_CHECKING(whether inline functions can be used extern)
-AC_COMPILE_IFELSE([[
-extern inline void blah();int main(){return 0;}
-]],[AC_DEFINE(EXT_INLINE,[],[Define if inline functions can be called extern])
-AC_MSG_RESULT([yes])],
-AC_MSG_RESULT([no])
-)
-])
