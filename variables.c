@@ -1,4 +1,3 @@
-/* Autoconf patching by David Hedbor, neotron@lysator.liu.se */
 /*********************************************************************/
 /* file: variables.c - functions related the the variables           */
 /*                             TINTIN ++                             */
@@ -14,6 +13,7 @@
 # endif
 #endif
 #include <ctype.h>
+#include <wctype.h>
 #include "tintin.h"
 #include <stdlib.h>
 #ifdef HAVE_UNISTD_H
@@ -29,6 +29,8 @@
 #  include <time.h>
 # endif
 #endif
+#include <wchar.h>
+#include "unicode.h"
 
 void substitute_myvars(char *arg,char *result,struct session *ses);
 
@@ -62,6 +64,11 @@ extern void show_hashlist(struct session *ses, struct hashtable *h, char *pat, c
 extern void delete_hashlist(struct session *ses, struct hashtable *h, char *pat, const char *msg_ok, const char *msg_none);
 extern int is_abrev(char *s1, char *s2);
 extern void if_command(char *line, struct session *ses);
+extern int wc_to_utf8(char *d, const wchar_t *s, int n, int maxb);
+extern int utf8_len(char *s);
+extern int utf8_ncpy(char *d, char *s, int n, int maxb);
+extern char* utf8_seek(char *s, int n);
+extern int utf8_to_wc(wchar_t *d, char *s, int n);
 
 extern int varnum;
 extern pvars_t *pvars;
@@ -161,14 +168,12 @@ void substitute_myvars(char *arg,char *result,struct session *ses)
                     if (strcmp(varname,"secstotick")==0)
                         sprintf(value,"%d",timetilltick(ses));
                     else
-#ifdef UI_FULLSCREEN
                     if (strcmp(varname,"LINES")==0)
                         sprintf(value,"%d",LINES);
                     else
                     if (strcmp(varname,"COLS")==0)
                         sprintf(value,"%d",COLS);
                     else
-#endif
                     if (strcmp(varname,"PATH")==0)
                         path2var(value,ses);
                     else
@@ -541,7 +546,7 @@ char zerostr[1] = ""; /* empty string */
 /* RESULT:    pointer to elements head_length+1...           */
 /*            or pointer to '\0' or empty string ""          */
 /*            i.e. to character after element No head_length */
-char *get_split_pos(char *list, int head_length)
+char* get_split_pos(char *list, int head_length)
 {
     int i = 0;
     char temp[BUFFER_SIZE];
@@ -691,7 +696,7 @@ void simplify_list(char **beg, char **end, int flag, struct session *ses)
 /*            beg - points to first character to copy    */
 /*            end - points after last character to copy  */
 /* RESULT:    zero-ended string from beg to end          */
-char *copy_part(char *dest,char *beg,char *end)
+char* copy_part(char *dest,char *beg,char *end)
 {
     strcpy(dest, beg);
     dest[end - beg] = '\0';
@@ -913,7 +918,8 @@ void sortlist_command(char *arg,struct session *ses)
 /************************/
 void tolower_command(char *arg,struct session *ses)
 {
-    char left[BUFFER_SIZE], right[BUFFER_SIZE], *p;
+    char left[BUFFER_SIZE], right[BUFFER_SIZE];
+    WC *p,txt[BUFFER_SIZE];
 
     arg = get_arg(arg, left, 0, ses);
     arg = get_arg(arg, right, 1, ses);
@@ -921,8 +927,15 @@ void tolower_command(char *arg,struct session *ses)
         tintin_eprintf(ses,"#Syntax: #tolower <var> <text>");
     else
     {
+#ifdef UTF8
+        TO_WC(txt, right);
+        for (p = txt; *p; p++)
+            *p = towlower(*p);
+        WRAP_WC(right, txt);
+#else
         for (p = right; *p; p++)
             *p = tolower(*p);
+#endif
         set_variable(left,right,ses);
     }
 }
@@ -932,7 +945,8 @@ void tolower_command(char *arg,struct session *ses)
 /************************/
 void toupper_command(char *arg,struct session *ses)
 {
-    char left[BUFFER_SIZE], right[BUFFER_SIZE], *p;
+    char left[BUFFER_SIZE], right[BUFFER_SIZE];
+    WC *p,txt[BUFFER_SIZE];
 
     arg = get_arg(arg, left, 0, ses);
     arg = get_arg(arg, right, 1, ses);
@@ -940,8 +954,15 @@ void toupper_command(char *arg,struct session *ses)
         tintin_eprintf(ses,"#Syntax: #toupper <var> <text>");
     else
     {
+#ifdef UTF8
+        TO_WC(txt, right);
+        for (p = txt; *p; p++)
+            *p = towupper(*p);
+        WRAP_WC(right, txt);
+#else
         for (p = right; *p; p++)
             *p = toupper(*p);
+#endif
         set_variable(left,right,ses);
     }
 }
@@ -951,7 +972,8 @@ void toupper_command(char *arg,struct session *ses)
 /***************************/
 void firstupper_command(char *arg,struct session *ses)
 {
-    char left[BUFFER_SIZE], right[BUFFER_SIZE], *p;
+    char left[BUFFER_SIZE], right[BUFFER_SIZE];
+    WC *p,txt[BUFFER_SIZE];
 
     arg = get_arg(arg, left, 0, ses);
     arg = get_arg(arg, right, 1, ses);
@@ -959,9 +981,17 @@ void firstupper_command(char *arg,struct session *ses)
         tintin_eprintf(ses,"#Syntax: #firstupper <var> <text>");
     else
     {
+#ifdef UTF8
+        TO_WC(txt, right);
+        for (p = txt; *p; p++)
+            *p = towlower(*p);
+        *txt=towupper(*txt);
+        WRAP_WC(right, txt);
+#else
         for (p = right; *p; p++)
             *p = tolower(*p);
-        *right = toupper(*right);
+        *right=toupper(*right);
+#endif
         set_variable(left,right,ses);
     }
 }
@@ -979,7 +1009,7 @@ void strlen_command(char *arg, struct session *ses)
         tintin_eprintf(ses,"#Syntax: #strlen <var> <text>");
     else
     {
-        sprintf(right, "%d", strlen(right));
+        sprintf(right, "%d", FLATlen(right));
         set_variable(left,right,ses);
     }
 }
@@ -992,7 +1022,7 @@ int strlen_inline(char *arg, struct session *ses)
     char left[BUFFER_SIZE];
 
     arg = get_arg(arg, left, 1, ses);
-    return strlen(left);
+    return FLATlen(left);
 }
 
 /****************************************************/
@@ -1011,12 +1041,10 @@ int strlen_inline(char *arg, struct session *ses)
 /*            dest - destination string    */
 /* RESULT:    reversed string              */
 /* NOTE:      no check                     */
-char *revstr(dest, src)
-char *dest;
-char *src;
+WC* revstr(WC *dest, WC *src)
 {
     int i;
-    int ilast = strlen(src) - 1;
+    int ilast = WClen(src) - 1;
 
     for(i = ilast; i >= 0; i--)
         dest[ilast - i] = src[i];
@@ -1030,19 +1058,25 @@ char *src;
 /************************/
 void reverse_command(char *arg,struct session *ses)
 {
-    char destvar[BUFFER_SIZE];
-    char origstring[BUFFER_SIZE], revstring[BUFFER_SIZE];
+    char destvar[BUFFER_SIZE], strvar[BUFFER_SIZE];
+    WC origstring[BUFFER_SIZE], revstring[BUFFER_SIZE];
 
     arg = get_arg(arg, destvar, 0, ses);
-    arg = get_arg(arg, origstring, 1, ses);
+    arg = get_arg(arg, strvar, 1, ses);
 
     if (!*destvar)
         tintin_eprintf(ses,"#Error - Syntax: #reverse {destination variable} {string}");
     else
     {
+#ifdef UTF8
+        TO_WC(origstring, strvar);
         revstr(revstring, origstring);
-
+        WRAP_WC(strvar, revstring);
+        set_variable(destvar, strvar, ses);
+#else
+        revstr(revstring, strvar);
         set_variable(destvar, revstring, ses);
+#endif
     }
 }
 
@@ -1312,9 +1346,6 @@ int random_inline(char *arg, struct session *ses)
 }
 
 /*****************************************************/
-/* the #postpad command * By Sverre Normann          */
-/* with little changes by Jakub Narebski             */
-/*****************************************************/
 /* Syntax: #postpad {dest var} {length} {text}       */
 /*****************************************************/
 /* Truncates text if it's too long for the specified */
@@ -1323,13 +1354,13 @@ int random_inline(char *arg, struct session *ses)
 /*****************************************************/
 void postpad_command(char *arg,struct session *ses)
 {
-    char destvar[BUFFER_SIZE], lengthstr[BUFFER_SIZE], textstr[BUFFER_SIZE];
-    char newtextstr[BUFFER_SIZE];
+    char destvar[BUFFER_SIZE], lengthstr[BUFFER_SIZE], astr[BUFFER_SIZE];
+    char bstr[BUFFER_SIZE];
     int  i, len, length;
 
     arg = get_arg(arg, destvar, 0, ses);
     arg = get_arg(arg, lengthstr, 0, ses);
-    arg = get_arg(arg, textstr, 1, ses);
+    arg = get_arg(arg, astr, 1, ses);
 
     if (!*lengthstr)
         tintin_eprintf(ses,"#Error - Syntax: #postpad {dest var} {length} {text}");
@@ -1339,14 +1370,25 @@ void postpad_command(char *arg,struct session *ses)
             tintin_eprintf(ses,"#Error in #postpad - length has to be a positive number >0, got {%s}.",lengthstr);
         else
         {
-            strncpy(newtextstr, textstr, length);
-            newtextstr[length] = '\0';
-            if ((len = strlen(textstr)) < length)
+#ifdef UTF8
+            len=utf8_ncpy(bstr, astr, length, BUFFER_SIZE-1);
+            if (len<length)
+            {
+                i=strlen(bstr);
+                while(len++<length && i<BUFFER_SIZE-1)
+                    bstr[i++]=' ';
+                bstr[i]=0;
+            }
+#else
+            strncpy(bstr, astr, length);
+            bstr[length] = '\0';
+            if ((len = strlen(astr)) < length)
             {
                 for(i = len; i < length; i++)
-                    newtextstr[i] = ' ';
+                    bstr[i] = ' ';
             }
-            set_variable(destvar, newtextstr, ses);
+#endif
+            set_variable(destvar, bstr, ses);
         }
     }
 }
@@ -1363,13 +1405,13 @@ void postpad_command(char *arg,struct session *ses)
 /*****************************************************/
 void prepad_command(char *arg,struct session *ses)
 {
-    char destvar[BUFFER_SIZE], textstr[BUFFER_SIZE], lengthstr[BUFFER_SIZE];
-    char newtextstr[BUFFER_SIZE];
-    int  i, len_diff, length;
+    char destvar[BUFFER_SIZE], astr[BUFFER_SIZE], lengthstr[BUFFER_SIZE];
+    char bstr[BUFFER_SIZE], *bptr;
+    int len_diff, length;
 
     arg = get_arg(arg, destvar, 0, ses);
     arg = get_arg(arg, lengthstr, 0, ses);
-    arg = get_arg(arg, textstr, 1, ses);
+    arg = get_arg(arg, astr, 1, ses);
 
     if (!*lengthstr)
         tintin_eprintf(ses,"#Error - Syntax: #prepad {dest var} {length} {text}");
@@ -1379,14 +1421,26 @@ void prepad_command(char *arg,struct session *ses)
             tintin_eprintf(ses,"#Error in #prepad - length has to be a positive number >0, got {%s}.",lengthstr);
         else
         {
-            len_diff = length - strlen(textstr);
+#ifdef UTF8
+            len_diff = utf8_len(astr)-length;
+            bptr=bstr;
+            while(len_diff<0)
+            {
+                *bptr++=' ';
+                len_diff++;
+            }
+            utf8_ncpy(bptr, utf8_seek(astr,len_diff), length, bstr-bptr+BUFFER_SIZE-1);
+#else
+            int i;
+            len_diff = length - strlen(astr);
 
             for(i = 0; i < len_diff; i++)
-                newtextstr[i] = ' ';
+                bstr[i] = ' ';
 
-            strncpy(newtextstr + len_diff, textstr, length);
-            newtextstr[length] = 0;
-            set_variable(destvar, newtextstr, ses);
+            strncpy(bstr + len_diff, astr, length);
+            bstr[length] = 0;
+#endif
+            set_variable(destvar, bstr, ses);
         }
     }
 }
@@ -1527,11 +1581,19 @@ void substring_command(char *arg,struct session *ses)
         tintin_eprintf(ses, "#SYNTAX: substr <var> <l>[,<r>] <string>");
     else
     {
+#ifdef UTF8
+        s=utf8_len(right);
+        if ((l<=s)&&(l<=r))
+            utf8_ncpy(mid, utf8_seek(right,l-1), r+1-l, BUFFER_SIZE);
+        else
+            *mid=0;
+#else
         s=strlen(right);
         if ((l<=s)&&(l<=r))
             sprintf(mid, "%.*s",r+1-l,right+l-1);
         else
             *mid=0;
+#endif
         set_variable(left,mid,ses);
     }
 }

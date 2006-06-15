@@ -1,15 +1,14 @@
 /******************************************************************/
 /* file: tintin.h - the include file for KBtin                    */
 /******************************************************************/
-#define UI_FULLSCREEN      /* fullscreen (vs pipe) interface */
 #define NDEBUG
-#undef UTF8                /* UTF8 support -- not here yet */
+#define UTF8                /* UTF8 support */
 
 #ifndef NDEBUG
 #undef TELNET_DEBUG        /* uncomment to show TELNET negotiations */
 #undef USER_DEBUG          /* debugging of the user interface */
 #undef TERM_DEBUG          /* debugging pseudo-tty stuff */
-#undef PROFILING           /* profiling */
+#define PROFILING          /* profiling */
 #endif
 
 /************************/
@@ -21,7 +20,6 @@
 /**********************/
 /* color ANSI numbers */
 /**********************/
-#ifdef UI_FULLSCREEN
 #define COLOR_BLACK 	0
 #define COLOR_BLUE  	4
 #define COLOR_GREEN	2
@@ -30,7 +28,10 @@
 #define COLOR_MAGENTA	5
 #define COLOR_YELLOW	3
 #define COLOR_WHITE	7
-#endif
+
+#define LOGCS_LOCAL	((char*)1)
+#define LOGCS_REMOTE	((char*)2)
+
 
 /*************************/
 /* telnet protocol stuff */
@@ -50,7 +51,6 @@
 /***********************************************/
 /* Some default values you might wanna change: */
 /***********************************************/
-#ifdef UI_FULLSCREEN
 #define CONSOLE_LENGTH 32768
 #define STATUS_COLOR COLOR_BLACK
 #define INPUT_COLOR  COLOR_BLUE
@@ -61,7 +61,6 @@
 /*#define BARE_ESC*/  /* uncomment to allow use of bare ESC key.  It will
                          prevent Alt-XXX from being recognized, though. */
 #define XTERM_TITLE "KBtin - %s"
-#endif
 #undef  PTY_ECHO_HACK   /* not working yet */
 #define ASSUME_UTF8 0      /* if character width cannot be autodetected */
 #define ECHO_COLOR "~8~"
@@ -96,11 +95,8 @@
 #define NEWS_FILE   "NEWS"
 
 #define DEFAULT_DISPLAY_BLANK TRUE        /* blank lines */
-#ifdef UI_FULLSCREEN
-#define DEFAULT_ECHO TRUE                 /* echo */
-#else
-#define DEFAULT_ECHO FALSE                /* echo */
-#endif
+#define DEFAULT_ECHO_SEPINPUT TRUE        /* echo when there is an input box */
+#define DEFAULT_ECHO_NOSEPINPUT FALSE     /* echo when input is not managed */
 #define DEFAULT_IGNORE FALSE              /* ignore */
 #define DEFAULT_SPEEDWALK FALSE           /* speedwalk */
 	/* note: classic speedwalks are possible only on some primitive
@@ -123,7 +119,10 @@
 #define DEFAULT_ERROR_MESS TRUE
 #define DEFAULT_HOOK_MESS TRUE
 #define DEFAULT_PRETICK 10
+#define DEFAULT_CHARSET "ISO-8859-1"	/* the MUD-side charset */
+#define DEFAULT_LOGCHARSET LOGCS_LOCAL
 /*#define PARTIAL_LINE_MARKER "\376"*/       /* comment out to disable */
+#define BAD_CHAR '?'	        /* marker for chars illegal for a charset */
 #define CHAR_VERBATIM '\\'
 #define CHAR_QUOTE '"'
 #define CHAR_NEWLINE ';'
@@ -199,6 +198,7 @@
 /************************ structures *********************/
 #include <stdio.h>
 #include "_stdint.h"
+#include <iconv.h>
 
 struct listnode {
   struct listnode *next;
@@ -241,6 +241,14 @@ struct routenode
 	char *cond;
 };
 
+struct charset_conv
+{
+    char *name;
+    int mode; /* 0=8bit, 1=UTF-8, 2=iconv */
+    int dir; /* -1=only in, 0=both, 1=only out */
+    iconv_t i_in, i_out;
+};
+
 struct session
 {
   struct session *next;
@@ -257,7 +265,6 @@ struct session
   int ignore;
   struct listnode *actions, *prompts, *subs, *highs, *antisubs;
   struct hashtable *aliases, *myvars, *pathdirs, *binds;
-  char *history[HISTORY_SIZE];
   struct listnode *path;
   struct routenode *routes[MAX_LOCATIONS];
   char *locations[MAX_LOCATIONS];
@@ -275,6 +282,10 @@ struct session
   char *hooks[NHOOKS];
   int closing;
   int nagle;
+#ifdef UTF8
+  char *charset, *logcharset;
+  struct charset_conv c_io,c_log;
+#endif
 };
 
 typedef char pvars_t[10][BUFFER_SIZE];
@@ -311,3 +322,11 @@ struct ttyrec_header
     uint32_t usec;
     uint32_t len;
 };
+
+#define logcs_is_special(x) ((x)==LOGCS_LOCAL || (x)==LOGCS_REMOTE)
+#define logcs_name(x) (((x)==LOGCS_LOCAL)?"local":	\
+                       ((x)==LOGCS_REMOTE)?"remote":	\
+                        (x))
+#define logcs_charset(x) (((x)==LOGCS_LOCAL)?user_charset_name:	\
+                          ((x)==LOGCS_REMOTE)?ses->charset:	\
+                           (x))

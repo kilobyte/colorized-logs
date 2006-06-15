@@ -77,7 +77,7 @@ void profile_command(struct session *ses, char *arg)
     hl=hash2list(prof_count,"*");
     ln=hl;
     while((ln=ln->next))
-        tintin_printf(0, "%-25s %6d", ln->left, (int)ln->right);
+        tintin_printf(0, "%-26s %6d", ln->left, (int)ln->right);
     zap_list(hl);
     if (kbd_cnt)
         tintin_printf(0, "Avg. response time for kbd input: %d.%06d",

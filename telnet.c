@@ -91,7 +91,6 @@ char *option_names[]=
 
 void telnet_send_naws(struct session *ses)
 {
-#ifdef UI_FULLSCREEN
     unsigned char nego[128],*np;
 
 #define PUTBYTE(b)    if ((b)==255) *np++=255;   *np++=(b);
@@ -118,8 +117,6 @@ void telnet_send_naws(struct session *ses)
         tintin_printf(ses, "~8~[telnet] sent: %s~-1~", buf);
     }
 #endif
-#endif
-/* no UI_FULLSCREEN -> no NAWS */
 }
 
 void telnet_send_ttype(struct session *ses)
@@ -152,7 +149,6 @@ void telnet_send_ttype(struct session *ses)
 #endif
 }
 
-#ifdef UI_FULLSCREEN
 void telnet_resize_all(void)
 {
     struct session *sp;
@@ -166,7 +162,6 @@ void telnet_resize_all(void)
                 pty_resize(sp->socket,COLS,LINES-1-!!isstatus);
         }
 }
-#endif
 
 int do_telnet_protocol(unsigned char *data,int nb,struct session *ses)
 {
@@ -216,17 +211,15 @@ int do_telnet_protocol(unsigned char *data,int nb,struct session *ses)
             case DONT:  answer[1]=WONT; break;
             };
             break;
-#ifdef UI_FULLSCREEN    
         case NAWS:
             switch(wt)
             {
-            case WILL:  answer[1]=DO;   ses->naws=1; break;
-            case DO:    answer[1]=WILL; ses->naws=1; break;
+            case WILL:  answer[1]=DO;   ses->naws=0; break;
+            case DO:    answer[1]=WILL; ses->naws=(LINES>1 && COLS>0); break;
             case WONT:  answer[1]=DONT; ses->naws=0; break;
             case DONT:  answer[1]=WONT; ses->naws=0; break;
             };
             break;
-#endif
         case END_OF_RECORD:
             switch(wt)
             {
@@ -336,7 +329,7 @@ nego_too_long:
 
 void telnet_write_line(char *line, struct session *ses)
 {
-    char outtext[2*BUFFER_SIZE + 2],*out;
+    char outtext[6*BUFFER_SIZE + 2],*out;
 
     out=outtext;
     while(*line)

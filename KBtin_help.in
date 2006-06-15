@@ -8,7 +8,7 @@ Session management:
 Input/output:
    verbatim    char        echo        history     cr          mudcolors
    blank       speedwalk   showme      status      margins     bell
-   send
+   send        charset
 Aliases:
    alias       unalias
 Triggers:
@@ -26,8 +26,8 @@ Control statements:
    <number>    if          loop        foreach     match       strcmp
    grep        ifexists
 Files:
-   condump     deathlog    log         logtype     logcomment  unlink
-   read        textin      verbose     write       writesession
+   condump     deathlog    log         logtype     logcomment  logcharset
+   unlink      read        textin      verbose     write       writesession
 Comments:
    nop         remark
 Variables:
@@ -382,6 +382,25 @@ Echoes <text> to the user.
 #example
 #showme {Terminal size: $COLSx$LINES}
 #action {%1's mighty bash sends you sprawling} {#showme =======BASHED========}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~charset
+
+#charset
+Displays the currently set remote charset.
+
+#charset <charset>
+Sets the <charset> conversion of the current connection and/or all subsequent
+ones.  KBtin will make an attempt to replace unrepresentable letters with an
+ASCII equivalent if possible, dropping accents/umlauts when needed.  Only
+characters sets which are upward compatible with ASCII are supported -- there
+is no support for UTF-16 or EBCDIC at all.  The list of available charsets
+depends on your system; GNU systems will typically know anything reasonable,
+but on Windows or ancient Unices only UTF-8, ISO-8859-1 and ASCII are
+guaranteed to work.
+
+All simple scripts like greek, cyrillic or hebrew are supported, although no
+transliteration is attempted for non-latin ones.  Scripts which are more
+complex work in a spotty way at best at this moment.  
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~speedwalk
 
@@ -803,6 +822,20 @@ of a log is usually a bad idea.
 
 You can convert the log post-factum using `ttyrec2ansi`, `ansi2txt` or
 `ansi2html`, bundled with KBtin.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~logcharset
+
+#logcharset
+Prints the currently set log charset.
+
+#logcharset local
+Makes KBtin log using currently set locale [recommended].
+
+#logcharset remote
+Makes KBtin log as received, without any conversion.
+
+#logcharset <charset>
+Forces the logging charset to a given value.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~logcomment
 

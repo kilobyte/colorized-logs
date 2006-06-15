@@ -6,9 +6,9 @@
 #include <strings.h>
 #endif
 #endif
+#include <wchar.h>
 #include "tintin.h"
-
-#ifdef UI_FULLSCREEN
+#include "ui.h"
 
 extern char *get_arg_in_braces(char *s,char *arg,int flag);
 extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
@@ -20,6 +20,7 @@ extern void delete_hashlist(struct session *ses, struct hashtable *h, char *pat,
 extern struct hashtable* init_hash();
 extern void substitute_myvars(char *arg,char *result,struct session *ses);
 extern void substitute_vars(char *arg, char *result);
+extern void tintin_eprintf(struct session *ses,char *format,...);
 
 
 extern int bindnum;
@@ -103,6 +104,11 @@ void bind_command(char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
 
+    if (!ui_keyboard)
+    {
+        tintin_eprintf(ses, "#UI: no access to keyboard => no keybindings");
+        return;
+    }
     arg = get_arg_in_braces(arg, left, 0);
     arg = get_arg_in_braces(arg, right, 1);
 
@@ -126,6 +132,11 @@ void unbind_command(char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], result[BUFFER_SIZE];
 
+    if (!ui_keyboard)
+    {
+        tintin_eprintf(ses, "#UI: no access to keyboard => no keybindings");
+        return;
+    }
     arg = get_arg_in_braces(arg, left, 1);
     substitute_vars(left, result);
     substitute_myvars(result, left, ses);
@@ -165,7 +176,8 @@ void init_bind(void)
 {
     char**n;
     keynames=init_hash();
+    if (!ui_keyboard)
+        return;
     for(n=KEYNAMES;**n;n+=2)
         set_hash(keynames,n[0],n[1]);
 }
-#endif

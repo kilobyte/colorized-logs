@@ -23,8 +23,8 @@
 #include <unistd.h>
 #endif
 #include <errno.h>
+#include "ui.h"
 
-extern void user_done(void);
 void syserr(char *msg, ...);
 
 /*********************************************/
@@ -39,12 +39,12 @@ int is_abrev(char *s1, char *s2)
 /* strdup - duplicates a string */
 /* return: address of duplicate */
 /********************************/
-char *mystrdup(char *s)
+char* mystrdup(char *s)
 {
     char *dup;
 
     if ((dup = (char *)malloc(strlen(s) + 1)) == NULL)
-        syserr("Not enought memory for strdup.");
+        syserr("Not enough memory for strdup.");
     strcpy(dup, s);
     return dup;
 }
@@ -56,9 +56,10 @@ char *mystrdup(char *s)
 void syserr(char *msg, ...)
 {
     va_list ap;
-#ifdef UI_FULLSCREEN
-    user_done();
-#endif
+    
+    if (ui_own_output)
+        user_done();
+    
     if (errno)
         fprintf(stderr, "ERROR (%s):  ", strerror(errno));
     else
@@ -69,3 +70,15 @@ void syserr(char *msg, ...)
     fprintf(stderr, "\n");
     exit(1);
 }
+
+/* Is any compiler _that_ old still alive? */
+#ifndef HAVE_SNPRINTF
+int snprintf(char *str, int len, char *fmt, ...)
+{
+    va_list ap;
+    
+    va_start(ap, fmt);
+    vsprintf(str, fmt, ap);
+    va_end(ap);
+}
+#endif

@@ -74,7 +74,7 @@ extern char *prof_area;
 /**************************************************************************/
 /* parse input, check for TINTIN commands and aliases and send to session */
 /**************************************************************************/
-struct session *parse_input(char *input,int override_verbatim,struct session *ses)
+struct session* parse_input(char *input,int override_verbatim,struct session *ses)
 {
     char command[BUFFER_SIZE], arg[BUFFER_SIZE], result[BUFFER_SIZE], *al;
     int nspaces;
@@ -340,7 +340,7 @@ int do_goto(char *txt,struct session *ses)
 /*************************************/
 /* parse most of the tintin-commands */
 /*************************************/
-struct session *parse_tintin_command(char *command, char *arg,struct session *ses)
+struct session* parse_tintin_command(char *command, char *arg,struct session *ses)
 {
     struct session *sesptr;
     char *func, *a, *b, cmd[BUFFER_SIZE];
@@ -445,7 +445,7 @@ void init_parse()
 /**********************************************/
 /* get all arguments - don't remove "s and \s */
 /**********************************************/
-char *get_arg_all(char *s, char *arg)
+char* get_arg_all(char *s, char *arg)
 {
     /* int inside=FALSE; */
     int nest = 0;
@@ -485,7 +485,7 @@ char *get_arg_all(char *s, char *arg)
 /****************************************************/
 /* get an inline command - terminated with 0 or ')' */
 /****************************************************/
-char *get_inline(char *s, char *arg)
+char* get_inline(char *s, char *arg)
 {
     /* int inside=FALSE; */
     int nest = 0;
@@ -525,7 +525,7 @@ char *get_inline(char *s, char *arg)
 /* In: "this is it" way way hmmm;     */
 /* Out: this is it way way hmmm       */
 /**************************************/
-inline char *get_arg_with_spaces(char *s, char *arg)
+inline char* get_arg_with_spaces(char *s, char *arg)
 {
     int nest = 0;
 
@@ -559,7 +559,7 @@ inline char *get_arg_with_spaces(char *s, char *arg)
     return s;
 }
 
-char *get_arg_in_braces(char *s,char *arg,int flag)
+char* get_arg_in_braces(char *s,char *arg,int flag)
 {
     int nest = 0;
     char *ptr;
@@ -599,7 +599,7 @@ char *get_arg_in_braces(char *s,char *arg,int flag)
 /* get one arg, stop at spaces                */
 /* remove quotes                              */
 /**********************************************/
-inline char *get_arg_stop_spaces(char *s, char *arg)
+inline char* get_arg_stop_spaces(char *s, char *arg)
 {
     int inside = FALSE;
 
@@ -635,7 +635,7 @@ inline char *get_arg_stop_spaces(char *s, char *arg)
 }
 
 
-char *get_arg(char *s,char *arg,int flag,struct session *ses)
+char* get_arg(char *s,char *arg,int flag,struct session *ses)
 {
     char tmp[BUFFER_SIZE],*cptr;
     
@@ -652,7 +652,7 @@ char *get_arg(char *s,char *arg,int flag,struct session *ses)
 /* get the command, stop at spaces            */
 /* remove quotes                              */
 /**********************************************/
-char *get_command(char *s, char *arg)
+char* get_command(char *s, char *arg)
 {
     int inside = FALSE;
 
@@ -689,7 +689,7 @@ char *get_command(char *s, char *arg)
 /* spaceout - advance ptr to next none-space */
 /* return: ptr to the first none-space       */
 /*********************************************/
-char *space_out(char *s)
+char* space_out(char *s)
 {
     while (isspace(*s))
         s++;

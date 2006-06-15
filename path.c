@@ -202,8 +202,7 @@ void path_command(char *arg, struct session *ses)
         while ((ln = ln->next))
         {
             dirlen = strlen(ln->left);
-#ifdef UI_FULLSCREEN
-            if (dirlen + len > COLS-10)
+            if ((COLS>0) && (dirlen + len > COLS-10))
             {
                 if (len)
                     mypath[len+7]=0;
@@ -211,7 +210,6 @@ void path_command(char *arg, struct session *ses)
                 strcpy(mypath, "#Path:  ");
                 len = 0;
             }
-#endif
             strcat(mypath, ln->left);
             strcat(mypath+dirlen, ";");
             len += dirlen + 1;

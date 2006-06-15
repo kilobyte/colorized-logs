@@ -1,0 +1,15 @@
+#!/bin/sh
+
+DIR="$1"
+shift
+DIR="${*:+${DIR:-.}/}"
+
+(cd "$DIR";
+  egrep -h '^[a-zA-Z_]+.*[a-zA-Z_][a-zA-Z0-9_]*\(.*\)$' ${*:--}|
+  grep -v '^static'|
+  egrep -v '^void [a-z_]+_command\('|
+  egrep -v '^struct session \*[a-z_]+_command\('|
+  while read x
+    do
+      echo "extern $x;"
+    done) >protos.h

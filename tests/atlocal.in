@@ -1,0 +1,1 @@
+PATH=@abs_builddir@:@abs_top_builddir@/src:$top_srcdir:$srcdir:$PATH

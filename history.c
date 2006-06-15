@@ -29,21 +29,18 @@ extern void prompt(struct session *ses);
 extern void tintin_printf(struct session *ses,char *format,...);
 extern void tintin_eprintf(struct session *ses,char *format,...);
 
+extern char *history[HISTORY_SIZE];
+
 /************************/
 /* the #history command */
 /************************/
 void history_command(char *arg, struct session *ses)
 {
-    if (ses)
-    {
-        int i;
+    int i;
 
-        for (i = HISTORY_SIZE - 1; i >= 0; i--)
-            if (ses->history[i])
-                tintin_printf(ses, "%2d %s ", i, ses->history[i]);
-    }
-    else
-        tintin_printf(ses,"#NO SESSION ACTIVE => NO HISTORY DUMMY!");
+    for (i = HISTORY_SIZE - 1; i >= 0; i--)
+        if (history[i])
+            tintin_printf(ses, "%2d %s ", i, history[i]);
     prompt(NULL);
 }
 
@@ -60,9 +57,9 @@ void do_history(char *buffer, struct session *ses)
         {
             if (*(cptr + 1) == '!')
             {
-                if (ses->history[0])
+                if (history[0])
                 {
-                    strcpy(result, ses->history[0]);
+                    strcpy(result, history[0]);
                     strcat(result, cptr + 2);
                     strcpy(buffer, result);
                 }
@@ -71,9 +68,9 @@ void do_history(char *buffer, struct session *ses)
             {
                 int i = atoi(cptr + 1);
 
-                if (i >= 0 && i < HISTORY_SIZE && ses->history[i])
+                if (i >= 0 && i < HISTORY_SIZE && history[i])
                 {
-                    strcpy(result, ses->history[i]);
+                    strcpy(result, history[i]);
                     strcat(result, cptr + 2);
                     strcpy(buffer, result);
                 }
@@ -82,10 +79,10 @@ void do_history(char *buffer, struct session *ses)
             {
                 int i;
 
-                for (i = 0; i < HISTORY_SIZE && ses->history[i]; i++)
-                    if (is_abrev(cptr + 1, ses->history[i]))
+                for (i = 0; i < HISTORY_SIZE && history[i]; i++)
+                    if (is_abrev(cptr + 1, history[i]))
                     {
-                        strcpy(buffer, ses->history[i]);
+                        strcpy(buffer, history[i]);
                         break;
                     }
             }
@@ -102,38 +99,35 @@ void insert_history(char *buffer, struct session *ses)
 {
     int i;
 
-    /* CHANGED to fix an annoying memory leak, these were never getting freed */
-    if (ses->history[HISTORY_SIZE - 1])
-        free(ses->history[HISTORY_SIZE - 1]);
+    if (history[HISTORY_SIZE - 1])
+        free(history[HISTORY_SIZE - 1]);
 
     for (i = HISTORY_SIZE - 1; i > 0; i--)
-        ses->history[i] = ses->history[i - 1];
+        history[i] = history[i - 1];
 
-    ses->history[0] = mystrdup(buffer);
+    history[0] = mystrdup(buffer);
 }
 
+#if 0
 /************************************************************/
 /* do all the parse stuff for !XXXX history commands        */
 /************************************************************/
-struct session *parse_history_command(char *command, char *arg, struct session *ses)
+struct session* parse_history(char *command, char *arg, struct session *ses)
 {
-    if (ses)
+    if ((*(command + 1) == '!' || !*(command + 1)) && history[0])
+        return parse_input(history[0],1,ses); /* we're already not in verbatim */
+
+    else if (isdigit(*(command + 1)))
     {
+        int i = atoi(command + 1);
 
-        if ((*(command + 1) == '!' || !*(command + 1)) && ses->history[0])
-            return parse_input(ses->history[0],1,ses); /* we're already not in verbatim */
-
-        else if (isdigit(*(command + 1)))
+        if (i >= 0 && i < HISTORY_SIZE && history[i])
         {
-            int i = atoi(command + 1);
-
-            if (i >= 0 && i < HISTORY_SIZE && ses->history[i])
-            {
-                return parse_input(ses->history[i],1,ses);
-            }
+            return parse_input(history[i],1,ses);
         }
     }
     tintin_eprintf(ses, "#HISTORY: I DON'T REMEMBER THAT COMMAND.");
 
     return ses;
 }
+#endif

@@ -29,7 +29,7 @@ extern void tintin_printf(struct session *ses, const char *format, ...);
 extern void tintin_eprintf(struct session *ses, const char *format, ...);
 extern FILE *mypopen(const char *command, int wr);
 
-FILE *check_file(char *filestring)
+FILE* check_file(char *filestring)
 {
 #if COMPRESSED_HELP
     char sysfile[BUFFER_SIZE];

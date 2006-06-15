@@ -24,9 +24,11 @@
 #  include <time.h>
 # endif
 #endif
-#include "tintin.h"
-
 #include <stdlib.h>
+#include <wchar.h>
+#include "tintin.h"
+#include "ui.h"
+
 
 /* externs */
 extern struct session *sessionlist,*activesession,*nullsession;
@@ -35,7 +37,7 @@ extern char tintin_char;
 extern int keypad,retain;
 extern pvars_t *pvars;	/* the %0, %1, %2,....%9 variables */
 extern char status[BUFFER_SIZE];
-extern int margins,marginl,marginr;
+int margins,marginl,marginr;
 extern FILE *mypopen(const char *command, int wr);
 extern int LINES,COLS;
 extern void cleanup_session(struct session *ses);
@@ -48,34 +50,29 @@ extern struct session *newactive_session(void);
 extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
 extern void prepare_actionalias(char *string, char *result, struct session *ses);
 extern void prompt(struct session *ses);
-extern void show_status(void);
 extern void substitute_myvars(char *arg,char *result,struct session *ses);
 extern void substitute_vars(char *arg, char *result);
-extern void textout(char *txt);
-extern void textout_draft(char *txt);
 extern void tintin_puts(char *cptr,struct session *ses);
 extern void tintin_puts1(char *cptr,struct session *ses);
 extern void tintin_printf(struct session *ses, char *format, ...);
 extern void tintin_eprintf(struct session *ses, char *format, ...);
-extern void user_beep(void);
-extern void user_done(void);
-extern void user_keypad(int kp);
-extern void user_retain(void);
 extern void write_line_mud(char *line, struct session *ses);
 extern void set_variable(char *left,char *right,struct session *ses);
 extern void do_all_high(char *line,struct session *ses);
 extern void do_all_sub(char *line, struct session *ses);
 extern int getcolor(char **ptr,int *color,const int flag);
-extern void user_pause(void);
-extern void user_resume(void);
 extern void kill_all(struct session *ses, int mode);
 extern void do_in_MUD_colors(char *txt,int quotetype);
 extern int puts_echoing,in_read;
 extern struct session* do_hook(struct session *ses, int t, char *data, int blockzap);
-#ifndef UI_FULLSCREEN
-extern int tty;
-#endif
 extern char *logtypes[];
+extern int real_quiet;
+extern char *user_charset_name;
+extern void utf8_to_local(char *d, char *s);
+extern void local_to_utf8(char *d, char *s, int maxb, mbstate_t *cs);
+extern int new_conv(struct charset_conv *conv, char *name, int dir);
+extern void cleanup_conv(struct charset_conv *conv);
+extern char* mystrdup(char *s);
 
 int yes_no(char *txt)
 {
@@ -138,7 +135,7 @@ void cr_command(char *arg,struct session *ses)
 /****************************/
 void version_command(char *arg,struct session *ses)
 {
-    tintin_printf(ses, "#You are using KBtin %s\n", VERSION);
+    tintin_printf(ses, "#You are using KBtin %s", VERSION);
     prompt(ses);
 }
 
@@ -175,7 +172,7 @@ void send_command(char *arg,struct session *ses)
 /********************/
 /* the #all command */
 /********************/
-struct session *all_command(char *arg,struct session *ses)
+struct session* all_command(char *arg,struct session *ses)
 {
     struct session *sesptr;
 
@@ -207,7 +204,11 @@ void char_command(char *arg,struct session *ses)
 {
     get_arg_in_braces(arg, arg, 1);
     /* It doesn't make any sense to use a variable here. */
+#ifdef UTF8
     if (ispunct(*arg) || ((unsigned char)(*arg)>127))
+#else
+    if (ispunct(*arg) && ((unsigned char)(*arg)<127)) /* possible feature... */
+#endif
     {
         tintin_char = *arg;
         tintin_printf(ses, "#OK. TINTIN-CHAR is now {%c}", tintin_char);
@@ -227,12 +228,17 @@ void echo_command(char *arg,struct session *ses)
                "#ECHO IS NOW OFF.");
 }
 
-#ifdef UI_FULLSCREEN
 /***********************/
 /* the #keypad command */
 /***********************/
 void keypad_command(char *arg,struct session *ses)
 {
+    if (!ui_keyboard)
+    {
+        tintin_eprintf(ses, "#UI: no access to keyboard => no keybindings");
+        return;
+    }
+
     togglebool(&keypad,arg,ses,
                "#KEYPAD NOW WORKS IN THE ALTERNATE MODE.",
                "#KEYPAD KEYS ARE NOW EQUAL TO NON-KEYPAD ONES.");
@@ -244,12 +250,17 @@ void keypad_command(char *arg,struct session *ses)
 /***********************/
 void retain_command(char *arg,struct session *ses)
 {
+    if (!ui_sep_input)
+    {
+        tintin_eprintf(ses, "#UI: no managed windows => no input bar");
+        return;
+    }
+
     togglebool(&retain,arg,ses,
                "#INPUT BAR WILL NOW RETAIN THE LAST LINE TYPED.",
                "#INPUT BAR WILL NOW BE CLEARED EVERY LINE.");
     user_retain();
 }
-#endif
 
 /*********************/
 /* the #end command */
@@ -273,17 +284,14 @@ void end_command(char *arg, struct session *ses)
     activesession = nullsession;
     do_hook(nullsession, HOOK_END, 0, 1);
     activesession = NULL;
-#ifndef UI_FULLSCREEN
-    if (!tty)   
-        exit(0);
-#endif
-    /* a message from DIKUs... we can leave it though */
-    tintin_printf(0,"TINTIN suffers from bloodlack, and the lack of a beating heart...");
-    tintin_printf(0,"TINTIN is dead! R.I.P.");
-    tintin_printf(0,"Your blood freezes as you hear TINTIN's death cry.");
-#ifdef UI_FULLSCREEN
-    user_done();
-#endif
+    if (ui_own_output)
+    {
+        /* a message from DIKUs... we can leave it though */
+        tintin_printf(0,"TINTIN suffers from bloodlack, and the lack of a beating heart...");
+        tintin_printf(0,"TINTIN is dead! R.I.P.");
+        tintin_printf(0,"Your blood freezes as you hear TINTIN's death cry.");
+        user_done();
+    }
     exit(0);
 }
 
@@ -336,6 +344,7 @@ void togglesubs_command(char *arg,struct session *ses)
 /************************/
 void verbose_command(char *arg,struct session *ses)
 {
+    real_quiet=1;
     togglebool(&ses->verbose,arg,ses,
                "#Output from #reads will now be shown.",
                "#The #read command will no longer output messages.");
@@ -343,7 +352,6 @@ void verbose_command(char *arg,struct session *ses)
         puts_echoing=ses->verbose;
 }
 
-#ifdef UI_FULLSCREEN
 /************************/
 /* the #margins command */
 /************************/
@@ -351,6 +359,12 @@ void margins_command(char *arg,struct session *ses)
 {
     int l,r;
     char num[BUFFER_SIZE], *tmp;
+
+    if (!ui_sep_input)
+    {
+        tintin_eprintf(ses, "#UI: no input bar => no input margins");
+        return;
+    }
 
     if (margins)
     {
@@ -400,7 +414,6 @@ void margins_command(char *arg,struct session *ses)
         tintin_printf(ses,"#MARGINS ENABLED.");
     }
 }
-#endif
 
 
 /***********************/
@@ -410,10 +423,6 @@ void showme_command(char *arg,struct session *ses)
 {
     get_arg(arg, arg, 1, ses);
     tintin_printf(ses,"%s",arg);	/* KB: no longer check for actions */
-    /*
-    if(ses->logfile)
-       fprintf(ses->logfile,"%s\n",result);
-    */
 }
 
 /***********************/
@@ -599,12 +608,17 @@ void speedwalk_command(char *arg,struct session *ses)
 }
 
 
-#ifdef UI_FULLSCREEN
 /***********************/
 /* the #status command */
 /***********************/
 void status_command(char *arg,struct session *ses)
 {
+    if (!ui_sep_input)
+    {
+        tintin_eprintf(ses, "#UI: no managed windows => no status bar");
+        return;
+    }
+
     if (ses!=activesession)
         return;
     get_arg(arg,arg,1,ses);
@@ -612,9 +626,8 @@ void status_command(char *arg,struct session *ses)
         strncpy(status,arg,BUFFER_SIZE);
     else
         strcpy(status,EMPTY_LINE);
-    show_status();
+    user_show_status();
 }
-#endif
 
 
 /***********************/
@@ -622,24 +635,39 @@ void status_command(char *arg,struct session *ses)
 /***********************/
 void system_command(char *arg,struct session *ses)
 {
+    FILE *output;
+    char buf[BUFFER_SIZE],ustr[BUFFER_SIZE];
+    mbstate_t cs;
+    
     get_arg(arg, arg, 1, ses);
     if (*arg)
     {
-        FILE *output;
-        char buf[BUFFER_SIZE];
-        
         if (ses->mesvar[9])
             tintin_puts1("#EXECUTING SHELL COMMAND.", ses);
+#ifdef UTF8
+        utf8_to_local(buf, arg);
+        if (!(output = mypopen(buf,0)))
+#else
         if (!(output = mypopen(arg,0)))
+#endif
         {
             tintin_puts1("#ERROR EXECUTING SHELL COMMAND.",ses);
             prompt(NULL);
             return;
         };
+#ifdef UTF8
+        memset(&cs, 0, sizeof(cs));
+#endif
+        
         while (fgets(buf,BUFFER_SIZE,output))
         {
             do_in_MUD_colors(buf,1);
-            textout(buf);
+#ifdef UTF8
+            local_to_utf8(ustr, buf, BUFFER_SIZE, &cs);
+            user_textout(ustr);
+#else
+            user_textout(buf);
+#endif
         }
         fclose(output);
         if (ses->mesvar[9])
@@ -656,18 +684,25 @@ void system_command(char *arg,struct session *ses)
 /**********************/
 void shell_command(char *arg,struct session *ses)
 {
+    char cmd[BUFFER_SIZE*4];
+
     get_arg(arg, arg, 1, ses);
     if (*arg)
     {
         if (ses->mesvar[9])
             tintin_puts1("#EXECUTING SHELL COMMAND.", ses);
-#ifdef UI_FULLSCREEN
-        user_pause();
-        system(arg);
-        user_resume();
+#ifdef UTF8
+        utf8_to_local(cmd, arg);
+#endif
+        if (ui_own_output)
+            user_pause();
+#ifdef UTF8
+        system(cmd);
 #else
         system(arg);
 #endif
+        if (ui_own_output)
+            user_resume();
         if (ses->mesvar[9])
             tintin_puts1("#OK COMMAND EXECUTED.", ses);
     }
@@ -681,7 +716,7 @@ void shell_command(char *arg,struct session *ses)
 /********************/
 /* the #zap command */
 /********************/
-struct session *zap_command(char *arg, struct session *ses)
+struct session* zap_command(char *arg, struct session *ses)
 {
     int flag=(ses==activesession);
 
@@ -888,6 +923,7 @@ void tab_delete(char *arg, struct session *ses)
 
 void info_command(char *arg, struct session *ses)
 {
+    char buffer[BUFFER_SIZE], *bptr;
     int actions   = 0;
     int practions = 0;
     int aliases   = 0;
@@ -937,13 +973,29 @@ void info_command(char *arg, struct session *ses)
         ses->togglesubs, ses->ignore, ses->presub, ses->verbose);
     tintin_printf(ses, "Ticker is %s (ticksize=%d, pretick=%d)",
         ses->tickstatus?"enabled":"disabled", ses->tick_size, ses->pretick);
-#ifdef UI_FULLSCREEN
-    tintin_printf(ses, "Terminal size: %dx%d,  keypad: %s,  retain: %d",
-        COLS,LINES,keypad?"alt mode":"cursor/numeric mode",retain);
+    if (ui_own_output)
+    {
+        bptr=buffer;
+        if (LINES>1 && COLS>0)
+            bptr+=sprintf(bptr, "Terminal size: %dx%d", COLS, LINES);
+        else
+            bptr+=sprintf(bptr, "Terminal size: unknown");
+        if (ui_keyboard)
+            bptr+=sprintf(bptr, ", keypad: %s", keypad?"alt mode":"cursor/numeric mode");
+        if (ui_sep_input)
+            bptr+=sprintf(bptr, ", retain: %d", retain);
+        tintin_printf(ses, buffer);
+    }
+    else
+        tintin_printf(ses, "Non-fullscreen mode");
+#ifdef UTF8
+    tintin_printf(ses, "Local charset: %s, remote charset: %s",
+        user_charset_name, ses->charset);
+    tintin_printf(ses, "Log type: %s, log charset: %s",
+        logtypes[ses->logtype], logcs_name(ses->logcharset));
 #else
-    tintin_printf(ses, "Non-fullscreen mode");
-#endif
     tintin_printf(ses, "Log type: %s", logtypes[ses->logtype]);
+#endif
     if(ses->logfile)
         tintin_printf(ses, "Logging to: {%s}", ses->logname);
     else
@@ -1160,3 +1212,36 @@ void timecommands_command(char *arg, struct session *ses)
     else
         tintin_printf(ses, "#Time elapsed: %d.%06d", (int)tv2.tv_sec, (int)tv2.tv_usec);
 }
+
+#ifdef UTF8
+/************************/
+/* the #charset command */
+/************************/
+void charset_command(char *arg, struct session *ses)
+{
+    struct charset_conv nc;
+
+    get_arg(arg, arg, 1, ses);
+    
+    if (!*arg)
+    {
+        tintin_printf(ses, "#Remote charset: %s", ses->charset);
+        return;
+    }
+    if (!new_conv(&nc, arg, 0))
+    {
+        tintin_eprintf(ses, "#No such charset: {%s}", arg);
+        return;
+    }
+    free(ses->charset);
+    ses->charset=mystrdup(arg);
+    if (ses!=nullsession)
+    {
+        cleanup_conv(&ses->c_io);
+        memcpy(&ses->c_io, &nc, sizeof(nc));
+    }
+    else
+        cleanup_conv(&nc);
+    tintin_printf(ses, "#Charset set to %s", arg);
+}
+#endif

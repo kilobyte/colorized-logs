@@ -1,3 +1,14 @@
+1.0.7:
+*	end-of-file ends KBtin when in non-fullscreen UI and no sessions are
+	left
+*	explicit -q or #verbose 0 hushes #read
+*	UTF-8 support; likely to be buggy and/or incomplete (massive change)
+*	IPv6 support
+*	UI drivers support (specify -p or -i on command line)
+*	some basic regression tests
+*	#read ignores #! on the first line
+*	history is no longer local to a session
+
 1.0.6a:
 *	bugfix: variables were not resolved in #log
 

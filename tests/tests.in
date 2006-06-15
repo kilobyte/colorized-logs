@@ -1,0 +1,161 @@
+### #showme
+<<<
+#showme abc def ghi
+#showme { blah}
+#showme ąęść
+#var x foo
+#showme $x
+>>>
+abc def ghi
+ blah
+ąęść
+foo
+===
+
+
+### no profiling
+<<<
+#rem Profiling should be disabled in release versions.
+#profile
+>>>
+#UNKNOWN TINTIN-COMMAND: [#profile]
+===
+
+
+### #reverse
+<<<
+#var x blahąęśćabc
+#reverse x $x
+#showme $x
+>>>
+cbaćśęąhalb
+===
+
+
+### #postpad
+<<<
+#postpad tmp 5 abcdefgh;#showme {$tmp|}
+#postpad tmp 5 abćdęfgh;#showme {$tmp|}
+#postpad tmp 5 ab;#showme {$tmp|}
+#postpad tmp 5 ać;#showme {$tmp|}
+#var x foo
+#postpad tmp 5 {a$x};#showme {$tmp|}
+#postpad tmp 5 a ć;#showme {$tmp|}
+>>>
+abcde|
+abćdę|
+ab   |
+ać   |
+afoo |
+a ć  |
+===
+
+### #prepad
+<<<
+#prepad tmp 5 abcdefgh;#showme {$tmp|}
+#prepad tmp 5 abćdęfgh;#showme {$tmp|}
+#prepad tmp 5 ab;#showme {$tmp|}
+#prepad tmp 5 ać;#showme {$tmp|}
+#var x foo
+#prepad tmp 5 {a$x};#showme {$tmp|}
+#prepad tmp 5 a ć;#showme {$tmp|}
+>>>
+defgh|
+dęfgh|
+   ab|
+   ać|
+ afoo|
+  a ć|
+===
+
+### #substr
+<<<
+#substr tmp 3 abcde;#showme {$tmp}
+#substr tmp 2,3 abcde;#showme {$tmp}
+#substr tmp 4,1000 abcde;#showme {$tmp}
+#substr tmp 2,4 ąbćdef;#showme {$tmp}
+>>>
+c
+bc
+de
+bćd
+===
+
+### late var substitution
+<<<
+#var x A1
+#alias foo {#alias bar {#showme $x}}
+foo
+bar
+#var x B1
+bar
+#var x C1
+foo
+#var x D1
+bar
+#var x A2
+#alias foo {#alias bar {#showme $$x}}
+foo
+bar
+#var x B2
+bar
+#var x C2
+foo
+#var x D2
+bar
+#var x A3
+#alias foo {#alias bar {#showme $$$x}}
+foo
+bar
+#var x B3
+bar
+#var x C3
+foo
+#var x D3
+bar
+>>>
+A1
+B1
+D1
+A2
+A2
+C2
+A3
+A3
+A3
+===
+
+### #system
+<<<
+#var x abc
+#sys echo '$x'
+#sys {echo '$x'}
+>>>
+abc
+abc
+===
+
+### #shell
+<<<
+#shell echo 'abc'
+>>>
+abc
+===
+
+### #run 1
+<<<
+#hook close {#showme FIN;#end}
+#run a echo blah
+>>>
+blah
+FIN
+===
+
+### #run 2
+<<<
+#hook close {#showme FIN;#end}
+#run a echo abcąęśćdef
+>>>
+abcąęśćdef
+FIN
+===

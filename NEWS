@@ -65,3 +65,12 @@
 
 1.0.6a:
 * Oops... #log didn't obey $variables.
+
+1.0.7:
+* Character set support.  Terminal input/output and all file access uses
+  your system locale; the remote side is expected to use whatever you set
+  with #charset (ISO-8859-1 by default for MUDs, system locale for #run).
+* Logging can be done either with the proper local charset (#logcharset
+  local), as-is (#logcharset remote) or even with an arbitrary other set.
+* IPv6 support.
+* KBtin should be now more friendly to screen readers (untested).

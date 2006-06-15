@@ -1,9 +1,9 @@
+#include "config.h"
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include "config.h"
 #if HAVE_TERMIOS_H
 # include <termios.h>
 #endif
@@ -25,10 +25,9 @@
 #include <stdlib.h>
 #include <signal.h>
 #include "tintin.h"
+#include "ui.h"
 
 extern char **environ;
-extern int COLS,LINES;
-extern struct termios old_tattr;
 extern void syserr(char *msg, ...);
 
 
@@ -281,22 +280,20 @@ ok:
 void pty_resize(int fd,int sx,int sy)
 {
     struct winsize ws;
-#ifdef UI_FULLSCREEN
-    ws.ws_row=LINES-1;
-    ws.ws_col=COLS;
-    ws.ws_xpixel=0;
-    ws.ws_ypixel=0;
-    ioctl(fd,TIOCSWINSZ,&ws);
-#endif
+    
+    if (LINES>1 && COLS>0)
+    {
+        ws.ws_row=LINES-1;
+        ws.ws_col=COLS;
+        ws.ws_xpixel=0;
+        ws.ws_ypixel=0;
+        ioctl(fd,TIOCSWINSZ,&ws);
+    }
 }
 
 inline void pty_makeraw(struct termios *ta)
 {
-#ifdef UI_FULLSCREEN
-    memcpy(ta, &old_tattr, sizeof(*ta));
-#else
     memset(ta, 0, sizeof(*ta));
-#endif
     ta->c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP
                     |INLCR|IGNCR|ICRNL|IXON);
     ta->c_oflag &= ~OPOST;
@@ -318,15 +315,11 @@ int run(char *command)
 
     pty_makeraw(&ta);
 
-# ifdef UI_FULLSCREEN
     ws.ws_row=LINES-1;
     ws.ws_col=COLS;
     ws.ws_xpixel=0;
     ws.ws_ypixel=0;
-    switch(forkpty(&fd,0,&ta,&ws))
-# else
-    switch(forkpty(&fd,0,&ta,0))  /* not fullscreen -> no window size */
-# endif
+    switch(forkpty(&fd,0,&ta,(LINES>1 && COLS>0)?&ws:0))
 #else
     switch(forkpty(&fd,0,0,0))
 #endif
@@ -356,7 +349,7 @@ int run(char *command)
 }
 
 
-FILE *mypopen(char *command, int wr)
+FILE* mypopen(char *command, int wr)
 {
     int p[2];
     
@@ -411,7 +404,7 @@ FILE *mypopen(char *command, int wr)
 
 void pty_write_line(char *line, struct session *ses)
 {
-    char out[BUFFER_SIZE+1];
+    char out[4*BUFFER_SIZE+1];
     int len;
 #ifdef PTY_ECHO_HACK
     struct termios ta, oldta;

@@ -32,12 +32,13 @@ extern void tintin_printf(struct session *ses,char *format,...);
 extern void syserr(char *msg, ...);
 extern struct hashtable* init_hash();
 extern void kill_hash(struct hashtable* h);
+extern char* mystrdup(char *s);
 
 
 /***************************************/
 /* init list - return: ptr to listhead */
 /***************************************/
-struct listnode *init_list(void)
+struct listnode* init_list(void)
 {
     struct listnode *listhead;
 
@@ -153,7 +154,7 @@ void kill_all(struct session *ses, int mode)
 /***********************************************/
 /* make a copy of a list - return: ptr to copy */
 /***********************************************/
-struct listnode *copy_list(struct listnode *sourcelist,int mode)
+struct listnode* copy_list(struct listnode *sourcelist,int mode)
 {
     struct listnode *resultlist;
 
@@ -170,7 +171,7 @@ struct listnode *copy_list(struct listnode *sourcelist,int mode)
 /* strings generally sort in ASCIIbetical order, however numbers  */
 /* sort according to their numerical values.                      */
 /******************************************************************/
-int prioritycmp(char *a, char *b)
+static int prioritycmp(char *a, char *b)
 {
     char *oa=a;
 
@@ -328,7 +329,7 @@ void deletenode_list(struct listnode *listhead, struct listnode *nptr)
 /* search for a node containing the ltext in left-field */
 /* return: ptr to node on succes / NULL on failure      */
 /********************************************************/
-struct listnode *searchnode_list(struct listnode *listhead, char *cptr)
+struct listnode* searchnode_list(struct listnode *listhead, char *cptr)
 {
     int i;
 
@@ -373,7 +374,7 @@ void show_list_action(struct listnode *listhead)
             shownode_list_action(listhead);
 }
 
-struct listnode *search_node_with_wild(struct listnode *listhead, char *cptr)
+struct listnode* search_node_with_wild(struct listnode *listhead, char *cptr)
 {
     /* int i; */
     while ((listhead = listhead->next))
@@ -439,18 +440,16 @@ void addnode_list(struct listnode *listhead, char *ltext, char *rtext, char *prt
 
     if ((newnode = (struct listnode *)malloc(sizeof(struct listnode))) == NULL)
         syserr("couldn't malloc listhead");
-    newnode->left = (char *)malloc(strlen(ltext) + 1);
-    newnode->right = (char *)malloc(strlen(rtext) + 1);
-    if (prtext)
-    {
-        newnode->pr = (char *)malloc(strlen(prtext) + 1);
-        strcpy(newnode->pr, prtext);
-    }
+    newnode->left = mystrdup(ltext);
+    if (rtext)
+        newnode->right = mystrdup(rtext);
     else
-        newnode->pr=0;
+        newnode->right = 0;
+    if (prtext)
+        newnode->pr = mystrdup(prtext);
+    else
+        newnode->pr = 0;
     newnode->next = NULL;
-    strcpy(newnode->left, ltext);
-    strcpy(newnode->right, rtext);
     while (listhead->next != NULL)
         (listhead = listhead->next);
     listhead->next = newnode;

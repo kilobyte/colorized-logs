@@ -20,11 +20,9 @@ bell
 blank
 char
 
-#ifdef UI_FULLSCREEN
-bind
 condump
+bind
 keypad
-#endif
 
 ctime
 cr
@@ -55,11 +53,7 @@ log
 loop
 nope
 map
-
-#ifdef UI_FULLSCREEN
 margins
-#endif
-
 math
 match
 mark
@@ -89,11 +83,7 @@ speedwalk
 splitlist
 suspend
 shell
-
-#ifdef UI_FULLSCREEN
 status
-#endif
-
 textin
 time
 sortlist
@@ -115,11 +105,7 @@ toupper
 unaction
 unalias
 unantisubstitute
-
-#ifdef UI_FULLSCREEN
 unbind
-#endif
-
 unhighlight
 unsubstitute
 ungag
@@ -148,10 +134,7 @@ logtype
 grep
 #endif
 
-#ifdef UI_FULLSCREEN
 retain
-#endif
-
 ifexists
 ifstrequal
 
@@ -166,7 +149,13 @@ expand
 hooks
 unhook
 logcomment
+gagthis
 
 #ifdef PROFILING
 profile
+#endif
+
+#ifdef UTF8
+charset
+logcharset
 #endif

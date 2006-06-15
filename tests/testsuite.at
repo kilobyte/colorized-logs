@@ -1,0 +1,12 @@
+
+AT_INIT
+AT_TESTED([KBtin])
+
+dnl define([forinclude], [ifelse($#,0,, $#,1,m4_include([$1]), [m4_include([$1])
+dnl 	forinclude(shift($@))])])
+dnl 
+dnl forinclude([version.at])
+
+dnl ===
+m4_include([version.at])
+m4_include([tests.at])

@@ -30,14 +30,15 @@
 #  include <time.h>
 # endif
 #endif
+#include <wchar.h>
 #include "tintin.h"
+#include "ui.h"
 
 void prepare_for_write(char *command, char *left, char *right, char *pr, char *result);
 
 extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
 extern struct session *nullsession;
 extern char *get_arg_in_braces(char *s,char *arg,int flag);
-extern void user_done(void);
 extern struct listnode *searchnode_list(struct listnode *listhead,char *cptr);
 extern void prompt(struct session *ses);
 extern void char_command(char *arg,struct session *ses);
@@ -45,7 +46,6 @@ extern void substitute_myvars(char *arg,char *result,struct session *ses);
 extern void substitute_vars(char *arg, char *result);
 extern void tintin_printf(struct session *ses, const char *format, ...);
 extern void tintin_eprintf(struct session *ses, const char *format, ...);
-extern void user_condump(FILE *f);
 extern char *space_out(char *s);
 extern struct listnode* hash2list(struct hashtable *h, char *pat);
 extern void zap_list(struct listnode *nptr);
@@ -54,6 +54,12 @@ extern void write_line_mud(char *line, struct session *ses);
 extern FILE *mypopen(const char *command, int wr);
 extern char *mystrdup(char *s);
 extern char *get_arg(char *s,char *arg,int flag,struct session *ses);
+extern int is_abrev(char *s1, char *s2);
+extern void utf8_to_local(char *d, char *s);
+extern void local_to_utf8(char *d, char *s, int maxb, mbstate_t *cs);
+extern int new_conv(struct charset_conv *conv, char *name, int dir);
+extern void cleanup_conv(struct charset_conv *conv);
+extern void convert(struct charset_conv *conv, char *outbuf, char *inbuf, int dir);
 
 extern int puts_echoing;
 extern int alnum, acnum, subnum, hinum, varnum, antisubnum, routnum, bindnum, pdnum, hooknum;
@@ -61,14 +67,19 @@ extern char tintin_char;
 extern int recursion;
 extern char *hook_names[];
 extern int keypad, retain;
+extern int real_quiet;
+extern int ui_sep_input;
+extern char *user_charset_name;
 
 int in_read=0;
 
 /*******************************/
 /* expand tildes in a filename */
 /*******************************/
-void expand_filename(char *arg,char *result)
+void expand_filename(char *arg, char *result, char *lstr)
 {
+    char *r0=result;
+
     if (*arg=='~')
     {
         if (*(arg+1)=='/')
@@ -90,7 +101,41 @@ void expand_filename(char *arg,char *result)
         };
     };
     strcpy(result, arg);
+#ifdef UTF8
+    utf8_to_local(lstr, r0);
+#else
+    strcpy(lstr, r0);
+#endif
 }
+
+#ifdef UTF8
+/****************************************/
+/* convert charsets and write to a file */
+/****************************************/
+void cfputs(char *s, FILE *f)
+{
+    char lstr[BUFFER_SIZE*8];
+    
+    utf8_to_local(lstr, s);
+    fputs(lstr, f);
+}
+
+void cfprintf(FILE *f, char *fmt, ...)
+{
+    char lstr[BUFFER_SIZE*8], buf[BUFFER_SIZE*4];
+    va_list ap;
+
+    va_start(ap, fmt);
+    vsnprintf(buf, BUFFER_SIZE*4, fmt, ap);
+    va_end(ap);
+    
+    utf8_to_local(lstr, buf);
+    fputs(lstr, f);
+}
+#else
+# define cfputs fputs
+# define cfprintf fprintf
+#endif
 
 #if 0
 /**********************************/
@@ -132,7 +177,7 @@ void read_complete(char *arg, struct session *ses)
         *cptr = '\0';
         if ((tcomp2 = (struct completenode *)(malloc(sizeof(struct completenode)))) == NULL)
         {
-            fprintf(stderr, "couldn't alloc comletehead\n");
+            fprintf(stderr, "couldn't alloc completehead\n");
             user_done();
             exit(1);
         }
@@ -161,15 +206,15 @@ void read_complete(char *arg, struct session *ses)
 /*******************************/
 void unlink_command(char *arg, struct session *ses)
 {
-    char file[BUFFER_SIZE], temp[BUFFER_SIZE];
+    char file[BUFFER_SIZE], temp[BUFFER_SIZE], lstr[BUFFER_SIZE];
 
     if(*arg)
     {
         arg = get_arg_in_braces(arg, temp, 1);
         substitute_vars(temp, file);
         substitute_myvars(file, temp, ses);
-        expand_filename(temp, file);
-        unlink(file);
+        expand_filename(temp, file, lstr);
+        unlink(lstr);
     }
     else
         tintin_eprintf(ses, "#ERROR: valid syntax is: #unlink <filename>");
@@ -182,7 +227,7 @@ void unlink_command(char *arg, struct session *ses)
 void deathlog_command(char *arg, struct session *ses)
 {
     FILE *fh;
-    char fname[BUFFER_SIZE], text[BUFFER_SIZE], temp[BUFFER_SIZE];
+    char fname[BUFFER_SIZE], text[BUFFER_SIZE], temp[BUFFER_SIZE], lfname[BUFFER_SIZE];
 
     if (*arg)
     {
@@ -190,16 +235,16 @@ void deathlog_command(char *arg, struct session *ses)
         arg = get_arg_in_braces(arg, text, 1);
         substitute_vars(temp, fname);
         substitute_myvars(fname, temp, ses);
-        expand_filename(temp, fname);
+        expand_filename(temp, fname, lfname);
         substitute_vars(text, temp);
         substitute_myvars(temp, text, ses);
-        if ((fh = fopen(fname, "a")))
+        if ((fh = fopen(lfname, "a")))
         {
             if (text)
             {
                 /*	fwrite(text, strlen(text), 1, fh);
                 	fputc('\n', fh); */
-                fprintf(fh, "%s\n", text);
+                cfprintf(fh, "%s\n", text);
             }
             fclose(fh);
         }
@@ -208,6 +253,15 @@ void deathlog_command(char *arg, struct session *ses)
     }
     else
         tintin_eprintf(ses, "#ERROR: valid syntax is: #deathlog <file> <text>");
+}
+
+void log_off(struct session *ses)
+{
+    fclose(ses->logfile);
+    ses->logfile = NULL;
+    free(ses->logname);
+    ses->logname = NULL;
+    cleanup_conv(&ses->c_log);
 }
 
 static inline void ttyrec_timestamp(struct ttyrec_header *th)
@@ -219,11 +273,13 @@ static inline void ttyrec_timestamp(struct ttyrec_header *th)
     th->usec=to_little_endian(t.tv_usec);
 }
 
+/* charset is always UTF-8 */
 void write_logf(struct session *ses, char *txt, char *prefix, char *suffix)
 {
-    char buf[BUFFER_SIZE*2];
+    char buf[BUFFER_SIZE*2],lbuf[BUFFER_SIZE*2];
     int len;
     
+    sprintf(buf, "%s%s%s%s\n", prefix, txt, suffix, ses->logtype?"":"\r");
     if (ses->logtype==2)
     {
         ttyrec_timestamp((struct ttyrec_header *)buf);
@@ -231,22 +287,32 @@ void write_logf(struct session *ses, char *txt, char *prefix, char *suffix)
     }
     else
         len=0;
-    len+=sprintf(buf+len, "%s%s%s%s\n", prefix, txt, suffix, ses->logtype?"":"\r");
+    convert(&ses->c_log, lbuf+len, buf, 1);
+    len+=strlen(lbuf+len);
     if (ses->logtype==2)
-        ((struct ttyrec_header*)buf)->len=
+        ((struct ttyrec_header*)lbuf)->len=
             to_little_endian(len-sizeof(struct ttyrec_header));
     
-    if (fwrite(buf, 1, len, ses->logfile)<len)
+    if (fwrite(lbuf, 1, len, ses->logfile)<len)
     {
-	ses->logfile=0;
+        log_off(ses);
         tintin_eprintf(ses, "#WRITE ERROR -- LOGGING DISABLED.  Disk full?");
     }
 }
 
+/* charset is always {remote} */
 void write_log(struct session *ses, char *txt, int n)
 {
     struct ttyrec_header th;
+    char ubuf[BUFFER_SIZE*2],lbuf[BUFFER_SIZE*2];
     
+    if (ses->logcharset!=LOGCS_REMOTE)
+    {
+        convert(&ses->c_io, ubuf, txt, -1);
+        convert(&ses->c_log, lbuf, ubuf, 1);
+        n=strlen(lbuf);
+        txt=lbuf;
+    }
     if (ses->logtype==2)
     {
         ttyrec_timestamp(&th);
@@ -254,7 +320,7 @@ void write_log(struct session *ses, char *txt, int n)
         if (fwrite(&th, 1, sizeof(struct ttyrec_header), ses->logfile)<
             sizeof(struct ttyrec_header))
         {
-            ses->logfile=0;
+            log_off(ses);
             tintin_eprintf(ses, "#WRITE ERROR -- LOGGING DISABLED.  Disk full?");
             return;
         }
@@ -262,7 +328,7 @@ void write_log(struct session *ses, char *txt, int n)
 
     if (fwrite(txt, 1, n, ses->logfile)<n)
     {
-	ses->logfile=0;
+        log_off(ses);
         tintin_eprintf(ses, "#WRITE ERROR -- LOGGING DISABLED.  Disk full?");
     }
 }
@@ -290,7 +356,7 @@ void logcomment_command(char *arg, struct session *ses)
 
 FILE* open_logfile(struct session *ses, char *name, const char *filemsg, const char *appendmsg, const char *pipemsg)
 {
-    char temp[BUFFER_SIZE],fname[BUFFER_SIZE];
+    char temp[BUFFER_SIZE],fname[BUFFER_SIZE],lfname[BUFFER_SIZE];
     FILE *f;
     int len;
 
@@ -311,41 +377,40 @@ FILE* open_logfile(struct session *ses, char *name, const char *filemsg, const c
     {
         if ((*++name=='>'))
         {
-            expand_filename(++name, fname);
-            if ((f=fopen(fname, "a")))
+            expand_filename(++name, fname, lfname);
+            if ((f=fopen(lfname, "a")))
                 tintin_printf(ses, appendmsg, fname);
             else
                 tintin_eprintf(ses, "ERROR: COULDN'T APPEND TO FILE: {%s}.", fname);
             return f;
         }
-        expand_filename(name, fname);
-        if ((f=fopen(fname, "w")))
+        expand_filename(name, fname, lfname);
+        if ((f=fopen(lfname, "w")))
             tintin_printf(ses, filemsg, fname);
         else
             tintin_eprintf(ses, "ERROR: COULDN'T OPEN FILE: {%s}.", fname);
         return f;
     }
-    expand_filename(name, fname);
+    expand_filename(name, fname, lfname);
     len=strlen(fname);
     if (len>=4 && !strcmp(fname+len-3,".gz"))
-        if ((f = mypopen(strcat(strcpy(temp,"gzip -9 >"),fname), 1)))
+        if ((f = mypopen(strcat(strcpy(temp,"gzip -9 >"),lfname), 1)))
             tintin_printf(ses, filemsg, fname);
         else
             tintin_eprintf(ses, "#ERROR: COULDN'T OPEN PIPE: {gzip -9 >%s}.", fname);
     else if (len>=5 && !strcmp(fname+len-4,".bz2"))
-        if ((f = mypopen(strcat(strcpy(temp,"bzip2 >"),fname), 1)))
+        if ((f = mypopen(strcat(strcpy(temp,"bzip2 >"),lfname), 1)))
             tintin_printf(ses, filemsg, fname);
         else
             tintin_eprintf(ses, "#ERROR: COULDN'T OPEN PIPE: {bzip2 >%s}.", fname);
     else    
-        if ((f = fopen(fname, "w")))
+        if ((f = fopen(lfname, "w")))
             tintin_printf(ses, filemsg, fname);
         else
             tintin_eprintf(ses, "#ERROR: COULDN'T OPEN FILE {%s}.", fname);
     return f;
 }
 
-#ifdef UI_FULLSCREEN
 /************************/
 /* the #condump command */
 /************************/
@@ -354,6 +419,11 @@ void condump_command(char *arg, struct session *ses)
     FILE *fh;
     char fname[BUFFER_SIZE], temp[BUFFER_SIZE];
 
+    if (!ui_con_buffer)
+    {
+        tintin_eprintf(ses, "#UI: No console buffer => can't dump it.");
+        return;
+    }
     if (*arg)
     {
         arg = get_arg_in_braces(arg, temp, 0);
@@ -373,7 +443,6 @@ void condump_command(char *arg, struct session *ses)
         tintin_eprintf(ses, "#Syntax: #condump <file>");
     prompt(NULL);
 }
-#endif
 
 /********************/
 /* the #log command */
@@ -388,11 +457,8 @@ void log_command(char *arg, struct session *ses)
         {
             if (ses->logfile)
             {
-                fclose(ses->logfile);
+                log_off(ses);
                 tintin_printf(ses, "#OK. LOGGING TURNED OFF.");
-                ses->logfile = NULL;
-                free(ses->logname);
-                ses->logname = NULL;
             }
             get_arg_in_braces(arg, temp, 1);
             substitute_vars(temp, fname);
@@ -403,13 +469,16 @@ void log_command(char *arg, struct session *ses)
                 "#OK. PIPING LOG TO {%s} .....");
             if (ses->logfile)
                 ses->logname=mystrdup(temp);
+#ifdef UTF8
+            if (!new_conv(&ses->c_log, logcs_charset(ses->logcharset), 1))
+                tintin_eprintf(ses, "#Warning: can't open charset: %s",
+                                    logcs_charset(ses->logcharset));
+#endif
+                        
         }
         else if (ses->logfile)
         {
-            fclose(ses->logfile);
-            ses->logfile = NULL;
-            free(ses->logname);
-            ses->logname = NULL;
+            log_off(ses);
             tintin_printf(ses, "#OK. LOGGING TURNED OFF.");
         }
         else
@@ -470,27 +539,32 @@ void debuglog(struct session *ses, const char *format, ...)
 #endif
     struct timeval tv;
 
-    if (ses->debuglogfile)
-    {
-        gettimeofday(&tv, 0);
-        va_start(ap, format);
+    if (!ses->debuglogfile)
+        return;
+    
+    gettimeofday(&tv, 0);
+    va_start(ap, format);
 #ifdef HAVE_VSNPRINTF
-        if (vsnprintf(buf, BUFFER_SIZE-1, format, ap)>BUFFER_SIZE-2)
-            buf[BUFFER_SIZE-3]='>';
+    if (vsnprintf(buf, BUFFER_SIZE-1, format, ap)>BUFFER_SIZE-2)
+        buf[BUFFER_SIZE-3]='>';
 #else
-        vsprintf(buf, format, ap);
+    vsprintf(buf, format, ap);
 #endif
-        va_end(ap);
-        fprintf(ses->debuglogfile, "%4d.%06d: %s\n",
-            (int)tv.tv_sec-ses->sessionstart, (int)tv.tv_usec, buf);
-    }
+    va_end(ap);
+    cfprintf(ses->debuglogfile, "%4d.%06d: %s\n",
+        (int)tv.tv_sec-ses->sessionstart, (int)tv.tv_usec, buf);
 }
 
 
-struct session *do_read(FILE *myfile, char *filename, struct session *ses)
+struct session* do_read(FILE *myfile, char *filename, struct session *ses)
 {
-    char line[BUFFER_SIZE], buffer[BUFFER_SIZE], *cptr, *eptr;
+    char line[BUFFER_SIZE], buffer[BUFFER_SIZE], lstr[BUFFER_SIZE], *cptr, *eptr;
     int flag,nl,ignore_lines;
+#ifdef UTF8
+    mbstate_t cs;
+    
+    memset(&cs, 0, sizeof(cs));
+#endif
 
     flag = !in_read;
     if (!ses->verbose)
@@ -512,12 +586,20 @@ struct session *do_read(FILE *myfile, char *filename, struct session *ses)
     *buffer=0;
     ignore_lines=0;
     nl=0;
+#ifdef UTF8
+    while (fgets(lstr, BUFFER_SIZE, myfile))
+    {
+        local_to_utf8(line, lstr, BUFFER_SIZE, &cs);
+#else
     while (fgets(line, BUFFER_SIZE, myfile))
     {
-        nl++;
+#endif
+        if (!nl++)
+            if (line[0]=='#' && line[1]=='!') /* Unix hashbang script */
+                continue;
         if (flag)
         {
-            puts_echoing = TRUE;
+            puts_echoing = ses->verbose || !real_quiet;
             if (ispunct(*line) || ((unsigned char)(*line)>127))
                 char_command(line, ses);
             if (!ses->verbose)
@@ -560,9 +642,10 @@ struct session *do_read(FILE *myfile, char *filename, struct session *ses)
         recursion=0;
     }
     in_read--;
-    if (!ses->verbose && !in_read)
+    if (!in_read)
+        puts_echoing = 1;
+    if (!ses->verbose && !in_read && !real_quiet)
     {
-        puts_echoing = TRUE;
         if (alnum > 0)
             tintin_printf(ses, "#OK. %d ALIASES LOADED.", alnum);
         if (acnum > 0)
@@ -593,37 +676,37 @@ struct session *do_read(FILE *myfile, char *filename, struct session *ses)
 /*********************/
 /* the #read command */
 /*********************/
-struct session *read_command(char *filename, struct session *ses)
+struct session* read_command(char *filename, struct session *ses)
 {
     FILE *myfile;
-    char buffer[BUFFER_SIZE];
+    char buffer[BUFFER_SIZE], lfname[BUFFER_SIZE];
 
     get_arg_in_braces(filename, buffer, 1);
     substitute_vars(buffer, filename);
     substitute_myvars(filename, buffer, ses);
-    expand_filename(buffer, filename);
+    expand_filename(buffer, filename, lfname);
     if (!*filename)
     {
         tintin_eprintf(ses, "#Syntax: #read filename");
         prompt(NULL);
         return ses;
     }
-    if ((myfile = fopen(filename, "r")) == NULL)
+    if ((myfile = fopen(lfname, "r")) == NULL)
     {
         tintin_eprintf(ses, "#ERROR - COULDN'T OPEN FILE {%s}.", filename);
         prompt(NULL);
         return ses;
     }
     
-    return do_read(myfile, filename,ses);
+    return do_read(myfile, filename, ses);
 }
 
 
-#define WFLAG(name,var,org)		if(var!=org)                                \
+#define WFLAG(name,var,org)		if(var!=(org))                                \
                                     {                                       \
                                         sprintf(num, "%d", var);            \
                                         prepare_for_write(name, num, 0, 0, buffer); \
-                                        fputs(buffer, myfile);              \
+                                        cfputs(buffer, myfile);             \
                                     }
 #define SFLAG(name,var,org)     WFLAG(name,ses->var,org)
 /**********************/
@@ -632,7 +715,7 @@ struct session *read_command(char *filename, struct session *ses)
 void write_command(char *filename, struct session *ses)
 {
     FILE *myfile;
-    char buffer[BUFFER_SIZE], num[32];
+    char buffer[BUFFER_SIZE*4], num[32], lfname[BUFFER_SIZE];
     struct listnode *nodeptr, *templist;
     struct routenode *rptr;
     int nr;
@@ -640,14 +723,14 @@ void write_command(char *filename, struct session *ses)
     get_arg_in_braces(filename, buffer, 1);
     substitute_vars(buffer, filename);
     substitute_myvars(filename, buffer, ses);
-    expand_filename(buffer, filename);
+    expand_filename(buffer, filename, lfname);
     if (*filename == '\0')
     {
         tintin_eprintf(ses, "#ERROR: syntax is: #write <filename>");
         prompt(NULL);
         return;
     }
-    if ((myfile = fopen(filename, "w")) == NULL)
+    if ((myfile = fopen(lfname, "w")) == NULL)
     {
         tintin_eprintf(ses, "#ERROR - COULDN'T OPEN FILE {%s}.", filename);
         prompt(NULL);
@@ -656,7 +739,8 @@ void write_command(char *filename, struct session *ses)
 
     WFLAG("keypad", keypad, DEFAULT_KEYPAD);
     WFLAG("retain", retain, DEFAULT_RETAIN);
-    SFLAG("echo", echo, DEFAULT_ECHO);
+    SFLAG("echo", echo, ui_sep_input?DEFAULT_ECHO_SEPINPUT
+                                    :DEFAULT_ECHO_NOSEPINPUT);
     SFLAG("ignore", ignore, DEFAULT_IGNORE);
     SFLAG("speedwalk", speedwalk, DEFAULT_SPEEDWALK);
     SFLAG("presub", presub, DEFAULT_PRESUB);
@@ -679,11 +763,17 @@ void write_command(char *filename, struct session *ses)
     SFLAG("verbatim", verbatim, 0);
     SFLAG("ticksize", tick_size, DEFAULT_TICK_SIZE);
     SFLAG("pretick", pretick, DEFAULT_PRETICK);
+#ifdef UTF8
+    if (strcmp(DEFAULT_CHARSET, ses->charset))
+        cfprintf(myfile, "%ccharset {%s}\n", tintin_char, ses->charset);
+    if (strcmp(logcs_name(DEFAULT_LOGCHARSET), logcs_name(ses->logcharset)))
+        cfprintf(myfile, "%clogcharset {%s}\n", tintin_char, logcs_name(ses->logcharset));
+#endif
     nodeptr = templist = hash2list(ses->aliases, "*");
     while ((nodeptr = nodeptr->next))
     {
         prepare_for_write("alias", nodeptr->left, nodeptr->right, 0, buffer);
-        fputs(buffer, myfile);
+        cfputs(buffer, myfile);
     }
     zap_list(templist);
 
@@ -692,14 +782,14 @@ void write_command(char *filename, struct session *ses)
     {
         prepare_for_write("action", nodeptr->left, nodeptr->right, nodeptr->pr,
                           buffer);
-        fputs(buffer, myfile);
+        cfputs(buffer, myfile);
     }
 
     nodeptr = ses->antisubs;
     while ((nodeptr = nodeptr->next))
     {
         prepare_for_write("antisub", nodeptr->left, 0, 0, buffer);
-        fputs(buffer, myfile);
+        cfputs(buffer, myfile);
     }
 
     nodeptr = ses->subs;
@@ -709,14 +799,14 @@ void write_command(char *filename, struct session *ses)
             prepare_for_write("sub", nodeptr->left, nodeptr->right, 0, buffer);
         else
             prepare_for_write("gag", nodeptr->left, 0, 0, buffer);
-        fputs(buffer, myfile);
+        cfputs(buffer, myfile);
     }
 
     nodeptr = templist = hash2list(ses->myvars, "*");
     while ((nodeptr = nodeptr->next))
     {
         prepare_for_write("var", nodeptr->left, nodeptr->right, "\0", buffer);
-        fputs(buffer, myfile);
+        cfputs(buffer, myfile);
     }
     zap_list(templist);
     
@@ -724,14 +814,14 @@ void write_command(char *filename, struct session *ses)
     while ((nodeptr = nodeptr->next))
     {
         prepare_for_write("highlight", nodeptr->right, nodeptr->left, "\0", buffer);
-        fputs(buffer, myfile);
+        cfputs(buffer, myfile);
     }
     
     nodeptr = templist = hash2list(ses->pathdirs, "*");
     while ((nodeptr = nodeptr->next))
     {
         prepare_for_write("pathdir", nodeptr->left, nodeptr->right, 0, buffer);
-        fputs(buffer, myfile);
+        cfputs(buffer, myfile);
     }
     zap_list(templist);
 
@@ -739,9 +829,10 @@ void write_command(char *filename, struct session *ses)
         if ((rptr=ses->routes[nr]))
             do
             {
-                fprintf(myfile,(*(rptr->cond))
-                        ?"#route {%s} {%s} {%s} %d {%s}\n"
-                        :"#route {%s} {%s} {%s} %d\n",
+                cfprintf(myfile,(*(rptr->cond))
+                        ?"%croute {%s} {%s} {%s} %d {%s}\n"
+                        :"%croute {%s} {%s} {%s} %d\n",
+                        tintin_char,
                         ses->locations[nr],
                         ses->locations[rptr->dest],
                         rptr->path,
@@ -753,7 +844,7 @@ void write_command(char *filename, struct session *ses)
     while ((nodeptr = nodeptr->next))
     {
         prepare_for_write("bind", nodeptr->left, nodeptr->right, 0, buffer);
-        fputs(buffer, myfile);
+        cfputs(buffer, myfile);
     }
     zap_list(templist);
     
@@ -761,7 +852,7 @@ void write_command(char *filename, struct session *ses)
         if (ses->hooks[nr])
         {
             prepare_for_write("hook", hook_names[nr], ses->hooks[nr], 0, buffer);
-            fputs(buffer, myfile);
+            cfputs(buffer, myfile);
         }
 
     fclose(myfile);
@@ -770,7 +861,7 @@ void write_command(char *filename, struct session *ses)
 }
 
 
-int route_exists(char *A,char *B,char *path,int dist,char *cond, struct session *ses)
+static int route_exists(char *A,char *B,char *path,int dist,char *cond, struct session *ses)
 {
     int a,b;
     struct routenode *rptr;
@@ -800,7 +891,7 @@ int route_exists(char *A,char *B,char *path,int dist,char *cond, struct session 
 void writesession_command(char *filename, struct session *ses)
 {
     FILE *myfile;
-    char buffer[BUFFER_SIZE], *val, num[32];
+    char buffer[BUFFER_SIZE*4], *val, num[32], lfname[BUFFER_SIZE];
     struct listnode *nodeptr,*onptr;
     struct routenode *rptr;
     int nr;
@@ -814,14 +905,14 @@ void writesession_command(char *filename, struct session *ses)
     get_arg_in_braces(filename, buffer, 1);
     substitute_vars(buffer, filename);
     substitute_myvars(filename, buffer, ses);
-    expand_filename(buffer, filename);
+    expand_filename(buffer, filename, lfname);
     if (*filename == '\0')
     {
         tintin_eprintf(ses, "#ERROR - COULDN'T OPEN FILE {%s}.", filename);
         prompt(NULL);
         return;
     }
-    if ((myfile = fopen(filename, "w")) == NULL)
+    if ((myfile = fopen(lfname, "w")) == NULL)
     {
         tintin_eprintf(ses, "#ERROR - COULDN'T OPEN FILE {%s}.", filename);
         prompt(NULL);
@@ -853,6 +944,12 @@ void writesession_command(char *filename, struct session *ses)
     SFLAG("verbatim", verbatim, 0);
     SFLAG("ticksize", tick_size, DEFAULT_TICK_SIZE);
     SFLAG("pretick", pretick, DEFAULT_PRETICK);
+#ifdef UTF8
+    if (strcmp(nullsession->charset, ses->charset))
+        cfprintf(myfile, "%ccharset {%s}\n", tintin_char, ses->charset);
+    if (strcmp(logcs_name(nullsession->logcharset), logcs_name(ses->logcharset)))
+        cfprintf(myfile, "%clogcharset {%s}\n", tintin_char, logcs_name(ses->logcharset));
+#endif
     
     nodeptr = onptr = hash2list(ses->aliases,"*");
     while ((nodeptr = nodeptr->next))
@@ -861,7 +958,7 @@ void writesession_command(char *filename, struct session *ses)
             if (!strcmp(val,nodeptr->right))
                 continue;
         prepare_for_write("alias", nodeptr->left, nodeptr->right, 0, buffer);
-        fputs(buffer, myfile);
+        cfputs(buffer, myfile);
     }
     zap_list(onptr);
 
@@ -874,7 +971,7 @@ void writesession_command(char *filename, struct session *ses)
                 continue;
         prepare_for_write("action", nodeptr->left, nodeptr->right, nodeptr->pr,
                           buffer);
-        fputs(buffer, myfile);
+        cfputs(buffer, myfile);
     }
 
     nodeptr = ses->antisubs;
@@ -884,7 +981,7 @@ void writesession_command(char *filename, struct session *ses)
             if (!strcmp(onptr->right,nodeptr->right))
                 continue;
         prepare_for_write("antisubstitute", nodeptr->left, 0, 0, buffer);
-        fputs(buffer, myfile);
+        cfputs(buffer, myfile);
     }
 
     nodeptr = ses->subs;
@@ -897,7 +994,7 @@ void writesession_command(char *filename, struct session *ses)
             prepare_for_write("sub", nodeptr->left, nodeptr->right, 0, buffer);
         else
             prepare_for_write("gag", nodeptr->left, 0, 0, buffer);
-        fputs(buffer, myfile);
+        cfputs(buffer, myfile);
     }
 
     nodeptr = onptr = hash2list(ses->myvars,"*");
@@ -907,7 +1004,7 @@ void writesession_command(char *filename, struct session *ses)
             if (!strcmp(val,nodeptr->right))
                 continue;
         prepare_for_write("var", nodeptr->left, nodeptr->right, 0, buffer);
-        fputs(buffer, myfile);
+        cfputs(buffer, myfile);
     }
     zap_list(onptr);
 
@@ -918,7 +1015,7 @@ void writesession_command(char *filename, struct session *ses)
             if (!strcmp(onptr->right,nodeptr->right))
                 continue;
         prepare_for_write("highlight", nodeptr->right, nodeptr->left, 0, buffer);
-        fputs(buffer, myfile);
+        cfputs(buffer, myfile);
     }
     
     nodeptr = onptr = hash2list(ses->pathdirs,"*");
@@ -928,7 +1025,7 @@ void writesession_command(char *filename, struct session *ses)
             if (!strcmp(val,nodeptr->right))
                 continue;
         prepare_for_write("pathdirs", nodeptr->left, nodeptr->right, 0, buffer);
-        fputs(buffer, myfile);
+        cfputs(buffer, myfile);
     }
     zap_list(onptr);
     
@@ -942,9 +1039,10 @@ void writesession_command(char *filename, struct session *ses)
                                   rptr->distance,
                                   rptr->cond,
                                   nullsession))
-                    fprintf(myfile,(*(rptr->cond))
-                            ?"#route {%s} {%s} {%s} %d {%s}\n"
-                            :"#route {%s} {%s} {%s} %d\n",
+                    cfprintf(myfile,(*(rptr->cond))
+                            ?"%croute {%s} {%s} {%s} %d {%s}\n"
+                            :"%croute {%s} {%s} {%s} %d\n",
+                            tintin_char,
                             ses->locations[nr],
                             ses->locations[rptr->dest],
                             rptr->path,
@@ -959,7 +1057,7 @@ void writesession_command(char *filename, struct session *ses)
             if (!strcmp(val,nodeptr->right))
                 continue;
         prepare_for_write("bind", nodeptr->left, nodeptr->right, 0, buffer);
-        fputs(buffer, myfile);
+        cfputs(buffer, myfile);
     }
     zap_list(onptr);
     
@@ -969,7 +1067,7 @@ void writesession_command(char *filename, struct session *ses)
                 strcmp(ses->hooks[nr],nullsession->hooks[nr]))
                 {
                     prepare_for_write("hook", hook_names[nr], ses->hooks[nr], 0, buffer);
-                    fputs(buffer, myfile);
+                    cfputs(buffer, myfile);
                 }
 
     fclose(myfile);
@@ -980,6 +1078,7 @@ void writesession_command(char *filename, struct session *ses)
 
 void prepare_for_write(char *command, char *left, char *right, char *pr, char *result)
 {
+    /* Achtung: "result" must be long enough or we're fucked */
     *result = tintin_char;
     *(result + 1) = '\0';
     strcat(result, command);
@@ -1046,18 +1145,26 @@ void prepare_quotes(char *string)
 void textin_command(char *arg, struct session *ses)
 {
     FILE *myfile;
-    char buffer[BUFFER_SIZE], *cptr;
+    char buffer[BUFFER_SIZE], filename[BUFFER_SIZE], *cptr, lfname[BUFFER_SIZE];
+#ifdef UTF8
+    mbstate_t cs;
+    
+    memset(&cs, 0, sizeof(cs));
+#endif
 
-    get_arg_in_braces(arg, arg, 1);
+    get_arg_in_braces(arg, buffer, 1);
+    substitute_vars(buffer, filename);
+    substitute_myvars(filename, buffer, ses);
+    expand_filename(buffer, filename, lfname);
     if (ses == nullsession)
     {
         tintin_eprintf(ses, "#You can't read any text in without a session being active.");
         prompt(NULL);
         return;
     }
-    if ((myfile = fopen(arg, "r")) == NULL)
+    if ((myfile = fopen(lfname, "r")) == NULL)
     {
-        tintin_eprintf(ses, "ERROR: File {%s} doesn't exist.", arg);
+        tintin_eprintf(ses, "ERROR: File {%s} doesn't exist.", filename);
         prompt(ses);
         return;
     }
@@ -1065,7 +1172,12 @@ void textin_command(char *arg, struct session *ses)
     {
         for (cptr = buffer; *cptr && *cptr != '\n'; cptr++) ;
         *cptr = '\0';
+#ifdef UTF8
+        local_to_utf8(lfname, buffer, BUFFER_SIZE, &cs);
+        write_line_mud(lfname, ses);
+#else
         write_line_mud(buffer, ses);
+#endif
     }
     fclose(myfile);
     tintin_printf(ses,"#File read - Success.");
@@ -1086,7 +1198,7 @@ char *logtypes[]=
 void logtype_command(char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE];
-    int t, flag;
+    int t;
 
     arg=get_arg(arg, left, 1, ses);
     if (!*left)
@@ -1103,3 +1215,41 @@ void logtype_command(char *arg, struct session *ses)
         }
     tintin_eprintf(ses, "#No such logtype: {%s}\n", left);
 }
+
+#ifdef UTF8
+/***************************/
+/* the #logcharset command */
+/***************************/
+void logcharset_command(char *arg, struct session *ses)
+{
+    struct charset_conv nc;
+
+    get_arg(arg, arg, 1, ses);
+
+    if (!*arg)
+    {
+        tintin_printf(ses, "#Log charset: %s", logcs_name(ses->logcharset));
+        return;
+    }
+    if (!strcasecmp(arg, "local"))
+        arg=LOGCS_LOCAL;
+    else if (!strcasecmp(arg, "remote"))
+        arg=LOGCS_REMOTE;
+    if (!new_conv(&nc, logcs_charset(arg), 1))
+    {
+        tintin_eprintf(ses, "#No such charset: {%s}", logcs_charset(arg));
+        return;
+    }
+    if (!logcs_is_special(ses->logcharset))
+        free(ses->logcharset);
+    ses->logcharset=logcs_is_special(arg) ? arg : mystrdup(arg);
+    if (ses!=nullsession && ses->logfile)
+    {
+        cleanup_conv(&ses->c_log);
+        memcpy(&ses->c_log, &nc, sizeof(nc));
+    }
+    else
+        cleanup_conv(&nc);
+    tintin_printf(ses, "#Log charset set to %s", logcs_name(arg));
+}
+#endif

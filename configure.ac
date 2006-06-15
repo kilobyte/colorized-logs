@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT
-AM_INIT_AUTOMAKE(KBtin, 1.0.6a)
+AC_INIT([KBtin], [1.0.7], [castamir@users.sf.net])
+AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([action.c])
 AM_CONFIG_HEADER(config.h)
 
@@ -30,11 +30,23 @@ AC_C_BIGENDIAN
 AC_PROG_GCC_TRADITIONAL
 AC_TYPE_SIGNAL
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS([memcpy getpt ptsname snprintf vsnprintf _getpty grantpt forkpty regcomp])
+AC_CHECK_LIB(iconv, iconv_open)
+AC_CHECK_LIB(iconv, libiconv_open)
+AC_CHECK_FUNCS([iconv_open memcpy getpt ptsname snprintf vsnprintf _getpty grantpt forkpty regcomp getaddrinfo])
 
 AC_PTYRANGES
 AC_LBL_LIBRARY_NET
+AC_SOL_PROTOCOLS
+AC_UCS_SIZE
+AC_EASTER_EGG
+AC_AI_ADDRCONFIG
 CFLAGS=`echo "$CFLAGS"|sed -e 's/-O2/-O3/'`
 
 AC_CONFIG_FILES([Makefile])
+
+# Initialize the test suite.
+AC_CONFIG_TESTDIR(tests)
+AC_CONFIG_FILES([tests/Makefile tests/atlocal])
+AM_MISSING_PROG([AUTOM4TE], [autom4te])
+
 AC_OUTPUT

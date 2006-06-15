@@ -70,11 +70,40 @@ extern void prompt(struct session *ses);
 extern void telnet_write_line(char *line, struct session *ses);
 extern void pty_write_line(char *line, struct session *ses);
 extern struct session* do_hook(struct session *ses, int t, char *data, int blockzap);
+extern void convert(struct charset_conv *conv, char *outbuf, char *inbuf, int dir);
+#ifdef PROFILING
+extern char *prof_area;
+#endif
 
 #ifndef SOL_IP
 int SOL_IP;
 int SOL_TCP;
 #endif
+
+static int abort_connect;
+
+#ifdef HAVE_GETADDRINFO
+static char* afstr(int af)
+{
+    static char msg[19];
+
+    switch(af)
+    {
+        case AF_INET:
+            return "IPv4";
+        case AF_INET6:
+            return "IPv6";
+        default:
+            /* No symbolic names for AF_UNIX, AF_IPX and the like.
+             * We would need separate autoconf checks just for them,
+             * and they don't support TCP anyway.  We probably should
+             * allow all SOCK_STREAM-capable transports, but I'm a bit
+             * unsure.  */  
+            snprintf(msg, 19, "AF=%d", af);
+            return msg;
+    }
+}
+
 
 /**************************************************/
 /* try connect to the mud specified by the args   */
@@ -82,10 +111,88 @@ int SOL_TCP;
 /**************************************************/
 int connect_mud(char *host, char *port, struct session *ses)
 {
+    int err, val;
+    struct addrinfo *ai, hints, *addr;
+    int sock;
+    
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family=AF_UNSPEC;
+    hints.ai_socktype=SOCK_STREAM;
+    hints.ai_protocol=IPPROTO_TCP;
+    hints.ai_flags=AI_ADDRCONFIG;
+    
+    if ((err=getaddrinfo(host, port, &hints, &ai)))
+    {
+        if (err==-2)
+            tintin_eprintf(ses, "#Unknown host: {%s}", host);
+        else
+            tintin_eprintf(ses, "#ERROR: %s", gai_strerror(err));
+        return 0;
+    }
+    
+    if (signal(SIGALRM, alarm_func) == BADSIG)
+        syserr("signal SIGALRM");
+    
+    for (addr=ai; addr; addr=addr->ai_next)
+    {
+#ifdef UTF8
+        tintin_printf(ses, "#Trying to connect... (%s) (charset=%s)",
+            afstr(addr->ai_family), ses->charset);
+#else
+        tintin_printf(ses, "#Trying to connect... (%s)",
+            afstr(addr->ai_family));
+#endif
+        
+        if ((sock=socket(addr->ai_family, addr->ai_socktype, addr->ai_protocol))==-1)
+        {
+            tintin_eprintf(ses, "#ERROR: %s", strerror(errno));
+            continue;
+        }
+        
+        val=IPTOS_LOWDELAY;
+        if (setsockopt(sock, SOL_IP, IP_TOS, &val, sizeof(val)))
+            /*tintin_eprintf(ses, "#setsockopt: %s", strerror(errno))*/;
+            /* FIXME: BSD doesn't like this on IPv6 */
+        
+        abort_connect=0;
+        alarm(15);
+    intr:
+        if ((connect(sock, addr->ai_addr, addr->ai_addrlen)))
+        {
+            switch(errno)
+            {
+            case EINTR:
+                if (abort_connect)
+                {
+                    tintin_eprintf(ses, "#CONNECTION TIMED OUT");
+                    continue;
+                }
+                else
+                    goto intr;
+            default:
+                alarm(0);
+                tintin_eprintf(ses, "#%s", strerror(errno));
+                continue;
+            }
+        }
+        
+        alarm(0);
+        freeaddrinfo(ai);
+        return sock;
+    }
+    
+    if (!ai)
+        tintin_eprintf(ses, "#No valid addresses for {%s}", host);
+    freeaddrinfo(ai);
+    return 0;
+}
+#else
+int connect_mud(char *host, char *port, struct session *ses)
+{
     int sock, val;
     struct sockaddr_in sockaddr;
 
-    if (isdigit(*host))		/* interprete host part */
+    if (isdigit(*host))		/* interpret host part */
         sockaddr.sin_addr.s_addr = inet_addr(host);
     else
     {
@@ -101,7 +208,7 @@ int connect_mud(char *host, char *port, struct session *ses)
     }
 
     if (isdigit(*port))
-        sockaddr.sin_port = htons(atoi(port));	/* inteprete port part */
+        sockaddr.sin_port = htons(atoi(port));	/* intepret port part */
     else
     {
         tintin_eprintf(ses, "#THE PORT SHOULD BE A NUMBER (got {%s}).", port);
@@ -148,20 +255,23 @@ int connect_mud(char *host, char *port, struct session *ses)
     }
     return sock;
 }
+#endif
 
 /*****************/
 /* alarm handler */
 /*****************/
 void alarm_func(int k)
 {
-    /* nothing happens :) */
+    abort_connect=1;
 }
 
-/************************************************************/
-/* write line to the mud ses is connected to - add \n first */
-/************************************************************/
+/********************************************************************/
+/* write line to the mud ses is connected to - add \n or \r\n first */
+/********************************************************************/
 void write_line_mud(char *line, struct session *ses)
 {
+    char rstr[BUFFER_SIZE];
+
     if (*line)
         ses->idle_since=time(0);
     if (ses->issocket)
@@ -172,12 +282,28 @@ void write_line_mud(char *line, struct session *ses)
                 sizeof(ses->nagle));
             ses->nagle=1;
         }
+#ifdef UTF8
+        PROFPUSH("conv: utf8->remote");
+        convert(&ses->c_io, rstr, line, 1);
+        PROFPOP;
+        telnet_write_line(rstr, ses);
+#else
         telnet_write_line(line, ses);
+#endif
     }
     else if (ses==nullsession)
         tintin_eprintf(ses, "#spurious output: %s", line);  /* CHANGE ME */
     else
+    {
+#ifdef UTF8
+        PROFPUSH("conv: utf8->remote");
+        convert(&ses->c_io, rstr, line, 1);
+        PROFPOP;
+        pty_write_line(rstr, ses);
+#else
         pty_write_line(line, ses);
+#endif
+    }
     do_hook(ses, HOOK_SEND, line, 1);
 }
 
@@ -255,7 +381,7 @@ int read_buffer_mud(char *buffer, struct session *ses)
             	didget-=2;
             	cpsource+=2;
             	if (!i)
-            		ses->ga=1;
+                    ses->ga=1;
             	break;
             case -3:
                 i -= 2;

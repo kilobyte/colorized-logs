@@ -30,6 +30,7 @@
 #  include <time.h>
 # endif
 #endif
+#include "ui.h"
 
 void show_session(struct session *ses);
 struct session *new_session(char *name,char *address,int sock,int issocket,struct session *ses);
@@ -45,8 +46,6 @@ extern int connect_mud(char *host, char *port, struct session *ses);
 extern void kill_all(struct session *ses, int mode);
 extern void prompt(struct session *ses);
 extern void syserr(char *msg, ...);
-extern void textout(char *txt);
-extern void textout_draft(char *txt);
 extern void tintin_puts(char *cptr, struct session *ses);
 extern void tintin_puts1(char *cptr, struct session *ses);
 extern void tintin_printf(struct session *ses,char *format,...);
@@ -55,8 +54,16 @@ extern struct hashtable* copy_hash(struct hashtable *h);
 extern void do_in_MUD_colors(char *txt,int quotetype);
 extern int isatom(char *arg);
 extern struct session* do_hook(struct session *ses, int t, char *data, int blockzap);
+extern void utf8_to_local(char *d, char *s);
+extern void nullify_conv(struct charset_conv *conv);
+extern void cleanup_conv(struct charset_conv *conv);
+extern int new_conv(struct charset_conv *conv, char *name, int dir);
+extern void convert(struct charset_conv *conv, char *outbuf, char *inbuf, int dir);
+extern void log_off(struct session *ses);
 
 extern struct session *sessionlist, *activesession, *nullsession;
+extern char *history[HISTORY_SIZE];
+extern char *user_charset_name;
 
 
 int session_exists(char *name)
@@ -69,19 +76,24 @@ int session_exists(char *name)
     return 0;
 }
 
+#define is7alpha(x) ((((x)>='A')&&((x)<='Z')) || (((x)>='a')&&((x)<='z')))
+#define is7alnum(x) ((((x)>='0')&&((x)<='9')) || is7alpha(x))
+/* FIXME: use non-ascii letters in generated names */
+
+/* NOTE: basis is in the local charset, not UTF-8 */
 void make_name(char *str, char *basis, int run)
 {
     char *t;
     int i,j;
     
     if (run)
-        for(t=basis; (*t=='/')||isalnum(*t)||(*t=='_'); t++)
+        for(t=basis; (*t=='/')||is7alnum(*t)||(*t=='_'); t++)
             if (*t=='/')
                 basis=t+1;    
-    if (!isalpha(*basis))
+    if (!is7alpha(*basis))
         goto noname;
     strcpy(str, basis);
-    for(t=str; isalnum(*t)||(*t=='_'); t++);
+    for(t=str; is7alnum(*t)||(*t=='_'); t++);
     *t=0;
     if (!session_exists(str))
         return;
@@ -200,7 +212,7 @@ struct session *session_command(char *arg,struct session *ses)
 /********************/
 struct session *run_command(char *arg,struct session *ses)
 {
-    char left[BUFFER_SIZE], right[BUFFER_SIZE];
+    char left[BUFFER_SIZE], right[BUFFER_SIZE], ustr[BUFFER_SIZE];
     int sock;
 
     if (list_sessions(arg,ses,left,right))
@@ -212,7 +224,12 @@ struct session *run_command(char *arg,struct session *ses)
         return(ses);
     };
 
+#ifdef UTF8
+    utf8_to_local(ustr, right);
+    if (!(sock=run(ustr)))
+#else
     if (!(sock=run(right)))
+#endif
     {
         tintin_eprintf(ses, "#forkpty() FAILED!");
         return ses;
@@ -303,8 +320,6 @@ struct session *new_session(char *name,char *address,int sock,int issocket,struc
     newsession->telnet_buflen = 0;
     newsession->last_term_type = 0;
     newsession->next = sessionlist;
-    for (i = 0; i < HISTORY_SIZE; i++)
-        newsession->history[i] = NULL;
     newsession->path = init_list();
     newsession->no_return = 0;
     newsession->path_length = 0;
@@ -335,6 +350,14 @@ struct session *new_session(char *name,char *address,int sock,int issocket,struc
         else
             newsession->hooks[i]=0;
     newsession->closing=0;
+#ifdef UTF8
+    newsession->charset = mystrdup(issocket ? ses->charset : user_charset_name);
+    newsession->logcharset = logcs_is_special(ses->logcharset) ?
+                              ses->logcharset : mystrdup(ses->logcharset);
+    if (!new_conv(&newsession->c_io, newsession->charset, 0))
+        tintin_eprintf(0, "#Warning: can't open charset: %s", newsession->charset);
+    nullify_conv(&newsession->c_log);
+#endif
     sessionlist = newsession;
     activesession = newsession;
 
@@ -356,14 +379,6 @@ void cleanup_session(struct session *ses)
     do_hook(act=ses, HOOK_CLOSE, 0, 1);
 
     kill_all(ses, END);
-    /* printf("DEBUG: Hist: %d \n\r",HISTORY_SIZE); */
-    /* CHANGED to fix a possible memory leak
-       for(i=0; i<HISTORY_SIZE; i++)
-       ses->history[i]=NULL;
-     */
-    for (i = 0; i < HISTORY_SIZE; i++)
-        if ((ses->history[i]))
-            free(ses->history[i]);
     if (ses == sessionlist)
         sessionlist = ses->next;
     else
@@ -373,25 +388,35 @@ void cleanup_session(struct session *ses)
     }
     if (ses==activesession)
     {
-#ifdef UI_FULLSCREEN
-        textout_draft(0);
-#endif
+        user_textout_draft(0, 0);
         sprintf(buf,"%s\n",ses->last_line);
+#ifdef UTF8
+        convert(&ses->c_io, ses->last_line, buf, -1);
+        do_in_MUD_colors(ses->last_line,0);
+        user_textout(ses->last_line);
+#else
         do_in_MUD_colors(buf,0);
-        textout(buf);
+        user_textout(buf);
+#endif
     };
     sprintf(buf, "#SESSION '%s' DIED.", ses->name);
     tintin_puts(buf, NULL);
     if (close(ses->socket) == -1)
         syserr("close in cleanup");
     if (ses->logfile)
-        fclose(ses->logfile);
+        log_off(ses);
     if (ses->debuglogfile)
         fclose(ses->debuglogfile);
     for(i=0;i<NHOOKS;i++)
     	free(ses->hooks[i]);
     free(ses->name);
     free(ses->address);
+#ifdef UTF8
+    cleanup_conv(&ses->c_io);
+    free(ses->charset);
+    if (!logcs_is_special(ses->logcharset))
+        free(ses->logcharset);
+#endif
     
     free(ses);
 }
@@ -400,6 +425,7 @@ void seslist(char *result)
 {
     struct session *sesptr;
     int flag=0;
+    char *r0=result;
 
     if ((sessionlist!=nullsession)||(nullsession->next))
     {
@@ -411,11 +437,13 @@ void seslist(char *result)
                 else
                     flag=1;
                 if (isatom(sesptr->name))
-                    result+=sprintf(result,"%s",sesptr->name);
+                    result+=snprintf(result, BUFFER_SIZE-5+r0-result,
+                        "%s",sesptr->name);
                 else
-                    result+=sprintf(result,"{%s}",sesptr->name);
-                /* FIXME: check for buffer overflows.  Possible only
-                          for patological session names, but still...  */
+                    result+=snprintf(result, BUFFER_SIZE-5+r0-result,
+                        "{%s}",sesptr->name);
+                if (result-r0>BUFFER_SIZE-10)
+                    return; /* pathological session names */
             }
     }
 }

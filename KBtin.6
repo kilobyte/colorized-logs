@@ -52,9 +52,9 @@ Equivalent to
 .IR "#verbose 1" .
 .TP
 .B -q
-Turns off the processing done of
-.IR #read 
-(default).  Equivalent to
+Turns off the output from
+.IR #read .
+Equivalent to
 .IR "#verbose 0" .
 .TP
 .I "scriptname"
@@ -75,6 +75,10 @@ given port.  KBtin will make up a session name for you.
 Starts a new session by starting a local process.  The process will be opened
 in a pseudo-terminal, making it interactive.  The session name will be made
 up by KBtin.
+.BI -p
+Selects the "pipe" driver (default if stdin or stdout is not a terminal).
+.BI -i
+Selects the full interactive tty driver (usual default).
 .SH "SEE ALSO"
 .BR ansi2txt ,
 .BR ansi2html .

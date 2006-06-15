@@ -1,5 +1,8 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* Set to 0 if it's not supported */
+#undef AI_ADDRCONFIG
+
 /* Define to 1 if `TIOCGWINSZ' requires <sys/ioctl.h>. */
 #undef GWINSZ_IN_SYS_IOCTL
 
@@ -9,14 +12,23 @@
 /* Define to 1 if you have the `forkpty' function. */
 #undef HAVE_FORKPTY
 
+/* Define to 1 if you have the `getaddrinfo' function. */
+#undef HAVE_GETADDRINFO
+
 /* Define to 1 if you have the `getpt' function. */
 #undef HAVE_GETPT
 
 /* Define to 1 if you have the `grantpt' function. */
 #undef HAVE_GRANTPT
 
+/* Define to 1 if you have the `iconv_open' function. */
+#undef HAVE_ICONV_OPEN
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
+
+/* Define to 1 if you have the `iconv' library (-liconv). */
+#undef HAVE_LIBICONV
 
 /* Define to 1 if you have the `nsl' library (-lnsl). */
 #undef HAVE_LIBNSL
@@ -44,6 +56,9 @@
 
 /* Define to 1 if you have the `snprintf' function. */
 #undef HAVE_SNPRINTF
+
+/* Define if you have SOL_IP */
+#undef HAVE_SOL_IP
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
@@ -137,6 +152,9 @@
 
 /* Version number of package */
 #undef VERSION
+
+/* Define if wchar_t can hold any Unicode value. */
+#undef WCHAR_IS_UCS4
 
 /* Define to 1 if your processor stores words with the most significant byte
    first (like Motorola and SPARC, unlike Intel and VAX). */
