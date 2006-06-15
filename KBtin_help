@@ -25,7 +25,7 @@ Control statements:
    <number>    if          loop        foreach     match       strcmp
 Files:
    condump     deathlog    log         unlink      read        textin
-   vervose     write       writesession
+   verbose     write       writesession
 Comments:
    nop         remark
 Variables:
@@ -531,6 +531,9 @@ codes in the input text.  This means, you can highlight "~6~le~2~av~10~es~6~-co~
 by typing "#hi <color> leaves-covered".
 You can use standard KBtin color-codes (without the ~s), or english color
 names (type "#highlight list" to get the list).
+Highlights which start or end inside a word will be ignored, that is, "ash"
+inside "Bashgeroy" will not be highlighted.  Words consist of alphanumeric
+characters (letters and digits).
 
 Color patterns are allowed as well; separate colors in your pattern
 with '/'s.  For example, using 4/6 as the highlight color will make

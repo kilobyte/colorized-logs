@@ -283,8 +283,8 @@ color:
             r+=txt-text;
             l+=txt-text;
             /* changed: no longer highlight in the middle of a word */
-            if (((l==0)||!isalpha(text[l-1]))&&
-                    !isalpha(text[r+1]))
+            if (((l==0)||(!isalnum(text[l])||!isalnum(text[l-1])))&&
+                    (!isalnum(text[r])||!isalnum(text[r+1])))
                 for (i=l;i<=r;i++)
                     attr[i]=highpattern[(++c)%nhighpattern];
             txt=text+r+1;

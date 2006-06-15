@@ -39,6 +39,9 @@
 /* Define to 1 if you have the `ptsname' function. */
 #undef HAVE_PTSNAME
 
+/* Define to 1 if you have the `snprintf' function. */
+#undef HAVE_SNPRINTF
+
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
 

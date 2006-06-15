@@ -30,7 +30,7 @@ AC_HEADER_TIME
 AC_PROG_GCC_TRADITIONAL
 AC_TYPE_SIGNAL
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS([memcpy getpt ptsname vsnprintf _getpty grantpt forkpty])
+AC_CHECK_FUNCS([memcpy getpt ptsname snprintf vsnprintf _getpty grantpt forkpty])
 
 AC_PTYRANGES
 AC_LBL_LIBRARY_NET

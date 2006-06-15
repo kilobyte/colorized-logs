@@ -155,7 +155,7 @@ int do_telnet_protecol(unsigned char *data,int nb,struct session *ses)
         case ECHO:
             switch(wt)
             {
-            case WILL:  answer[1]=DONT; ses->server_echo=1; break;
+            case WILL:  answer[1]=DO;   ses->server_echo=1; break;
             case DO:    answer[1]=WILL; break;
             case WONT:  answer[1]=DONT; ses->server_echo=2; break;
             case DONT:  answer[1]=WONT; break;

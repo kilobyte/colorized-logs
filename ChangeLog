@@ -1,3 +1,10 @@
+1.0.1:
+*	a slight change of the logic of highlights being suppressed
+	before/after alphanumeric characters
+*	don't disagree when a server tells us they want to turn on echo,
+	some MUDs take offense if we do
+*	IRIX64 has no snprintf, cope with that
+
 1.0.0:
 *	first public release
 *	the message prompting to read #news is disabled for this version

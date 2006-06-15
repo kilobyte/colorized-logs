@@ -423,7 +423,11 @@ void dogoto_command(char *arg,struct session *ses)
 	int a,b,i,j,s;
 	struct routenode *r;
 	int d[MAX_LOCATIONS],ok[MAX_LOCATIONS],way[MAX_LOCATIONS];
+#ifdef HAVE_SNPRINTF
 	char path[BUFFER_SIZE], *pptr;
+#else
+	char path[BUFFER_SIZE*4], *pptr;  /* buffer overflow possible... */
+#endif
 	int flag;
 	
 	arg=get_arg_in_braces(arg,A,0);
@@ -488,7 +492,11 @@ void dogoto_command(char *arg,struct session *ses)
 	d[j]=a;
 	pptr=path;
 	for(i=j;i>=0;i--)
+#ifdef HAVE_SNPRINTF
 		pptr+=snprintf(pptr, path-pptr+BUFFER_SIZE, " %s", ses->locations[d[i]]);
+#else
+		pptr+=sprintf(pptr, " %s", ses->locations[d[i]]);
+#endif
 	pptr=path+(pptr!=path);
 	if (*locvar)
 		set_variable(locvar, pptr, ses);
@@ -499,8 +507,12 @@ void dogoto_command(char *arg,struct session *ses)
 			if (r->dest==d[i-1])
 			{
 			    if (flag)
+#ifdef HAVE_SNPRINTF
     				pptr+=snprintf(pptr,
     				    path-pptr+BUFFER_SIZE,
+#else
+                    pptr+=sprintf(pptr,
+#endif
     				    " {%s}",
     				    r->path);
     			else

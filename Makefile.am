@@ -10,7 +10,7 @@ KBtin_LDADD=
 ansi2html_SOURCES=ansi2html.c
 ansi2txt_SOURCES=ansi2txt.c
 
-EXTRA_DIST=tintin.h KBtin_help BUGS commands make_commands.sh $(man_MANS)
+EXTRA_DIST=tintin.h KBtin_help BUGS commands make_commands.sh $(man_MANS) OLDNEWS
 CLEANFILES=commands.h load_commands.h KBtin_help.gz
 
 commands.h: make_commands.sh commands
