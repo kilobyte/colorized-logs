@@ -1,6 +1,6 @@
 1.0.1:
 * fixed a problem with all input being hidden on MUDs like Genesis or
-  Arkadia due to telnet echo settings
+  Arkadia due to telnet echo settings.
 * fixed a bug where highlights before/after a letter character didn't
   work properly ("#highlight red /d/mordor/" failed to highlight both
   "/testmud/d/mordor/" and "/d/mordor/morannon/").  Highlights inside

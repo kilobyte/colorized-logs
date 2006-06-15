@@ -121,7 +121,7 @@ void telnet_resize_all(void)
         telnet_send_naws(sp);
 }
 
-int do_telnet_protecol(unsigned char *data,int nb,struct session *ses)
+int do_telnet_protocol(unsigned char *data,int nb,struct session *ses)
 {
     unsigned char *cp = data+1;
     unsigned char wt;
@@ -264,7 +264,7 @@ sbloop:
         ses->gas=1;
         return -2;
     case IAC:       /* IAC IAC is the escape for literal 255 byte */
-        return 2;	    /* ... but we ignore it */  /* FIXME */
+        return -3;
     default:
         /* other 2-byte command, ignore */
 #ifdef TELNET_DEBUG

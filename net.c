@@ -52,7 +52,7 @@
 #endif
 
 
-extern int do_telnet_protecol(char *data,int nb,struct session *ses);
+extern int do_telnet_protocol(char *data,int nb,struct session *ses);
 void alarm_func(int);
 
 extern struct session *sessionlist, *activesession;
@@ -209,26 +209,32 @@ int read_buffer_mud(char *buffer, struct session *ses)
             cpsource++;
             break;
         case 255:
-            b=do_telnet_protecol(cpsource, i, ses);
-            if (b==-1)
+            b=do_telnet_protocol(cpsource, i, ses);
+            switch(b)
             {
+            case -1:
                 ses->telnet_buf=i;
                 memmove(tmpbuf, cpsource, i);
                 *cpdest=0;
                 return didget-ses->telnet_buf;
-            }
-            if (b==-2)
-            {
+            case -2:
             	i-=2;
             	didget-=2;
             	cpsource+=2;
             	if (!i)
             		ses->ga=1;
             	break;
+            case -3:
+                i -= 2;
+                didget-=1;
+                *cpdest++=255;
+                cpsource+=2;
+                break;
+            default:
+                i -= b;
+                didget-=b;
+                cpsource += b;
             }
-            i -= b;
-            didget-=b;
-            cpsource += b;
             break;
         default:
             *cpdest++ = *cpsource++;

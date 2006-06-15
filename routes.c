@@ -3,6 +3,7 @@
 
 extern char* mystrdup(char *s);
 extern char *get_arg_in_braces(char *s,char *arg,int flag);
+extern char *get_arg(char *s,char *arg,int flag,struct session *ses);
 extern struct listnode* searchnode_list(struct listnode* list,char* left);
 extern int routnum;
 extern int varnum;
@@ -159,10 +160,10 @@ void route_command(char *arg,struct session *ses)
 	int i,j,d;
 	struct routenode *r;
 	
-	arg=get_arg_in_braces(arg,a,0);
-	arg=get_arg_in_braces(arg,b,0);
+	arg=get_arg(arg,a,0,ses);
+	arg=get_arg(arg,b,0,ses);
 	arg=get_arg_in_braces(arg,way,0);
-	arg=get_arg_in_braces(arg,dist,0);
+	arg=get_arg(arg,dist,0,ses);
 	arg=get_arg_in_braces(arg,cond,1);
 	if (!*a)
 	{
@@ -269,8 +270,8 @@ void unroute_command(char *arg,struct session *ses)
 	struct routenode **r,*p;
 	int found=0;
 	
-	arg=get_arg_in_braces(arg,a,0);
-	arg=get_arg_in_braces(arg,b,1);
+	arg=get_arg(arg,a,0,ses);
+	arg=get_arg(arg,b,1,ses);
 	
 	if ((!*a)||(!*b))
 	{
@@ -320,8 +321,8 @@ void goto_command(char *arg,struct session *ses)
 	int d[MAX_LOCATIONS],ok[MAX_LOCATIONS],way[MAX_LOCATIONS];
 	char *path[MAX_LOCATIONS],*locs[MAX_LOCATIONS];
 	
-	arg=get_arg_in_braces(arg,A,0);
-	arg=get_arg_in_braces(arg,B,1);
+	arg=get_arg(arg,A,0,ses);
+	arg=get_arg(arg,B,1,ses);
 	
 	if ((!A)||(!B))
 	{
@@ -430,11 +431,11 @@ void dogoto_command(char *arg,struct session *ses)
 #endif
 	int flag;
 	
-	arg=get_arg_in_braces(arg,A,0);
-	arg=get_arg_in_braces(arg,B,0);
-	arg=get_arg_in_braces(arg,distvar,0);
-	arg=get_arg_in_braces(arg,locvar,0);
-	arg=get_arg_in_braces(arg,pathvar,0);
+	arg=get_arg(arg,A,0,ses);
+	arg=get_arg(arg,B,0,ses);
+	arg=get_arg(arg,distvar,0,ses);
+	arg=get_arg(arg,locvar,0,ses);
+	arg=get_arg(arg,pathvar,0,ses);
 	
 	if ((!*A)||(!*B))
 	{

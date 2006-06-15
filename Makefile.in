@@ -416,7 +416,7 @@ install-am: all-am
 install: install-am
 uninstall-am: uninstall-binPROGRAMS uninstall-man uninstall-helpDATA
 uninstall: uninstall-am
-all-am: Makefile $(PROGRAMS) $(MANS) $(DATA) config.h all-local
+all-am: Makefile $(PROGRAMS) $(MANS) $(DATA) config.h
 all-redirect: all-am
 install-strip:
 	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
@@ -470,8 +470,8 @@ uninstall-man uninstall-helpDATA install-helpDATA tags mostlyclean-tags \
 distclean-tags clean-tags maintainer-clean-tags distdir info-am info \
 dvi-am dvi check check-am installcheck-am installcheck all-recursive-am \
 install-exec-am install-exec install-data-am install-data install-am \
-install uninstall-am uninstall all-local all-redirect all-am all \
-installdirs mostlyclean-generic distclean-generic clean-generic \
+install uninstall-am uninstall all-redirect all-am all installdirs \
+mostlyclean-generic distclean-generic clean-generic \
 maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
 
@@ -479,10 +479,6 @@ commands.h: make_commands.sh commands
 	$(srcdir)/make_commands.sh <$(srcdir)/commands
 
 load_commands.h: commands make_commands.sh commands.h
-
-# since tt is almost never installed by "make install" strip it at once :)
-all-local:
-	strip KBtin
 
 # automagically update version number in tintin.h if configure.ac has
 # changed

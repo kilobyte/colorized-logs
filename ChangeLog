@@ -1,3 +1,11 @@
+1.0.2:
+*	bugfix: #send with no session
+*	#gauge
+*	#debuglog
+*	bugfix: some commands ignored variables
+*	proper handling of IAC IAC sequences
+*	bugfix: '#<sesname> {command}' sent verbatim {}s.
+
 1.0.1:
 *	a slight change of the logic of highlights being suppressed
 	before/after alphanumeric characters

@@ -84,7 +84,7 @@ void map_command(char *arg,struct session *ses)
         check_insert_path(arg, ses, 0);
     }
     else
-        tintin_printf(ses,"No session active => NO PATH!");
+        tintin_printf(ses,"#No session active => NO PATH!");
 }
 
 void path_command(char *arg,struct session *ses)
@@ -96,7 +96,7 @@ void path_command(char *arg,struct session *ses)
         check_insert_path(arg, ses, 1);
     }
     else
-        tintin_printf(ses,"No session active => NO PATH!");
+        tintin_printf(ses,"#No session active => NO PATH!");
 }
 
 void savepath_command(char *arg, struct session *ses)
@@ -141,7 +141,7 @@ void savepath_command(char *arg, struct session *ses)
             tintin_eprintf(ses, "#Syntax: savepath <alias>");
     }
     else
-        tintin_printf(ses,"No session active => NO PATH TO SAVE!");
+        tintin_printf(ses,"#No session active => NO PATH TO SAVE!");
 }
 
 
@@ -182,7 +182,7 @@ void path2var(char *var, struct session *ses)
     }
     else
     {
-        tintin_printf(ses,"No session active => NO PATH!");
+        tintin_printf(ses,"#No session active => NO PATH!");
         *var=0;
     }
 }
@@ -217,7 +217,7 @@ void showpath_command(char *arg, struct session *ses)
         tintin_puts(mypath, ses);
     }
     else
-        tintin_puts("No session active => NO PATH!", ses);
+        tintin_puts("#No session active => NO PATH!", ses);
 }
 
 void return_command(char *arg,struct session *ses)

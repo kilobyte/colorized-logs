@@ -29,10 +29,10 @@ typedef struct session *(*t_c_command)(char*, struct session*);
 
 struct session *parse_tintin_command(char *command, char *arg,struct session *ses);
 void do_speedwalk(char *cp, struct session *ses);
-char *get_arg_with_spaces(char *s, char *arg);
+inline char *get_arg_with_spaces(char *s, char *arg);
 
 extern int is_abrev(char *s1, char *s2);
-extern int is_speedwalk_dirs(char *cp);
+inline int is_speedwalk_dirs(char *cp);
 extern void substitute_myvars(char *arg,char *result,struct session *ses);
 extern void substitute_vars(char *arg, char *result);
 extern void tintin_printf(struct session *ses,char *format,...);
@@ -40,9 +40,8 @@ extern void tintin_eprintf(struct session *ses,char *format,...);
 extern void write_line_mud(char *line, struct session *ses);
 extern int do_goto(char *txt,struct session *ses);
 extern void do_out_MUD_colors(char *line);
-extern struct completenode *complete_head;
-extern char *space_out(char *s);
-extern char *get_arg_in_braces(char *s,char *arg,int flag);
+inline char *space_out(char *s);
+inline char *get_arg_in_braces(char *s,char *arg,int flag);
 void write_com_arg_mud(char *command, char *argument, int nsp, struct session *ses);
 void prompt(struct session *ses);
 extern char* get_hash(struct hashtable *h, char *key);
@@ -56,11 +55,12 @@ extern struct session *sessionlist, *activesession, *nullsession;
 extern pvars_t *pvars;	/* the %0, %1, %2,....%9 variables */
 extern char tintin_char, verbatim_char;
 extern int term_echoing;
-extern char *get_arg_stop_spaces(char *s, char *arg);
+inline char *get_arg_stop_spaces(char *s, char *arg);
 extern char *get_command(char *s, char *arg);
 extern char *cryptkey;
 extern char *get_arg_all(char *s, char *arg);
 extern void tstphandler(int sig);
+extern void debuglog(struct session *ses, const char *format, ...);
 int in_alias=0;
 extern int in_read;
 extern int aborting;
@@ -74,12 +74,18 @@ struct session *parse_input(char *input,int override_verbatim,struct session *se
     char command[BUFFER_SIZE], arg[BUFFER_SIZE], result[BUFFER_SIZE], *al;
     int nspaces;
 
+    if (ses->debuglogfile)
+        debuglog(ses, "%s", input);
     if (!ses->server_echo && activesession == ses)
         term_echoing = 1;
     if (*input == '\0')
     {
         if (ses!=nullsession)
+        {
             write_line_mud("", ses);
+            if (ses->debuglogfile)
+                debuglog(ses, "");
+        }
         else
         {
             if (!in_read)
@@ -90,17 +96,23 @@ struct session *parse_input(char *input,int override_verbatim,struct session *se
     if ((*input==tintin_char) && is_abrev(input + 1, "verbatim"))
     {
         verbatim_command("",ses);
+        if (ses->debuglogfile)
+            debuglog(ses, "%s", input);
         return ses;
     }
     if (ses->verbatim && !override_verbatim && (ses!=nullsession))
     {
         write_line_mud(input, ses);
+        if (ses->debuglogfile)
+            debuglog(ses, "%s", input);
         return ses;
     }
     if (*input==verbatim_char && (ses!=nullsession))
     {
         input++;
         write_line_mud(input, ses);
+        if (ses->debuglogfile)
+            debuglog(ses, "%s", input-1);
         return ses;
     }
 
@@ -160,6 +172,8 @@ struct session *parse_input(char *input,int override_verbatim,struct session *se
             aborting=0;
             return ses;
         }
+        if (ses->debuglogfile)
+            debuglog(ses, "%s", command);
     
         if (*command == tintin_char)
             ses = parse_tintin_command(command + 1, arg, ses);
@@ -198,7 +212,7 @@ struct session *parse_input(char *input,int override_verbatim,struct session *se
 /************************************************************************/
 /* return TRUE if commands only consists of lowercase letters N,S,E ... */
 /************************************************************************/
-int is_speedwalk_dirs(char *cp)
+inline int is_speedwalk_dirs(char *cp)
 {
     int flag;
 
@@ -293,11 +307,11 @@ struct session *parse_tintin_command(char *command, char *arg,struct session *se
     char *func;
 
     for (sesptr = sessionlist; sesptr; sesptr = sesptr->next)
-        if ((strcmp(sesptr->name, command) == 0)&&(sesptr!=nullsession))
+        if (strcmp(sesptr->name, command) == 0)
         {
             if (*arg)
             {
-                get_arg_with_spaces(arg, arg);
+                get_arg_in_braces(arg, arg, 1);
                 parse_input(arg,1, sesptr);	/* was: #sessioname commands */
                 return (ses);
             }
@@ -456,7 +470,7 @@ char *get_inline(char *s, char *arg)
 /* In: "this is it" way way hmmm;     */
 /* Out: this is it way way hmmm       */
 /**************************************/
-char *get_arg_with_spaces(char *s, char *arg)
+inline char *get_arg_with_spaces(char *s, char *arg)
 {
     int nest = 0;
 
@@ -490,7 +504,7 @@ char *get_arg_with_spaces(char *s, char *arg)
     return s;
 }
 
-char *get_arg_in_braces(char *s,char *arg,int flag)
+inline char *get_arg_in_braces(char *s,char *arg,int flag)
 {
     int nest = 0;
     char *ptr;
@@ -530,7 +544,7 @@ char *get_arg_in_braces(char *s,char *arg,int flag)
 /* get one arg, stop at spaces                */
 /* remove quotes                              */
 /**********************************************/
-char *get_arg_stop_spaces(char *s, char *arg)
+inline char *get_arg_stop_spaces(char *s, char *arg)
 {
     int inside = FALSE;
 
@@ -563,6 +577,20 @@ char *get_arg_stop_spaces(char *s, char *arg)
 
     *arg = '\0';
     return s;
+}
+
+
+char *get_arg(char *s,char *arg,int flag,struct session *ses)
+{
+    char tmp[BUFFER_SIZE],*cptr;
+    
+    cptr=get_arg_in_braces(s,arg,flag);
+    if (*s)
+    {
+        substitute_vars(arg,tmp);
+        substitute_myvars(tmp,arg,ses);
+    }
+    return cptr;
 }
 
 /**********************************************/
@@ -606,7 +634,7 @@ char *get_command(char *s, char *arg)
 /* spaceout - advance ptr to next none-space */
 /* return: ptr to the first none-space       */
 /*********************************************/
-char *space_out(char *s)
+inline char *space_out(char *s)
 {
     while (isspace(*s))
         s++;

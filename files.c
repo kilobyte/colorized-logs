@@ -19,9 +19,9 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <pwd.h>
+#include <stdarg.h>
 #include "tintin.h"
 
-struct completenode *complete_head;
 void prepare_for_write(char *command, char *left, char *right, char *pr, char *result);
 
 extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
@@ -76,10 +76,11 @@ void expand_filename(char *arg,char *result)
     strcpy(result, arg);
 }
 
+#if 0
 /**********************************/
 /* load a completion file         */
 /**********************************/
-void read_complete(void)
+void read_complete(char *arg, struct session *ses)
 {
     FILE *myfile;
     char buffer[BUFFER_SIZE], *cptr;
@@ -137,6 +138,7 @@ void read_complete(void)
     tintin_printf(0,"");
 
 }
+#endif
 
 /*******************************/
 /* remove file from filesystem */
@@ -267,6 +269,73 @@ void log_command(char *arg, struct session *ses)
         tintin_eprintf(ses, "#THERE'S NO SESSION TO LOG.");
     prompt(NULL);
 }
+
+/*************************/
+/* the #debuglog command */
+/*************************/
+void debuglog_command(char *arg, struct session *ses)
+{
+    char fname[BUFFER_SIZE], temp[BUFFER_SIZE];
+
+    if (*arg)
+    {
+        if (ses->debuglogfile)
+        {
+            fclose(ses->debuglogfile);
+            tintin_printf(ses, "#OK. DEBUGLOG TURNED OFF.");
+        }
+        get_arg_in_braces(arg, temp, 1);
+        substitute_vars(temp, fname);
+        substitute_myvars(fname, temp, ses);
+        expand_filename(temp, fname);
+        if ((strlen(fname)<4)||(strcmp(fname+strlen(fname)-3,".gz")))
+            if ((ses->debuglogfile = fopen(fname, "w")))
+                tintin_printf(ses, "#OK. DEBUGLOG SET TO {%s} .....", fname);
+            else
+                tintin_eprintf(ses, "#ERROR: COULDN'T OPEN FILE {%s}.", fname);
+        else
+            if ((ses->debuglogfile = popen(strcat(strcpy(temp,"gzip -9 >"),fname), "w")))
+                tintin_printf(ses, "#OK. DEBUGLOG SET TO {%s} .....", fname);
+            else
+                tintin_eprintf(ses, "#ERROR: COULDN'T OPEN PIPE: {gzip -9 >%s}.", fname);
+    }
+    else if (ses->debuglogfile)
+    {
+        fclose(ses->debuglogfile);
+        ses->debuglogfile = NULL;
+        tintin_printf(ses, "#OK. DEBUGLOG TURNED OFF.");
+    }
+    else
+        tintin_printf(ses, "#DEBUGLOG ALREADY OFF.");
+    prompt(NULL);
+}
+
+void debuglog(struct session *ses, const char *format, ...)
+{
+    va_list ap;
+#ifdef HAVE_VSNPRINTF
+    char buf[BUFFER_SIZE];
+#else
+    char buf[BUFFER_SIZE*4]; /* let's hope this will never overflow... */
+#endif
+    struct timeval tv;
+
+    if (ses->debuglogfile)
+    {
+        gettimeofday(&tv, 0);
+        va_start(ap, format);
+#ifdef HAVE_VSNPRINTF
+        if (vsnprintf(buf, BUFFER_SIZE-1, format, ap)>BUFFER_SIZE-2)
+            buf[BUFFER_SIZE-3]='>';
+#else
+        vsprintf(buf, format, ap);
+#endif
+        va_end(ap);
+        fprintf(ses->debuglogfile, "%4d.%06d: %s\n",
+            tv.tv_sec-ses->sessionstart, tv.tv_usec, buf);
+    }
+}
+
 
 /*********************/
 /* the #read command */

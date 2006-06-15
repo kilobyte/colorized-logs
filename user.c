@@ -990,7 +990,7 @@ int process_kbd(struct session *ses)
                 break;
             if (b_bottom!=b_screenb)
                 b_scroll(b_bottom);
-            if (!yank_buffer[0])
+            if (!*yank_buffer)
             {
                 write(1,"\007",1);
                 break;

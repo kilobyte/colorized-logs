@@ -41,6 +41,7 @@ extern void if_command(char *arg, struct session *ses);
 extern void tintin_printf(struct session *ses,char *format,...);
 extern void tintin_eprintf(struct session *ses,char *format,...);
 extern int in_alias;
+extern void debuglog(struct session *ses, const char *format, ...);
 int var_len[10];
 char *var_ptr[10];
 extern int aborting;
@@ -392,6 +393,8 @@ void check_all_actions(char *line, struct session *ses)
                 prepare_actionalias(ln->right, buffer, ses);
                 tintin_printf(ses,"[ACTION: %s]", buffer);
             }
+            if (ses->debuglogfile)
+                debuglog(ses, "ACTION: {%s}->{%s}", line, ln->right);
             parse_input(ln->right,1,ses);
             pvars = lastpvars;
             /*      return;*/		/* KB: we want ALL actions to be done */
@@ -427,6 +430,8 @@ void check_all_promptactions(char *line, struct session *ses)
                 prepare_actionalias(ln->right, buffer, ses);
                 tintin_printf(ses, "[PROMPT-ACTION: %s]", buffer);
             }
+            if (ses->debuglogfile)
+                debuglog(ses, "PROMPTACTION: {%s}->{%s}", line, ln->right);
             parse_input(ln->right,1,ses);
             pvars=lastpvars;
             /*      return;*/		/* KB: we want ALL actions to be done */

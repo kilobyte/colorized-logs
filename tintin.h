@@ -58,7 +58,7 @@
 #define OLD_LOG 0 /* set to one to use old-style logging */
 #define DEFAULT_OPEN '{' /*character that starts an argument */
 #define DEFAULT_CLOSE '}' /*character that ends an argument */
-#define HISTORY_SIZE 30                   /* history size */
+#define HISTORY_SIZE 128                  /* history size */
 #define MAX_PATH_LENGTH 256               /* max path lenght */
 #define MAX_LOCATIONS 512
 #define DEFAULT_TINTIN_CHAR '#'           /* tintin char */
@@ -143,7 +143,7 @@
 #define END 1
 
 #define BUFFER_SIZE 2048
-#define VERSION_NUM "1.0.0"
+#define VERSION_NUM "1.0.1"
 #define MSG_ALIAS       0
 #define MSG_ACTION      1
 #define MSG_SUBSTITUTE  2
@@ -178,12 +178,14 @@ struct hashtable
     struct hashentry *tab;  /* entries table */
 };
 
-struct completenode {
+struct completenode
+{
   struct completenode *next;
   char *strng;
 };
 
-struct eventnode {
+struct eventnode
+{
   struct eventnode *next;
   char *event;
   int time; /* time_t */
@@ -198,7 +200,8 @@ struct routenode
 	char *cond;
 };
 
-struct session {
+struct session
+{
   struct session *next;
   char *name;
   char *address;
@@ -207,7 +210,7 @@ struct session {
   int time10;
   int tick_size;
   int snoopstatus;
-  FILE *logfile;
+  FILE *logfile,*debuglogfile;
   int ignore;
   struct listnode *actions, *prompts, *subs, *highs, *antisubs;
   struct hashtable *aliases, *myvars, *pathdirs, *binds;
@@ -225,6 +228,7 @@ struct session {
   int verbose,blank,echo,speedwalk,togglesubs,presub,verbatim;
   int mesvar[MAX_MESVAR+1];
   int idle_since;
+  int sessionstart;
 };
 
 typedef char pvars_t[10][BUFFER_SIZE];

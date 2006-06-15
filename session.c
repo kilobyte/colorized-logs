@@ -260,7 +260,8 @@ struct session *new_session(char *name,char *address,int sock,int issocket,struc
     newsession->togglesubs = nullsession->togglesubs;
     newsession->presub = nullsession->presub;
     newsession->verbatim = nullsession->verbatim;
-    newsession->idle_since=time(0);
+    newsession->sessionstart=newsession->idle_since=time(0);
+    newsession->debuglogfile=0;
     memcpy(newsession->mesvar, nullsession->mesvar, sizeof(*newsession->mesvar));
     for (i=0;i<MAX_LOCATIONS;i++)
     {

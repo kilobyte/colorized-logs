@@ -34,7 +34,7 @@ Text variables:
    firstupper  tolower     toupper     substring   prepad      postpad
    reverse     strlen      decolorize  atoi
 Time:
-   ctime       time
+   ctime       time        gauge
 Lists:
    finditem    deleteitems foreach     finditem    getitem     isatom
    listlength  splitlist   implode     explode     sortlist
@@ -802,6 +802,15 @@ Examples:
 		#math arm {$armreset-$now-1800};
 		#delay $arm {#showme Armoury reset in 30 minutes!}
 	}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~gauge
+
+#gauge {} {} <command>
+Prints the time it took to perform a command.
+
+#gauge <sec> <usec> <command>
+Measures the time it took to perform a command, it is $sec seconds and
+$usec microseconds.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~delay
 ~event

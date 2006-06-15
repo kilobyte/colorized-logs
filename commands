@@ -63,6 +63,7 @@ prepad
 promptaction
 postpad
 random
+#retab
 remark
 removeevent
 unevent
@@ -85,6 +86,9 @@ gag
 substring
 strlen
 system
+#tablist
+#tabadd
+#tabdelete
 tick
 tickoff
 tickon
@@ -117,3 +121,5 @@ verbose
 dogoto
 changeto
 send
+gauge
+debuglog

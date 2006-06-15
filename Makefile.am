@@ -18,10 +18,6 @@ commands.h: make_commands.sh commands
 
 load_commands.h: commands make_commands.sh commands.h
 
-# since tt is almost never installed by "make install" strip it at once :)
-all-local:
-	strip KBtin
-
 # automagically update version number in tintin.h if configure.ac has
 # changed
 tintin.h: configure.ac

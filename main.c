@@ -73,7 +73,6 @@ struct session *sessionlist, *activesession, *nullsession;
 char **pvars;	/* the %0, %1, %2,....%9 variables */
 char tintin_char = DEFAULT_TINTIN_CHAR;
 char verbatim_char = DEFAULT_VERBATIM_CHAR;
-int split_line, term_columns;
 char prev_command[BUFFER_SIZE];
 void tintin(void);
 void read_mud(struct session *ses);
@@ -260,7 +259,7 @@ int main(int argc, char **argv, char **environ)
     time0 = time(NULL);
 
     nullsession=(struct session *)malloc(sizeof(struct session));
-    nullsession->name=mystrdup("KBtin");
+    nullsession->name=mystrdup("main");
     nullsession->address=0;
     nullsession->tickstatus = FALSE;
     nullsession->tick_size = DEFAULT_TICK_SIZE;
@@ -289,7 +288,8 @@ int main(int argc, char **argv, char **environ)
     nullsession->binds = init_hash();
     nullsession->socketbit = 0;
     nullsession->next = 0;
-    nullsession->idle_since=time(0);
+    nullsession->sessionstart=nullsession->idle_since=time(0);
+    nullsession->debuglogfile=0;
     {
         int i;
         for (i=0;i<HISTORY_SIZE;i++)

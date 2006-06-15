@@ -1,7 +1,5 @@
 *	pattern-matching routines are SLOOOW (inherited from TinTin++)
 
-*	window resizing on SunOS screws up
-
 *	documentation is crappy
 
 *	spawned pseudoterminal (on #run) is not checked for echo on/off
@@ -11,3 +9,7 @@
 *	--More-- kludge -- do it in a non-kludgy way
 
 *	need a README
+
+*	{#var color ~7~;#var color} shows {}
+
+*	#promptaction foo {#unpro foo} locks up

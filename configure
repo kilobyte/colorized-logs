@@ -1416,7 +1416,7 @@ fi
 
 PACKAGE=KBtin
 
-VERSION=1.0.0
+VERSION=1.0.1
 
 if test "`cd $srcdir && pwd`" != "`pwd`" && test -f $srcdir/config.status; then
   { { echo "$as_me:$LINENO: error: source directory already configured; run \"make distclean\" there first" >&5
@@ -1518,9 +1518,6 @@ fi
 
           ac_config_commands="$ac_config_commands default-1"
 
-
-# No stinking -g!
-CFLAGS=-O3
 
 # Checks for programs.
 for ac_prog in gawk mawk nawk awk

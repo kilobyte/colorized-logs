@@ -29,6 +29,7 @@ extern void substitute_myvars(char *arg,char *result,struct session *ses);
 extern void substitute_vars(char *arg, char *result);
 extern void tintin_printf(struct session *ses,char *format,...);
 extern void tintin_eprintf(struct session *ses,char *format,...);
+extern char *get_arg(char *s,char *arg,int flag,struct session *ses);
 
 
 extern char tintin_char;
@@ -39,18 +40,16 @@ extern char tintin_char;
 void math_command(char *line, struct session *ses)
 {
     /* char left[BUFFER_SIZE], right[BUFFER_SIZE], arg2[BUFFER_SIZE], */
-    char left[BUFFER_SIZE], right[BUFFER_SIZE], temp[BUFFER_SIZE], result[BUFFER_SIZE];
+    char left[BUFFER_SIZE], right[BUFFER_SIZE], temp[BUFFER_SIZE];
     int i;
 
-    line = get_arg_in_braces(line, left, 0);
-    line = get_arg_in_braces(line, right, 1);
+    line = get_arg(line, left, 0, ses);
+    line = get_arg(line, right, 1, ses);
     if (!*left||!*right)
     {
         tintin_eprintf(ses,"#Syntax: #math <variable> <expression>");
         return;
     };
-    substitute_vars(right, result);
-    substitute_myvars(result, right, ses);
     i = eval_expression(right,ses);
     sprintf(temp, "%d", i);
     set_variable(left, temp, ses);
@@ -62,13 +61,11 @@ void math_command(char *line, struct session *ses)
 void if_command(char *line, struct session *ses)
 {
     /* char left[BUFFER_SIZE], right[BUFFER_SIZE], arg2[BUFFER_SIZE],  */
-    char left[BUFFER_SIZE], right[BUFFER_SIZE], temp[BUFFER_SIZE];
+    char left[BUFFER_SIZE], right[BUFFER_SIZE];
 
     /* int i; */
-    line = get_arg_in_braces(line, left, 0);
+    line = get_arg(line, left, 0, ses);
     line = get_arg_in_braces(line, right, 1);
-    substitute_vars(left, temp);
-    substitute_myvars(temp, left, ses);
 
     if (!*left || !*right)
     {
@@ -101,14 +98,10 @@ void if_command(char *line, struct session *ses)
 /***********************/
 void strcmp_command(char *line, struct session *ses)
 {
-    char left[BUFFER_SIZE], right[BUFFER_SIZE], temp[BUFFER_SIZE];
+    char left[BUFFER_SIZE], right[BUFFER_SIZE];
 
-    line = get_arg_in_braces(line, left, 0);
-    substitute_vars(left, temp);
-    substitute_myvars(temp, left, ses);
-    line = get_arg_in_braces(line, right, 0);
-    substitute_vars(right, temp);
-    substitute_myvars(temp, right, ses);
+    line = get_arg(line, left, 0, ses);
+    line = get_arg(line, right, 0, ses);
 
     if (!strcmp(left,right))
     {

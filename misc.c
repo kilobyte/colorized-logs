@@ -32,6 +32,7 @@ extern void cleanup_session(struct session *ses);
 extern int count_list(struct listnode *listhead);
 extern int count_routes(struct session *ses);
 extern char *get_arg_in_braces(char *s,char *arg,int flag);
+extern char *get_arg(char *s,char *arg,int flag,struct session *ses);
 extern int is_abrev(char *s1, char *s2);
 extern struct session *newactive_session(void);
 extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
@@ -86,11 +87,9 @@ void togglebool(int *b, char *arg, struct session *ses, char *msg1, char *msg2)
     char tmp[BUFFER_SIZE];
     int old=*b;
 
-    get_arg_in_braces(arg,tmp,1);
+    get_arg(arg,tmp,1,ses);
     if (*tmp)
     {
-        substitute_vars(tmp,arg);
-        substitute_myvars(arg,tmp,ses);
         switch(yes_no(tmp))
         {
         case 0:
@@ -140,15 +139,18 @@ void verbatim_command(char *arg,struct session *ses)
 /************************/
 void send_command(char *arg,struct session *ses)
 {
-    char temp1[BUFFER_SIZE], temp2[BUFFER_SIZE];
+    char temp1[BUFFER_SIZE];
+    if (ses==nullsession)
+    {
+        tintin_eprintf(ses, "#No session -> can't #send anything");
+        return;
+    }
     if (!*arg)
     {
         tintin_eprintf(ses, "#send what?");
         return;
     }
-    arg = get_arg_in_braces(arg, temp1, 1);
-    substitute_vars(temp1, temp2);
-    substitute_myvars(temp2, temp1, ses);
+    arg = get_arg(arg, temp1, 1, ses);
     write_line_mud(temp1,ses);
 }
 
@@ -161,7 +163,7 @@ struct session *all_command(char *arg,struct session *ses)
 
     if ((sessionlist!=nullsession)||(nullsession->next))
     {
-        get_arg_in_braces(arg, arg, 1);
+        get_arg(arg, arg, 1, ses);
         for (sesptr = sessionlist; sesptr; sesptr = sesptr->next)
             if (sesptr!=nullsession)
                 parse_input(arg,1,sesptr);
@@ -186,6 +188,7 @@ void bell_command(char *arg,struct session *ses)
 void char_command(char *arg,struct session *ses)
 {
     get_arg_in_braces(arg, arg, 1);
+    /* It doesn't make any sense to use a variable here. */
     if (ispunct(*arg) || ((unsigned char)(*arg)>127))
     {
         tintin_char = *arg;
@@ -299,7 +302,7 @@ void verbose_command(char *arg,struct session *ses)
 void margins_command(char *arg,struct session *ses)
 {
     int l,r;
-    char num[BUFFER_SIZE], temp[BUFFER_SIZE], *tmp;
+    char num[BUFFER_SIZE], *tmp;
 
     if (margins)
     {
@@ -312,9 +315,7 @@ void margins_command(char *arg,struct session *ses)
         r=marginr;
         if (arg)
         {
-            arg=get_arg_in_braces(arg,num,0);
-            substitute_vars(num, temp);
-            substitute_myvars(temp, num, ses);
+            arg=get_arg(arg,num,0,ses);
             if (*num)
             {
                 l=strtoul(num,&tmp,10);
@@ -329,9 +330,7 @@ void margins_command(char *arg,struct session *ses)
                     return;
                 }
             };
-            arg=get_arg_in_braces(arg,num,1);
-            substitute_vars(num, temp);
-            substitute_myvars(temp, num, ses);
+            arg=get_arg(arg,num,1,ses);
             if (*num)
             {
                 r=strtoul(num,&tmp,10);
@@ -360,11 +359,8 @@ void margins_command(char *arg,struct session *ses)
 /***********************/
 void showme_command(char *arg,struct session *ses)
 {
-    char result[BUFFER_SIZE];
-
-    get_arg_in_braces(arg, arg, 1);
-    prepare_actionalias(arg, result, ses);
-    tintin_printf(ses,"%s",result);	/* KB: no longer check for actions */
+    get_arg(arg, arg, 1, ses);
+    tintin_printf(ses,"%s",arg);	/* KB: no longer check for actions */
     /*
     if(ses->logfile)
        fprintf(ses->logfile,"%s\n",result);
@@ -377,15 +373,12 @@ void showme_command(char *arg,struct session *ses)
 void loop_command(char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
-    char result[BUFFER_SIZE];
     int flag, bound1, bound2, counter;
     pvars_t vars,*lastpvars;
 
-    arg = get_arg_in_braces(arg, left, 0);
+    arg = get_arg(arg, left, 0, ses);
     arg = get_arg_in_braces(arg, right, 1);
     flag = 1;
-    substitute_vars(left, result);
-    substitute_myvars(result, left, ses);
     if (sscanf(left, "%d,%d", &bound1, &bound2) != 2)
         tintin_eprintf(ses,"#Wrong number of arguments in #loop: {%s}.",left);
     else
@@ -446,16 +439,12 @@ void messages_command(char *arg,struct session *ses)
 {
     char offon[2][20];
     int mestype;
-    char tpstr[BUFFER_SIZE],type[BUFFER_SIZE],onoff[BUFFER_SIZE];
+    char type[BUFFER_SIZE],onoff[BUFFER_SIZE];
 
     strcpy(offon[0], "OFF.");
     strcpy(offon[1], "ON.");
-    arg=get_arg_in_braces(arg, type, 0);
-    arg=get_arg_in_braces(arg, onoff, 1);
-    substitute_vars(type, tpstr);
-    substitute_myvars(tpstr, type, ses);
-    substitute_vars(onoff, tpstr);
-    substitute_myvars(tpstr, onoff, ses);
+    arg=get_arg(arg, type, 0, ses);
+    arg=get_arg(arg, onoff, 1, ses);
     if (!*type)
     {
         for (mestype=0;mestype<MAX_MESVAR;++mestype)
@@ -520,14 +509,11 @@ void messages_command(char *arg,struct session *ses)
 /**********************/
 void snoop_command(char *arg,struct session *ses)
 {
-    char buf[BUFFER_SIZE];
     struct session *sesptr = ses;
 
     if (ses)
     {
-        get_arg_in_braces(arg, arg, 1);
-        substitute_vars(arg, buf);
-        substitute_myvars(buf, arg, ses);
+        get_arg(arg, arg, 1, ses);
         if (*arg)
         {
             for (sesptr = sessionlist; sesptr && strcmp(sesptr->name, arg); sesptr = sesptr->next) ;
@@ -570,14 +556,9 @@ void status_command(char *arg,struct session *ses)
 {
     if (ses!=activesession)
         return;
-    get_arg_in_braces(arg,arg,1);
+    get_arg(arg,arg,1,ses);
     if (*arg)
-    {
-        char buf1[BUFFER_SIZE],buf2[BUFFER_SIZE];
-        substitute_vars(arg,buf1);
-        substitute_myvars(buf1,buf2,ses);
-        strncpy(status,buf2,BUFFER_SIZE);
-    }
+        strncpy(status,arg,BUFFER_SIZE);
     else
         strcpy(status,EMPTY_LINE);
     show_status();
@@ -589,11 +570,7 @@ void status_command(char *arg,struct session *ses)
 /***********************/
 void system_command(char *arg,struct session *ses)
 {
-    char temp[BUFFER_SIZE];
-
-    get_arg_in_braces(arg, arg, 1);
-    substitute_vars(arg, temp);
-    substitute_myvars(temp, arg, ses);
+    get_arg(arg, arg, 1, ses);
     if (*arg)
     {
         FILE *output;
@@ -624,11 +601,7 @@ void system_command(char *arg,struct session *ses)
 /**********************/
 void shell_command(char *arg,struct session *ses)
 {
-    char temp[BUFFER_SIZE];
-
-    get_arg_in_braces(arg, arg, 1);
-    substitute_vars(arg, temp);
-    substitute_myvars(temp, arg, ses);
+    get_arg(arg, arg, 1, ses);
     if (*arg)
     {
         if (ses->mesvar[9])
@@ -696,6 +669,7 @@ void news_command(char *arg, struct session *ses)
 }
 
 
+#if 0
 /*********************************************************************/
 /*   tablist will display the all items in the tab completion file   */
 /*********************************************************************/
@@ -744,7 +718,7 @@ void tablist(struct completenode *tcomplete)
     prompt(NULL);
 }
 
-void tab_add(char *arg)
+void tab_add(char *arg, struct session *ses)
 {
     struct completenode *tmp, *tmpold, *tcomplete;
     struct completenode *newt;
@@ -758,7 +732,7 @@ void tab_add(char *arg)
         prompt(NULL);
         return;
     }
-    get_arg_in_braces(arg, buff, 1);
+    get_arg(arg, buff, 1, ses);
 
     if ((newcomp = (char *)(malloc(strlen(buff) + 1))) == NULL)
     {
@@ -789,7 +763,7 @@ void tab_add(char *arg)
     prompt(NULL);
 }
 
-void tab_delete(char *arg)
+void tab_delete(char *arg, struct session *ses)
 {
     struct completenode *tmp, *tmpold, *tmpnext, *tcomplete;
     char s_buff[BUFFER_SIZE], c_buff[BUFFER_SIZE];
@@ -802,7 +776,7 @@ void tab_delete(char *arg)
         prompt(NULL);
         return;
     }
-    get_arg_in_braces(arg, s_buff, 1);
+    get_arg(arg, s_buff, 1, ses);
     tmp = tcomplete->next;
     tmpold = tcomplete;
     if (tmpold->strng == NULL)
@@ -840,6 +814,7 @@ void tab_delete(char *arg)
         prompt(NULL);
     }
 }
+#endif
 
 void info_command(char *arg, struct session *ses)
 {
@@ -935,14 +910,10 @@ int iscompleteprompt(char *line)
 /******************************/
 void dosubstitutes_command(char *arg,struct session *ses)
 {
-    char left[BUFFER_SIZE], right[BUFFER_SIZE], temp[BUFFER_SIZE];
+    char left[BUFFER_SIZE], right[BUFFER_SIZE];
 
-    arg = get_arg_in_braces(arg, left, 0);
-    arg = get_arg_in_braces(arg, right, 1);
-    substitute_vars(left, temp);
-    substitute_myvars(temp, left, ses);
-    substitute_vars(right, temp);
-    substitute_myvars(temp, right, ses);
+    arg = get_arg(arg, left, 0, ses);
+    arg = get_arg(arg, right, 1, ses);
     if (!*left || !*right)
         tintin_eprintf(ses,"#Syntax: #dosubstitutes <var> <text>");
     else
@@ -957,14 +928,10 @@ void dosubstitutes_command(char *arg,struct session *ses)
 /*****************************/
 void dohighlights_command(char *arg,struct session *ses)
 {
-    char left[BUFFER_SIZE], right[BUFFER_SIZE], temp[BUFFER_SIZE];
+    char left[BUFFER_SIZE], right[BUFFER_SIZE];
 
-    arg = get_arg_in_braces(arg, left, 0);
-    arg = get_arg_in_braces(arg, right, 1);
-    substitute_vars(left, temp);
-    substitute_myvars(temp, left, ses);
-    substitute_vars(right, temp);
-    substitute_myvars(temp, right, ses);
+    arg = get_arg(arg, left, 0, ses);
+    arg = get_arg(arg, right, 1, ses);
     if (!*left || !*right)
         tintin_eprintf(ses,"#Syntax: #dohighlights <var> <text>");
     else
@@ -979,15 +946,11 @@ void dohighlights_command(char *arg,struct session *ses)
 /***************************/
 void decolorize_command(char *arg,struct session *ses)
 {
-    char left[BUFFER_SIZE], right[BUFFER_SIZE], temp[BUFFER_SIZE], *a, *b;
+    char left[BUFFER_SIZE], right[BUFFER_SIZE], *a, *b;
     int c;
 
-    arg = get_arg_in_braces(arg, left, 0);
-    arg = get_arg_in_braces(arg, right, 1);
-    substitute_vars(left, temp);
-    substitute_myvars(temp, left, ses);
-    substitute_vars(right, temp);
-    substitute_myvars(temp, right, ses);
+    arg = get_arg(arg, left, 0, ses);
+    arg = get_arg(arg, right, 1, ses);
     if (!*left || !*right)
         tintin_eprintf(ses,"#Syntax: #decolorize <var> <text>");
     else
@@ -1011,14 +974,10 @@ void decolorize_command(char *arg,struct session *ses)
 /*********************/
 void atoi_command(char *arg,struct session *ses)
 {
-    char left[BUFFER_SIZE], right[BUFFER_SIZE], temp[BUFFER_SIZE], *a;
+    char left[BUFFER_SIZE], right[BUFFER_SIZE], *a;
 
-    arg = get_arg_in_braces(arg, left, 0);
-    arg = get_arg_in_braces(arg, right, 1);
-    substitute_vars(left, temp);
-    substitute_myvars(temp, left, ses);
-    substitute_vars(right, temp);
-    substitute_myvars(temp, right, ses);
+    arg = get_arg(arg, left, 0, ses);
+    arg = get_arg(arg, right, 1, ses);
     if (!*left || !*right)
         tintin_eprintf(ses,"#Syntax: #atoi <var> <text>");
     else
@@ -1060,4 +1019,47 @@ void elif_command(char *arg, struct session *ses)
 void killall_command(char *arg, struct session *ses)
 {
     kill_all(ses, CLEAN);
+}
+
+/**********************/
+/* the #gauge command */
+/**********************/
+void gauge_command(char *arg, struct session *ses)
+{
+    struct timeval tv1,tv2;
+    char sec[BUFFER_SIZE],usec[BUFFER_SIZE],right[BUFFER_SIZE];
+    
+    arg = get_arg(arg, sec, 0, ses);
+    arg = get_arg(arg, usec, 0, ses);
+    arg = get_arg(arg, right, 1, ses);
+    if (!*right)
+    {
+        tintin_eprintf(ses,"#Syntax: #gauge <sec> <usec> <command>");
+        return;
+    }
+    gettimeofday(&tv1, 0);
+    parse_input(right,1,ses);
+    gettimeofday(&tv2, 0);
+    tv2.tv_sec-=tv1.tv_sec;
+    tv2.tv_usec-=tv1.tv_usec;
+    if (tv2.tv_usec<0)
+    {
+        tv2.tv_sec--;
+        tv2.tv_usec+=1000000;
+    }
+    if (*sec || *usec)
+    {
+        if (*sec)
+        {
+            sprintf(right, "%d", tv2.tv_sec);
+            set_variable(sec, right, ses);
+        }
+        if (*usec)
+        {
+            sprintf(right, "%d", tv2.tv_usec);
+            set_variable(usec, right, ses);
+        }
+    }
+    else
+        tintin_printf(ses, "#Time elapsed: %d.%06d", tv2.tv_sec, tv2.tv_usec);
 }
