@@ -13,3 +13,6 @@
 *	TELNET negotiations of echo can break either Genesis and Arkadia
 	MUDs when done one way, or real telnet servers when done the other
 	one.  Hrm.
+
+*	tintin's messages should use ~7~, not the previous colour,
+        while still preserving whatever the colour was

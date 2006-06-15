@@ -12,7 +12,7 @@ KBtin_LDADD=
 ansi2html_SOURCES=ansi2html.c
 ansi2txt_SOURCES=ansi2txt.c
 
-KBtin_DOCS=BUGS OLDNEWS KEYPAD
+KBtin_DOCS=BUGS OLDNEWS KEYPAD FAQ
 EXTRA_DIST=tintin.h KBtin_help.in commands make_commands $(man_MANS) help2ansi fixmanual terminfo.src prof_init kbtin.ico $(KBtin_DOCS)
 CLEANFILES=commands.h load_commands.h KBtin_help.gz manual.html profinit.h
 DISTCLEANFILES=_stdint.h

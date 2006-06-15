@@ -34,6 +34,7 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <netinet/in_systm.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <netinet/tcp.h>
@@ -69,6 +70,11 @@ extern void prompt(struct session *ses);
 extern void telnet_write_line(char *line, struct session *ses);
 extern void pty_write_line(char *line, struct session *ses);
 extern struct session* do_hook(struct session *ses, int t, char *data, int blockzap);
+
+#ifndef SOL_IP
+int SOL_IP;
+int SOL_TCP;
+#endif
 
 /**************************************************/
 /* try connect to the mud specified by the args   */
@@ -270,4 +276,15 @@ int read_buffer_mud(char *buffer, struct session *ses)
     }
     *cpdest = '\0';
     return didget;
+}
+
+void init_net()
+{
+#ifndef SOL_IP
+    struct protoent *pent;
+    pent = getprotobyname ("ip");
+    SOL_IP = (pent != NULL) ? pent->p_proto : 0;
+    pent = getprotobyname ("tcp");
+    SOL_TCP = (pent != NULL) ? pent->p_proto : 0;
+#endif
 }

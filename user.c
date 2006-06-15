@@ -1444,7 +1444,7 @@ void user_init(void)
     
     tbuf+=sprintf(tbuf,"\033[1;1f\0337");
     
-    sprintf(done_input,"~12~KB~3~tin ~7~%s by ~11~kilobyte@mimuw.edu.pl~9~\n",VERSION);
+    sprintf(done_input,"~12~KB~3~tin ~7~%s by ~11~kilobyte@angband.pl~9~\n",VERSION);
     textout(done_input);
     {
         int i;

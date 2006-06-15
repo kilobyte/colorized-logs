@@ -46,3 +46,19 @@
   ACTIVATE      switching sessions
   DEACTIVATE       ''        ''
 * #logcomment, for writing things to the log
+
+1.0.6:
+* Commands are now case-insensitive, for zMud compatibility.
+* Bugfixes, as always.
+* KBtin should be more responsive when under heavy local load or when the
+  server suffers from CPU lag.
+* #gagthis, to remove the current line from within an action (just like
+  zMud's #gag).
+* Logging enhancements:
+	+ appending to a log (>>logfile)
+	+ logging to a pipe (|logger)
+	+ logging through bzip2 (logfile.bz2)
+	+ #logtype, allowing you to switch between cr/lf, lf (previously
+	  a compile-time option) and ttyrec.
+* Added ttyrec2ansi, a filter to strip the timing information from ttyrec
+  files.

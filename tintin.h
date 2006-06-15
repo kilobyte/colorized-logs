@@ -295,11 +295,11 @@ typedef char pvars_t[10][BUFFER_SIZE];
 #endif
 
 #ifdef WORDS_BIGENDIAN
-# define to_little_endian(x) (uint32_t ( \
-    ((uint32_t (x) & uint32_t 0x000000ffU) << 24) | \
-    ((uint32_t (x) & uint32_t 0x0000ff00U) <<  8) | \
-    ((uint32_t (x) & uint32_t 0x00ff0000U) >>  8) | \
-    ((uint32_t (x) & uint32_t 0xff000000U) >> 24)))
+# define to_little_endian(x) ((uint32_t) ( \
+    (((uint32_t)(x) &((uint32_t)0x000000ffU) << 24)) | \
+    (((uint32_t)(x) &((uint32_t)0x0000ff00U) <<  8)) | \
+    (((uint32_t)(x) &((uint32_t)0x00ff0000U) >>  8)) | \
+    (((uint32_t)(x) &((uint32_t)0xff000000U) >> 24))))
 #else
 # define to_little_endian(x) ((uint32_t)(x))
 #endif

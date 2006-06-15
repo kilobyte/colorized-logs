@@ -706,7 +706,11 @@ void write_com_arg_mud(char *command, char *argument, int nsp, struct session *s
 
     if (ses==nullsession)
     {
+#if 0
         tintin_eprintf(ses, "#NO SESSION ACTIVE. USE THE %cSESSION COMMAND TO START ONE.  (was: {%s} {%s})", tintin_char, command, argument);
+#else
+        tintin_eprintf(ses, "#NO SESSION ACTIVE. USE THE %cSESSION COMMAND TO START ONE.", tintin_char);
+#endif
         prompt(NULL);
     }
     else

@@ -145,6 +145,7 @@ extern struct session* do_hook(struct session *ses, int t, char *data, int block
 extern void flush_socket(struct session *ses);
 extern void write_logf(struct session *ses, char *txt, char *prefix, char *suffix);
 extern void write_log(struct session *ses, char *txt, int n);
+extern void init_net();
 #ifdef PROFILING
 extern char *prof_area;
 extern time_t kbd_lag, mud_lag;
@@ -413,7 +414,7 @@ ever wants to read -- that is what docs are for.
     tintin_printf(0,"~2~##################################################");
     tintin_printf(0, "#~7~                ~12~K B ~3~t i n~7~     v %-15s ~2~#", VERSION);
     tintin_printf(0,"#~7~ current developer: ~9~Adam Borowski               ~2~#");
-    tintin_printf(0,"#~7~                        (~9~kilobyte@mimuw.edu.pl~7~) ~2~#");
+    tintin_printf(0,"#~7~                          (~9~kilobyte@angband.pl~7~) ~2~#");
     tintin_printf(0,"#~7~ based on ~12~tintin++~7~ v 2.1.9 by Peter Unold,      ~2~#");
     tintin_printf(0,"#~7~  Bill Reiss, David A. Wagner, Joann Ellsworth, ~2~#");
     tintin_printf(0,"#~7~     Jeremy C. Jack, Ulan@GrimneMUD and         ~2~#");
@@ -431,6 +432,7 @@ ever wants to read -- that is what docs are for.
     }
 #endif
 
+    init_net();
     setup_signals();
 #ifdef PROFILING
     setup_prof();
