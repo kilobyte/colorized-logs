@@ -81,6 +81,7 @@ mac: clean
 	./configure --prefix=/usr				&& \
 	make							&& \
 	make manual.html					&& \
+	rm -rf mac                                              && \
 	mkdir mac						&& \
 	make install DESTDIR=mac				&& \
 	cd mac/usr/share/					&& \
