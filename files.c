@@ -51,6 +51,7 @@ extern struct listnode* hash2list(struct hashtable *h, char *pat);
 extern void zap_list(struct listnode *nptr);
 extern char* get_hash(struct hashtable *h, char *key);
 extern void write_line_mud(char *line, struct session *ses);
+extern FILE *mypopen(const char *command, int wr);
 
 extern int puts_echoing;
 extern int alnum, acnum, subnum, hinum, varnum, antisubnum, routnum, bindnum, pdnum;
@@ -223,7 +224,7 @@ void condump_command(char *arg, struct session *ses)
         if ((strlen(fname)<4)||(strcmp(fname+strlen(fname)-3,".gz")))
             fh = fopen(fname, "w");
         else
-            fh = popen(strcat(strcpy(temp,"gzip -9 >"),fname), "w");
+            fh = mypopen(strcat(strcpy(temp,"gzip -9 >"),fname), 1);
         if (fh)
         {
             user_condump(fh);
@@ -264,7 +265,7 @@ void log_command(char *arg, struct session *ses)
                 else
                     tintin_eprintf(ses, "#ERROR: COULDN'T OPEN FILE {%s}.", fname);
             else
-                if ((ses->logfile = popen(strcat(strcpy(temp,"gzip -9 >"),fname), "w")))
+                if ((ses->logfile = mypopen(strcat(strcpy(temp,"gzip -9 >"),fname), 1)))
                     tintin_printf(ses, "#OK. LOGGING TO {%s} .....", fname);
                 else
                     tintin_eprintf(ses, "#ERROR: COULDN'T OPEN PIPE: {gzip -9 >%s}.", fname);
@@ -307,7 +308,7 @@ void debuglog_command(char *arg, struct session *ses)
             else
                 tintin_eprintf(ses, "#ERROR: COULDN'T OPEN FILE {%s}.", fname);
         else
-            if ((ses->debuglogfile = popen(strcat(strcpy(temp,"gzip -9 >"),fname), "w")))
+            if ((ses->debuglogfile = mypopen(strcat(strcpy(temp,"gzip -9 >"),fname), 1)))
                 tintin_printf(ses, "#OK. DEBUGLOG SET TO {%s} .....", fname);
             else
                 tintin_eprintf(ses, "#ERROR: COULDN'T OPEN PIPE: {gzip -9 >%s}.", fname);

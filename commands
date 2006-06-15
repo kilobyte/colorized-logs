@@ -17,16 +17,13 @@ action
 alias
 antisubstitute
 bell
-
-#ifdef UI_FULLSCREEN
-bind
-#endif
-
 blank
 char
 
 #ifdef UI_FULLSCREEN
+bind
 condump
+keypad
 #endif
 
 ctime
@@ -52,11 +49,6 @@ ignore
 implode
 info
 isatom
-
-#ifdef UI_FULLSCREEN
-keypad
-#endif
-
 killall
 listlength
 log
@@ -84,6 +76,7 @@ random
 ;retab
 remark
 removeevent
+undelay
 unevent
 return
 reverse

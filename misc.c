@@ -36,7 +36,7 @@ extern int keypad,retain;
 extern pvars_t *pvars;	/* the %0, %1, %2,....%9 variables */
 extern char status[BUFFER_SIZE];
 extern int margins,marginl,marginr;
-extern FILE *mypopen(char *command);
+extern FILE *mypopen(const char *command, int wr);
 extern int LINES,COLS;
 extern void cleanup_session(struct session *ses);
 extern int count_list(struct listnode *listhead);
@@ -616,7 +616,7 @@ void system_command(char *arg,struct session *ses)
         
         if (ses->mesvar[9])
             tintin_puts1("#EXECUTING SHELL COMMAND.", ses);
-        if (!(output = mypopen(arg)))
+        if (!(output = mypopen(arg,0)))
         {
             tintin_puts1("#ERROR EXECUTING SHELL COMMAND.",ses);
             prompt(NULL);
@@ -951,7 +951,7 @@ int iscompleteprompt(char *line)
         else
             if (!isspace(*line))
                 ch=*line;
-    return (strchr("?:>.*$#]&",ch) && !(c&0x70));
+    return (strchr("?:>.*$#]&)",ch) && !(c&0x70));
 }
 
 /******************************/
@@ -1052,7 +1052,7 @@ void remark_command(char *arg, struct session *ses)
 /* the #nop(e) command */
 /***********************/
 /*
- I receive a _bug_ report that this command is named "nop" not "nope".
+ I received a _bug_ report that this command is named "nop" not "nope".
  Even though that's a ridiculous idea, it won't hurt those of us who
  can spell. :p
 */

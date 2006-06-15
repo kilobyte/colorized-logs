@@ -1,4 +1,4 @@
-1.0.4a:
+1.0.4alpha:
 *	added a symlink kbtin -> KBtin to avoid mixed-case executable
 	name while retaining old name as well
 *	\e[39m, \e[49m
@@ -10,16 +10,27 @@
 *	if you undefine UI_FULLSCREEN in tintin.h, KBtin will be pipe-
 	friendly; for use as a scripting language or for regression tests
 *	telnet EOR sequences are allowed and treated as GAs
-*	bugfix: unterminated TELNET subnegotiations no longer cause a
-	segfault
+*	bugfix: unterminated TELNET IAC SB subnegotiations no longer cause
+	a buffer overflow
 *	bugfix: sometimes TELNET sequences were not carried properly over
 	a packet boundary
 *	cleaned up command line parsing, added -q and -c
 *	a (too short) manpage added
 *	axed the old BSD license from acinclude.m4, the only snippet we
 	use is in public domain
-*	window title in xterm
+*	window title in xterms
+*	#undelay as an alias for #remove=#unevent
+*	bugfix: \e[K and \e[D used to swallow some text
+*	core dumps will now be properly generated when appropiate
+*	tintin++ 1.86 compatibility: #ifexists, #ifstrequal
+*=test==bugfix: no more data loss when KBtin gets killed by a SIGINT (^C)
+	or a SIGHUP (disconnect)
+*	\e[J clears the current line (\e[1J and \e[2J don't work right)
+*	bugfix: #grep's regexp can now contain variables
 *=============fix ansi2html before releasing!!!======================
+*=======fix bad bytecount on telnet crap================
+*=======#unact *
+*=======-s, -r
 
 1.0.4:
 *	changes needed to compile on Tru64:

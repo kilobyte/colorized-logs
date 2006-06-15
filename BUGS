@@ -1,7 +1,5 @@
 *	pattern-matching routines are SLOOOW (inherited from TinTin++)
 
-*	documentation is crappy
-
 *	spawned pseudoterminal (on #run) is not checked for echo on/off
 
 *	undocumented feature: ~-1~ -- document it? remove at all? change?
@@ -12,11 +10,6 @@
 
 *	{#var color ~7~;#var color} shows {} -- it shouldn't get interpreted
 
-*	manpage
-
 *	TELNET negotiations of echo can break either Genesis and Arkadia
 	MUDs when done one way, or real telnet servers when done the other
 	one.  Hrm.
-
-*	race condition during shutdown if logging through gzip, can lead to
-	losing the last portion of a log

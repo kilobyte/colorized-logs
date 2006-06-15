@@ -14,6 +14,7 @@
 extern char tintin_char;
 extern pvars_t *pvars;	/* the %0, %1, %2,....%9 variables */
 extern char *get_arg_in_braces(char *s,char *arg,int flag);
+extern char *get_arg(char *s,char *arg,int flag,struct session *ses);
 void substitute_vars(char *arg, char *result);
 extern void substitute_myvars(char *arg,char *result,struct session *ses);
 extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
@@ -59,15 +60,12 @@ int check_regexp(char *line, char *action, pvars_t *vars, int inside, struct ses
 void grep_command(char *arg, struct session *ses)
 {
     pvars_t vars,*lastpvars;
-    char left[BUFFER_SIZE], line[BUFFER_SIZE], right[BUFFER_SIZE],
-         temp[BUFFER_SIZE];
+    char left[BUFFER_SIZE], line[BUFFER_SIZE], right[BUFFER_SIZE];
     int flag=0;
     
-    arg=get_arg_in_braces(arg, left, 0);
-    arg=get_arg_in_braces(arg, line, 0);
+    arg=get_arg(arg, left, 0, ses);
+    arg=get_arg(arg, line, 0, ses);
     arg=get_arg_in_braces(arg, right, 0);
-    substitute_vars(line, temp);
-    substitute_myvars(temp, line, ses);
     
     if (!*left || !*right)
     {

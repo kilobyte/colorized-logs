@@ -156,17 +156,30 @@ void sigcont(void)
 void sigsegv(void)
 {
     user_done();
-    write(2,"Segmentation fault.\n",20);
-    exit(11);
+    fflush(0);
+/*  write(2,"Segmentation fault.\n",20);*/
+    signal(SIGSEGV, SIG_DFL);
+    raise(SIGSEGV);
+/*  exit(SIGSEGV);*/
 }
 
 void sigfpe(void)
 {
     user_done();
-    write(2,"Floating point exception.\n",26);
-    exit(8);
+    fflush(0);
+/*  write(2,"Floating point exception.\n",26);*/
+    signal(SIGFPE, SIG_DFL);
+    raise(SIGFPE);
+/*  exit(SIGFPE);*/
 }
 #endif
+
+void sighup(void)
+{
+    fflush(0);
+    signal(SIGHUP, SIG_DFL);
+    raise(SIGHUP);
+}
 
 int new_news(void)
 {
@@ -202,6 +215,8 @@ void setup_signals(void)
         syserr("signal SIGQUIT");
     if (signal(SIGINT, (sighandler_t)myquitsig) == BADSIG)
         syserr("signal SIGINT");
+    if (signal(SIGHUP, (sighandler_t)sighup) == BADSIG)
+        syserr("signal SIGHUP");
     act.sa_handler=(sighandler_t)tstphandler;
     if (sigaction(SIGTSTP,&act,0))
         syserr("sigaction SIGTSTP");
@@ -281,7 +296,7 @@ void parse_options(int argc, char **argv, char **environ)
         }
         else
         {
-            if (f=fopen(argv[arg],"r"))
+            if ((f=fopen(argv[arg],"r")))
             {
                 tintin_printf(0, "#READING {%s}", argv[arg]);
                 activesession = do_read(f, argv[arg], activesession);
@@ -294,7 +309,7 @@ void parse_options(int argc, char **argv, char **environ)
     {
         strcpy(temp, homepath);
         strcat(temp, "/.tintinrc");
-        if (f=fopen(temp,"r"))
+        if ((f=fopen(temp,"r")))
             activesession = do_read(f, temp, activesession);
         else
         {
@@ -303,7 +318,7 @@ void parse_options(int argc, char **argv, char **environ)
                 strcpy(homepath, strptr);
                 strcpy(temp, homepath);
                 strcat(temp, "/.tintinrc");
-                if (f=fopen(temp,"r"))
+                if ((f=fopen(temp,"r")))
                     activesession = do_read(f, temp, nullsession);
             }
         }

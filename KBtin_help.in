@@ -42,7 +42,7 @@ Lists:
 Tickers:
    tick        tickon      tickoff     ticksize
 Events:
-   delay=event remove=unevent
+   delay=event remove=unevent=undelay
 Routes:
    goto        >           route       unroute     dogoto
 Misc:
@@ -634,12 +634,13 @@ Lists all binds or those matching <pattern>.
 Binds the key whose code is <keycode> to <command>.
 If you are not sure about the keycode (they can differ across various
 systems, too), press the key in question.
+For binding the arrow keys, read the help for #keypad first.
 
 Examples:
 #bind F1 {k galdor}
 #bind F2 {#loop 1,$nhorses {mount horse $0};spur;k elven scout}
 #bind F3 {whoa;dismount horse;#loop 1,$nhorses {get all from corpse into
-panniers $0}}
+ panniers $0}}
 
 #bind ^L {ed $cwf;1,10000d;i;#text $cwf;I;x;update}
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -848,9 +849,11 @@ Example:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~remove
 ~unevent
+~undelay
 
 #remove <pattern>
 #unevent <pattern>
+#undelay <pattern>
 Kills all timed events which _command_ (not delay!) matches <pattern>.
 
 Example:
@@ -1178,7 +1181,7 @@ matched subexpression, like in Perl, sed and the like.
 $0 will be assigned the whole part of the line that matched the regexp.
 
 Example:
- #grep {abc(.)def(.+)ghi} {abc1def12345ghi} {whatever}
+ #grep {__h_abc(.)def(.+)ghijkl} {abc1def12345ghi} {whatever}
  	$0 = "abc1def12345ghi"
 	$1 = "1"
 	$2 = "12345"

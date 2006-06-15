@@ -205,11 +205,9 @@ again:
                     for(i=0;i<tok[0];i++)
                         *out++=' ';
                     break;
-                case 'D': /* this interpretation is not really valid... */
+                case 'D': /* this interpretation is badly invalid... */
                 case 'K':
-                    txt+=2;
-                    while (!isalpha(*txt++));
-                    txt--;
+                case 'J':
                     out=OUT;
                     out+=setcolor(out,ccolor);
                     break;

@@ -25,6 +25,7 @@
 # endif
 #endif
 #include <stdlib.h>
+#include <signal.h>
 #include "tintin.h"
 
 extern char **environ;
@@ -242,7 +243,7 @@ int run(char *command)
 }
 
 
-FILE *mypopen(char *command)
+FILE *mypopen(char *command, int wr)
 {
     int p[2];
     
@@ -258,11 +259,26 @@ FILE *mypopen(char *command)
         {
             char *argv[4];
 
-            close(p[0]);
-            close(0);
-            open("/dev/null",O_RDONLY);
-            dup2(p[1],1);
-            dup2(p[1],2);
+            if(!wr)
+            {
+                close(p[0]);
+                close(0);
+                open("/dev/null",O_RDONLY);
+                dup2(p[1],1);
+                dup2(p[1],2);
+            }
+            else
+            {
+                close(p[1]);
+                close(1);
+                close(2);
+                open("/dev/null",O_WRONLY);
+                dup2(1,2);
+                dup2(p[0],0);
+                signal(SIGINT, SIG_IGN);
+                signal(SIGHUP, SIG_IGN);
+                signal(SIGTSTP, SIG_IGN);
+            }
             argv[0]="sh";
             argv[1]="-c";
             argv[2]=command;
@@ -272,7 +288,7 @@ FILE *mypopen(char *command)
             exit(127);
         }
     default:
-        close(p[1]);
-        return fdopen(p[0], "r");
+        close(p[!wr]);
+        return fdopen(p[wr], wr?"w":"r");
     }
 }

@@ -5,14 +5,18 @@ INCLUDES = -DDATA_PATH=\"$(helpdir)\"
 man_MANS = ansi2html.6 ansi2txt.6 KBtin.6
 
 BUILT_SOURCES=commands.h load_commands.h
-KBtin_SOURCES=action.c alias.c antisub.c files.c glob.c help.c highlight.c history.c ivars.c llist.c main.c misc.c net.c parse.c path.c session.c substitute.c ticks.c utils.c variables.c events.c user.c run.c colors.c routes.c bind.c telnet.c crc.c hash.c regexp.c
+KBtin_SOURCES=action.c alias.c antisub.c files.c glob.c help.c highlight.c history.c ivars.c llist.c main.c misc.c net.c parse.c path.c session.c substitute.c ticks.c utils.c variables.c events.c user.c run.c colors.c routes.c bind.c telnet.c crc.c hash.c regexp.c $(BUILT_SOURCES)
 KBtin_LDADD=
 
 ansi2html_SOURCES=ansi2html.c
 ansi2txt_SOURCES=ansi2txt.c
 
-EXTRA_DIST=tintin.h KBtin_help.in BUGS commands make_commands $(man_MANS) OLDNEWS help2ansi fixmanual
+EXTRA_DIST=tintin.h KBtin_help.in BUGS commands make_commands $(man_MANS) OLDNEWS help2ansi fixmanual terminfo.src
 CLEANFILES=commands.h load_commands.h KBtin_help.gz manual.html
+
+#kludge to prevent $(BUILT_SOURCES) from being distributed
+dist-hook:
+	for x in $(BUILT_SOURCES);do rm -f "$(distdir)/$$x";done
 
 install-exec-hook:
 	$(LN_S) -f KBtin $(DESTDIR)$(bindir)/kbtin
@@ -47,13 +51,17 @@ manual.html: KBtin_help.in help2ansi ansi2html fixmanual
 #This won't work during a cross-compile, you will have to use a locally
 #built version of ansi2html.
 
+# install the terminfo data
+install-terminfo: terminfo.src
+	tic terminfo.src -o $(DESTDIR)$(TERMINFODIR)
+
 # update version number in "tintin.h"
 update-version:
-	@if cat tintin.h | grep -e "$(VERSION)" >/dev/null; then \
+	@if cat tintin.h | grep -e "$(VERSION)$" >/dev/null; then \
            	touch -r tintin.h configure.ac; \
 	else \
-		if cat tintin.h | sed -e 's/#define VERSION_NUM.*/#define VERSION_NUM \"$(VERSION)\"/' > /tmp/updated_tintin.h; then \
-			mv /tmp/updated_tintin.h tintin.h; \
+		if cat tintin.h | sed -e 's/#define VERSION_NUM.*/#define VERSION_NUM \"$(VERSION)\"/' > 'updated_tintin.h$'; then \
+			mv 'updated_tintin.h$' tintin.h; \
 		fi; \
 	fi
 

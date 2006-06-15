@@ -128,8 +128,11 @@ struct session *session_command(char *arg,struct session *ses)
     }
     while (*port && !isspace(*port))
         port++;
-    *port++ = '\0';
-    port = space_out(port);
+    if (*port)
+    {
+        *port++ = '\0';
+        port = space_out(port);
+    }
 
     if (!*port)
     {

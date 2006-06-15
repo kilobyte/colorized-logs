@@ -27,7 +27,7 @@ extern void prompt(struct session *ses);
 extern char *tintin_exec;
 extern void tintin_printf(struct session *ses, const char *format, ...);
 extern void tintin_eprintf(struct session *ses, const char *format, ...);
-extern FILE *mypopen(char *command);
+extern FILE *mypopen(const char *command, int wr);
 
 FILE *check_file(char *filestring)
 {
@@ -42,7 +42,7 @@ FILE *check_file(char *filestring)
         return 0;
     sprintf(sysfile, "%s %s%s", DEFAULT_EXPANSION_STR, filestring,
         DEFAULT_COMPRESSION_EXT);
-    return mypopen(sysfile);
+    return mypopen(sysfile,0);
 #else
     return (FILE *) fopen(filestring, "r");
 #endif

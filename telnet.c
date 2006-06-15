@@ -5,6 +5,7 @@
 #include "tintin.h"
 
 extern void tintin_printf(struct session *ses, char *format, ...);
+extern void tintin_eprintf(struct session *ses, char *format, ...);
 extern int LINES,COLS,isstatus;
 extern struct session *sessionlist;
 
@@ -194,7 +195,7 @@ int do_telnet_protocol(unsigned char *data,int nb,struct session *ses)
             switch(wt)
             {
             case WILL:  answer[1]=DO;   ses->server_echo=1; break;
-            case DO:    answer[1]=WILL; break;
+            case DO:    answer[1]=WONT; break;
             case WONT:  answer[1]=DONT; ses->server_echo=2; break;
             case DONT:  answer[1]=WONT; break;
             };

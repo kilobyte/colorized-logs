@@ -222,6 +222,7 @@ int read_buffer_mud(char *buffer, struct session *ses)
             break;
         case 255:
             b=do_telnet_protocol(cpsource, i, ses);
+//            tintin_printf(ses, "Telnet protocol: %d bytes.");
             switch(b)
             {
             case -1:

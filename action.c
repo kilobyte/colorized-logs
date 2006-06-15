@@ -46,10 +46,10 @@ int var_len[10];
 char *var_ptr[10];
 extern int aborting, recursion;
 
-#define K_ACTION_MAGIC "#X~4~~2~~12~[This action is being deleted!]~7~X"
 int inActions=0;
 int deletedActions=0;
 char *match_start,*match_end;
+#define K_ACTION_MAGIC "#X~4~~2~~12~[This action is being deleted!]~7~X"
 
 void kill_action(struct listnode *head,struct listnode *nptr)
 {
@@ -206,7 +206,7 @@ void unaction_command(char *arg, struct session *ses)
     while ((ln = search_node_with_wild(temp, left)) != NULL)
     {
         if (ses->mesvar[1])
-            tintin_printf(ses,"#Ok. {%s} is no longer a trigger.", ln->left);
+            tintin_printf(ses,"#Ok. {%s} is no longer an action.", ln->left);
         kill_action(myactions, ln);
         flag = TRUE;
         /* temp=ln;*/
@@ -231,7 +231,7 @@ void unpromptaction_command(char *arg, struct session *ses)
     while ((ln = search_node_with_wild(temp, left)) != NULL)
     {
         if (ses->mesvar[1])
-            tintin_printf(ses,"#Ok. {%s} is no longer a trigger.", ln->left);
+            tintin_printf(ses,"#Ok. {%s} is no longer an action.", ln->left);
         kill_action(myactions, ln);
         flag = TRUE;
         /* temp=ln;*/

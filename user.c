@@ -1385,7 +1385,7 @@ void show_status(void)
 void user_init(void)
 {
 #ifdef XTERM_TITLE
-    xterm=getenv("DISPLAY")&&getenv("WINDOWID");
+    xterm|=getenv("DISPLAY")&&getenv("WINDOWID");
 #endif
     term_getsize();
     term_init();
@@ -1503,14 +1503,14 @@ void user_passwd(int x)
 #ifdef XTERM_TITLE
 void user_title(char *fmt,...)
 {
-    if (!xterm)
-        return;
     va_list ap;
 #ifdef HAVE_VSNPRINTF
     char buf[BUFFER_SIZE];
 #else
     char buf[BUFFER_SIZE*4]; /* let's hope this will never overflow... */
 #endif
+    if (!xterm)
+        return;
 
     va_start(ap, fmt);
 #ifdef HAVE_VSNPRINTF
