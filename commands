@@ -142,6 +142,7 @@ changeto
 send
 timecommands
 debuglog
+logtype
 
 #ifdef HAVE_REGCOMP
 grep

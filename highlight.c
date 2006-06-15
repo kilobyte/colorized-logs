@@ -35,7 +35,7 @@ extern void substitute_myvars(char *arg,char *result,struct session *ses);
 extern void substitute_vars(char *arg, char *result);
 extern void tintin_printf(struct session *ses, char *format, ...);
 extern void tintin_eprintf(struct session *ses, char *format, ...);
-extern char* get_fastener(const char *);
+extern char* get_fastener(const char*, char*);
 
 extern int hinum;
 extern int getcolor(char **ptr,int *color,const int flag);
@@ -177,7 +177,7 @@ void highlight_command(char *arg, struct session *ses)
             }
             if ((ln = searchnode_list(myhighs, right)) != NULL)
                 deletenode_list(myhighs, ln);
-            insertnode_list(myhighs, right, left,get_fastener(right),LENGTH);
+            insertnode_list(myhighs, right, left, get_fastener(right, tmp1), LENGTH);
             hinum++;
             if (ses->mesvar[4])
                 tintin_printf(ses,"#Ok. {%s} is now highlighted %s.", right, left);

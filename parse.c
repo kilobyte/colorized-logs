@@ -71,7 +71,6 @@ int recursion;
 extern char *prof_area;
 #endif
 
-
 /**************************************************************************/
 /* parse input, check for TINTIN commands and aliases and send to session */
 /**************************************************************************/
@@ -455,13 +454,13 @@ char *get_arg_all(char *s, char *arg)
     while (*s)
     {
 
-        if (*s == '\\')
+        if (*s==CHAR_VERBATIM)     /* \ */
         {
             *arg++ = *s++;
             if (*s)
                 *arg++ = *s++;
         }
-        else if (*s == ';' && nest < 1)
+        else if (nest<1 && (*s==CHAR_NEWLINE)) /* ; */
         {
             break;
         }
@@ -494,7 +493,7 @@ char *get_inline(char *s, char *arg)
     s = space_out(s);
     while (*s)
     {
-        if (*s == '\\')
+        if (*s==CHAR_VERBATIM)     /* \ */
         {
             *arg++ = *s++;
             if (*s)
@@ -536,7 +535,7 @@ inline char *get_arg_with_spaces(char *s, char *arg)
     while (*s)
     {
 
-        if (*s == '\\')
+        if (*s==CHAR_VERBATIM)     /* \ */
         {
             if (*++s)
                 *arg++ = *s++;
@@ -578,7 +577,7 @@ char *get_arg_in_braces(char *s,char *arg,int flag)
     s++;
     while (*s != '\0' && !(*s == DEFAULT_CLOSE && nest == 0))
     {
-        if (*s=='\\')
+        if (*s==CHAR_VERBATIM)     /* \ */
             ;
         else
             if (*s == DEFAULT_OPEN)
@@ -608,17 +607,17 @@ inline char *get_arg_stop_spaces(char *s, char *arg)
 
     while (*s)
     {
-        if (*s == '\\')
+        if (*s==CHAR_VERBATIM)     /* \ */
         {
             if (*++s)
                 *arg++ = *s++;
         }
-        else if (*s == '"')
+        else if (*s==CHAR_QUOTE)   /* " */
         {
             s++;
             inside = !inside;
         }
-        else if (*s == ';')
+        else if (*s==CHAR_NEWLINE) /* ; */
         {
             if (inside)
                 *arg++ = *s++;
@@ -659,17 +658,17 @@ char *get_command(char *s, char *arg)
 
     while (*s)
     {
-        if (*s == '\\')
+        if (*s==CHAR_VERBATIM)     /* \ */
         {
             if (*++s)
                 *arg++ = *s++;
         }
-        else if (*s == '"')
+        else if (*s==CHAR_QUOTE)   /* " */
         {
             s++;
             inside = !inside;
         }
-        else if (*s == ';')
+        else if (*s==CHAR_NEWLINE) /* ; */
         {
             if (inside)
                 *arg++ = *s++;
@@ -707,7 +706,7 @@ void write_com_arg_mud(char *command, char *argument, int nsp, struct session *s
 
     if (ses==nullsession)
     {
-        tintin_eprintf(ses, "#NO SESSION ACTIVE. USE THE %cSESSION COMMAND TO START ONE.", tintin_char);
+        tintin_eprintf(ses, "#NO SESSION ACTIVE. USE THE %cSESSION COMMAND TO START ONE.  (was: {%s} {%s})", tintin_char, command, argument);
         prompt(NULL);
     }
     else

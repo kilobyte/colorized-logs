@@ -24,7 +24,9 @@ extern struct hashtable* init_hash();
 extern char* get_hash(struct hashtable *h, char *key);
 extern void set_hash_nostring(struct hashtable *h, char *key, char *value);
 extern void tintin_printf(struct session *ses,char *format,...);
-struct listnode* hash2list(struct hashtable *h, char *pat);
+extern struct listnode* hash2list(struct hashtable *h, char *pat);
+extern void syserr(char *msg, ...);
+extern void zap_list(struct listnode *nptr);
 
 char *prof_area;
 time_t kbd_lag, mud_lag;

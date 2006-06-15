@@ -1484,7 +1484,7 @@ fi
 
 PACKAGE=KBtin
 
-VERSION=1.0.5a
+VERSION=1.0.5i
 
 if test "`cd $srcdir && pwd`" != "`pwd`" && test -f $srcdir/config.status; then
   { { echo "$as_me:$LINENO: error: source directory already configured; run \"make distclean\" there first" >&5
@@ -3132,6 +3132,1310 @@ _ACEOF
 
 fi
 
+# ------ AC CREATE STDINT H -------------------------------------
+echo "$as_me:$LINENO: checking for stdint-types...." >&5
+echo $ECHO_N "checking for stdint-types....... $ECHO_C" >&6
+ac_stdint_h=`echo _stdint.h`
+if test "$ac_stdint_h" = "stdint.h" ; then
+ echo "$as_me:$LINENO: result: \"(are you sure you want them in ./stdint.h?)\"" >&5
+echo "${ECHO_T}\"(are you sure you want them in ./stdint.h?)\"" >&6
+elif test "$ac_stdint_h" = "inttypes.h" ; then
+ echo "$as_me:$LINENO: result: \"(are you sure you want them in ./inttypes.h?)\"" >&5
+echo "${ECHO_T}\"(are you sure you want them in ./inttypes.h?)\"" >&6
+else
+ echo "$as_me:$LINENO: result: \"(putting them into $ac_stdint_h)\"" >&5
+echo "${ECHO_T}\"(putting them into $ac_stdint_h)\"" >&6
+fi
+
+inttype_headers=`echo inttypes.h sys/inttypes.h sys/inttypes.h  \
+| sed -e 's/,/ /g'`
+
+ ac_cv_header_stdint_x="no-file"
+ ac_cv_header_stdint_o="no-file"
+ ac_cv_header_stdint_u="no-file"
+ for i in stdint.h $inttype_headers ; do
+   unset ac_cv_type_uintptr_t
+   unset ac_cv_type_uint64_t
+   echo "$as_me:$LINENO: checking for uintptr_t" >&5
+echo $ECHO_N "checking for uintptr_t... $ECHO_C" >&6
+if test "${ac_cv_type_uintptr_t+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <$i>
+
+int
+main ()
+{
+if ((uintptr_t *) 0)
+  return 0;
+if (sizeof (uintptr_t))
+  return 0;
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_type_uintptr_t=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_type_uintptr_t=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: $ac_cv_type_uintptr_t" >&5
+echo "${ECHO_T}$ac_cv_type_uintptr_t" >&6
+if test $ac_cv_type_uintptr_t = yes; then
+  ac_cv_header_stdint_x=$i
+else
+       continue
+fi
+
+   echo "$as_me:$LINENO: checking for uint64_t" >&5
+echo $ECHO_N "checking for uint64_t... $ECHO_C" >&6
+if test "${ac_cv_type_uint64_t+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include<$i>
+
+int
+main ()
+{
+if ((uint64_t *) 0)
+  return 0;
+if (sizeof (uint64_t))
+  return 0;
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_type_uint64_t=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_type_uint64_t=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: $ac_cv_type_uint64_t" >&5
+echo "${ECHO_T}$ac_cv_type_uint64_t" >&6
+if test $ac_cv_type_uint64_t = yes; then
+  and64="(uint64_t too)"
+else
+  and64=""
+fi
+
+   echo "$as_me:$LINENO: result: ... seen our uintptr_t in $i $and64" >&5
+echo "${ECHO_T}... seen our uintptr_t in $i $and64" >&6
+   break;
+ done
+ if test "$ac_cv_header_stdint_x" = "no-file" ; then
+ for i in stdint.h $inttype_headers ; do
+   unset ac_cv_type_uint32_t
+   unset ac_cv_type_uint64_t
+   echo "$as_me:$LINENO: checking for uint32_t" >&5
+echo $ECHO_N "checking for uint32_t... $ECHO_C" >&6
+if test "${ac_cv_type_uint32_t+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <$i>
+
+int
+main ()
+{
+if ((uint32_t *) 0)
+  return 0;
+if (sizeof (uint32_t))
+  return 0;
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_type_uint32_t=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_type_uint32_t=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: $ac_cv_type_uint32_t" >&5
+echo "${ECHO_T}$ac_cv_type_uint32_t" >&6
+if test $ac_cv_type_uint32_t = yes; then
+  ac_cv_header_stdint_o=$i
+else
+       continue
+fi
+
+   echo "$as_me:$LINENO: checking for uint64_t" >&5
+echo $ECHO_N "checking for uint64_t... $ECHO_C" >&6
+if test "${ac_cv_type_uint64_t+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include<$i>
+
+int
+main ()
+{
+if ((uint64_t *) 0)
+  return 0;
+if (sizeof (uint64_t))
+  return 0;
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_type_uint64_t=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_type_uint64_t=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: $ac_cv_type_uint64_t" >&5
+echo "${ECHO_T}$ac_cv_type_uint64_t" >&6
+if test $ac_cv_type_uint64_t = yes; then
+  and64="(uint64_t too)"
+else
+  and64=""
+fi
+
+   echo "$as_me:$LINENO: result: ... seen our uint32_t in $i $and64" >&5
+echo "${ECHO_T}... seen our uint32_t in $i $and64" >&6
+   break;
+ done
+ if test "$ac_cv_header_stdint_o" = "no-file" ; then
+ for i in sys/types.h $inttype_headers ; do
+   unset ac_cv_type_u_int32_t
+   unset ac_cv_type_u_int64_t
+   echo "$as_me:$LINENO: checking for u_int32_t" >&5
+echo $ECHO_N "checking for u_int32_t... $ECHO_C" >&6
+if test "${ac_cv_type_u_int32_t+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <$i>
+
+int
+main ()
+{
+if ((u_int32_t *) 0)
+  return 0;
+if (sizeof (u_int32_t))
+  return 0;
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_type_u_int32_t=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_type_u_int32_t=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: $ac_cv_type_u_int32_t" >&5
+echo "${ECHO_T}$ac_cv_type_u_int32_t" >&6
+if test $ac_cv_type_u_int32_t = yes; then
+  ac_cv_header_stdint_u=$i
+else
+       continue
+fi
+
+   echo "$as_me:$LINENO: checking for uint64_t" >&5
+echo $ECHO_N "checking for uint64_t... $ECHO_C" >&6
+if test "${ac_cv_type_uint64_t+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include<$i>
+
+int
+main ()
+{
+if ((uint64_t *) 0)
+  return 0;
+if (sizeof (uint64_t))
+  return 0;
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_type_uint64_t=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_type_uint64_t=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: $ac_cv_type_uint64_t" >&5
+echo "${ECHO_T}$ac_cv_type_uint64_t" >&6
+if test $ac_cv_type_uint64_t = yes; then
+  and64="(u_int64_t too)"
+else
+  and64=""
+fi
+
+   echo "$as_me:$LINENO: result: ... seen our u_int32_t in $i $and64" >&5
+echo "${ECHO_T}... seen our u_int32_t in $i $and64" >&6
+   break;
+ done
+ fi
+ fi
+
+# ----------------- DONE inttypes.h checks MAYBE C basic types --------
+
+if test "$ac_cv_header_stdint_x" = "no-file" ; then
+   echo "$as_me:$LINENO: checking size of char" >&5
+echo $ECHO_N "checking size of char... $ECHO_C" >&6
+if test "${ac_cv_sizeof_char+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  for ac_size in 4 8 1 2 16  ; do # List sizes in rough order of prevalence.
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include "confdefs.h"
+#include <sys/types.h>
+
+
+int
+main ()
+{
+switch (0) case 0: case (sizeof (char) == $ac_size):;
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_sizeof_char=$ac_size
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+  if test x$ac_cv_sizeof_char != x ; then break; fi
+done
+
+fi
+
+if test x$ac_cv_sizeof_char = x ; then
+  { { echo "$as_me:$LINENO: error: cannot determine a size for char" >&5
+echo "$as_me: error: cannot determine a size for char" >&2;}
+   { (exit 1); exit 1; }; }
+fi
+echo "$as_me:$LINENO: result: $ac_cv_sizeof_char" >&5
+echo "${ECHO_T}$ac_cv_sizeof_char" >&6
+
+cat >>confdefs.h <<_ACEOF
+#define SIZEOF_CHAR $ac_cv_sizeof_char
+_ACEOF
+
+
+   echo "$as_me:$LINENO: checking size of short" >&5
+echo $ECHO_N "checking size of short... $ECHO_C" >&6
+if test "${ac_cv_sizeof_short+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  for ac_size in 4 8 1 2 16  ; do # List sizes in rough order of prevalence.
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include "confdefs.h"
+#include <sys/types.h>
+
+
+int
+main ()
+{
+switch (0) case 0: case (sizeof (short) == $ac_size):;
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_sizeof_short=$ac_size
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+  if test x$ac_cv_sizeof_short != x ; then break; fi
+done
+
+fi
+
+if test x$ac_cv_sizeof_short = x ; then
+  { { echo "$as_me:$LINENO: error: cannot determine a size for short" >&5
+echo "$as_me: error: cannot determine a size for short" >&2;}
+   { (exit 1); exit 1; }; }
+fi
+echo "$as_me:$LINENO: result: $ac_cv_sizeof_short" >&5
+echo "${ECHO_T}$ac_cv_sizeof_short" >&6
+
+cat >>confdefs.h <<_ACEOF
+#define SIZEOF_SHORT $ac_cv_sizeof_short
+_ACEOF
+
+
+   echo "$as_me:$LINENO: checking size of int" >&5
+echo $ECHO_N "checking size of int... $ECHO_C" >&6
+if test "${ac_cv_sizeof_int+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  for ac_size in 4 8 1 2 16  ; do # List sizes in rough order of prevalence.
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include "confdefs.h"
+#include <sys/types.h>
+
+
+int
+main ()
+{
+switch (0) case 0: case (sizeof (int) == $ac_size):;
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_sizeof_int=$ac_size
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+  if test x$ac_cv_sizeof_int != x ; then break; fi
+done
+
+fi
+
+if test x$ac_cv_sizeof_int = x ; then
+  { { echo "$as_me:$LINENO: error: cannot determine a size for int" >&5
+echo "$as_me: error: cannot determine a size for int" >&2;}
+   { (exit 1); exit 1; }; }
+fi
+echo "$as_me:$LINENO: result: $ac_cv_sizeof_int" >&5
+echo "${ECHO_T}$ac_cv_sizeof_int" >&6
+
+cat >>confdefs.h <<_ACEOF
+#define SIZEOF_INT $ac_cv_sizeof_int
+_ACEOF
+
+
+   echo "$as_me:$LINENO: checking size of long" >&5
+echo $ECHO_N "checking size of long... $ECHO_C" >&6
+if test "${ac_cv_sizeof_long+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  for ac_size in 4 8 1 2 16  ; do # List sizes in rough order of prevalence.
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include "confdefs.h"
+#include <sys/types.h>
+
+
+int
+main ()
+{
+switch (0) case 0: case (sizeof (long) == $ac_size):;
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_sizeof_long=$ac_size
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+  if test x$ac_cv_sizeof_long != x ; then break; fi
+done
+
+fi
+
+if test x$ac_cv_sizeof_long = x ; then
+  { { echo "$as_me:$LINENO: error: cannot determine a size for long" >&5
+echo "$as_me: error: cannot determine a size for long" >&2;}
+   { (exit 1); exit 1; }; }
+fi
+echo "$as_me:$LINENO: result: $ac_cv_sizeof_long" >&5
+echo "${ECHO_T}$ac_cv_sizeof_long" >&6
+
+cat >>confdefs.h <<_ACEOF
+#define SIZEOF_LONG $ac_cv_sizeof_long
+_ACEOF
+
+
+   echo "$as_me:$LINENO: checking size of void*" >&5
+echo $ECHO_N "checking size of void*... $ECHO_C" >&6
+if test "${ac_cv_sizeof_voidp+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  for ac_size in 4 8 1 2 16  ; do # List sizes in rough order of prevalence.
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include "confdefs.h"
+#include <sys/types.h>
+
+
+int
+main ()
+{
+switch (0) case 0: case (sizeof (void*) == $ac_size):;
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_sizeof_voidp=$ac_size
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+  if test x$ac_cv_sizeof_voidp != x ; then break; fi
+done
+
+fi
+
+if test x$ac_cv_sizeof_voidp = x ; then
+  { { echo "$as_me:$LINENO: error: cannot determine a size for void*" >&5
+echo "$as_me: error: cannot determine a size for void*" >&2;}
+   { (exit 1); exit 1; }; }
+fi
+echo "$as_me:$LINENO: result: $ac_cv_sizeof_voidp" >&5
+echo "${ECHO_T}$ac_cv_sizeof_voidp" >&6
+
+cat >>confdefs.h <<_ACEOF
+#define SIZEOF_VOIDP $ac_cv_sizeof_voidp
+_ACEOF
+
+
+   ac_cv_header_stdint_test="yes"
+else
+   ac_cv_header_stdint_test="no"
+fi
+
+# ----------------- DONE inttypes.h checks START header -------------
+_ac_stdint_h=`echo "_$ac_stdint_h" | $as_tr_cpp`
+echo "$as_me:$LINENO: result: creating $ac_stdint_h : $_ac_stdint_h" >&5
+echo "${ECHO_T}creating $ac_stdint_h : $_ac_stdint_h" >&6
+echo "#ifndef" $_ac_stdint_h >$ac_stdint_h
+echo "#define" $_ac_stdint_h "1" >>$ac_stdint_h
+echo "#ifndef" _GENERATED_STDINT_H >>$ac_stdint_h
+echo "#define" _GENERATED_STDINT_H '"'$PACKAGE $VERSION'"' >>$ac_stdint_h
+if test "$GCC" = "yes" ; then
+  echo "/* generated using a gnu compiler version" `$CC --version` "*/" \
+  >>$ac_stdint_h
+else
+  echo "/* generated using $CC */" >>$ac_stdint_h
+fi
+echo "" >>$ac_stdint_h
+
+if test "$ac_cv_header_stdint_x" != "no-file" ; then
+   ac_cv_header_stdint="$ac_cv_header_stdint_x"
+elif  test "$ac_cv_header_stdint_o" != "no-file" ; then
+   ac_cv_header_stdint="$ac_cv_header_stdint_o"
+elif  test "$ac_cv_header_stdint_u" != "no-file" ; then
+   ac_cv_header_stdint="$ac_cv_header_stdint_u"
+else
+   ac_cv_header_stdint="stddef.h"
+fi
+
+# ----------------- See if int_least and int_fast types are present
+unset ac_cv_type_int_least32_t
+unset ac_cv_type_int_fast32_t
+echo "$as_me:$LINENO: checking for int_least32_t" >&5
+echo $ECHO_N "checking for int_least32_t... $ECHO_C" >&6
+if test "${ac_cv_type_int_least32_t+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <$ac_cv_header_stdint>
+
+int
+main ()
+{
+if ((int_least32_t *) 0)
+  return 0;
+if (sizeof (int_least32_t))
+  return 0;
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_type_int_least32_t=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_type_int_least32_t=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: $ac_cv_type_int_least32_t" >&5
+echo "${ECHO_T}$ac_cv_type_int_least32_t" >&6
+
+echo "$as_me:$LINENO: checking for int_fast32_t" >&5
+echo $ECHO_N "checking for int_fast32_t... $ECHO_C" >&6
+if test "${ac_cv_type_int_fast32_t+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include<$ac_cv_header_stdint>
+
+int
+main ()
+{
+if ((int_fast32_t *) 0)
+  return 0;
+if (sizeof (int_fast32_t))
+  return 0;
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_type_int_fast32_t=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_type_int_fast32_t=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: $ac_cv_type_int_fast32_t" >&5
+echo "${ECHO_T}$ac_cv_type_int_fast32_t" >&6
+
+
+if test "$ac_cv_header_stdint" != "stddef.h" ; then
+if test "$ac_cv_header_stdint" != "stdint.h" ; then
+echo "$as_me:$LINENO: result: ..adding include stddef.h" >&5
+echo "${ECHO_T}..adding include stddef.h" >&6
+   echo "#include <stddef.h>" >>$ac_stdint_h
+fi ; fi
+echo "$as_me:$LINENO: result: ..adding include $ac_cv_header_stdint" >&5
+echo "${ECHO_T}..adding include $ac_cv_header_stdint" >&6
+   echo "#include <$ac_cv_header_stdint>" >>$ac_stdint_h
+echo "" >>$ac_stdint_h
+
+# ----------------- DONE header START basic int types -------------
+if test "$ac_cv_header_stdint_x" = "no-file" ; then
+   echo "$as_me:$LINENO: result: ... need to look at C basic types" >&5
+echo "${ECHO_T}... need to look at C basic types" >&6
+else
+   echo "$as_me:$LINENO: result: ... seen good stdint.h inttypes" >&5
+echo "${ECHO_T}... seen good stdint.h inttypes" >&6
+fi
+
+if test "$ac_cv_header_stdint_u" != "no-file" ; then
+   echo "$as_me:$LINENO: result: ... seen bsd/sysv typedefs" >&5
+echo "${ECHO_T}... seen bsd/sysv typedefs" >&6
+   cat >>$ac_stdint_h <<EOF
+
+/* int8_t int16_t int32_t defined by inet code, redeclare the u_intXX types */
+typedef u_int8_t uint8_t;
+typedef u_int16_t uint16_t;
+typedef u_int32_t uint32_t;
+EOF
+    cat >>$ac_stdint_h <<EOF
+
+/* glibc compatibility */
+#ifndef __int8_t_defined
+#define __int8_t_defined
+#endif
+EOF
+fi
+
+ac_cv_sizeof_x="$ac_cv_sizeof_char:$ac_cv_sizeof_short"
+ac_cv_sizeof_X="$ac_cv_sizeof_x:$ac_cv_sizeof_int"
+ac_cv_sizeof_X="$ac_cv_sizeof_X:$ac_cv_sizeof_voidp:$ac_cv_sizeof_long"
+if test "$ac_cv_header_stdint" = "stddef.h" ; then
+#   we must guess all the basic types. Apart from byte-adressable system,
+# there a few 32-bit-only dsp-systems. nibble-addressable systems are way off.
+    cat >>$ac_stdint_h <<EOF
+/* ------------ BITSPECIFIC INTTYPES SECTION --------------- */
+EOF
+    t="typedefs for a"
+    case "$ac_cv_sizeof_X" in
+     1:2:2:2:4) echo "$as_me:$LINENO: result: ..adding $t normal 16-bit system" >&5
+echo "${ECHO_T}..adding $t normal 16-bit system" >&6
+                cat >>$ac_stdint_h <<EOF
+/*              a normal 16-bit system                       */
+typedef unsigned char   uint8_t;
+typedef unsigned short  uint16_t;
+typedef unsigned long   uint32_t;
+#ifndef __int8_t_defined
+#define __int8_t_defined
+typedef          char    int8_t;
+typedef          short   int16_t;
+typedef          long    int32_t;
+#endif
+EOF
+;;
+     1:2:2:4:4) echo "$as_me:$LINENO: result: ..adding $t 32-bit system derived from a 16-bit" >&5
+echo "${ECHO_T}..adding $t 32-bit system derived from a 16-bit" >&6
+                cat >>$ac_stdint_h <<EOF
+/*              a 32-bit system derived from a 16-bit        */
+typedef unsigned char   uint8_t;
+typedef unsigned short  uint16_t;
+typedef unsigned int    uint32_t;
+#ifndef __int8_t_defined
+#define __int8_t_defined
+typedef          char    int8_t;
+typedef          short   int16_t;
+typedef          int     int32_t;
+#endif
+EOF
+;;
+     1:2:4:4:4) echo "$as_me:$LINENO: result: ..adding $t normal 32-bit system" >&5
+echo "${ECHO_T}..adding $t normal 32-bit system" >&6
+                cat >>$ac_stdint_h <<EOF
+/*              a normal 32-bit system                       */
+typedef unsigned char   uint8_t;
+typedef unsigned short  uint16_t;
+typedef unsigned int    uint32_t;
+#ifndef __int8_t_defined
+#define __int8_t_defined
+typedef          char    int8_t;
+typedef          short   int16_t;
+typedef          int     int32_t;
+#endif
+EOF
+;;
+     1:2:4:4:8) echo "$as_me:$LINENO: result: ..adding $t 32-bit system prepared for 64-bit" >&5
+echo "${ECHO_T}..adding $t 32-bit system prepared for 64-bit" >&6
+                cat >>$ac_stdint_h <<EOF
+
+/*              a 32-bit system prepared for 64-bit          */
+typedef unsigned char   uint8_t;
+typedef unsigned short  uint16_t;
+typedef unsigned int    uint32_t;
+#ifndef __int8_t_defined
+#define __int8_t_defined
+typedef          char    int8_t;
+typedef          short   int16_t;
+typedef          int     int32_t;
+#endif
+EOF
+;;
+     1:2:4:8:8) echo "$as_me:$LINENO: result: ..adding $t normal 64-bit system" >&5
+echo "${ECHO_T}..adding $t normal 64-bit system" >&6
+                cat >>$ac_stdint_h <<EOF
+
+/*              a normal 64-bit system                       */
+typedef unsigned char   uint8_t;
+typedef unsigned short  uint16_t;
+typedef unsigned int    uint32_t;
+#ifndef __int8_t_defined
+#define __int8_t_defined
+typedef          char    int8_t;
+typedef          short   int16_t;
+typedef          int     int32_t;
+#endif
+EOF
+;;
+     1:2:4:8:4) echo "$as_me:$LINENO: result: ..adding $t 64-bit system derived from a 32-bit" >&5
+echo "${ECHO_T}..adding $t 64-bit system derived from a 32-bit" >&6
+                cat >>$ac_stdint_h <<EOF
+
+/*              a 64-bit system derived from a 32-bit system */
+typedef unsigned char   uint8_t;
+typedef unsigned short  uint16_t;
+typedef unsigned int    uint32_t;
+#ifndef __int8_t_defined
+#define __int8_t_defined
+typedef          char    int8_t;
+typedef          short   int16_t;
+typedef          int     int32_t;
+#endif
+EOF
+;;
+  *)
+    { { echo "$as_me:$LINENO: error:  $ac_cv_sizeof_X  what is that a system? contact the author, quick! http://ac-archive.sf.net" >&5
+echo "$as_me: error:  $ac_cv_sizeof_X  what is that a system? contact the author, quick! http://ac-archive.sf.net" >&2;}
+   { (exit 1); exit 1; }; }
+    exit 1
+;;
+   esac
+fi
+
+# ------------- DONE basic int types START int64_t types ------------
+if test "$ac_cv_type_uint64_t" = "yes"
+then echo "$as_me:$LINENO: result: ... seen good uint64_t" >&5
+echo "${ECHO_T}... seen good uint64_t" >&6
+     cat >>$ac_stdint_h <<EOF
+
+/* system headers have good uint64_t */
+#ifndef _HAVE_UINT64_T
+#define _HAVE_UINT64_T
+#endif
+EOF
+
+elif test "$ac_cv_type_u_int64_t" = "yes"
+then echo "$as_me:$LINENO: result: ..adding typedef u_int64_t uint64_t" >&5
+echo "${ECHO_T}..adding typedef u_int64_t uint64_t" >&6
+     cat >>$ac_stdint_h <<EOF
+
+/* system headers have an u_int64_t */
+#ifndef _HAVE_UINT64_T
+#define _HAVE_UINT64_T
+typedef u_int64_t uint64_t;
+#endif
+EOF
+else echo "$as_me:$LINENO: result: ..adding generic uint64_t runtime checks" >&5
+echo "${ECHO_T}..adding generic uint64_t runtime checks" >&6
+     cat >>$ac_stdint_h <<EOF
+
+/* -------------------- 64 BIT GENERIC SECTION -------------------- */
+/* here are some common heuristics using compiler runtime specifics */
+#if defined __STDC_VERSION__ && defined __STDC_VERSION__ > 199901L
+
+#ifndef _HAVE_UINT64_T
+#define _HAVE_UINT64_T
+typedef long long int64_t;
+typedef unsigned long long uint64_t;
+#endif
+
+#elif !defined __STRICT_ANSI__
+#if defined _MSC_VER || defined __WATCOMC__ || defined __BORLANDC__
+
+#ifndef _HAVE_UINT64_T
+#define _HAVE_UINT64_T
+typedef __int64 int64_t;
+typedef unsigned __int64 uint64_t;
+#endif
+
+#elif defined __GNUC__ || defined __MWERKS__ || defined __ELF__
+
+#if !defined _NO_LONGLONG
+#ifndef _HAVE_UINT64_T
+#define _HAVE_UINT64_T
+typedef long long int64_t;
+typedef unsigned long long uint64_t;
+#endif
+#endif
+
+#elif defined __alpha || (defined __mips && defined _ABIN32)
+
+#if !defined _NO_LONGLONG
+#ifndef _HAVE_UINT64_T
+#define _HAVE_UINT64_T
+typedef long int64_t;
+typedef unsigned long uint64_t;
+#endif
+#endif
+  /* compiler/cpu type ... or just ISO C99 */
+#endif
+#endif
+EOF
+
+# plus a default 64-bit for systems that are likely to be 64-bit ready
+  case "$ac_cv_sizeof_x:$ac_cv_sizeof_voidp:$ac_cv_sizeof_long" in
+    1:2:8:8) echo "$as_me:$LINENO: result: ..adding uint64_t default" >&5
+echo "${ECHO_T}..adding uint64_t default" >&6
+cat >>$ac_stdint_h <<EOF
+/* DEFAULT: */
+/* seen normal 64-bit system, CC has sizeof(long and void*) == 8 bytes */
+#ifndef _HAVE_UINT64_T
+#define _HAVE_UINT64_T
+typedef long int64_t;
+typedef unsigned long uint64_t;
+#endif
+EOF
+;;
+    1:2:4:8) echo "$as_me:$LINENO: result: ..adding uint64_t default" >&5
+echo "${ECHO_T}..adding uint64_t default" >&6
+cat >>$ac_stdint_h <<EOF
+/* DEFAULT: */
+/* seen 32-bit system prepared for 64-bit, CC has sizeof(long) == 8 bytes */
+#ifndef _HAVE_UINT64_T
+#define _HAVE_UINT64_T
+typedef long int64_t;
+typedef unsigned long uint64_t;
+#endif
+EOF
+;;
+    1:2:8:4) echo "$as_me:$LINENO: result: ..adding uint64_t default" >&5
+echo "${ECHO_T}..adding uint64_t default" >&6
+cat >>$ac_stdint_h <<EOF
+/* DEFAULT: */
+/* seen 64-bit derived from a 32-bit, CC has sizeof(long) == 4 bytes */
+#ifndef _HAVE_UINT64_T
+#define _HAVE_UINT64_T
+typedef long long int64_t;
+typedef unsigned long long uint64_t;
+#endif
+EOF
+;;
+   *)
+cat >>$ac_stdint_h <<EOF
+/* NOTE: */
+/* the configure-checks for the basic types did not make us believe */
+/* that we could add a fallback to a 'long long' typedef to int64_t */
+EOF
+  esac
+fi
+
+# ------------- DONE int64_t types START intptr types ------------
+if test "$ac_cv_header_stdint_x" = "no-file" ; then
+  cat >>$ac_stdint_h <<EOF
+
+/* -------------------------- INPTR SECTION --------------------------- */
+EOF
+  case "$ac_cv_sizeof_x:$ac_cv_sizeof_voidp" in
+  1:2:2)
+    a="int16_t" ; cat >>$ac_stdint_h <<EOF
+/* we tested sizeof(void*) to be of 2 chars, hence we declare it 16-bit */
+
+typedef uint16_t uintptr_t;
+typedef  int16_t  intptr_t;
+EOF
+;;
+  1:2:4)
+    a="int32_t" ; cat >>$ac_stdint_h <<EOF
+/* we tested sizeof(void*) to be of 4 chars, hence we declare it 32-bit */
+
+typedef uint32_t uintptr_t;
+typedef  int32_t  intptr_t;
+EOF
+;;
+  1:2:8)
+    a="int64_t" ; cat >>$ac_stdint_h <<EOF
+/* we tested sizeof(void*) to be of 8 chars, hence we declare it 64-bit */
+
+typedef uint64_t uintptr_t;
+typedef  int64_t  intptr_t;
+EOF
+;;
+  *)
+    a="long" ; cat >>$ac_stdint_h <<EOF
+/* we tested sizeof(void*) but got no guess, hence we declare it as if long */
+
+typedef unsigned long uintptr_t;
+typedef          long  intptr_t;
+EOF
+;;
+  esac
+echo "$as_me:$LINENO: result: ..adding typedef $a intptr_t" >&5
+echo "${ECHO_T}..adding typedef $a intptr_t" >&6
+fi
+
+# ------------- DONE intptr types START int_least types ------------
+if test "$ac_cv_type_int_least32_t" = "no"; then
+echo "$as_me:$LINENO: result: ..adding generic int_least-types" >&5
+echo "${ECHO_T}..adding generic int_least-types" >&6
+     cat >>$ac_stdint_h <<EOF
+
+/* --------------GENERIC INT_LEAST ------------------ */
+
+typedef  int8_t    int_least8_t;
+typedef  int16_t   int_least16_t;
+typedef  int32_t   int_least32_t;
+#ifdef _HAVE_UINT64_T
+typedef  int64_t   int_least64_t;
+#endif
+
+typedef uint8_t   uint_least8_t;
+typedef uint16_t  uint_least16_t;
+typedef uint32_t  uint_least32_t;
+#ifdef _HAVE_UINT64_T
+typedef uint64_t  uint_least64_t;
+#endif
+EOF
+fi
+
+# ------------- DONE intptr types START int_least types ------------
+if test "$ac_cv_type_int_fast32_t" = "no"; then
+echo "$as_me:$LINENO: result: ..adding generic int_fast-types" >&5
+echo "${ECHO_T}..adding generic int_fast-types" >&6
+     cat >>$ac_stdint_h <<EOF
+
+/* --------------GENERIC INT_FAST ------------------ */
+
+typedef  int8_t    int_fast8_t;
+typedef  int32_t   int_fast16_t;
+typedef  int32_t   int_fast32_t;
+#ifdef _HAVE_UINT64_T
+typedef  int64_t   int_fast64_t;
+#endif
+
+typedef uint8_t   uint_fast8_t;
+typedef uint32_t  uint_fast16_t;
+typedef uint32_t  uint_fast32_t;
+#ifdef _HAVE_UINT64_T
+typedef uint64_t  uint_fast64_t;
+#endif
+EOF
+fi
+
+if test "$ac_cv_header_stdint_x" = "no-file" ; then
+     cat >>$ac_stdint_h <<EOF
+
+#ifdef _HAVE_UINT64_T
+typedef int64_t        intmax_t;
+typedef uint64_t      uintmax_t;
+#else
+typedef long int       intmax_t;
+typedef unsigned long uintmax_t;
+#endif
+EOF
+fi
+
+echo "$as_me:$LINENO: result: ... DONE $ac_stdint_h" >&5
+echo "${ECHO_T}... DONE $ac_stdint_h" >&6
+   cat >>$ac_stdint_h <<EOF
+
+  /* once */
+#endif
+#endif
+EOF
+
 echo "$as_me:$LINENO: checking whether termios.h defines TIOCGWINSZ" >&5
 echo $ECHO_N "checking whether termios.h defines TIOCGWINSZ... $ECHO_C" >&6
 if test "${ac_cv_sys_tiocgwinsz_in_termios_h+set}" = set; then
@@ -3668,6 +4972,233 @@ cat >>confdefs.h <<\_ACEOF
 _ACEOF
 
 fi
+
+echo "$as_me:$LINENO: checking whether byte ordering is bigendian" >&5
+echo $ECHO_N "checking whether byte ordering is bigendian... $ECHO_C" >&6
+if test "${ac_cv_c_bigendian+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  # See if sys/param.h defines the BYTE_ORDER macro.
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <sys/types.h>
+#include <sys/param.h>
+
+int
+main ()
+{
+#if !BYTE_ORDER || !BIG_ENDIAN || !LITTLE_ENDIAN
+ bogus endian macros
+#endif
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  # It does; now see whether it defined to BIG_ENDIAN or not.
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <sys/types.h>
+#include <sys/param.h>
+
+int
+main ()
+{
+#if BYTE_ORDER != BIG_ENDIAN
+ not big endian
+#endif
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_c_bigendian=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_c_bigendian=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+# It does not; compile a test program.
+if test "$cross_compiling" = yes; then
+  # try to guess the endianness by grepping values into an object file
+  ac_cv_c_bigendian=unknown
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+short ascii_mm[] = { 0x4249, 0x4765, 0x6E44, 0x6961, 0x6E53, 0x7953, 0 };
+short ascii_ii[] = { 0x694C, 0x5454, 0x656C, 0x6E45, 0x6944, 0x6E61, 0 };
+void _ascii () { char *s = (char *) ascii_mm; s = (char *) ascii_ii; }
+short ebcdic_ii[] = { 0x89D3, 0xE3E3, 0x8593, 0x95C5, 0x89C4, 0x9581, 0 };
+short ebcdic_mm[] = { 0xC2C9, 0xC785, 0x95C4, 0x8981, 0x95E2, 0xA8E2, 0 };
+void _ebcdic () { char *s = (char *) ebcdic_mm; s = (char *) ebcdic_ii; }
+int
+main ()
+{
+ _ascii (); _ebcdic ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  if grep BIGenDianSyS conftest.$ac_objext >/dev/null ; then
+  ac_cv_c_bigendian=yes
+fi
+if grep LiTTleEnDian conftest.$ac_objext >/dev/null ; then
+  if test "$ac_cv_c_bigendian" = unknown; then
+    ac_cv_c_bigendian=no
+  else
+    # finding both strings is unlikely to happen, but who knows?
+    ac_cv_c_bigendian=unknown
+  fi
+fi
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+int
+main ()
+{
+  /* Are we little or big endian?  From Harbison&Steele.  */
+  union
+  {
+    long l;
+    char c[sizeof (long)];
+  } u;
+  u.l = 1;
+  exit (u.c[sizeof (long) - 1] == 1);
+}
+_ACEOF
+rm -f conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && { ac_try='./conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_c_bigendian=no
+else
+  echo "$as_me: program exited with status $ac_status" >&5
+echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+( exit $ac_status )
+ac_cv_c_bigendian=yes
+fi
+rm -f core *.core gmon.out bb.out conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
+fi
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: $ac_cv_c_bigendian" >&5
+echo "${ECHO_T}$ac_cv_c_bigendian" >&6
+case $ac_cv_c_bigendian in
+  yes)
+
+cat >>confdefs.h <<\_ACEOF
+#define WORDS_BIGENDIAN 1
+_ACEOF
+ ;;
+  no)
+     ;;
+  *)
+    { { echo "$as_me:$LINENO: error: unknown endianness
+presetting ac_cv_c_bigendian=no (or yes) will help" >&5
+echo "$as_me: error: unknown endianness
+presetting ac_cv_c_bigendian=no (or yes) will help" >&2;}
+   { (exit 1); exit 1; }; } ;;
+esac
 
 
 # Checks for library functions.

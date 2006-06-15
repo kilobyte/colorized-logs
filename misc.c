@@ -75,6 +75,7 @@ extern struct session* do_hook(struct session *ses, int t, char *data, int block
 #ifndef UI_FULLSCREEN
 extern int tty;
 #endif
+extern char *logtypes[];
 
 int yes_no(char *txt)
 {
@@ -137,7 +138,7 @@ void cr_command(char *arg,struct session *ses)
 /****************************/
 void version_command(char *arg,struct session *ses)
 {
-    tintin_printf(ses, "#You are using KBtin %s\n", VERSION_NUM);
+    tintin_printf(ses, "#You are using KBtin %s\n", VERSION);
     prompt(ses);
 }
 
@@ -942,6 +943,7 @@ void info_command(char *arg, struct session *ses)
 #else
     tintin_printf(ses, "Non-fullscreen mode");
 #endif
+    tintin_printf(ses, "Log type: %s", logtypes[ses->logtype]);
     if(ses->logfile)
         tintin_printf(ses, "Logging to: {%s}", ses->logname);
     else
@@ -985,14 +987,15 @@ int iscompleteprompt(char *line)
     for (;*line;line++)
         if (*line=='~')
         {
-            if (!getcolor(&line,&c,0))
+            if (!getcolor(&line,&c,1))
                 ch='~';
         }
         else
             if (!isspace(*line))
                 ch=*line;
-    return (strchr("?:>.*$#]&)",ch) && !(c&0x70));
+    return (strchr("?:>.*$#]&)",ch) && !((c==-1)?0:c&0x70));
 }
+
 
 /******************************/
 /* the #dosubstitutes command */

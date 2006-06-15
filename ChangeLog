@@ -1,8 +1,20 @@
 1.0.6:
 *	made commands case-insensitive, so #ALIAS works
 *	bugfix: the prority of "6a" is supposed to come before "60"
-*	made KBtin a lot more responsive to keyboard input when under
-	a heavy load
+*	made KBtin a more responsive to keyboard input when under a heavy load
+*	#gagthis
+*	made "#system something &" actually work
+*	intelligent use of TCP_NODELAY
+*	add a hook for closing KBtin for sessions started with -r/-s which
+	didn't make any use of #hook
+*	bugfix: #listlength
+*	logging by >, >> and |
+*	#condump won't insert unneeded background colour codes anymore
+*	logging to .bz2
+*	#logtype
+*	bugfix: highlights prevented prompts from being recognized as such
+FIXME	make tintin's messages use ~7~, not the previous colour,
+	while still preserving whatever the colour was
 
 1.0.5:
 *	added a symlink kbtin -> KBtin to avoid mixed-case executable

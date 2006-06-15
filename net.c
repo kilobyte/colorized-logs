@@ -9,13 +9,16 @@
 #include "config.h"
 #include <ctype.h>
 
-#ifdef STDC_HEADERS
-#include <string.h>
+#ifdef HAVE_STRING_H
+# include <string.h>
 #else
-#ifndef HAVE_MEMCPY
-#define memcpy(d, s, n) bcopy ((s), (d), (n))
-#define memmove(d, s, n) bcopy ((s), (d), (n))
+# ifdef HAVE_STRINGS_H
+#  include <strings.h>
+# endif
 #endif
+#ifndef HAVE_MEMCPY
+# define memcpy(d, s, n) bcopy ((s), (d), (n))
+# define memmove(d, s, n) bcopy ((s), (d), (n))
 #endif
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
@@ -32,6 +35,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <netinet/ip.h>
+#include <netinet/tcp.h>
 #include <netdb.h>
 #include <signal.h>
 #include <stdlib.h>
@@ -71,7 +76,7 @@ extern struct session* do_hook(struct session *ses, int t, char *data, int block
 /**************************************************/
 int connect_mud(char *host, char *port, struct session *ses)
 {
-    int sock, connectresult;
+    int sock, val;
     struct sockaddr_in sockaddr;
 
     if (isdigit(*host))		/* interprete host part */
@@ -103,6 +108,8 @@ int connect_mud(char *host, char *port, struct session *ses)
 
     sockaddr.sin_family = AF_INET;
 
+    val=IPTOS_LOWDELAY;
+    setsockopt(sock, SOL_IP, IP_TOS, &val, sizeof(val));
 
     tintin_printf(ses, "#Trying to connect...");
 
@@ -110,10 +117,10 @@ int connect_mud(char *host, char *port, struct session *ses)
         syserr("signal SIGALRM");
 
     alarm(15);			/* We'll allow connect to hang in 15seconds! NO MORE! */
-    connectresult = connect(sock, (struct sockaddr *)&sockaddr, sizeof(sockaddr));
+    val = connect(sock, (struct sockaddr *)&sockaddr, sizeof(sockaddr));
     alarm(0);
 
-    if (connectresult)
+    if (val)
     {
         close(sock);
         switch (errno)
@@ -152,7 +159,15 @@ void write_line_mud(char *line, struct session *ses)
     if (*line)
         ses->idle_since=time(0);
     if (ses->issocket)
+    {
+        if (!ses->nagle)
+        {
+            setsockopt(ses->socket, SOL_TCP, TCP_NODELAY, &ses->nagle,
+                sizeof(ses->nagle));
+            ses->nagle=1;
+        }
         telnet_write_line(line, ses);
+    }
     else if (ses==nullsession)
         tintin_eprintf(ses, "#spurious output: %s", line);  /* CHANGE ME */
     else
@@ -160,6 +175,12 @@ void write_line_mud(char *line, struct session *ses)
     do_hook(ses, HOOK_SEND, line, 1);
 }
 
+void flush_socket(struct session *ses)
+{
+    setsockopt(ses->socket, SOL_TCP, TCP_NODELAY, &ses->nagle,
+        sizeof(ses->nagle));
+    ses->nagle=0;
+}
 
 /*******************************************************************/
 /* read at most BUFFER_SIZE chars from mud - parse protocol stuff  */

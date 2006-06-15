@@ -46,6 +46,7 @@ void kill_hash(struct hashtable* h)
                 free(h->tab[i].right);
             }
         };
+    free(h->tab);
     free(h);
 }
 

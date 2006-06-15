@@ -319,8 +319,7 @@ int listlength_inline(char *arg,struct session *ses)
     char list[BUFFER_SIZE],temp[BUFFER_SIZE];
     int  i;
 
-    substitute_vars(arg,temp);
-    substitute_myvars(temp,list,ses);
+    arg=get_arg(arg, list, 0, ses);
     arg = list;
     i=0;
     do {

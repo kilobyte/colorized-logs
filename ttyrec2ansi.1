@@ -1,0 +1,21 @@
+.TH ttyrec2ansi 1 2005-03-21 KBtin KBtin
+.SH NAME
+ttyrec2ansi \- ttyrec to ansi converter
+.SH SYNOPSIS
+.B ttyrec2ansi
+<
+.I log.ttyrec
+>
+.I outfile
+.SH DESCRIPTION
+.B ttyrec2ansi
+will strip the timing information from .ttyrec files, retaining all ANSI
+codes.  You can then convert them to plain text using
+.B ansi2txt
+or, if they contain nothing but color codes, to HTML using
+.B ansi2html
+\&.
+.SH "SEE ALSO"
+.BR ansi2txt ,
+.BR ansi2html ,
+.BR KBtin .

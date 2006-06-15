@@ -3,9 +3,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <ctype.h>
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 #ifdef HAVE_STRING_H
 # include <string.h>
 #else
@@ -74,6 +72,9 @@ int retaining;
 int xterm;
 #endif
 int putty;
+#ifdef UTF8
+int utf8;
+#endif
 
 char term_buf[BUFFER_SIZE],*tbuf;
 
@@ -90,6 +91,9 @@ int term_init(void)
     if (!isatty(0))
     {
         fprintf(stderr,"Warning! isatty() reports stdin is not a terminal.\n");
+#ifdef UTF8
+        utf8=ASSUME_UTF8;
+#endif
         return 0;
     }
 
@@ -174,7 +178,7 @@ void redraw_in(void)
     if (k_scrl)
         tbuf+=sprintf(tbuf,"\033[1m<\033[0;4%dm",INPUT_COLOR);
     if (retaining)
-       tbuf+=sprintf(tbuf,"\033[2m");
+        tbuf+=sprintf(tbuf,"\033[30;1m");
     if (user_getpassword)
     {
         l=strlen(&(k_input[k_scrl]));
@@ -1440,7 +1444,7 @@ void user_init(void)
     
     tbuf+=sprintf(tbuf,"\033[1;1f\0337");
     
-    sprintf(done_input,"~12~KB~3~tin ~7~%s by ~11~kilobyte@mimuw.edu.pl~9~\n",VERSION_NUM);
+    sprintf(done_input,"~12~KB~3~tin ~7~%s by ~11~kilobyte@mimuw.edu.pl~9~\n",VERSION);
     textout(done_input);
     {
         int i;
@@ -1491,7 +1495,10 @@ void fwrite_out(FILE *f,char *pos)
         if (*pos=='~')
             if (getcolor(&pos,&c,0))
             {
-                fprintf(f,COLORCODE(c));
+                if ((c>>4)&7)
+                    fprintf(f,COLORCODE(c));
+                else	/* a kludge to make a certain log archive happy */
+                    fprintf(f,"\033[0%s;3%d%sm",((c)&8)?";1":"",colors[(c)&7],attribs[(c)>>7]);
                 continue;
             };
         if (*pos!='\n')
@@ -1534,7 +1541,7 @@ void user_title(char *fmt,...)
     if (vsnprintf(buf, BUFFER_SIZE-1, fmt, ap)>BUFFER_SIZE-2)
         buf[BUFFER_SIZE-3]='>';
 #else
-    vsprintf(buf, format, ap);
+    vsprintf(buf, fmt, ap);
 #endif
     va_end(ap);
 

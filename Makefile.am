@@ -1,19 +1,21 @@
-bin_PROGRAMS=KBtin ansi2html ansi2txt
+bin_PROGRAMS=KBtin ansi2html ansi2txt ttyrec2ansi
 helpdir = $(pkgdatadir)
 help_DATA= NEWS KBtin_help.gz
 INCLUDES = -DDATA_PATH=\"$(helpdir)\"
-man_MANS = ansi2html.6 ansi2txt.6 KBtin.6
+man_MANS = ansi2html.1 ansi2txt.1 KBtin.6 ttyrec2ansi.1
 
-BUILT_SOURCES=commands.h load_commands.h version.h profinit.h
-KBtin_C_FILES=action.c alias.c antisub.c files.c glob.c help.c highlight.c history.c ivars.c llist.c main.c misc.c net.c parse.c path.c session.c substitute.c ticks.c utils.c variables.c events.c user.c run.c colors.c routes.c bind.c telnet.c crc.c hash.c regexp.c prof.c
+BUILT_SOURCES=commands.h load_commands.h profinit.h
+KBtin_C_FILES=action.c alias.c antisub.c files.c glob.c help.c highlight.c history.c ivars.c llist.c main.c misc.c net.c parse.c path.c session.c substitute.c ticks.c utils.c variables.c events.c user.c run.c colors.c routes.c bind.c telnet.c crc.c hash.c regexp.c prof.c hooks.c
 KBtin_SOURCES=$(KBtin_C_FILES) $(BUILT_SOURCES)
 KBtin_LDADD=
 
 ansi2html_SOURCES=ansi2html.c
 ansi2txt_SOURCES=ansi2txt.c
 
-EXTRA_DIST=tintin.h KBtin_help.in BUGS commands make_commands $(man_MANS) OLDNEWS help2ansi fixmanual terminfo.src prof_init
+KBtin_DOCS=BUGS OLDNEWS KEYPAD
+EXTRA_DIST=tintin.h KBtin_help.in commands make_commands $(man_MANS) help2ansi fixmanual terminfo.src prof_init kbtin.ico $(KBtin_DOCS)
 CLEANFILES=commands.h load_commands.h KBtin_help.gz manual.html profinit.h
+DISTCLEANFILES=_stdint.h
 
 #kludge to prevent $(BUILT_SOURCES) from being distributed
 dist-hook:
@@ -43,9 +45,6 @@ commands.h: make_commands commands tintin.h
 	$(srcdir)/make_commands <$(srcdir)/commands
 
 load_commands.h: commands make_commands commands.h
-
-version.h: configure.ac
-	echo "#define VERSION_NUM \"$(VERSION)\"" >version.h
 
 profinit.h: $(KBtin_C_FILES) prof_init
 	$(srcdir)/prof_init $(srcdir) $(KBtin_C_FILES)

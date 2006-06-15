@@ -8,10 +8,10 @@ Note: <i> is used instead of <blink> because of brain-deadness of Internet
 #define BUFFER_SIZE 2048
 
 char cnames[2][8][8]=
-   {{"#000000","#DF0000","#00DF00","#DFDF00","#0000DF","#DF00DF","#00DFDF","#DFDFDF"},
-    {"#3F3F3F","#FF0000","#00FF00","#FFFF00","#0000FF","#FF00FF","#00FFFF","#FFFFFF"}};
+   {{"#000000","#AA0000","#00AA00","#AAAA00","#0000AA","#AA00AA","#00AAAA","#AAAAAA"},
+    {"#555555","#FF5555","#55FF55","#FFFF55","#5555FF","#FF55FF","#55FFFF","#FFFFFF"}};
 char bnames[8][8]=
-    {"#000000","#7F0000","#007F00","#7F7F00","#00007F","#7F007F","#007F7F","#7F7F7F"};
+    {"#000000","#AA0000","#00AA00","#AAAA00","#0000AA","#AA00AA","#00AAAA","#AAAAAA"};
 
 int hasbg(char *ch)
 {

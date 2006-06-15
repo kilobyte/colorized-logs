@@ -9,11 +9,11 @@
 /*********************************************************************/
 #include "config.h"
 #ifdef HAVE_STRING_H
-#include <string.h>
+# include <string.h>
 #else
-#ifdef HAVE_STRINGS_H
-#include <strings.h>
-#endif
+# ifdef HAVE_STRINGS_H
+#  include <strings.h>
+# endif
 #endif
 #include <unistd.h>
 #include <stdlib.h>
@@ -43,8 +43,8 @@ extern void prompt(struct session *ses);
 extern void char_command(char *arg,struct session *ses);
 extern void substitute_myvars(char *arg,char *result,struct session *ses);
 extern void substitute_vars(char *arg, char *result);
-extern void tintin_printf(struct session *ses, char *format, ...);
-extern void tintin_eprintf(struct session *ses, char *format, ...);
+extern void tintin_printf(struct session *ses, const char *format, ...);
+extern void tintin_eprintf(struct session *ses, const char *format, ...);
 extern void user_condump(FILE *f);
 extern char *space_out(char *s);
 extern struct listnode* hash2list(struct hashtable *h, char *pat);
@@ -210,6 +210,63 @@ void deathlog_command(char *arg, struct session *ses)
         tintin_eprintf(ses, "#ERROR: valid syntax is: #deathlog <file> <text>");
 }
 
+static inline void ttyrec_timestamp(struct ttyrec_header *th)
+{
+    struct timeval t;
+    
+    gettimeofday(&t, 0);
+    th->sec=to_little_endian(t.tv_sec);
+    th->usec=to_little_endian(t.tv_usec);
+}
+
+void write_logf(struct session *ses, char *txt, char *prefix, char *suffix)
+{
+    char buf[BUFFER_SIZE*2];
+    int len;
+    
+    if (ses->logtype==2)
+    {
+        ttyrec_timestamp((struct ttyrec_header *)buf);
+        len=sizeof(struct ttyrec_header);
+    }
+    else
+        len=0;
+    len+=sprintf(buf+len, "%s%s%s%s\n", prefix, txt, suffix, ses->logtype?"":"\r");
+    if (ses->logtype==2)
+        ((struct ttyrec_header*)buf)->len=
+            to_little_endian(len-sizeof(struct ttyrec_header));
+    
+    if (fwrite(buf, 1, len, ses->logfile)<len)
+    {
+	ses->logfile=0;
+        tintin_eprintf(ses, "#WRITE ERROR -- LOGGING DISABLED.  Disk full?");
+    }
+}
+
+void write_log(struct session *ses, char *txt, int n)
+{
+    struct ttyrec_header th;
+    
+    if (ses->logtype==2)
+    {
+        ttyrec_timestamp(&th);
+        th.len=n;
+        if (fwrite(&th, 1, sizeof(struct ttyrec_header), ses->logfile)<
+            sizeof(struct ttyrec_header))
+        {
+            ses->logfile=0;
+            tintin_eprintf(ses, "#WRITE ERROR -- LOGGING DISABLED.  Disk full?");
+            return;
+        }
+    }
+
+    if (fwrite(txt, 1, n, ses->logfile)<n)
+    {
+	ses->logfile=0;
+        tintin_eprintf(ses, "#WRITE ERROR -- LOGGING DISABLED.  Disk full?");
+    }
+}
+
 /***************************/
 /* the #logcomment command */
 /***************************/
@@ -228,11 +285,64 @@ void logcomment_command(char *arg, struct session *ses)
         return;
     }
     arg=get_arg(arg, text, 1, ses);
-    if (fprintf(ses->logfile, "%s\n", text)<1)
+    write_logf(ses, text, "", "");
+}
+
+FILE* open_logfile(struct session *ses, char *name, const char *filemsg, const char *appendmsg, const char *pipemsg)
+{
+    char temp[BUFFER_SIZE],fname[BUFFER_SIZE];
+    FILE *f;
+    int len;
+
+    if (*name=='|')
     {
-	    ses->logfile=0;
-        tintin_eprintf(ses, "#WRITE ERROR -- LOGGING DISABLED.  Disk full?");
+        if (!*++name)
+        {
+            tintin_eprintf(ses, "#ERROR: {|} IS NOT A VALID PIPE.");
+            return 0;
+        }
+        if ((f=mypopen(name, 1)))
+            tintin_printf(ses, pipemsg, name);
+        else
+            tintin_eprintf(ses, "#ERROR: COULDN'T OPEN PIPE: {%s}.", name);
+        return f;
     }
+    if (*name=='>')
+    {
+        if ((*++name=='>'))
+        {
+            expand_filename(++name, fname);
+            if ((f=fopen(fname, "a")))
+                tintin_printf(ses, appendmsg, fname);
+            else
+                tintin_eprintf(ses, "ERROR: COULDN'T APPEND TO FILE: {%s}.", fname);
+            return f;
+        }
+        expand_filename(name, fname);
+        if ((f=fopen(fname, "w")))
+            tintin_printf(ses, filemsg, fname);
+        else
+            tintin_eprintf(ses, "ERROR: COULDN'T OPEN FILE: {%s}.", fname);
+        return f;
+    }
+    expand_filename(name, fname);
+    len=strlen(fname);
+    if (len>=4 && !strcmp(fname+len-3,".gz"))
+        if ((f = mypopen(strcat(strcpy(temp,"gzip -9 >"),fname), 1)))
+            tintin_printf(ses, filemsg, fname);
+        else
+            tintin_eprintf(ses, "#ERROR: COULDN'T OPEN PIPE: {gzip -9 >%s}.", fname);
+    else if (len>=5 && !strcmp(fname+len-4,".bz2"))
+        if ((f = mypopen(strcat(strcpy(temp,"bzip2 >"),fname), 1)))
+            tintin_printf(ses, filemsg, fname);
+        else
+            tintin_eprintf(ses, "#ERROR: COULDN'T OPEN PIPE: {bzip2 >%s}.", fname);
+    else    
+        if ((f = fopen(fname, "w")))
+            tintin_printf(ses, filemsg, fname);
+        else
+            tintin_eprintf(ses, "#ERROR: COULDN'T OPEN FILE {%s}.", fname);
+    return f;
 }
 
 #ifdef UI_FULLSCREEN
@@ -249,18 +359,15 @@ void condump_command(char *arg, struct session *ses)
         arg = get_arg_in_braces(arg, temp, 0);
         substitute_vars(temp, fname);
         substitute_myvars(fname, temp, ses);
-        expand_filename(temp, fname);
-        if ((strlen(fname)<4)||(strcmp(fname+strlen(fname)-3,".gz")))
-            fh = fopen(fname, "w");
-        else
-            fh = mypopen(strcat(strcpy(temp,"gzip -9 >"),fname), 1);
+        fh=open_logfile(ses,fname,
+            "#DUMPING CONSOLE TO {%s}",
+            "#APPENDING CONSOLE DUMP TO {%s}",
+            "#PIPING CONSOLE DUMP TO {%s}");
         if (fh)
         {
             user_condump(fh);
             fclose(fh);
         }
-        else
-            tintin_eprintf(ses,"#ERROR: COULDN'T OPEN FILE {%s}.", fname);
     }
     else
         tintin_eprintf(ses, "#Syntax: #condump <file>");
@@ -290,17 +397,10 @@ void log_command(char *arg, struct session *ses)
             get_arg_in_braces(arg, temp, 1);
             substitute_vars(temp, fname);
             substitute_myvars(fname, temp, ses);
-            expand_filename(temp, fname);
-            if ((strlen(fname)<4)||(strcmp(fname+strlen(fname)-3,".gz")))
-                if ((ses->logfile = fopen(fname, "w")))
-                    tintin_printf(ses, "#OK. LOGGING TO {%s} .....", fname);
-                else
-                    tintin_eprintf(ses, "#ERROR: COULDN'T OPEN FILE {%s}.", fname);
-            else
-                if ((ses->logfile = mypopen(strcat(strcpy(temp,"gzip -9 >"),fname), 1)))
-                    tintin_printf(ses, "#OK. LOGGING TO {%s} .....", fname);
-                else
-                    tintin_eprintf(ses, "#ERROR: COULDN'T OPEN PIPE: {gzip -9 >%s}.", fname);
+            ses->logfile=open_logfile(ses,fname,
+                "#OK. LOGGING TO {%s} .....",
+                "#OK. APPENDING LOG TO {%s} .....",
+                "#OK. PIPING LOG TO {%s} .....");
             if (ses->logfile)
                 ses->logname=mystrdup(fname);
         }
@@ -340,17 +440,10 @@ void debuglog_command(char *arg, struct session *ses)
         get_arg_in_braces(arg, temp, 1);
         substitute_vars(temp, fname);
         substitute_myvars(fname, temp, ses);
-        expand_filename(temp, fname);
-        if ((strlen(fname)<4)||(strcmp(fname+strlen(fname)-3,".gz")))
-            if ((ses->debuglogfile = fopen(fname, "w")))
-                tintin_printf(ses, "#OK. DEBUGLOG SET TO {%s} .....", fname);
-            else
-                tintin_eprintf(ses, "#ERROR: COULDN'T OPEN FILE {%s}.", fname);
-        else
-            if ((ses->debuglogfile = mypopen(strcat(strcpy(temp,"gzip -9 >"),fname), 1)))
-                tintin_printf(ses, "#OK. DEBUGLOG SET TO {%s} .....", fname);
-            else
-                tintin_eprintf(ses, "#ERROR: COULDN'T OPEN PIPE: {gzip -9 >%s}.", fname);
+            ses->debuglogfile=open_logfile(ses,fname,
+                "#OK. DEBUGLOG SET TO {%s} .....",
+                "#OK. DEBUGLOG APPENDING TO {%s} .....",
+                "#OK. DEBUGLOG PIPED TO {%s} .....");
         if (ses->debuglogfile)
             ses->debuglogname=mystrdup(fname);
     }
@@ -978,4 +1071,35 @@ void textin_command(char *arg, struct session *ses)
     tintin_printf(ses,"#File read - Success.");
     prompt(ses);
 
+}
+
+char *logtypes[]=
+{
+    "raw",
+    "lf",
+    "ttyrec",
+};
+
+/************************/
+/* the #logtype command */
+/************************/
+void logtype_command(char *arg, struct session *ses)
+{
+    char left[BUFFER_SIZE];
+    int t, flag;
+
+    arg=get_arg(arg, left, 1, ses);
+    if (!*left)
+    {
+        tintin_printf(ses, "#The log type is: %s", logtypes[ses->logtype]);
+        return;
+    }
+    for(t=0;t<sizeof(logtypes)/sizeof(char*);t++)
+        if (is_abrev(left, logtypes[t]))
+        {
+            ses->logtype=t;
+            tintin_printf(ses, "#Ok, log type is now %s.", logtypes[t]);
+            return;
+        }
+    tintin_eprintf(ses, "#No such logtype: {%s}\n", left);
 }

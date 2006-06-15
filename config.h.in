@@ -114,6 +114,21 @@
 /* Define as the return type of signal handlers (`int' or `void'). */
 #undef RETSIGTYPE
 
+/* The number of bytes in type char */
+#undef SIZEOF_CHAR
+
+/* The number of bytes in type int */
+#undef SIZEOF_INT
+
+/* The number of bytes in type long */
+#undef SIZEOF_LONG
+
+/* The number of bytes in type short */
+#undef SIZEOF_SHORT
+
+/* The number of bytes in type void* */
+#undef SIZEOF_VOIDP
+
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
@@ -122,6 +137,10 @@
 
 /* Version number of package */
 #undef VERSION
+
+/* Define to 1 if your processor stores words with the most significant byte
+   first (like Motorola and SPARC, unlike Intel and VAX). */
+#undef WORDS_BIGENDIAN
 
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const

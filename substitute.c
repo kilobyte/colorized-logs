@@ -73,10 +73,12 @@ void parse_sub(char *arg,int gag,struct session *ses)
                 shownode_list(mysubs);
             }
         if (!flag && ses->mesvar[2])
+        {
             if (strcmp(left,"*"))
                 tintin_printf(ses, "#THAT %s IS NOT DEFINED.", gag? "GAG":"SUBSTITUTE");
             else
                 tintin_printf(ses, "#NO %sS HAVE BEEN DEFINED.", gag? "GAG":"SUBSTITUTE");
+        }
         prompt(ses);
     }
     else
@@ -229,4 +231,15 @@ void changeto_command(char *arg, struct session *ses)
     substitute_vars(left, temp);
     substitute_myvars(temp, left, ses);
     strcpy(_, left);
+}
+
+void gagthis_command(char *arg, struct session *ses)
+{
+    if (!_)
+    {
+        tintin_eprintf(ses, "#ERROR: #gagthis is allowed only inside an action/promptaction");
+        return;
+    }
+
+    strcpy(_, EMPTY_LINE);
 }

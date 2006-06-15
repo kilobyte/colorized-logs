@@ -7,14 +7,16 @@
 /*********************************************************************/
 #include "config.h"
 #include <stdlib.h>
-#ifdef STDC_HEADERS
+#ifdef HAVE_STRING_H
 # include <string.h>
-# include <stdlib.h>
 #else
-# ifndef HAVE_MEMCPY
-#  define memcpy(d, s, n) bcopy ((s), (d), (n))
-#  define memmove(d, s, n) bcopy ((s), (d), (n))
+# ifdef HAVE_STRINGS_H
+#  include <strings.h>
 # endif
+#endif
+#ifndef HAVE_MEMCPY
+# define memcpy(d, s, n) bcopy ((s), (d), (n))
+# define memmove(d, s, n) bcopy ((s), (d), (n))
 #endif
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
@@ -138,11 +140,16 @@ extern int read_buffer_mud(char *buffer, struct session *ses);
 extern void cleanup_session(struct session *ses);
 extern void user_title(char *fmt,...);
 void make_name(char *str, char *basis, int run);
+extern void set_magic_hook(struct session *ses);
 extern struct session* do_hook(struct session *ses, int t, char *data, int blockzap);
+extern void flush_socket(struct session *ses);
+extern void write_logf(struct session *ses, char *txt, char *prefix, char *suffix);
+extern void write_log(struct session *ses, char *txt, int n);
 #ifdef PROFILING
 extern char *prof_area;
 extern time_t kbd_lag, mud_lag;
 extern int kbd_cnt, mud_cnt;
+extern void setup_prof();
 #endif
 
 void tstphandler(int sig)
@@ -308,6 +315,7 @@ void parse_options(int argc, char **argv, char **environ)
                     tintin_eprintf(0, "#Invalid option: bare -r");
                 else
                 {
+                    set_magic_hook(activesession);
                     make_name(sname, argv[arg], 1);
 #ifdef HAVE_SNPRINTF
                     snprintf(temp, BUFFER_SIZE,
@@ -326,6 +334,7 @@ void parse_options(int argc, char **argv, char **environ)
                     tintin_eprintf(0, "#Bad option: -s needs both an address and a port number!");
                 else
                 {
+                    set_magic_hook(activesession);
                     make_name(sname, argv[arg-1], 1);
 #ifdef HAVE_SNPRINTF
                     snprintf(temp, BUFFER_SIZE,
@@ -402,7 +411,7 @@ a screenful of all-uppercase (cAPS kEY IS STUCK AGAIN?) text that no one
 ever wants to read -- that is what docs are for.
 */
     tintin_printf(0,"~2~##################################################");
-    tintin_printf(0, "#~7~                ~12~K B ~3~t i n~7~     v %-15s ~2~#", VERSION_NUM);
+    tintin_printf(0, "#~7~                ~12~K B ~3~t i n~7~     v %-15s ~2~#", VERSION);
     tintin_printf(0,"#~7~ current developer: ~9~Adam Borowski               ~2~#");
     tintin_printf(0,"#~7~                        (~9~kilobyte@mimuw.edu.pl~7~) ~2~#");
     tintin_printf(0,"#~7~ based on ~12~tintin++~7~ v 2.1.9 by Peter Unold,      ~2~#");
@@ -440,6 +449,7 @@ ever wants to read -- that is what docs are for.
     nullsession->snoopstatus = TRUE;
     nullsession->logfile = 0;
     nullsession->logname = 0;
+    nullsession->logtype = DEFAULT_LOGTYPE;
     nullsession->blank = DEFAULT_DISPLAY_BLANK;
     nullsession->echo = DEFAULT_ECHO;
     nullsession->speedwalk = DEFAULT_SPEEDWALK;
@@ -459,6 +469,7 @@ ever wants to read -- that is what docs are for.
     nullsession->naws = 0;
     nullsession->last_term_type=0;
     nullsession->server_echo = 0;
+    nullsession->nagle = 0;
     nullsession->antisubs = init_list();
     nullsession->binds = init_hash();
     nullsession->next = 0;
@@ -564,6 +575,8 @@ void tintin(void)
         FD_SET(0, &readfdmask);
         for (sesptr = sessionlist; sesptr; sesptr = sesptr->next)
         {
+            if (sesptr->nagle)
+                flush_socket(sesptr);
             FD_SET(sesptr->socket, &readfdmask);
             if (sesptr->socket>maxfd)
                 maxfd=sesptr->socket;
@@ -598,7 +611,7 @@ void tintin(void)
             PROFPUSH("user interface");            
             result=read(0,kbdbuf,BUFFER_SIZE);
             if (result==-1)
-                myquitsig;
+                myquitsig();
             
             for (i=0;i<result;i++)
             {
@@ -616,11 +629,7 @@ void tintin(void)
                         if (activesession->echo)
                             echo_input(done_input);
                         if (activesession->logfile)
-                            if (fprintf(activesession->logfile, LOG_INPUT, done_input)<1)
-                            {
-                                activesession->logfile=0;
-                                tintin_eprintf(activesession, "#WRITE ERROR -- LOGGING DISABLED.  Disk full?");
-                            }
+                            write_logf(activesession, done_input, LOG_INPUT_PREFIX, LOG_INPUT_SUFFIX);
                     }
                     if (*done_input)
                         strcpy(prev_command, done_input);
@@ -680,22 +689,16 @@ void read_mud(struct session *ses)
     }
     if (ses->logfile)
     {
-        if (!OLD_LOG)
+        if (ses->logtype)
         {
             count = 0;
             for (n = 0; n < didget; n++)
                 if (buffer[n] != '\r')
                     temp[count++] = buffer[n];
-            if (fwrite(temp, count, 1, ses->logfile)<1)
-            {
-abort_log:
-                ses->logfile=0;
-                tintin_eprintf(ses, "#WRITE ERROR -- LOGGING DISABLED.  Disk full?");
-            }
+            write_log(ses, temp, count);
         }
         else
-            if (fwrite(buffer, didget, 1, ses->logfile)<1)
-                goto abort_log;
+            write_log(ses, buffer, didget);
     }
 
     cpsource = buffer;

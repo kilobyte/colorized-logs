@@ -159,20 +159,22 @@ int list_sessions(char *arg,struct session *ses,char *left,char *right)
 /************************/
 struct session *session_command(char *arg,struct session *ses)
 {
-    char left[BUFFER_SIZE], right[BUFFER_SIZE];
+    char left[BUFFER_SIZE], right[BUFFER_SIZE], host[BUFFER_SIZE];
     int sock;
-    char *host, *port;
+    char *port;
 
     if (list_sessions(arg,ses,left,right))
         return(ses);	/* (!*left)||(!*right) */
 
-    port = host = space_out(mystrdup(right));
+    strcpy(host, space_out(right));
 
     if (!*host)
     {
         tintin_eprintf(ses,"#session: HEY! SPECIFY AN ADDRESS WILL YOU?");
         return ses;
     }
+    
+    port=host;
     while (*port && !isspace(*port))
         port++;
     if (*port)
@@ -281,6 +283,7 @@ struct session *new_session(char *name,char *address,int sock,int issocket,struc
     newsession->snoopstatus = 0;
     newsession->logfile = 0;
     newsession->logname = 0;
+    newsession->logtype = ses->logtype;
     newsession->ignore = ses->ignore;
     newsession->aliases = copy_hash(ses->aliases);
     newsession->actions = copy_list(ses->actions, PRIORITY);
@@ -315,6 +318,7 @@ struct session *new_session(char *name,char *address,int sock,int issocket,struc
     newsession->presub = ses->presub;
     newsession->verbatim = ses->verbatim;
     newsession->sessionstart=newsession->idle_since=time(0);
+    newsession->nagle=0;
     newsession->debuglogfile=0;
     newsession->debuglogname=0;
     memcpy(newsession->mesvar, ses->mesvar, sizeof(int)*(MAX_MESVAR+1));
@@ -378,8 +382,6 @@ void cleanup_session(struct session *ses)
     };
     sprintf(buf, "#SESSION '%s' DIED.", ses->name);
     tintin_puts(buf, NULL);
-    /*  if(write(ses->socket, "ctld\n", 5)<5)
-         syserr("write in cleanup"); *//* can't do this, cozof the peer stuff in net.c */
     if (close(ses->socket) == -1)
         syserr("close in cleanup");
     if (ses->logfile)
@@ -388,7 +390,9 @@ void cleanup_session(struct session *ses)
         fclose(ses->debuglogfile);
     for(i=0;i<NHOOKS;i++)
     	free(ses->hooks[i]);
-
+    free(ses->name);
+    free(ses->address);
+    
     free(ses);
 }
 

@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 AC_INIT
-AM_INIT_AUTOMAKE(KBtin, 1.0.5a)
+AM_INIT_AUTOMAKE(KBtin, 1.0.5i)
 AC_CONFIG_SRCDIR([action.c])
 AM_CONFIG_HEADER(config.h)
 
@@ -16,6 +16,7 @@ AC_PROG_EGREP
 # Checks for header files.
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
+AC_CREATE_STDINT_H
 AC_HEADER_TIOCGWINSZ
 AC_CHECK_HEADERS([strings.h string.h sys/time.h termios.h unistd.h stropts.h])
 
@@ -23,6 +24,7 @@ AC_CHECK_HEADERS([strings.h string.h sys/time.h termios.h unistd.h stropts.h])
 AC_C_CONST
 AC_C_INLINE
 AC_HEADER_TIME
+AC_C_BIGENDIAN
 
 # Checks for library functions.
 AC_PROG_GCC_TRADITIONAL

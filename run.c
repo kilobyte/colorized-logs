@@ -3,9 +3,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 #if HAVE_TERMIOS_H
 # include <termios.h>
 #endif
@@ -381,6 +379,7 @@ FILE *mypopen(char *command, int wr)
                 open("/dev/null",O_RDONLY);
                 dup2(p[1],1);
                 dup2(p[1],2);
+                close(p[1]);
             }
             else
             {
@@ -390,6 +389,7 @@ FILE *mypopen(char *command, int wr)
                 open("/dev/null",O_WRONLY);
                 dup2(1,2);
                 dup2(p[0],0);
+                close(p[0]);
                 signal(SIGINT, SIG_IGN);
                 signal(SIGHUP, SIG_IGN);
                 signal(SIGTSTP, SIG_IGN);

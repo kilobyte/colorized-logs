@@ -14,6 +14,7 @@
 #endif
 #endif
 #include <stdlib.h>
+#include <assert.h>
 #include "tintin.h"
  
 int match(char *regex, char *string)
@@ -167,9 +168,9 @@ start:
 }
 
 
-char *get_fastener(char *txt)
+char* get_fastener(char *txt, char *mbl)
 {
-    char *m,*mbl;
+    char *m;
 
     if (*txt=='^')
         return 0;
@@ -188,7 +189,7 @@ char *get_fastener(char *txt)
         if (*m)
             return 0;
     }
-    mbl=malloc(m+1-txt);
+    assert(m-txt<BUFFER_SIZE);
     memcpy(mbl, txt, m-txt);
     *(mbl+(m-txt))=0;
     return mbl;

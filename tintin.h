@@ -2,10 +2,15 @@
 /* file: tintin.h - the include file for KBtin                    */
 /******************************************************************/
 #define UI_FULLSCREEN      /* fullscreen (vs pipe) interface */
+#define NDEBUG
+#undef UTF8                /* UTF8 support -- not here yet */
+
+#ifndef NDEBUG
 #undef TELNET_DEBUG        /* uncomment to show TELNET negotiations */
 #undef USER_DEBUG          /* debugging of the user interface */
 #undef TERM_DEBUG          /* debugging pseudo-tty stuff */
-#define PROFILING          /* profiling */
+#undef PROFILING           /* profiling */
+#endif
 
 /************************/
 /* The meaning of life: */
@@ -19,12 +24,12 @@
 #ifdef UI_FULLSCREEN
 #define COLOR_BLACK 	0
 #define COLOR_BLUE  	4
-#define COLOR_GREEN	    2
-#define COLOR_CYAN	    6
-#define COLOR_RED	    1
+#define COLOR_GREEN	2
+#define COLOR_CYAN	6
+#define COLOR_RED	1
 #define COLOR_MAGENTA	5
 #define COLOR_YELLOW	3
-#define COLOR_WHITE	    7
+#define COLOR_WHITE	7
 #endif
 
 /*************************/
@@ -58,12 +63,15 @@
 #define XTERM_TITLE "KBtin - %s"
 #endif
 #undef  PTY_ECHO_HACK   /* not working yet */
+#define ASSUME_UTF8 0      /* if character width cannot be autodetected */
 #define ECHO_COLOR "~8~"
-#define LOG_INPUT "%s\n" /* you can add ANSI codes, etc here */
+#define LOG_INPUT_PREFIX "" /* you can add ANSI codes, etc here */
+#define LOG_INPUT_SUFFIX ""
 #define RESET_RAW       /* reset pseudo-terminals to raw mode every write */
 #define GOTO_CHAR '>'	/* be>mt -> #goto be mt */
 		/*Comment last line out to disable this behavior */
 #define OLD_LOG 0 /* set to one to use old-style logging */
+#define DEFAULT_LOGTYPE (1-OLD_LOG)       /* 0: cr/lf, 1: lf, 2: ttyrec */
 #define DEFAULT_OPEN '{' /*character that starts an argument */
 #define DEFAULT_CLOSE '}' /*character that ends an argument */
 #define HISTORY_SIZE 128                  /* history size */
@@ -116,6 +124,9 @@
 #define DEFAULT_HOOK_MESS TRUE
 #define DEFAULT_PRETICK 10
 /*#define PARTIAL_LINE_MARKER "\376"*/       /* comment out to disable */
+#define CHAR_VERBATIM '\\'
+#define CHAR_QUOTE '"'
+#define CHAR_NEWLINE ';'
 /**************************************************************************/
 /* Should a prompt appear whenever TINTIN has written something to the    */
 /* screen?                                                                */
@@ -151,7 +162,6 @@
 /* The stuff below here shouldn't be modified unless you know what you're */
 /* doing........                                                          */
 /**************************************************************************/ 
-#include "version.h"
 #define STOP_AT_SPACES 0
 #define WITH_SPACES 1
 #define ALPHA 1
@@ -188,6 +198,7 @@
 
 /************************ structures *********************/
 #include <stdio.h>
+#include "_stdint.h"
 
 struct listnode {
   struct listnode *next;
@@ -242,6 +253,7 @@ struct session
   int snoopstatus;
   FILE *logfile,*debuglogfile;
   char *logname,*debuglogname;
+  int logtype;
   int ignore;
   struct listnode *actions, *prompts, *subs, *highs, *antisubs;
   struct hashtable *aliases, *myvars, *pathdirs, *binds;
@@ -262,6 +274,7 @@ struct session
   int sessionstart;
   char *hooks[NHOOKS];
   int closing;
+  int nagle;
 };
 
 typedef char pvars_t[10][BUFFER_SIZE];
@@ -280,3 +293,21 @@ typedef char pvars_t[10][BUFFER_SIZE];
 # define PROFSTART
 # define PROFEND(x,y)
 #endif
+
+#ifdef WORDS_BIGENDIAN
+# define to_little_endian(x) (uint32_t ( \
+    ((uint32_t (x) & uint32_t 0x000000ffU) << 24) | \
+    ((uint32_t (x) & uint32_t 0x0000ff00U) <<  8) | \
+    ((uint32_t (x) & uint32_t 0x00ff0000U) >>  8) | \
+    ((uint32_t (x) & uint32_t 0xff000000U) >> 24)))
+#else
+# define to_little_endian(x) ((uint32_t)(x))
+#endif
+#define from_little_endian(x) to_little_endian(x)
+
+struct ttyrec_header
+{
+    uint32_t sec;
+    uint32_t usec;
+    uint32_t len;
+};
