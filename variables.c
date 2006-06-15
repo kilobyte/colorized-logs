@@ -158,12 +158,14 @@ void substitute_myvars(char *arg,char *result,struct session *ses)
                     if (strcmp(varname,"secstotick")==0)
                         sprintf(value,"%d",timetilltick(ses));
                     else
+#ifdef UI_FULLSCREEN
                     if (strcmp(varname,"LINES")==0)
                         sprintf(value,"%d",LINES);
                     else
                     if (strcmp(varname,"COLS")==0)
                         sprintf(value,"%d",COLS);
                     else
+#endif
                     if (strcmp(varname,"PATH")==0)
                         path2var(value,ses);
                     else

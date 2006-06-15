@@ -74,6 +74,7 @@ extern void user_pause(void);
 extern void user_resume(void);
 extern void kill_all(struct session *ses, int mode);
 extern void do_in_MUD_colors(char *txt,int quotetype);
+extern int puts_echoing,in_read;
 
 int yes_no(char *txt)
 {
@@ -225,6 +226,7 @@ void echo_command(char *arg,struct session *ses)
                "#ECHO IS NOW OFF.");
 }
 
+#ifdef UI_FULLSCREEN
 /***********************/
 /* the #keypad command */
 /***********************/
@@ -246,6 +248,7 @@ void retain_command(char *arg,struct session *ses)
                "#INPUT BAR WILL NOW BE CLEARED EVERY LINE.");
     user_retain();
 }
+#endif
 
 /*********************/
 /* the #end command */
@@ -265,7 +268,9 @@ void end_command(char *arg, struct session *ses)
     tintin_printf(ses,"TINTIN suffers from bloodlack, and the lack of a beating heart...");
     tintin_printf(ses,"TINTIN is dead! R.I.P.");
     tintin_printf(ses,"Your blood freezes as you hear TINTIN's death cry.");
+#ifdef UI_FULLSCREEN
     user_done();
+#endif
     exit(0);
 }
 
@@ -321,8 +326,11 @@ void verbose_command(char *arg,struct session *ses)
     togglebool(&ses->verbose,arg,ses,
                "#Output from #reads will now be shown.",
                "#The #read command will no longer output messages.");
+    if (in_read)
+        puts_echoing=ses->verbose;
 }
 
+#ifdef UI_FULLSCREEN
 /************************/
 /* the #margins command */
 /************************/
@@ -379,6 +387,7 @@ void margins_command(char *arg,struct session *ses)
         tintin_printf(ses,"#MARGINS ENABLED.");
     }
 }
+#endif
 
 
 /***********************/
@@ -576,6 +585,7 @@ void speedwalk_command(char *arg,struct session *ses)
 }
 
 
+#ifdef UI_FULLSCREEN
 /***********************/
 /* the #status command */
 /***********************/
@@ -590,6 +600,7 @@ void status_command(char *arg,struct session *ses)
         strcpy(status,EMPTY_LINE);
     show_status();
 }
+#endif
 
 
 /***********************/
@@ -636,9 +647,13 @@ void shell_command(char *arg,struct session *ses)
     {
         if (ses->mesvar[9])
             tintin_puts1("#EXECUTING SHELL COMMAND.", ses);
+#ifdef UI_FULLSCREEN
         user_pause();
         system(arg);
         user_resume();
+#else
+        system(arg);
+#endif
         if (ses->mesvar[9])
             tintin_puts1("#OK COMMAND EXECUTED.", ses);
     }
@@ -889,8 +904,12 @@ void info_command(char *arg, struct session *ses)
         ses->echo, ses->speedwalk, ses->blank, ses->verbatim);
     tintin_printf(ses, " toggle subs=%d, ignore actions=%d, PreSub=%d, verbose=%d",
         ses->togglesubs, ses->ignore, ses->presub, ses->verbose);
+#ifdef UI_FULLSCREEN
     tintin_printf(ses, "Terminal size: %dx%d,  keypad: %s,  retain: %d",
         COLS,LINES,keypad?"alt mode":"cursor/numeric mode",retain);
+#else
+    tintin_printf(ses, "Non-fullscreen mode");
+#endif
     prompt(ses);
 }
 

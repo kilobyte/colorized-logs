@@ -5,12 +5,12 @@
 #include <sys/types.h>
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-# if HAVE_TERMIOS_H
-#  include <termios.h>
-# endif
-# if GWINSZ_IN_SYS_IOCTL
-#  include <sys/ioctl.h>
-# endif
+#endif
+#if HAVE_TERMIOS_H
+# include <termios.h>
+#endif
+#if GWINSZ_IN_SYS_IOCTL
+# include <sys/ioctl.h>
 #endif
 #ifdef HAVE_GRANTPT
 # ifdef HAVE_STROPTS_H
@@ -158,8 +158,10 @@ ok:
 #endif
 #endif
 
-    tcsetattr(slave, TCSANOW, termp);
-    ioctl(slave,TIOCSWINSZ,wp);
+    if (termp)
+        tcsetattr(slave, TCSANOW, termp);
+    if (wp)
+        ioctl(slave,TIOCSWINSZ,wp);
     /* let's ignore errors on this ioctl silently */
     
     pid=fork();
@@ -192,7 +194,12 @@ int run(char *command)
 
     struct termios ta;
     struct winsize ws;
+
+#ifdef UI_FULLSCREEN
     memcpy(&ta, &old_tattr, sizeof(ta));
+#else
+    memset(&ta, 0, sizeof(ta));
+#endif
     ta.c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP
                     |INLCR|IGNCR|ICRNL|IXON);
     ta.c_oflag &= ~OPOST;
@@ -200,16 +207,18 @@ int run(char *command)
     ta.c_cflag &= ~(CSIZE|PARENB);
     ta.c_cflag |= CS8;
 
-    ta.c_lflag|=ISIG;    /* allow C-c, C-\ and C-z */
     ta.c_cc[VMIN]=1;
     ta.c_cc[VTIME]=0;
 
+#ifdef UI_FULLSCREEN
     ws.ws_row=LINES-1;
     ws.ws_col=COLS;
     ws.ws_xpixel=0;
     ws.ws_ypixel=0;
-
     switch(forkpty(&fd,0,&ta,&ws))
+#else
+    switch(forkpty(&fd,0,&ta,0))  /* not fullscreen -> no window size */
+#endif
     {
     case -1:
         return(0);

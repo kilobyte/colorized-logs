@@ -54,7 +54,9 @@ char *mystrdup(char *s)
 /*************************************************/
 void syserr(char *msg)
 {
+#ifdef UI_FULLSCREEN
   user_done();
+#endif
   fprintf(stderr, "ERROR:  %s\n",msg);
   exit(1);
 }

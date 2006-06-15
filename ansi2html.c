@@ -5,6 +5,8 @@ Note: <i> is used instead of <blink> because of brain-deadness of Internet
 */
 #include <stdio.h>
 
+#define BUFFER_SIZE 2048
+
 char cnames[2][8][8]=
    {{"#000000","#DF0000","#00DF00","#DFDF00","#0000DF","#DF00DF","#00DFDF","#DFDFDF"},
     {"#3F3F3F","#FF0000","#00FF00","#FFFF00","#0000FF","#FF00FF","#00FFFF","#FFFFFF"}};
@@ -68,7 +70,7 @@ esc:
 
 int main()
 {
-    char line[2048],*ch;
+    char line[BUFFER_SIZE],*ch;
     int table;
     int oldbl=0, bl=0;
     int oldbg=-1, bg=0;
@@ -77,7 +79,7 @@ int main()
     int tmp;
 
     printf("<html>\n<body bgcolor=%s text=%s>\n<pre><tt>",bnames[0],cnames[0][7]);
-    while (fgets(line,2048,stdin))
+    while (fgets(line,BUFFER_SIZE,stdin))
     {
         table=hasbg(line);
         if (table)

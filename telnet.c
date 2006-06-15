@@ -8,6 +8,7 @@ extern void tintin_printf(struct session *ses, char *format, ...);
 extern int LINES,COLS,isstatus;
 extern struct session *sessionlist;
 
+#define EOR 239     /* End of Record */
 #define SE  240     /* subnegotiation end */
 #define NOP 241     /* no operation */
 #define DM  242     /* Data Mark */
@@ -29,10 +30,14 @@ extern struct session *sessionlist;
 #define SUPPRESS_GO_AHEAD   3
 #define STATUS              5
 #define TERMINAL_TYPE       24
+#define END_OF_RECORD       25
 #define NAWS                31
 
 #define IS      0
 #define SEND    1
+
+/* sanity check */
+#define MAX_SUBNEGO_LENGTH 64
 
 #ifdef TELNET_DEBUG
 char *will_names[4]={"WILL", "WONT", "DO", "DONT"};
@@ -83,6 +88,7 @@ char *option_names[]=
 
 void telnet_send_naws(struct session *ses)
 {
+#ifdef UI_FULLSCREEN
     unsigned char nego[128],*np;
 
 #define PUTBYTE(b)    if ((b)==255) *np++=255;   *np++=(b);
@@ -111,6 +117,8 @@ void telnet_send_naws(struct session *ses)
         tintin_printf(ses, "~8~[telnet] sent: %s~-1~", buf);
     }
 #endif
+#endif
+/* no UI_FULLSCREEN -> no NAWS (even though we do negotiate it (bug?) */
 }
 
 void telnet_send_ttype(struct session *ses)
@@ -209,6 +217,15 @@ int do_telnet_protocol(unsigned char *data,int nb,struct session *ses)
             case DONT:  answer[1]=WONT; ses->naws=0; break;
             };
             break;
+        case END_OF_RECORD:
+            switch(wt)
+            {
+            case WILL:  answer[1]=DO;   break;
+            case DO:    answer[1]=WONT; break;
+            case WONT:  answer[1]=DONT; break;
+            case DONT:  answer[1]=WONT; break;
+            };
+            break;
         default:
             switch(wt)
             {
@@ -232,18 +249,23 @@ sbloop:
         NEXTCH;
         while (*cp!=IAC)
         {
+            if (np-nego>MAX_SUBNEGO_LENGTH)
+                goto nego_too_long;
             *np++=*cp;
             NEXTCH;
         }
         NEXTCH;
         if (*cp==IAC)
         {
+            if (np-nego>MAX_SUBNEGO_LENGTH)
+                goto nego_too_long;
             *np++=IAC;
             goto sbloop;
         }
         if (*cp!=SE)
         {
-            *np++=IAC;
+            if (np-nego>MAX_SUBNEGO_LENGTH)
+                goto nego_too_long;
             *np++=*cp;
             goto sbloop;
         }
@@ -280,8 +302,10 @@ sbloop:
         }
         return nb+4;
     case GA:
+    case EOR:
 #ifdef TELNET_DEBUG
-        tintin_printf(ses, "~8~[telnet] received: IAC GA~-1~");
+        tintin_printf(ses, "~8~[telnet] received: IAC %s~-1~",
+            (*cp==GA)?"GA":"EOR");
 #endif
         ses->gas=1;
         return -2;
@@ -295,4 +319,7 @@ sbloop:
         return 2;
     }
     return (cp-data);
+nego_too_long:
+    tintin_eprintf(ses, "#error: unterminated TELNET subnegotiation received.");
+    return 2; /* we leave everything but IAC SB */
 }

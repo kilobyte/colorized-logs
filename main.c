@@ -26,6 +26,9 @@
 #  include <time.h>
 # endif
 #endif
+#ifdef HAVE_TIME_H
+#include <time.h>
+#endif
 
 #include <stdarg.h>
 
@@ -59,13 +62,12 @@ int routnum = 0;
 int pdnum = 0;
 int antisubnum = 0;
 int bindnum = 0;
-char homepath[1025];
-char E = 27;
 int gotpassword=0;
 int got_more_kludge=0;
 extern int hist_num;
 extern int need_resize;
 extern int LINES,COLS;
+extern int tty,xterm;
 char *tintin_exec;
 struct session *lastdraft;
 int aborting=0;
@@ -101,7 +103,6 @@ extern int tick_size, sec_to_tick;
 static void myquitsig(void);
 extern struct session *newactive_session(void);
 extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
-extern struct session *read_command(char *filename, struct session *ses);
 extern struct completenode *complete_head;
 extern struct listnode *init_list(void);
 extern void read_complete(void);
@@ -127,28 +128,29 @@ extern int iscompleteprompt(char *line);
 void echo_input(char *txt);
 extern struct hashtable* init_hash();
 extern void init_parse();
-
-#ifdef HAVE_TIME_H
-#include <time.h>
-#endif
+extern struct session *do_read(FILE *myfile, char *filename, struct session *ses);
 extern void do_history(char *buffer, struct session *ses);
 extern int read_buffer_mud(char *buffer, struct session *ses);
 extern void cleanup_session(struct session *ses);
+extern void user_title(char *fmt,...);
 
 void tstphandler(int sig)
 {
+#ifdef UI_FULLSCREEN
     user_pause();
+#endif
     kill(getpid(), SIGSTOP);
-}
-
-void sigcont(void)
-{
-    user_resume();
 }
 
 void sigchild(void)
 {
     while (waitpid(-1,0,WNOHANG)>0);
+}
+
+#ifdef UI_FULLSCREEN
+void sigcont(void)
+{
+    user_resume();
 }
 
 void sigsegv(void)
@@ -164,6 +166,7 @@ void sigfpe(void)
     write(2,"Floating point exception.\n",26);
     exit(8);
 }
+#endif
 
 int new_news(void)
 {
@@ -202,19 +205,21 @@ void setup_signals(void)
     act.sa_handler=(sighandler_t)tstphandler;
     if (sigaction(SIGTSTP,&act,0))
         syserr("sigaction SIGTSTP");
+#ifdef UI_FULLSCREEN
     act.sa_handler=(sighandler_t)sigcont;
     if (sigaction(SIGCONT,&act,0))
         syserr("sigaction SIGCONT");
     act.sa_handler=(sighandler_t)sigwinch;
     if (sigaction(SIGWINCH,&act,0))
         syserr("sigaction SIGWINCH");
-    act.sa_handler=(sighandler_t)sigchild;
-    if (sigaction(SIGCHLD,&act,0))
-        syserr("sigaction SIGCHLD");
     if (signal(SIGSEGV,(sighandler_t)sigsegv) == BADSIG)
         syserr("signal SIGSEGV");
     if (signal(SIGFPE,(sighandler_t)sigfpe) == BADSIG)
         syserr("signal SIGFPE");
+#endif
+    act.sa_handler=(sighandler_t)sigchild;
+    if (sigaction(SIGCHLD,&act,0))
+        syserr("sigaction SIGCHLD");
     if (signal(SIGPIPE, SIG_IGN) == BADSIG)
         syserr("signal SIGPIPE");
 }
@@ -239,27 +244,96 @@ void setup_ulimit(void)
     setrlimit(RLIMIT_STACK,&rlim);
 }
 
+void parse_options(int argc, char **argv, char **environ)
+{
+    char homepath[BUFFER_SIZE], temp[BUFFER_SIZE], *strptr;
+    FILE *f;
+    int noargs=0;
+    int arg;
+
+    *homepath = '\0';
+    if (!strcmp(DEFAULT_FILE_DIR, "HOME"))
+        if ((strptr = (char *)getenv("HOME")))
+            strcpy(homepath, strptr);
+        else
+            *homepath = '\0';
+    else
+        strcpy(homepath, DEFAULT_FILE_DIR);
+    for (arg=1;arg<argc;arg++)
+    {
+        if (*argv[arg]=='-' && !noargs)
+        {
+            if (!strcmp(argv[arg],"--"))
+                noargs=1;
+            else if (!strcmp(argv[arg],"-v"))
+                nullsession->verbose = TRUE;
+            else if (!strcmp(argv[arg],"-q"))
+                nullsession->verbose = FALSE;
+            else if (!strcmp(argv[arg],"-c"))
+            {
+                if (++arg==argc)
+                    tintin_eprintf(0, "#Invalid option: bare -c");
+                else
+                    activesession=parse_input(argv[arg],0,activesession);
+            }
+            else
+                tintin_eprintf(0, "#Invalid option: {%s}",argv[arg]);
+        }
+        else
+        {
+            if (f=fopen(argv[arg],"r"))
+            {
+                tintin_printf(0, "#READING {%s}", argv[arg]);
+                activesession = do_read(f, argv[arg], activesession);
+            }
+            else
+                tintin_eprintf(0, "#FILE NOT FOUND: {%s}", argv[arg]);
+        }
+    }
+    if (argc<=1)
+    {
+        strcpy(temp, homepath);
+        strcat(temp, "/.tintinrc");
+        if (f=fopen(temp,"r"))
+            activesession = do_read(f, temp, activesession);
+        else
+        {
+            if ((strptr = (char *)getenv("HOME")))
+            {
+                strcpy(homepath, strptr);
+                strcpy(temp, homepath);
+                strcat(temp, "/.tintinrc");
+                if (f=fopen(temp,"r"))
+                    activesession = do_read(f, temp, nullsession);
+            }
+        }
+    }
+}
+
 /**************************************************************************/
 /* main() - show title - setup signals - init lists - readcoms - tintin() */
 /**************************************************************************/
 int main(int argc, char **argv, char **environ)
 {
     struct session *ses;
-    char *strptr, temp[BUFFER_SIZE];
-    int arg_num;
-    int fd;
 
     tintin_exec=argv[0];
+#ifdef UI_FULLSCREEN
     init_bind();
+    hist_num=-1;
+#endif
     init_parse();
     strcpy(status,EMPTY_LINE);
     user_init();
     /*  read_complete();		no tab-completion */
-    hist_num=-1;
     ses = NULL;
-    srand(getpid()^time(0));
+    srand((getpid()*0x10001)^time(0));
     lastdraft=0;
 
+#ifndef UI_FULLSCREEN
+    if (tty)
+    {
+#endif
 /*
     Legal crap does _not_ belong here.  Anyone interested in the license
 can check the files accompanying KBtin, without any need of being spammed
@@ -284,6 +358,9 @@ ever wants to read -- that is what docs are for.
     tintin_printf(0,"~15~#help                         ~7~to get the help index");
     if (new_news())
         tintin_printf(ses,"Check #news now!");
+#ifndef UI_FULLSCREEN
+    }
+#endif
 
     setup_signals();
     setup_ulimit();
@@ -355,54 +432,7 @@ ever wants to read -- that is what docs are for.
     nullsession->mesvar[10]= DEFAULT_PATH_MESS;
     nullsession->mesvar[11]= DEFAULT_ERROR_MESS;
 
-    *homepath = '\0';
-    if (!strcmp(DEFAULT_FILE_DIR, "HOME"))
-        if ((strptr = (char *)getenv("HOME")))
-            strcpy(homepath, strptr);
-        else
-            *homepath = '\0';
-    else
-        strcpy(homepath, DEFAULT_FILE_DIR);
-    arg_num = 1;
-    if (argc > 1 && argv[1])
-    {
-        if (*argv[1] == '-' && *(argv[1] + 1) == 'v')
-        {
-            arg_num = 2;
-            nullsession->verbose = TRUE;
-        }
-    }
-    activesession=nullsession;
-    if (argc > arg_num)
-        while (argc>arg_num)
-        {
-            tintin_printf(0, "#READING {%s}", argv[arg_num]);
-            activesession = read_command(argv[arg_num++], activesession);
-        }
-    else
-    {
-        strcpy(temp, homepath);
-        strcat(temp, "/.tintinrc");
-        if ((fd = open(temp, O_RDONLY)) > 0)
-        {                   	/* Check if it exists */
-            close(fd);
-            activesession = read_command(temp, activesession);
-        }
-        else
-        {
-            if ((strptr = (char *)getenv("HOME")))
-            {
-                strcpy(homepath, strptr);
-                strcpy(temp, homepath);
-                strcat(temp, "/.tintinrc");
-                if ((fd = open(temp, O_RDONLY)) > 0)
-                {	                /* Check if it exists */
-                    close(fd);
-                    activesession = read_command(temp, nullsession);
-                }
-            }
-        }
-    }
+    parse_options(argc, argv, environ);
     tintin();
     return 0;
 }
@@ -438,9 +468,24 @@ void tintin(void)
     int done, readfdmask, result;
     struct session *sesptr, *t;
     struct timeval tv;
+#ifdef XTERM_TITLE
+    struct session *lastsession=0;
+#endif
 
     while (TRUE)
     {
+#ifdef UI_FULLSCREEN
+# ifdef XTERM_TITLE
+        if (activesession!=lastsession)
+        {
+            lastsession=activesession;
+            if (activesession==nullsession)
+                user_title(XTERM_TITLE, "(no session)");
+            else
+                user_title(XTERM_TITLE, activesession->name);
+        }
+# endif
+#endif
         readfdmask = 1;
         for (sesptr = sessionlist; sesptr; sesptr = sesptr->next)
             readfdmask |= sesptr->socketbit;
@@ -450,6 +495,7 @@ void tintin(void)
 
         result = select(32, (fd_set *)&readfdmask, 0, 0, &tv);
 
+#ifdef UI_FULLSCREEN
         if (need_resize)
         {
             char buf[BUFFER_SIZE];
@@ -458,6 +504,7 @@ void tintin(void)
             sprintf(buf, "#NEW SCREEN SIZE: %dx%d.", COLS, LINES);
             tintin_puts1(buf, activesession);
         }
+#endif
 
         if (result == 0)
             continue;
@@ -471,7 +518,11 @@ void tintin(void)
             done = process_kbd(activesession);
             if (done)
             {
+                if (done<0)
+                    myquitsig();
+#ifdef UI_FULLSCREEN
                 hist_num=-1;
+#endif
                 if (term_echoing || (got_more_kludge && done_input[0]))
                     /* got_more_kludge: echo any non-empty line */
                 {
@@ -503,7 +554,9 @@ void tintin(void)
             gotpassword= 2-activesession->server_echo;
             if (!gotpassword)
                 got_more_kludge=0;
+#ifdef UI_FULLSCREEN
             user_passwd(gotpassword && !got_more_kludge);
+#endif
             term_echoing=!gotpassword;
         }
     }
@@ -596,14 +649,18 @@ void do_one_line(char *line,int nl,struct session *ses)
         if (match(PROMPT_FOR_PW_TEXT,line) && !gotpassword)
         {
             gotpassword=1;
+#ifdef UI_FULLSCREEN
             user_passwd(1);
+#endif
             term_echoing=FALSE;
         };
         break;
     case 1:
         if (match(PROMPT_FOR_MORE_TEXT,line))
         {
+#ifdef UI_FULLSCREEN
             user_passwd(0);
+#endif
             got_more_kludge=1;
         };
     };
@@ -629,17 +686,21 @@ void do_one_line(char *line,int nl,struct session *ses)
                 if (!activesession->server_echo)
                     gotpassword=0;
                 sprintf(strchr(line,0),"\n");
+#ifdef UI_FULLSCREEN
                 textout_draft(0, 0);
+#endif
                 textout(line);
                 lastdraft=0;
             }
             else
             {
+#ifdef UI_FULLSCREEN
                 isnb = ses->gas ? ses->ga : iscompleteprompt(line);
 #ifdef PARTIAL_LINE_MARKER
                 sprintf(strchr(line,0),PARTIAL_LINE_MARKER);
 #endif
                 textout_draft(line, isnb);
+#endif
                 lastdraft=ses;
             }
         }
@@ -790,10 +851,16 @@ static void myquitsig(void)
     }
     sesptr = NULL;
 
+#ifndef UI_FULLSCREEN
+    if (!tty)
+        exit(0);
+#endif
     textout("~7~\n");
     textout("Your fireball hits TINTIN with full force, causing an immediate death.\n");
     textout("TINTIN is dead! R.I.P.\n");
     textout("Your blood freezes as you hear TINTINs death cry.\n");
+#ifdef UI_FULLSCREEN
     user_done();
+#endif
     exit(0);
 }

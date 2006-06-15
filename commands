@@ -2,6 +2,8 @@
 ;   void XXX_command(char *arg, struct session *ses)
 ;   struct session *XXX_command(char *arg, struct session *ses)
 ; depending on whether the function name is prefixed with an * or not.
+; The order _does_ matter.  If a partial command is typed which matches
+; multiple commands, the first one is used.
 
 *all
 *session
@@ -15,10 +17,18 @@ action
 alias
 antisubstitute
 bell
+
+#ifdef UI_FULLSCREEN
 bind
+#endif
+
 blank
 char
+
+#ifdef UI_FULLSCREEN
 condump
+#endif
+
 ctime
 cr
 delay
@@ -42,14 +52,22 @@ ignore
 implode
 info
 isatom
+
+#ifdef UI_FULLSCREEN
 keypad
+#endif
+
 killall
 listlength
 log
 loop
 nope
 map
+
+#ifdef UI_FULLSCREEN
 margins
+#endif
+
 math
 match
 mark
@@ -77,7 +95,11 @@ speedwalk
 splitlist
 suspend
 shell
+
+#ifdef UI_FULLSCREEN
 status
+#endif
+
 textin
 time
 sortlist
@@ -99,7 +121,11 @@ toupper
 unaction
 unalias
 unantisubstitute
+
+#ifdef UI_FULLSCREEN
 unbind
+#endif
+
 unhighlight
 unsubstitute
 ungag
@@ -123,7 +149,11 @@ changeto
 send
 timecommands
 debuglog
+
 #ifdef HAVE_REGCOMP
 grep
 #endif
+
+#ifdef UI_FULLSCREEN
 retain
+#endif

@@ -6,8 +6,9 @@
 #include <strings.h>
 #endif
 #endif
-
 #include "tintin.h"
+
+#ifdef UI_FULLSCREEN
 
 extern char *get_arg_in_braces(char *s,char *arg,int flag);
 extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
@@ -167,3 +168,4 @@ void init_bind(void)
     for(n=KEYNAMES;**n;n+=2)
         set_hash(keynames,n[0],n[1]);
 }
+#endif

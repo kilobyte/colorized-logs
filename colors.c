@@ -165,8 +165,12 @@ again:
                             /* inverse should propagate... oh well */
                             break;
                         case 21:
+                            ccolor&=~8;
+                            break;
                         case 22:
                             ccolor&=~8;
+                            if (!(ccolor&15))
+                                ccolor|=7;
                             break;
                         case 23:
                             ccolor&=~256;

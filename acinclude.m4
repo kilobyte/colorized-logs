@@ -31,34 +31,11 @@ fi
 
 
 
-dnl @(#) $Header: /home/jku/CVS/fe/aclocal.m4,v 2.1 1999/01/03 21:16:17 jku Exp $ (LBL)
 dnl
-dnl Copyright (c) 1995, 1996, 1997
-dnl	The Regents of the University of California.  All rights reserved.
+dnl AC_LBL_LIBRARY_NET
 dnl
-dnl Redistribution and use in source and binary forms, with or without
-dnl modification, are permitted provided that: (1) source code distributions
-dnl retain the above copyright notice and this paragraph in its entirety, (2)
-dnl distributions including binary code include the above copyright notice and
-dnl this paragraph in its entirety in the documentation or other materials
-dnl provided with the distribution, and (3) all advertising materials mentioning
-dnl features or use of this software display the following acknowledgement:
-dnl ``This product includes software developed by the University of California,
-dnl Lawrence Berkeley Laboratory and its contributors.'' Neither the name of
-dnl the University nor the names of its contributors may be used to endorse
-dnl or promote products derived from this software without specific prior
-dnl written permission.
-dnl THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR IMPLIED
-dnl WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
-dnl MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-dnl
-dnl LBL autoconf macros
-dnl
-
-dnl
-dnl Attempt to determine additional libraries needed for network programs
-dnl
-dnl Thanks to John Hawkinson (jhawk@mit.edu)
+dnl Written by John Hawkinson <jhawk@mit.edu>. This code is in the Public
+dnl Domain.
 dnl
 dnl usage:
 dnl
@@ -69,9 +46,6 @@ dnl
 dnl	LIBS
 dnl
 
-dnl
-dnl AC_LBL_LIBRARY_NET
-dnl
 dnl This test is for network applications that need socket() and
 dnl gethostbyname() -ish functions.  Under Solaris, those applications
 dnl need to link with "-lsocket -lnsl".  Under IRIX, they need to link

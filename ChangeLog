@@ -7,6 +7,19 @@
 *	outgoing 0xff bytes are sent as IAC IAC telnet sequence
 *	the terminal string will cycle between "KBtin", "hardcopy",
 	"unknown" and "KBtin-1.0.4" (conforming to RFC 1091)
+*	if you undefine UI_FULLSCREEN in tintin.h, KBtin will be pipe-
+	friendly; for use as a scripting language or for regression tests
+*	telnet EOR sequences are allowed and treated as GAs
+*	bugfix: unterminated TELNET subnegotiations no longer cause a
+	segfault
+*	bugfix: sometimes TELNET sequences were not carried properly over
+	a packet boundary
+*	cleaned up command line parsing, added -q and -c
+*	a (too short) manpage added
+*	axed the old BSD license from acinclude.m4, the only snippet we
+	use is in public domain
+*	window title in xterm
+*=============fix ansi2html before releasing!!!======================
 
 1.0.4:
 *	changes needed to compile on Tru64:

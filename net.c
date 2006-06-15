@@ -173,8 +173,9 @@ void write_line_mud(char *line, struct session *ses)
 int read_buffer_mud(char *buffer, struct session *ses)
 {
     int i, didget, b;
-    char tmpbuf[BUFFER_SIZE], *cpsource, *cpdest;
-
+    char *cpsource, *cpdest;
+#define tmpbuf ses->telnet_buf
+#define len ses->telnet_buflen
 
     if (!ses->issocket)
     {
@@ -186,7 +187,7 @@ int read_buffer_mud(char *buffer, struct session *ses)
         return didget;
     }
     
-    didget = read(ses->socket, tmpbuf+ses->telnet_buf, INPUT_CHUNK-ses->telnet_buf);
+    didget = read(ses->socket, tmpbuf+len, INPUT_CHUNK-len);
 
     if (didget < 0)
         return -1;
@@ -194,14 +195,16 @@ int read_buffer_mud(char *buffer, struct session *ses)
     else if (didget == 0)
         return -1;
 
-    *(tmpbuf+ses->telnet_buf+didget)=0;
-    tintin_printf(ses,"[%s]",tmpbuf);
+    *(tmpbuf+len+didget)=0;
+#if 0
+    tintin_printf(ses,"~8~text:[%s]~-1~",tmpbuf);
+#endif
     
-    if ((didget+=ses->telnet_buf) == INPUT_CHUNK)
+    if ((didget+=len) == INPUT_CHUNK)
         ses->more_coming = 1;
     else
         ses->more_coming = 0;
-    ses->telnet_buf=0;
+    len=0;
     ses->ga=0;
 
     tmpbuf[didget]=0;
@@ -222,10 +225,10 @@ int read_buffer_mud(char *buffer, struct session *ses)
             switch(b)
             {
             case -1:
-                ses->telnet_buf=i;
+                len=i;
                 memmove(tmpbuf, cpsource, i);
                 *cpdest=0;
-                return didget-ses->telnet_buf;
+                return didget-len;
             case -2:
             	i-=2;
             	didget-=2;

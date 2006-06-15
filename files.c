@@ -205,6 +205,7 @@ void deathlog_command(char *arg, struct session *ses)
         tintin_eprintf(ses, "#ERROR: valid syntax is: #deathlog <file> <text>");
 }
 
+#ifdef UI_FULLSCREEN
 /************************/
 /* the #condump command */
 /************************/
@@ -235,6 +236,7 @@ void condump_command(char *arg, struct session *ses)
         tintin_eprintf(ses, "#Syntax: #condump <file>");
     prompt(NULL);
 }
+#endif
 
 /********************/
 /* the #log command */
@@ -348,26 +350,12 @@ void debuglog(struct session *ses, const char *format, ...)
 }
 
 
-/*********************/
-/* the #read command */
-/*********************/
-struct session *read_command(char *filename, struct session *ses)
+struct session *do_read(FILE *myfile, char *filename, struct session *ses)
 {
-    FILE *myfile;
     char line[BUFFER_SIZE], buffer[BUFFER_SIZE], *cptr, *eptr;
     int flag,nl,ignore_lines;
 
     flag = !in_read;
-    get_arg_in_braces(filename, buffer, 1);
-    substitute_vars(buffer, filename);
-    substitute_myvars(filename, buffer, ses);
-    expand_filename(buffer, filename);
-    if ((myfile = fopen(filename, "r")) == NULL)
-    {
-        tintin_eprintf(ses, "#ERROR - COULDN'T OPEN FILE {%s}.", filename);
-        prompt(NULL);
-        return ses;
-    }
     if (!ses->verbose)
         puts_echoing = FALSE;
     if (!in_read)
@@ -459,6 +447,36 @@ struct session *read_command(char *filename, struct session *ses)
     prompt(NULL);
     return ses;
 }
+
+
+/*********************/
+/* the #read command */
+/*********************/
+struct session *read_command(char *filename, struct session *ses)
+{
+    FILE *myfile;
+    char buffer[BUFFER_SIZE];
+
+    get_arg_in_braces(filename, buffer, 1);
+    substitute_vars(buffer, filename);
+    substitute_myvars(filename, buffer, ses);
+    expand_filename(buffer, filename);
+    if (!*filename)
+    {
+        tintin_eprintf(ses, "#Syntax: #read filename");
+        prompt(NULL);
+        return ses;
+    }
+    if ((myfile = fopen(filename, "r")) == NULL)
+    {
+        tintin_eprintf(ses, "#ERROR - COULDN'T OPEN FILE {%s}.", filename);
+        prompt(NULL);
+        return ses;
+    }
+    
+    return do_read(myfile, filename,ses);
+}
+
 
 /**********************/
 /* the #write command */

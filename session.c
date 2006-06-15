@@ -47,7 +47,6 @@ extern void prompt(struct session *ses);
 extern void syserr(char *msg);
 extern void textout(char *txt);
 extern void textout_draft(char *txt);
-extern void textout_draft(char *txt);
 extern void tintin_puts(char *cptr, struct session *ses);
 extern void tintin_puts1(char *cptr, struct session *ses);
 extern void tintin_printf(struct session *ses,char *format,...);
@@ -246,7 +245,7 @@ struct session *new_session(char *name,char *address,int sock,int issocket,struc
     newsession->ga = 0;
     newsession->gas = 0;
     newsession->server_echo = 0;
-    newsession->telnet_buf = 0;
+    newsession->telnet_buflen = 0;
     newsession->last_term_type = 0;
     newsession->next = sessionlist;
     for (i = 0; i < HISTORY_SIZE; i++)
@@ -306,7 +305,9 @@ void cleanup_session(struct session *ses)
     }
     if (ses==activesession)
     {
+#ifdef UI_FULLSCREEN
         textout_draft(0);
+#endif
         sprintf(buf,"%s\n",ses->last_line);
         do_in_MUD_colors(buf,0);
         textout(buf);

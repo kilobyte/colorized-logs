@@ -5,21 +5,41 @@
 #include <ctype.h>
 #ifdef HAVE_CONFIG_H
 # include "config.h"
+#endif
+#ifdef HAVE_STRING_H
+# include <string.h>
+#else
+# ifdef HAVE_STRINGS_H
+#  include <strings.h>
+# endif
+#endif
+#include <stdarg.h>
 
-# if HAVE_TERMIOS_H
-#  include <termios.h>
-# endif
-# if GWINSZ_IN_SYS_IOCTL
-#  include <sys/ioctl.h>
-# endif
 
-# ifdef HAVE_STRING_H
-#  include <string.h>
-# else
-#  ifdef HAVE_STRINGS_H
-#   include <strings.h>
-#  endif
-# endif
+extern int colors[];
+const char *attribs[8]={"",";5",";3",";3;5",";4",";4;5",";4;3",";4;3;5"};
+#ifdef GRAY2
+const char *fcolors[16]={";30",  ";34",  ";32",  ";36",
+                            ";31",  ";35",  ";33",  "",
+                        ";2",   ";34;1",";32;1",";36;1",
+                            ";31;1",";35;1",";33;1",";1"};
+const char *bcolors[8]={"",    ";44",    ";42",   ";46",
+                            ";41",  ";45",  ";43",  "47"};
+#define COLORCODE(c) "\033[0%s%s%sm",fcolors[(c)&15],bcolors[((c)>>4)&7],attribs[(c))>>7]
+#else
+#define COLORCODE(c) "\033[0%s;3%d;4%d%sm",((c)&8)?";1":"",colors[(c)&7],colors[((c)>>4)&7],attribs[(c)>>7]
+#endif
+
+char done_input[BUFFER_SIZE];
+
+
+#ifdef UI_FULLSCREEN
+
+#if HAVE_TERMIOS_H
+# include <termios.h>
+#endif
+#if GWINSZ_IN_SYS_IOCTL
+# include <sys/ioctl.h>
 #endif
 
 #define B_LENGTH CONSOLE_LENGTH
@@ -36,7 +56,7 @@ extern void syserr(char *msg);
 extern struct session *activesession, *lastdraft;
 extern void telnet_resize_all(void);
 
-char done_input[BUFFER_SIZE],out_line[BUFFER_SIZE],b_draft[BUFFER_SIZE];
+char out_line[BUFFER_SIZE],b_draft[BUFFER_SIZE];
 char k_input[BUFFER_SIZE],kh_input[BUFFER_SIZE],tk_input[BUFFER_SIZE];
 char yank_buffer[BUFFER_SIZE];
 int k_len,k_pos,k_scrl,tk_len,tk_pos,tk_scrl;
@@ -51,22 +71,11 @@ int user_getpassword;
 int margins,marginl,marginr;
 struct termios old_tattr;
 int retaining;
+#ifdef XTERM_TITLE
+int xterm;
+#endif
 
 char term_buf[BUFFER_SIZE],*tbuf;
-
-extern int colors[];
-const char *attribs[8]={"",";5",";3",";3;5",";4",";4;5",";4;3",";4;3;5"};
-#ifdef GRAY2
-const char *fcolors[16]={";30",  ";34",  ";32",  ";36",
-                            ";31",  ";35",  ";33",  "",
-                        ";2",   ";34;1",";32;1",";36;1",
-                            ";31;1",";35;1",";33;1",";1"};
-const char *bcolors[8]={"",    ";44",    ";42",   ";46",
-                            ";41",  ";45",  ";43",  "47"};
-#define COLORCODE(c) "\033[0%s%s%sm",fcolors[(c)&15],bcolors[((c)>>4)&7],attribs[(c))>>7]
-#else
-#define COLORCODE(c) "\033[0%s;3%d;4%d%sm",((c)&8)?";1":"",colors[(c)&7],colors[((c)>>4)&7],attribs[(c)>>7]
-#endif
 
 void term_commit(void)
 {
@@ -600,7 +609,7 @@ int process_kbd(struct session *ses)
     int i;
     
     if (read(0,&ch,1)!=1)
-        return(0);
+        return(-1);
     switch(state)
     {
 #if 0
@@ -1302,11 +1311,6 @@ key_alt_tab:
     return(0);
 }
 
-void user_beep(void)
-{
-    write(1,"\007",1);
-}
-
 /******************************/
 /* set up the window outlines */
 /******************************/
@@ -1380,6 +1384,9 @@ void show_status(void)
 
 void user_init(void)
 {
+#ifdef XTERM_TITLE
+    xterm=getenv("DISPLAY")&&getenv("WINDOWID");
+#endif
     term_getsize();
     term_init();
     tbuf=term_buf+sprintf(term_buf,"\033[?7l");
@@ -1493,12 +1500,102 @@ void user_passwd(int x)
     redraw_in();
 }
 
-#if 0
-void user_title(char *str)
+#ifdef XTERM_TITLE
+void user_title(char *fmt,...)
 {
-#ifdef WINDOW_TITLE
-    tbuf+=sprintf(tbuf,"\033[2;%s\007",str);
-    term_commit();
+    if (!xterm)
+        return;
+    va_list ap;
+#ifdef HAVE_VSNPRINTF
+    char buf[BUFFER_SIZE];
+#else
+    char buf[BUFFER_SIZE*4]; /* let's hope this will never overflow... */
 #endif
+
+    va_start(ap, fmt);
+#ifdef HAVE_VSNPRINTF
+    if (vsnprintf(buf, BUFFER_SIZE-1, fmt, ap)>BUFFER_SIZE-2)
+        buf[BUFFER_SIZE-3]='>';
+#else
+    vsprintf(buf, format, ap);
+#endif
+    va_end(ap);
+
+    tbuf+=sprintf(tbuf,"\033]0;%s\007",buf);
+    term_commit();
 }
 #endif
+
+#else
+/* !UI_FULLSCREEN */
+int tty;
+int color,lastcolor;
+char *i_pos;
+
+void user_init(void)
+{
+    tty=isatty(1);
+    color=lastcolor=7;
+    i_pos=done_input;
+}
+
+void textout(char *txt)
+{
+    char buf[BUFFER_SIZE],*a,*b;
+    
+    for(a=txt,b=buf; *a; a++)
+        switch(*a)
+        {
+        case '~':
+            if (getcolor(&a,&color,1))
+            {
+                if (color==-1)
+                    color=lastcolor;
+                if(tty)
+                    b+=sprintf(b,COLORCODE(color));
+            }
+            else
+                *b++='~';
+            break;
+        case '\n':
+            lastcolor=color;
+        default:
+            *b++=*a;
+        }
+    write(1,buf,b-buf);
+}
+
+int process_kbd(struct session *ses)
+{
+    char ch;
+    
+    if (read(0,&ch,1)!=1)
+        return(-1);
+    switch(ch)
+    {
+    case '\n':
+        *i_pos=0;
+        i_pos=done_input;
+        return 1;
+    case 8:
+        if (i_pos!=done_input)
+            i_pos--;
+        return 0;
+    default:
+        if (i_pos-done_input>=BUFFER_SIZE-2)
+            return 0;
+        *i_pos++=ch;
+    case 0:
+        ;
+    }
+    return 0;
+}
+#endif
+
+/* COMMON */
+
+void user_beep(void)
+{
+    write(1,"\007",1);
+    /* should it beep if we're redirected to a pipe? */
+}

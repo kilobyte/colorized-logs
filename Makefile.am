@@ -2,7 +2,7 @@ bin_PROGRAMS=KBtin ansi2html ansi2txt
 helpdir = $(pkgdatadir)
 help_DATA= NEWS KBtin_help.gz
 INCLUDES = -DDATA_PATH=\"$(helpdir)\"
-man_MANS = ansi2html.6 ansi2txt.6
+man_MANS = ansi2html.6 ansi2txt.6 KBtin.6
 
 BUILT_SOURCES=commands.h load_commands.h
 KBtin_SOURCES=action.c alias.c antisub.c files.c glob.c help.c highlight.c history.c ivars.c llist.c main.c misc.c net.c parse.c path.c session.c substitute.c ticks.c utils.c variables.c events.c user.c run.c colors.c routes.c bind.c telnet.c crc.c hash.c regexp.c
@@ -17,11 +17,16 @@ CLEANFILES=commands.h load_commands.h KBtin_help.gz manual.html
 install-exec-hook:
 	$(LN_S) -f KBtin $(DESTDIR)$(bindir)/kbtin
 
+install-data-hook:
+	$(LN_S) -f KBtin.6 $(DESTDIR)$(mandir)/man6/kbtin.6
+
 uninstall-local:
 	if [ -L $(DESTDIR)$(bindir)/kbtin ]; then \
 	    rm $(DESTDIR)$(bindir)/kbtin; \
 	fi
-
+	if [ -L $(DESTDIR)$(mandir)/man6/kbtin.6 ]; then \
+	    rm $(DESTDIR)$(mandir)/man6/kbtin.6; \
+	fi
 
 commands.h: make_commands commands
 	$(srcdir)/make_commands <$(srcdir)/commands
