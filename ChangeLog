@@ -1,0 +1,9 @@
+0.2.0
+*	color codes system added (~0~..~15~)
+*	#mudcolors command added
+
+0.1.1
+*	if more than one action matches, all are applied.
+*	#showme no longer triggers actions
+*	#run command added
+*	#status command added

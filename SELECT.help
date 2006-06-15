@@ -1,0 +1,43 @@
+----===  Jak uzywac #select  ===----
+
+#alias get_config {#select _* _$0 {%0}}
+#alias handle {#var "_*$1*" {#var keyword $$2;%%3}}
+#action {^$leader attacks %0} {get_config "$0";#if {1} {kill $keyword}}
+handle {brutal exterminator} {brutal} {_cold;auto 4}
+                ^                ^           ^
+                |                |           |
+                |             keyword   konfiguracja
+        short description,
+ najlepiej czesc ktora nie ulega
+ zmianie przy umieszczaniu jej
+ zarowno na poczatku linii, jak
+ i w jej srodku (bez "The", "An" itp)
+
+Uzywanie aliasa handle w takiej postaci jak powyzej spowoduje, ze wasze
+makra beda kompatybilne z moimi ;)
+
+----===  Opis polecenia select z przykladami :)  ===----
+
+#select <wzorzec> <ciag znakow> <wyrazenie>
+
+   Sposrod zmiennych pasujacych do "wzorca" wybiera pierwsza, ktorej
+nazwa pasuje do "ciagu znakow". Poniewaz nazwy zmiennych moga zawierac
+metaznaki (w tym wypadku jest to tylko *, ale w przyszlosci kto wie ...),
+w zwiazku z tym mozna zbudowac nastepujaca konstrukcje:
+
+#var {*The blood-stained and furious terminator*} {value of variable}
+#var {*The terrifying and hostile*} {value;other value}
+#var {*The inquistador, grim guardian of the labyrinth*} {some other value}
+
+teraz wywolanie polecenia:
+#select * "The terrifying and hostile, but otherwise featurless thing" {#show {----%0----}}
+spowoduje kolejno:
+1. przeszukanie wszystkich zmiennych (pierwsza gwiazdka)
+2. po napotkaniu pierwszej zmiennej ktora pasuje do ciagu znakow w ""
+   przypisanie do $0 zawartosci tej zmiennej
+3. wykonanie polecen bedacych trzecim argumentem, w tym wypadku wyswietlenie
+   ciagu znakow ----value----
+
+mala uwaga: uzycie %0 zamiast $0 powoduje, ze ze zmiennej nie zostana usunieta
+znaki srednika. W przypadku obrobki tekstu z muda uzywanie % zamiast $ jest
+ryzykowne, tu nie powinno niczym grozic.

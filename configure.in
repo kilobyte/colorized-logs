@@ -1,0 +1,42 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(tintin.h)
+AC_CONFIG_HEADER(config.h)
+
+PACKAGE=tintin
+AC_SUBST(PACKAGE)
+VERSION=2.1.9
+AC_SUBST(VERSION)
+
+dnl Checks for programs.
+AC_LBL_C_INIT(CFLAGS, INCLUDES)
+AC_LBL_DEVEL(CFLAGS)
+AC_PROG_INSTALL
+
+dnl Checks for libraries.
+
+dnl Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS(time.h fcntl.h sgtty.h sys/ioctl.h unistd.h sys/termio.h)
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+
+
+dnl Checks for library functions.
+AC_TYPE_SIGNAL
+AC_CHECK_FUNCS(select memcpy)
+
+AC_LBL_LIBRARY_NET
+
+AC_ARG_PROGRAM
+
+AC_HEADER_EGREP(tcflag_t, sys/termio.h, AC_DEFINE(HAVE_TCFLAG_T))
+
+AC_MSG_CHECKING(which method to use to turn keyboard echo on/off)
+AC_TRY_LINK([ #include <sys/termio.h>
+          #include <sgtty.h> ],
+        [ CBREAK ],
+        AC_DEFINE(BSD_ECHO),
+        [ ])
+AC_MSG_RESULT(done)
+
+AC_OUTPUT(Makefile)

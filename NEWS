@@ -1,0 +1,96 @@
+0.2.0:
+NEW:
+* consistent system of colors (~0~..~15~)
+* #mudcolors toggles ~n~ color codes (so actions, substitutes etc can now
+  depend on colors)
+
+0.1.1:
+NEW:
+* #run {ses_name} {command} is a new command, similar to #session except
+  that it executes a local program
+* status bar. Usage: #status {line of text}
+CHANGED:
+* all matching actions are now executed, instead of first one found
+
+0.1.0:
+NEW:
+* ncurses-based user interface (major change). Includes a big scrollback
+  buffer, added editing keys (Home, End, <-, ->)
+REMOVED:
+* obsolete functions like #split or #redraw removed
+TODO:
+* fix delaying incomplete lines
+
+KB-tin:
+* name change from TinTin++ to KB-tin to mark an independent version
+
+2.1.9:
+NEW:
+* #index <variable> <index> <string> will assign to <variable> the character
+  pointed by <index> in <string>, or an empty value if index is outside string.
+  It behaves in a C-fashion, which means that index starts from 0.
+  
+2.1.8:
+CHANGED: configure.in, should recognize -lsocket -lnsl properly
+
+2.1.7:
+NEW:
+* #select <pattern> <string> <expression> #elif {} {} ... #else {}
+  from variables matching "pattern" select one which name is a match for
+  "string" and execute "expression". Variable $0 will contain value of
+  selected variable.  If match fails, execute the elif/else statement.
+  
+2.1.6:
+NEW:
+* #ctime [<variable>]  - assign current time (as returned by ctime()) to
+  variable, without arguments display current time on screen
+* #foreach <pattern> <expression>  - foreach variable matching pattern
+  execute expression, substituting $0 with value of this variable.
+
+2.1.5:
+NEW:
+* new operators: !~ and =~ for comparing strings using regular expressions
+  #if {[ $variable =~ $pattern ]} {what to do if match}
+  #if {[ $variable !~ $pattern ]} {what to do if dont match}
+
+2.1.4:
+NEW:
+* comparing strings in #if command, example:
+  #if {[ $name == Someone ] && {$spammer} {say Show yourself, immortal fool!}
+  #if {[ $$0 != $me ] && [ $class == C ]} {addcler $name}
+  Please notice square brackets around expressions we want to be treated as
+  strings, also notice the spaces around variables
+* #unlink <filename> - remove(delete) file
+  this command cannot be abbreviated
+* #news - what's new
+
+2.1.3:
+NEW:
+* local tickcounters for every session
+* #delay <time> <command>   - delay execution of command for a certain
+  amount of time (in seconds)
+TODO:
+* canceling events (#delay)
+* proper cleanup of session (free events ...)
+* function keys (I start to play with termcap lib)
+
+2.1.0:
+NEW:
+* all undefined variables used in expressions, are treated as
+  value 0/false/empty string. Sometimes usefull.
+* it is possible to use variables when giving boundaries in loop command
+  (same in random - see new commands).
+* New commands:
+ * if/elif/else - the syntax is as following:
+   #if {conditional} {command} #elif {conditional} {command} #else {command}
+   Amount of #elif statements is not limited.
+ * firstupper - this command is similar to already existing toupper/tolower.
+   Whole text is converted to lower case and first letter is converted to
+   upper case. Usefull in more complicated targetters/autoattackers.
+   #firstupper {variable} {text to be assigned to variable}
+ * random - generate random number
+   #random {variable} {lower_bound, higher_bound}
+ * deathlog - place given line of text in file (guess what was the
+   first use of this command :).
+   #deathlog {filename} {text}
+* few fixes here and there
