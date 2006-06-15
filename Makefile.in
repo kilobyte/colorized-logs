@@ -1,11 +1,17 @@
-# Makefile.in generated automatically by automake 1.0 from Makefile.am
+# Makefile.in generated automatically by automake 1.4 from Makefile.am
 
-# Copyright (C) 1994, 1995, 1996 Free Software Foundation, Inc.
+# Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
-# gives unlimited permission to copy, distribute and modify it.
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
 
 
-SHELL = /bin/sh
+SHELL = @SHELL@
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -26,274 +32,368 @@ mandir = @mandir@
 includedir = @includedir@
 oldincludedir = /usr/include
 
+DESTDIR =
+
 pkgdatadir = $(datadir)/@PACKAGE@
 pkglibdir = $(libdir)/@PACKAGE@
 pkgincludedir = $(includedir)/@PACKAGE@
 
 top_builddir = .
 
+ACLOCAL = @ACLOCAL@
+AUTOCONF = @AUTOCONF@
+AUTOMAKE = @AUTOMAKE@
+AUTOHEADER = @AUTOHEADER@
+
 INSTALL = @INSTALL@
-INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@ $(AM_INSTALL_PROGRAM_FLAGS)
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 transform = @program_transform_name@
 
-bin_PROGRAMS=KB-tin
-
-KB-tin_SOURCES=action.c alias.c antisub.c user.c files.c glob.c help.c highlight.c history.c ivars.c llist.c main.c misc.c net.c parse.c path.c session.c substitute.c text.c ticks.c utils.c variables.c events.c run.c colors.c
-
-EXTRA_DIST=tintin.h SELECT
-ACLOCAL = aclocal.m4
-ACCONFIG = acconfig.h
-CONFIG_HEADER_IN = config.h.in
-mkinstalldirs = $(top_srcdir)/mkinstalldirs
-CONFIG_HEADER = ./config.h
-PROGRAMS = $(bin_PROGRAMS)
-
-
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
 CC = @CC@
-LEX = @LEX@
-YACC = @YACC@
+PACKAGE = @PACKAGE@
+SHLICC2 = @SHLICC2@
+VERSION = @VERSION@
+
+bin_PROGRAMS = KBtin
+
+KBtin_SOURCES = action.c alias.c antisub.c files.c glob.c help.c highlight.c history.c ivars.c llist.c main.c misc.c net.c parse.c path.c session.c substitute.c text.c ticks.c utils.c variables.c events.c user.c run.c colors.c
+KBtin_LDADD = -lcurses
+
+EXTRA_DIST = tintin.h
+ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
+mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+CONFIG_HEADER = config.h
+CONFIG_CLEAN_FILES = 
+PROGRAMS =  $(bin_PROGRAMS)
+
 
 DEFS = @DEFS@ -I. -I$(srcdir) -I.
 CPPFLAGS = @CPPFLAGS@
-CFLAGS = @CFLAGS@
 LDFLAGS = @LDFLAGS@
-LIBS = @LIBS@ -lcurses
-
-COMPILE = $(CC) -c $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
-LINK = $(CC) $(LDFLAGS) -o $@
-KB-tin_OBJECTS = action.o alias.o antisub.o user.o files.o glob.o help.o \
+LIBS = @LIBS@
+KBtin_OBJECTS =  action.o alias.o antisub.o files.o glob.o help.o \
 highlight.o history.o ivars.o llist.o main.o misc.o net.o parse.o \
 path.o session.o substitute.o text.o ticks.o utils.o variables.o \
-events.o run.o colors.o
-EXTRA_KB-tin_SOURCES =
-KB-tin_LDADD = $(LDADD)
-DIST_COMMON = README AUTHORS COPYING ChangeLog INSTALL Makefile.am \
-Makefile.in NEWS README acconfig.h aclocal.m4 config.h.in configure \
-configure.in install-sh mkinstalldirs stamp-h.in
+events.o user.o run.o colors.o
+KBtin_DEPENDENCIES = 
+KBtin_LDFLAGS = 
+CFLAGS = @CFLAGS@
+COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
+DIST_COMMON =  README ./stamp-h.in AUTHORS COPYING ChangeLog INSTALL \
+Makefile.am Makefile.in NEWS acconfig.h aclocal.m4 config.h.in \
+configure configure.in install-sh missing mkinstalldirs
 
 
-PACKAGE = @PACKAGE@
-VERSION = @VERSION@
-
-DISTFILES = $(DIST_COMMON) $(SOURCES) $(BUILT_SOURCES) $(HEADERS) \
-	$(TEXINFOS) $(INFOS) $(MANS) $(EXTRA_DIST) $(DATA)
-DEP_DISTFILES = $(DIST_COMMON) $(SOURCES) $(BUILT_SOURCES) $(HEADERS) \
-	$(TEXINFOS) $(INFO_DEPS) $(MANS) $(EXTRA_DIST) $(DATA)
+DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
-SOURCES = $(KB-tin_SOURCES)
-OBJECTS = $(KB-tin_OBJECTS)
+GZIP_ENV = --best
+DEP_FILES =  .deps/action.P .deps/alias.P .deps/antisub.P .deps/colors.P \
+.deps/events.P .deps/files.P .deps/glob.P .deps/help.P \
+.deps/highlight.P .deps/history.P .deps/ivars.P .deps/llist.P \
+.deps/main.P .deps/misc.P .deps/net.P .deps/parse.P .deps/path.P \
+.deps/run.P .deps/session.P .deps/substitute.P .deps/text.P \
+.deps/ticks.P .deps/user.P .deps/utils.P .deps/variables.P
+SOURCES = $(KBtin_SOURCES)
+OBJECTS = $(KBtin_OBJECTS)
 
-default: all
+all: all-redirect
+.SUFFIXES:
+.SUFFIXES: .S .c .o .s
+$(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu Makefile
+
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
+	cd $(top_builddir) \
+	  && CONFIG_FILES=$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
 
-$(srcdir)/Makefile.in: Makefile.am configure.in
-	cd $(srcdir) && automake Makefile
+config.status: $(srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
+	$(SHELL) ./config.status --recheck
+$(srcdir)/configure: $(srcdir)/configure.in $(ACLOCAL_M4) $(CONFIGURE_DEPENDENCIES)
+	cd $(srcdir) && $(AUTOCONF)
 
-# For an explanation of the following Makefile rules, see node
-# `Automatic Remaking' in GNU Autoconf documentation.
-Makefile: Makefile.in config.status
-	CONFIG_FILES=$@ CONFIG_HEADERS= ./config.status
-config.status: configure
-	./config.status --recheck
-$(srcdir)/configure: configure.in $(ACLOCAL) $(CONFIGURE_DEPENDENCIES)
-	cd $(srcdir) && autoconf
+config.h: stamp-h
+	@if test ! -f $@; then \
+		rm -f stamp-h; \
+		$(MAKE) stamp-h; \
+	else :; fi
+stamp-h: $(srcdir)/config.h.in $(top_builddir)/config.status
+	cd $(top_builddir) \
+	  && CONFIG_FILES= CONFIG_HEADERS=config.h \
+	     $(SHELL) ./config.status
+	@echo timestamp > stamp-h 2> /dev/null
+$(srcdir)/config.h.in: $(srcdir)/stamp-h.in
+	@if test ! -f $@; then \
+		rm -f $(srcdir)/stamp-h.in; \
+		$(MAKE) $(srcdir)/stamp-h.in; \
+	else :; fi
+$(srcdir)/stamp-h.in: $(top_srcdir)/configure.in $(ACLOCAL_M4) acconfig.h
+	cd $(top_srcdir) && $(AUTOHEADER)
+	@echo timestamp > $(srcdir)/stamp-h.in 2> /dev/null
 
-$(CONFIG_HEADER): stamp-h
-stamp-h: $(CONFIG_HEADER_IN) config.status
-	CONFIG_FILES= CONFIG_HEADERS=$(CONFIG_HEADER) ./config.status
-	@echo timestamp > stamp-h
-$(srcdir)/$(CONFIG_HEADER_IN): stamp-h.in
-$(srcdir)/stamp-h.in: configure.in $(ACLOCAL) $(ACCONFIG) $(CONFIG_TOP) $(CONFIG_BOT)
-	cd $(srcdir) && autoheader
-	echo timestamp > $(srcdir)/stamp-h.in
+mostlyclean-hdr:
+
+clean-hdr:
+
+distclean-hdr:
+	-rm -f config.h
+
+maintainer-clean-hdr:
 
 mostlyclean-binPROGRAMS:
 
 clean-binPROGRAMS:
-	rm -f $(bin_PROGRAMS)
+	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
 
 distclean-binPROGRAMS:
 
 maintainer-clean-binPROGRAMS:
 
 install-binPROGRAMS: $(bin_PROGRAMS)
-	$(mkinstalldirs) $(bindir)
-	list="$(bin_PROGRAMS)"; for p in $$list; do \
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(bindir)
+	@list='$(bin_PROGRAMS)'; for p in $$list; do \
 	  if test -f $$p; then \
-	    $(INSTALL_PROGRAM) $$p $(bindir)/`echo $$p|sed '$(transform)'`; \
+	    echo "  $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`"; \
+	     $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
 	  else :; fi; \
 	done
 
 uninstall-binPROGRAMS:
-	list="$(bin_PROGRAMS)"; for p in $$list; do \
-	  rm -f $(bindir)/`echo $$p|sed '$(transform)'`; \
+	@$(NORMAL_UNINSTALL)
+	list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
 	done
 
-.c.o:
-	$(COMPILE) $<
+.s.o:
+	$(COMPILE) -c $<
+
+.S.o:
+	$(COMPILE) -c $<
 
 mostlyclean-compile:
-	rm -f *.o core
+	-rm -f *.o core *.core
 
 clean-compile:
 
 distclean-compile:
-	rm -f *.tab.c
+	-rm -f *.tab.c
 
 maintainer-clean-compile:
-$(KB-tin_OBJECTS): ./config.h
 
-KB-tin: $(KB-tin_OBJECTS) $(KB-tin_DEPENDENCIES)
-	$(LINK) $(KB-tin_OBJECTS) $(KB-tin_LDADD) $(LIBS)
-
-ID: $(HEADERS) $(SOURCES)
-	here=`pwd` && cd $(srcdir) && mkid -f$$here/ID $(SOURCES) $(HEADERS)
+KBtin: $(KBtin_OBJECTS) $(KBtin_DEPENDENCIES)
+	@rm -f KBtin
+	$(LINK) $(KBtin_LDFLAGS) $(KBtin_OBJECTS) $(KBtin_LDADD) $(LIBS)
 
 tags: TAGS
 
-TAGS: $(HEADERS) $(SOURCES) $(TAGS_DEPENDENCIES)
-	here=`pwd` && cd $(srcdir) && etags $(ETAGS_ARGS) $(SOURCES) $(HEADERS) -o $$here/TAGS
+ID: $(HEADERS) $(SOURCES) $(LISP)
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	here=`pwd` && cd $(srcdir) \
+	  && mkid -f$$here/ID $$unique $(LISP)
+
+TAGS:  $(HEADERS) $(SOURCES) config.h.in $(TAGS_DEPENDENCIES) $(LISP)
+	tags=; \
+	here=`pwd`; \
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	test -z "$(ETAGS_ARGS)config.h.in$$unique$(LISP)$$tags" \
+	  || (cd $(srcdir) && etags $(ETAGS_ARGS) $$tags config.h.in $$unique $(LISP) -o $$here/TAGS)
 
 mostlyclean-tags:
 
 clean-tags:
 
 distclean-tags:
-	rm -f TAGS ID
+	-rm -f TAGS ID
 
 maintainer-clean-tags:
 
 distdir = $(PACKAGE)-$(VERSION)
+top_distdir = $(distdir)
+
 # This target untars the dist file and tries a VPATH configuration.  Then
 # it guarantees that the distribution is self-contained by making another
 # tarfile.
 distcheck: dist
-	rm -rf $(distdir)
-	$(TAR) zxf $(distdir).tar.gz
+	-rm -rf $(distdir)
+	GZIP=$(GZIP_ENV) $(TAR) zxf $(distdir).tar.gz
 	mkdir $(distdir)/=build
 	mkdir $(distdir)/=inst
 	dc_install_base=`cd $(distdir)/=inst && pwd`; \
 	cd $(distdir)/=build \
 	  && ../configure --srcdir=.. --prefix=$$dc_install_base \
-	  && $(MAKE) \
-	  && $(MAKE) check \
-	  && $(MAKE) install \
-	  && $(MAKE) installcheck \
-	  && $(MAKE) dist
-	rm -rf $(distdir)
-	@echo "========================"; \
-	echo "$(distdir).tar.gz is ready for distribution"; \
-	echo "========================"
+	  && $(MAKE) $(AM_MAKEFLAGS) \
+	  && $(MAKE) $(AM_MAKEFLAGS) dvi \
+	  && $(MAKE) $(AM_MAKEFLAGS) check \
+	  && $(MAKE) $(AM_MAKEFLAGS) install \
+	  && $(MAKE) $(AM_MAKEFLAGS) installcheck \
+	  && $(MAKE) $(AM_MAKEFLAGS) dist
+	-rm -rf $(distdir)
+	@banner="$(distdir).tar.gz is ready for distribution"; \
+	dashes=`echo "$$banner" | sed s/./=/g`; \
+	echo "$$dashes"; \
+	echo "$$banner"; \
+	echo "$$dashes"
 dist: distdir
-	chmod -R a+r $(distdir)
-	$(TAR) chozf $(distdir).tar.gz $(distdir)
-	rm -rf $(distdir)
-distdir: $(DEP_DISTFILES)
-	rm -rf $(distdir)
+	-chmod -R a+r $(distdir)
+	GZIP=$(GZIP_ENV) $(TAR) chozf $(distdir).tar.gz $(distdir)
+	-rm -rf $(distdir)
+dist-all: distdir
+	-chmod -R a+r $(distdir)
+	GZIP=$(GZIP_ENV) $(TAR) chozf $(distdir).tar.gz $(distdir)
+	-rm -rf $(distdir)
+distdir: $(DISTFILES)
+	-rm -rf $(distdir)
 	mkdir $(distdir)
-	chmod 777 $(distdir)
-	@for file in `cd $(srcdir) && echo $(DISTFILES)`; do \
-	  test -f $(distdir)/$$file \
-	  || ln $(srcdir)/$$file $(distdir)/$$file 2> /dev/null \
-	  || cp -p $(srcdir)/$$file $(distdir)/$$file; \
+	-chmod 777 $(distdir)
+	here=`cd $(top_builddir) && pwd`; \
+	top_distdir=`cd $(distdir) && pwd`; \
+	distdir=`cd $(distdir) && pwd`; \
+	cd $(top_srcdir) \
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu Makefile
+	@for file in $(DISTFILES); do \
+	  d=$(srcdir); \
+	  if test -d $$d/$$file; then \
+	    cp -pr $$/$$file $(distdir)/$$file; \
+	  else \
+	    test -f $(distdir)/$$file \
+	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
+	    || cp -p $$d/$$file $(distdir)/$$file || :; \
+	  fi; \
 	done
-action.o: action.c config.h tintin.h
-alias.o: alias.c config.h tintin.h
-antisub.o: antisub.c config.h tintin.h
-events.o: events.c config.h tintin.h
-files.o: files.c config.h tintin.h
-glob.o: glob.c
-help.o: help.c config.h tintin.h
-highlight.o: highlight.c config.h tintin.h
-history.o: history.c config.h tintin.h
-ivars.o: ivars.c config.h tintin.h
-llist.o: llist.c config.h tintin.h
-main.o: main.c config.h tintin.h
-misc.o: misc.c config.h tintin.h
-net.o: net.c config.h tintin.h
-user.o: user.c config.h tintin.h
-parse.o: parse.c config.h tintin.h
-path.o: path.c config.h tintin.h
-session.o: session.c config.h tintin.h
-substitute.o: substitute.c config.h tintin.h
-text.o: text.c config.h tintin.h
-ticks.o: ticks.c config.h tintin.h
-utils.o: utils.c config.h tintin.h
-variables.o: variables.c config.h tintin.h
-run.o: run.c
-colors.o: colors.c tintin.h
 
-info:
+DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
 
-dvi:
+-include $(DEP_FILES)
 
-check: all
+mostlyclean-depend:
 
-installcheck:
+clean-depend:
 
-install-exec: install-binPROGRAMS
+distclean-depend:
+	-rm -rf .deps
 
-install-data: 
+maintainer-clean-depend:
 
-install: install-exec install-data all
-	@:
+%.o: %.c
+	@echo '$(COMPILE) -c $<'; \
+	$(COMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-cp .deps/$(*F).pp .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm .deps/$(*F).pp
 
-uninstall: uninstall-binPROGRAMS
+%.lo: %.c
+	@echo '$(LTCOMPILE) -c $<'; \
+	$(LTCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-sed -e 's/^\([^:]*\)\.o[ 	]*:/\1.lo \1.o :/' \
+	  < .deps/$(*F).pp > .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm -f .deps/$(*F).pp
+info-am:
+info: info-am
+dvi-am:
+dvi: dvi-am
+check-am: all-am
+check: check-am
+installcheck-am:
+installcheck: installcheck-am
+all-recursive-am: config.h
+	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
-all: $(PROGRAMS) Makefile config.h
+install-exec-am: install-binPROGRAMS
+install-exec: install-exec-am
 
+install-data-am:
+install-data: install-data-am
+
+install-am: all-am
+	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
+install: install-am
+uninstall-am: uninstall-binPROGRAMS
+uninstall: uninstall-am
+all-am: Makefile $(PROGRAMS) config.h
+all-redirect: all-am
 install-strip:
-	$(MAKE) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' install
+	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
 installdirs:
-	$(mkinstalldirs)  $(bindir)
+	$(mkinstalldirs)  $(DESTDIR)$(bindir)
 
 
 mostlyclean-generic:
-	test -z "$(MOSTLYCLEANFILES)" || rm -f $(MOSTLYCLEANFILES)
 
 clean-generic:
-	test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
 
 distclean-generic:
-	rm -f Makefile $(DISTCLEANFILES)
-	rm -f config.cache config.log $(CONFIG_HEADER) stamp-h
+	-rm -f Makefile $(CONFIG_CLEAN_FILES)
+	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
 
 maintainer-clean-generic:
-	test -z "$(MAINTAINERCLEANFILES)" || rm -f $(MAINTAINERCLEANFILES)
-	test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
-mostlyclean:  mostlyclean-binPROGRAMS mostlyclean-compile \
-		mostlyclean-tags mostlyclean-generic
+mostlyclean-am:  mostlyclean-hdr mostlyclean-binPROGRAMS \
+		mostlyclean-compile mostlyclean-tags mostlyclean-depend \
+		mostlyclean-generic
 
-clean:  clean-binPROGRAMS clean-compile clean-tags clean-generic \
-		mostlyclean 
+mostlyclean: mostlyclean-am
 
-distclean:  distclean-binPROGRAMS distclean-compile distclean-tags \
-		distclean-generic clean 
-	rm -f config.status
+clean-am:  clean-hdr clean-binPROGRAMS clean-compile clean-tags \
+		clean-depend clean-generic mostlyclean-am
 
-maintainer-clean:  maintainer-clean-binPROGRAMS maintainer-clean-compile \
-		maintainer-clean-tags maintainer-clean-generic \
-		distclean 
+clean: clean-am
+
+distclean-am:  distclean-hdr distclean-binPROGRAMS distclean-compile \
+		distclean-tags distclean-depend distclean-generic \
+		clean-am
+
+distclean: distclean-am
+	-rm -f config.status
+
+maintainer-clean-am:  maintainer-clean-hdr maintainer-clean-binPROGRAMS \
+		maintainer-clean-compile maintainer-clean-tags \
+		maintainer-clean-depend maintainer-clean-generic \
+		distclean-am
 	@echo "This command is intended for maintainers to use;"
 	@echo "it deletes files that may require special tools to rebuild."
-	rm -f config.status
 
-.PHONY: default mostlyclean-binPROGRAMS distclean-binPROGRAMS \
-clean-binPROGRAMS maintainer-clean-binPROGRAMS uninstall-binPROGRAMS \
-install-binPROGRAMS mostlyclean-compile distclean-compile clean-compile \
+maintainer-clean: maintainer-clean-am
+	-rm -f config.status
+
+.PHONY: mostlyclean-hdr distclean-hdr clean-hdr maintainer-clean-hdr \
+mostlyclean-binPROGRAMS distclean-binPROGRAMS clean-binPROGRAMS \
+maintainer-clean-binPROGRAMS uninstall-binPROGRAMS install-binPROGRAMS \
+mostlyclean-compile distclean-compile clean-compile \
 maintainer-clean-compile tags mostlyclean-tags distclean-tags \
-clean-tags maintainer-clean-tags distdir info dvi check installcheck \
-install-exec install-data install uninstall all installdirs \
+clean-tags maintainer-clean-tags distdir mostlyclean-depend \
+distclean-depend clean-depend maintainer-clean-depend info-am info \
+dvi-am dvi check check-am installcheck-am installcheck all-recursive-am \
+install-exec-am install-exec install-data-am install-data install-am \
+install uninstall-am uninstall all-redirect all-am all installdirs \
 mostlyclean-generic distclean-generic clean-generic \
 maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
 
-# since TINTIN is almost never installed by "make install" strip it at once :)
+# since tt is almost never installed by "make install" strip it at once :)
 # all-local:
-# 	strip KB-tin
+# 	strip tt
 
 # automagically update version number in tintin.h if configure.in has
 # changed
@@ -318,8 +418,6 @@ cvs-dist: update-version KB-tin check
 	fi
 	cvs tag `echo "Release-$(VERSION)" | sed 's/\./-/g'`
 	$(MAKE) dist
-.SUFFIXES:
-.SUFFIXES: .c .o
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

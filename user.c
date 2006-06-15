@@ -119,12 +119,16 @@ void b_scroll(int b_to)
 	if (b_screenb==(b_to=(b_to<b_first?b_first:(b_to>b_current?b_current:b_to))))
 		return;
 	wclear(w_out);
-	for (y=b_to+3-LINES;y<=b_to;++y)
+	scrollok(w_out,FALSE);
+	for (y=b_to-LINES+(w_status?3:2);y<=b_to;++y)
 		if ((y<1)||(y<=b_first))
 			waddch(w_out,'\n');
 		else
-			redraw_out(b_output[y%B_LENGTH]);
-			
+			if (y<b_current)
+				redraw_out(b_output[y%B_LENGTH]);
+			else
+				redraw_out(out_line);
+	scrollok(w_out,TRUE);		
 	/*		
 	sprintf(done_input,"\031b_to=%i, b_screenb=%i, b_first=%i, b_current=%i\027",b_to,b_screenb,b_first,b_current);
 	redraw_out(done_input);
@@ -154,12 +158,13 @@ void b_addline()
 		if (!b_shorten())
 			syserr("Out of memory");
 	strcpy(new,out_line);
-	if (++b_current==b_first+B_LENGTH)
+	if (b_current==b_first+B_LENGTH)
 		b_shorten();
 	b_output[b_current%B_LENGTH]=new;
 	o_len=o_color<10 ? 3:4;
 	o_pos=0;
 	sprintf(out_line,"~%d~",o_oldcolor=o_color);
+	b_current++;
 	if (b_current==b_screenb+1)
 	{
 		++b_screenb;
@@ -285,8 +290,8 @@ int process_kbd(struct session *ses)
 			wrefresh(w_in);
 			return(1);
 		case KEY_PPAGE:
-			if (b_screenb>b_first+LINES-3)
-				b_scroll(b_screenb+3-LINES);
+			if (b_screenb>b_first+LINES-(w_status?3:2))
+				b_scroll(b_screenb+(w_status?3:2)-LINES);
 			else
 			{
 				beep();
@@ -295,7 +300,7 @@ int process_kbd(struct session *ses)
 			break;
 		case KEY_NPAGE:
 			if (b_screenb<b_current)
-				b_scroll(b_screenb+LINES-3);
+				b_scroll(b_screenb+LINES-(w_status?3:2));
 			else
 			{
 				beep();
@@ -379,6 +384,7 @@ int process_kbd(struct session *ses)
 				redraw_in();
 			wrefresh(w_in);
 			break;
+		case 8:			/* ^H */
 		case KEY_BACKSPACE:
 			if (b_current!=b_screenb)
 				b_scroll(b_current);
@@ -425,6 +431,12 @@ int process_kbd(struct session *ses)
 			}
 	};
 	return(0);
+}
+
+void user_beep()
+{
+	beep();
+	refresh();
 }
 
 void curses_init()
@@ -547,7 +559,7 @@ void user_init()
 	o_pos=0;
 	o_color=16|7;
 	o_oldcolor=16|7;
-	textout("~12~KB~3~-tin ~7~");
+	textout("~12~KB~3~tin ~7~");
 	textout(VERSION_NUM);
 	textout(" by ~11~kilobyte@mimuw.edu.pl~9~\n");
 	{
@@ -562,6 +574,16 @@ void user_init()
 		    "If you're using an xterm, I suggest copying /etc/terminfo/l/linux\n"
 		    "(or a definition of another decent terminal) to ~/.terminfo/x/xterm\n");
 	textout("~7~");
+}
+
+void user_pause()
+{
+	endwin();
+}
+
+void user_resume()
+{
+	doupdate();
 }
 
 void user_done()

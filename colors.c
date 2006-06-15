@@ -2,15 +2,15 @@
 
 extern int colors[];
 
-/**************************************************************************/
-/* color definitions on your favourite MUD                                */
-/* TODO: this table should be customizable without recompiling KB-tin ... */
-/**************************************************************************/
+/*************************************************************************/
+/* color definitions on your favourite MUD                               */
+/* TODO: this table should be customizable without recompiling KBtin ... */
+/*************************************************************************/
 char *MUDcolors[]={
 	"$0$",		/* black - not present */
 	"$BLU$",
-	"$GRE$",
-	"$CYA$",
+	"$GRN$",
+	"$CYN$",
 	"$RED$",
 	"$MAG$",
 	"$YEL$",

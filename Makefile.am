@@ -1,8 +1,9 @@
-bin_PROGRAMS=tt
+bin_PROGRAMS=KBtin
 
-tt_SOURCES=action.c alias.c antisub.c echo.c files.c glob.c help.c highlight.c history.c ivars.c llist.c main.c misc.c net.c parse.c path.c session.c substitute.c text.c ticks.c utils.c variables.c events.c
+KBtin_SOURCES=action.c alias.c antisub.c files.c glob.c help.c highlight.c history.c ivars.c llist.c main.c misc.c net.c parse.c path.c session.c substitute.c text.c ticks.c utils.c variables.c events.c user.c run.c colors.c
+KBtin_LDADD=-lcurses
 
-EXTRA_DIST=tintin.h SELECT
+EXTRA_DIST=tintin.h
 
 # since tt is almost never installed by "make install" strip it at once :)
 # all-local:
@@ -24,7 +25,7 @@ update-version:
 	fi
 
 # Remake, check and tag new version
-cvs-dist: update-version tt check
+cvs-dist: update-version KB-tin check
 	@if sed 1q NEWS | grep -e "$(VERSION)" > /dev/null; then :; else \
 		echo "NEWS not updated; not releasing" 1>&2; \
 		exit 1;                               \

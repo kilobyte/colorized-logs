@@ -135,7 +135,10 @@ struct session *run_command(char *arg,struct session *ses)
 	};
 
 	if (!(sock=run(right)))
+	{
+		tintin_puts("#forkpty() FAILED!",ses);
 		return ses;
+	}
 
 	return(new_session(left,right,sock,ses));
 }

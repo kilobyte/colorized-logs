@@ -80,6 +80,8 @@ extern char done_input[BUFFER_SIZE];
 extern void user_init();
 extern int process_kbd();
 extern void textout(char *txt);
+extern void user_pause();
+extern void user_resume();
 
 extern int ticker_interrupted, time0;
 extern int tick_size, sec_to_tick;
@@ -130,9 +132,9 @@ unsigned short c_lflag;
 void tstphandler(sig)
      int sig;
 {
-  echo();
+  user_pause();
   kill(getpid(), SIGSTOP);
-  noecho();
+  user_resume();
 }
 
 
@@ -145,7 +147,8 @@ void sigchild()
 /* main() - show title - setup signals - init lists - readcoms - tintin() */
 /**************************************************************************/
 
-void main(argc, argv, environ)
+/* int - make @#$%^* GCC happy */
+int main(argc, argv, environ)
      int argc;
      char **argv;
      char **environ;
@@ -164,7 +167,7 @@ void main(argc, argv, environ)
   srand(getpid());
 
   tintin_puts2("~2~##################################################", ses);
-  sprintf(temp, "#              ~11~K B - t i n~7~     v %-15s ~2~#", VERSION_NUM);
+  sprintf(temp, "#                ~11~K B t i n~7~     v %-15s ~2~#", VERSION_NUM);
   tintin_puts2(temp, ses);
   tintin_puts2("#~7~ based on ~12~tintin++~7~ v 2.1.9 by Peter Unold,      ~2~#", ses);
   tintin_puts2("#~7~  Bill Reiss, David A. Wagner, Joann Ellsworth, ~2~#", ses);

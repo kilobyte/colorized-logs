@@ -97,7 +97,7 @@
 /* doing........                                                          */
 /**************************************************************************/ 
 #define BUFFER_SIZE 2048
-#define VERSION_NUM "0.2.1"
+#define VERSION_NUM "0.2.2"
 /************************ structures *********************/
 struct listnode {
   struct listnode *next;

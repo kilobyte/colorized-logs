@@ -28,7 +28,6 @@ extern struct listnode *common_aliases, *common_actions, *common_subs,
  *common_myvars;
 extern struct listnode *common_highs, *common_antisubs, *common_pathdirs;
 extern char *get_arg_in_braces();
-extern void term_echo();
 extern struct session *sessionlist,*activesession;
 extern struct completenode *complete_head;
 extern char tintin_char;
@@ -104,7 +103,7 @@ void bell_command(ses)
      struct session *ses;
 
 {
-  beep();
+  user_beep();
 }
 
 
@@ -513,9 +512,9 @@ void system_command(arg, ses)
   get_arg_in_braces(arg, arg, 1);
   if (*arg) {
     tintin_puts3("^#OK EXECUTING SHELL COMMAND.", ses);
-    echo();
+    user_pause();
     system(arg);
-    noecho();
+    user_resume();
     tintin_puts3("!#OK COMMAND EXECUTED.", ses);
   } else
     tintin_puts2("#EXECUTE WHAT COMMAND?", ses);
@@ -762,7 +761,7 @@ void display_info(ses)
   tintin_puts2(buf, ses);
   sprintf(buf, "Highlights : %d", highs);
   tintin_puts2(buf, ses);
-  sprintf(buf, "Echo : %d (1 - on, 0 - off)    Speedwalking : %d     Blank : %d", echo, speedwalk, blank);
+  sprintf(buf, "Echo : %d (1 - on, 0 - off)    Speedwalking : %d     Blank : %d", Echo, speedwalk, blank);
   tintin_puts2(buf, ses);
   sprintf(buf, "Toggle Subs: %d   Ignore Actions : %d   PreSub-ing: %d  MUD ~n~ colors: %d", togglesubs, ignore, presub,mudcolors);
   tintin_puts2(buf, ses);
