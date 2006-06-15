@@ -42,6 +42,7 @@ extern void insertnode_list(struct listnode *listhead, char *ltext, char *rtext,
 extern int match(char *regex, char *string);
 extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
 extern void path2var(char *var, struct session *ses);
+extern void seslist(char *var);
 extern void check_all_promptactions(char *line, struct session *ses);
 extern void prompt(struct session *ses);
 extern int random_inline(char *arg, struct session *ses);
@@ -66,6 +67,7 @@ extern int LINES,COLS;
 extern int in_alias;
 extern int aborting;
 extern char *_;
+extern struct session *activesession;
 
 void set_variable(char *left,char *right,struct session *ses)
 {
@@ -171,6 +173,15 @@ void substitute_myvars(char *arg,char *result,struct session *ses)
                     if (_ && (strcmp(varname,"LINE")==0 ||
                         strcmp(varname,"_")==0))
                         strcpy(value,_);
+                    else
+                    if (strcmp(varname,"SESSION")==0)
+                        strcpy(value,ses->name);
+                    else
+                    if (strcmp(varname,"SESSIONS")==0)
+                        seslist(value);
+                    else
+                    if (strcmp(varname,"ASESSION")==0)
+                        strcpy(value,activesession->name);
                     else
                         goto novar;
                     valuelen=strlen(value);

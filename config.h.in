@@ -42,6 +42,9 @@
 /* Define to 1 if you have the `ptsname' function. */
 #undef HAVE_PTSNAME
 
+/* Define to 1 if you have the `regcomp' function. */
+#undef HAVE_REGCOMP
+
 /* Define to 1 if you have the `snprintf' function. */
 #undef HAVE_SNPRINTF
 
@@ -56,6 +59,9 @@
 
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
+
+/* Define to 1 if you have the <stropts.h> header file. */
+#undef HAVE_STROPTS_H
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
 #undef HAVE_SYS_STAT_H

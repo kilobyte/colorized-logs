@@ -1,0 +1,47 @@
+#!/usr/bin/perl -w
+
+$caption=0;
+$head=1;
+
+while(<STDIN>)
+{
+    if($head && /^ / && !/\*\*\*/)
+    {
+        s:(\S+):<a href="#$1">$1</a>:g;
+    }
+    if(!/^~/)
+    {
+        print "$_";
+        next;
+    }
+    if(/^~\*end\*/)
+    {
+        print "</tt></pre>";
+        if($ARGV[0])
+        {
+            ($blah,$blah,$blah,$blah,$blah,$blah,$blah,$blah,
+               $blah,$mtime,$blah,$blah,$blah)
+                = stat($ARGV[0]);
+            print "Last modified: ".localtime($mtime) if (defined $mtime && $mtime);
+        }
+        print "</body></html>\n";
+        exit;
+    }
+    if(/^~~~/)
+    {
+        print "<hr>\n";
+        $head=$caption=0;
+        next;
+    }
+    if(/^~~H (.*)/)
+    {
+        print "<a name=\"$1\"></a><h5>$1</h5>\n";
+        $caption=1;
+        next;
+    }
+    if(/^~([^~].*)/)
+    {
+        print "<a name=\"$1\"></a>";
+        print "<h5>#$1</h5>" unless $caption;
+    }
+}

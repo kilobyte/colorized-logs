@@ -1,0 +1,41 @@
+#!/usr/bin/perl -w
+
+$lastcol=$col="\e[0m";
+$lastcn=$cn=7;
+%ct=(0=>0, 1=>4, 2=>2, 3=>6, 4=>1, 5=>5, 6=>3, 7=>7);
+while(<>)
+{
+    $line="";
+    while(/\G(.*?)~(\-1|\d+|\d*:\d*(?::\d*)?)~/gc)
+    {
+        $line.=$1;
+        next if $2 eq "-1" && ($cn=$lastcn,$line.=$col=$lastcol);
+        $2 =~ /^(\d*)(?::(\d*)(?::(\d*))?)?$/;
+        $fg=($1 eq "")?($cn&0xf):$1;
+        $bg=(!defined $2)?0:($2 eq "")?(($cn&0x70)>>4):$2;
+        $at=(!defined $3)?0:($3 eq "")?($cn>>7):$3;
+        die "Invalid color code in [$_]" if $fg>15&&($bg||$at) || $bg>7;
+        $vcn=$cn=$fg+$bg*0x10+$at*0x80;
+        $vcn|=7 if ($vcn&0xf)==($vcn&0x70)>>4;
+        $vcn&=~7 if ($vcn&0xf)==($vcn&0x70)>>4;
+        $col="\e[0";
+        if(($vcn&0xf)==8)
+        {
+            $col.=";2";
+        }
+        else
+        {
+            $col.=";3".$ct{$vcn&0x7} if ($vcn&0x7)!=7;
+            $col.=";1" if ($vcn&0x8);
+        }
+        $col.=";4".$ct{($vcn>>4)&0x7} if $vcn&0x70;
+        $col.=";5" if $vcn&0x80;
+        $col.=";3" if $vcn&0x100;
+        $col.=";4" if $vcn&0x200;
+        $line.=$col.="m";
+    }
+    /\G(.*)/;
+    print "$line$1\n";
+    $lastcol=$col;
+    $lastcn=$cn;
+}

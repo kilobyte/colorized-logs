@@ -48,6 +48,7 @@ typedef void (*sighandler_t)(int);
 /*************** globals ******************/
 int term_echoing = TRUE;
 int keypad= DEFAULT_KEYPAD;
+int retain= DEFAULT_RETAIN;
 int puts_echoing = TRUE;
 int alnum = 0;
 int acnum = 0;
@@ -259,6 +260,13 @@ int main(int argc, char **argv, char **environ)
     srand(getpid()^time(0));
     lastdraft=0;
 
+/*
+    Legal crap does _not_ belong here.  Anyone interested in the license
+can check the files accompanying KBtin, without any need of being spammed
+every time.  It is not GNU bc or something similar, we don't want half
+a screenful of all-uppercase (cAPS kEY IS STUCK AGAIN?) text that no one
+ever wants to read -- that is what docs are for.
+*/
     tintin_printf(0,"~2~##################################################");
     tintin_printf(0, "#~7~                ~12~K B ~3~t i n~7~     v %-15s ~2~#", VERSION_NUM);
     tintin_printf(0,"#~7~ current developer: ~9~Adam Borowski               ~2~#");
@@ -306,6 +314,7 @@ int main(int argc, char **argv, char **environ)
     nullsession->socket = 0;
     nullsession->issocket = 0;
     nullsession->naws = 0;
+    nullsession->last_term_type=0;
     nullsession->server_echo = 0;
     nullsession->antisubs = init_list();
     nullsession->binds = init_hash();

@@ -1,7 +1,30 @@
+1.0.4a:
+*	added a symlink kbtin -> KBtin to avoid mixed-case executable
+	name while retaining old name as well
+*	\e[39m, \e[49m
+*	manual.html (just a converted version of the online help)
+*	commands that don't work on an architecture are no longer accesible
+*	outgoing 0xff bytes are sent as IAC IAC telnet sequence
+*	the terminal string will cycle between "KBtin", "hardcopy",
+	"unknown" and "KBtin-1.0.4" (conforming to RFC 1091)
+
 1.0.4:
-*	changes needed to compile on Tru-64:
+*	changes needed to compile on Tru64:
 	*	no "extern inline"
 	*	\e -> \033
+	*	autoconf checks to test whether the code for inlined
+		functions is actually generated
+*	changes needes to compile on Cygwin:
+	*	checking for stropts.h
+	Note: As opposed to UNIX systems, which all enjoy the whole
+	functionality, KBtin is crippled on Win32 systems.  Basically,
+	while the core functionality works, #run, #system, #shell,
+	#keypad, #suspend, gzip logging and COMPRESSED_HELP are broken.
+	Hell, it won't even compile from the sources without your
+	manipulation right now (no autoconf check to disable
+	COMPRESSED_HELP).
+*	#grep
+*	#retain
 
 1.0.3:
 *	bugfix: color codes in programs spawned by #systems work correctly

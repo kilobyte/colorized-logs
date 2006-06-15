@@ -1,5 +1,13 @@
 #include "tintin.h"
+#include "config.h"
 #include <stdlib.h>
+#ifdef HAVE_STRING_H
+# include <string.h>
+#else
+# ifdef HAVE_STRINGS_H
+#  include <strings.h>
+# endif
+#endif
 
 #define DELETED_HASHENTRY ((char*)init_hash)
 extern unsigned int crc(char *str);

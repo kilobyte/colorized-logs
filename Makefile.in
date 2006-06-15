@@ -70,14 +70,15 @@ help_DATA = NEWS KBtin_help.gz
 INCLUDES = -DDATA_PATH=\"$(helpdir)\"
 man_MANS = ansi2html.6 ansi2txt.6
 
-KBtin_SOURCES = action.c alias.c antisub.c files.c glob.c help.c highlight.c history.c ivars.c llist.c main.c misc.c net.c parse.c path.c session.c substitute.c ticks.c utils.c variables.c events.c user.c run.c colors.c routes.c bind.c telnet.c crc.c hash.c
+BUILT_SOURCES = commands.h load_commands.h
+KBtin_SOURCES = action.c alias.c antisub.c files.c glob.c help.c highlight.c history.c ivars.c llist.c main.c misc.c net.c parse.c path.c session.c substitute.c ticks.c utils.c variables.c events.c user.c run.c colors.c routes.c bind.c telnet.c crc.c hash.c regexp.c
 KBtin_LDADD = 
 
 ansi2html_SOURCES = ansi2html.c
 ansi2txt_SOURCES = ansi2txt.c
 
-EXTRA_DIST = tintin.h KBtin_help BUGS commands make_commands.sh $(man_MANS) OLDNEWS
-CLEANFILES = commands.h load_commands.h KBtin_help.gz
+EXTRA_DIST = tintin.h KBtin_help.in BUGS commands make_commands $(man_MANS) OLDNEWS help2ansi fixmanual
+CLEANFILES = commands.h load_commands.h KBtin_help.gz manual.html
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = config.h
@@ -92,7 +93,7 @@ LIBS = @LIBS@
 KBtin_OBJECTS =  action.o alias.o antisub.o files.o glob.o help.o \
 highlight.o history.o ivars.o llist.o main.o misc.o net.o parse.o \
 path.o session.o substitute.o ticks.o utils.o variables.o events.o \
-user.o run.o colors.o routes.o bind.o telnet.o crc.o hash.o
+user.o run.o colors.o routes.o bind.o telnet.o crc.o hash.o regexp.o
 KBtin_DEPENDENCIES = 
 KBtin_LDFLAGS = 
 ansi2html_OBJECTS =  ansi2html.o
@@ -115,7 +116,7 @@ DATA =  $(help_DATA)
 
 DIST_COMMON =  README ./stamp-h.in AUTHORS COPYING ChangeLog INSTALL \
 Makefile.am Makefile.in NEWS acinclude.m4 aclocal.m4 config.h.in \
-configure configure.ac install-sh missing mkinstalldirs
+config.sub configure configure.ac install-sh missing mkinstalldirs
 
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
@@ -373,7 +374,7 @@ crc.o: crc.c
 events.o: events.c config.h tintin.h
 files.o: files.c config.h tintin.h
 glob.o: glob.c config.h
-hash.o: hash.c tintin.h
+hash.o: hash.c tintin.h config.h
 help.o: help.c config.h tintin.h
 highlight.o: highlight.c config.h tintin.h
 history.o: history.c config.h tintin.h
@@ -384,7 +385,8 @@ misc.o: misc.c config.h tintin.h
 net.o: net.c config.h tintin.h
 parse.o: parse.c config.h tintin.h commands.h load_commands.h
 path.o: path.c config.h tintin.h
-routes.o: routes.c tintin.h
+regexp.o: regexp.c config.h tintin.h
+routes.o: routes.c tintin.h config.h
 run.o: run.c config.h tintin.h
 session.o: session.c config.h tintin.h
 substitute.o: substitute.c config.h tintin.h
@@ -406,6 +408,8 @@ all-recursive-am: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
 install-exec-am: install-binPROGRAMS
+	@$(NORMAL_INSTALL)
+	$(MAKE) $(AM_MAKEFLAGS) install-exec-hook
 install-exec: install-exec-am
 
 install-data-am: install-man install-helpDATA
@@ -414,7 +418,8 @@ install-data: install-data-am
 install-am: all-am
 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
 install: install-am
-uninstall-am: uninstall-binPROGRAMS uninstall-man uninstall-helpDATA
+uninstall-am: uninstall-binPROGRAMS uninstall-man uninstall-helpDATA \
+		uninstall-local
 uninstall: uninstall-am
 all-am: Makefile $(PROGRAMS) $(MANS) $(DATA) config.h
 all-redirect: all-am
@@ -435,6 +440,7 @@ distclean-generic:
 	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
 
 maintainer-clean-generic:
+	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 mostlyclean-am:  mostlyclean-hdr mostlyclean-binPROGRAMS \
 		mostlyclean-compile mostlyclean-tags \
 		mostlyclean-generic
@@ -470,23 +476,37 @@ uninstall-man uninstall-helpDATA install-helpDATA tags mostlyclean-tags \
 distclean-tags clean-tags maintainer-clean-tags distdir info-am info \
 dvi-am dvi check check-am installcheck-am installcheck all-recursive-am \
 install-exec-am install-exec install-data-am install-data install-am \
-install uninstall-am uninstall all-redirect all-am all installdirs \
-mostlyclean-generic distclean-generic clean-generic \
+install uninstall-local uninstall-am uninstall all-redirect all-am all \
+installdirs mostlyclean-generic distclean-generic clean-generic \
 maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
 
-commands.h: make_commands.sh commands
-	$(srcdir)/make_commands.sh <$(srcdir)/commands
+install-exec-hook:
+	$(LN_S) -f KBtin $(DESTDIR)$(bindir)/kbtin
 
-load_commands.h: commands make_commands.sh commands.h
+uninstall-local:
+	if [ -L $(DESTDIR)$(bindir)/kbtin ]; then \
+	    rm $(DESTDIR)$(bindir)/kbtin; \
+	fi
+
+commands.h: make_commands commands
+	$(srcdir)/make_commands <$(srcdir)/commands
+
+load_commands.h: commands make_commands commands.h
 
 # automagically update version number in tintin.h if configure.ac has
 # changed
 tintin.h: configure.ac
 	$(MAKE) update-version
 
-KBtin_help.gz: KBtin_help
-	gzip -9 <$(srcdir)/KBtin_help >KBtin_help.gz
+KBtin_help.gz: KBtin_help.in
+	gzip -9 <$(srcdir)/KBtin_help.in >KBtin_help.gz
+
+# convert the help file to html
+manual.html: KBtin_help.in help2ansi ansi2html fixmanual
+	$(srcdir)/help2ansi <$(srcdir)/KBtin_help.in|./ansi2html|$(srcdir)/fixmanual $(srcdir)/KBtin_help.in >manual.html
+#This won't work during a cross-compile, you will have to use a locally
+#built version of ansi2html.
 
 # update version number in "tintin.h"
 update-version:

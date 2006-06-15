@@ -146,17 +146,23 @@ void alarm_func(int k)
 /************************************************************/
 void write_line_mud(char *line, struct session *ses)
 {
-    char outtext[BUFFER_SIZE + 2];
+    char outtext[2*BUFFER_SIZE + 2],*out;
 
     if (*line)
         ses->idle_since=time(0);
-    strcpy(outtext, line);
+    out=outtext;
+    while(*line)
+    {
+        if ((unsigned char)*line==255)
+            *out++=255;
+        *out++=*line++;
+    }
     if (ses->issocket)
-        strcat(outtext, "\r\n");
-    else
-        strcat(outtext, "\n");
+        *out++='\r';
+    *out++='\n';
+    *out=0;
 
-    if (write(ses->socket, outtext, strlen(outtext)) == -1)
+    if (write(ses->socket, outtext, out-outtext) == -1)
         syserr("write in write_to_mud");
 }
 
@@ -187,6 +193,9 @@ int read_buffer_mud(char *buffer, struct session *ses)
 
     else if (didget == 0)
         return -1;
+
+    *(tmpbuf+ses->telnet_buf+didget)=0;
+    tintin_printf(ses,"[%s]",tmpbuf);
     
     if ((didget+=ses->telnet_buf) == INPUT_CHUNK)
         ses->more_coming = 1;

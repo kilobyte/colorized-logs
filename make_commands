@@ -10,7 +10,9 @@ while read FUNC
                 continue
         fi
         case $FUNC in
-            \#*)    ;;
+            \;*)    ;;
+            \#*)    echo "$FUNC" >>commands.h;echo "$FUNC">>load_commands.h
+                    ;;
             \**)    FUNC=`echo "$FUNC"|sed 's/^\*//'`
                     echo "extern struct session *$FUNC$ARGS;" >>commands.h
                     echo "add_command(c_commands, \"$FUNC\", (t_command)${FUNC}_command);" >>load_commands.h

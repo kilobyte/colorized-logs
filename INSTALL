@@ -16,3 +16,10 @@ Installation
 	+ make
 	+ Copy both the KBtin binary and KBtin_help.gz to a directory
 	  of your choice.
+
+Cross-compiling notes
+=====================
+
+KBtin is not completely cross-compile clean at this moment.  The problems
+involve guessing the /dev/pty ranges (needed only on BSD systems) and
+building manual.html.  The latter is not built by default, though.

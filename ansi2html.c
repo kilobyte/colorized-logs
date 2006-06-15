@@ -74,7 +74,6 @@ int main()
     int oldbg=-1, bg=0;
     int oldbr=0, br=0;
     int oldcolor=7, color=7;
-    int firstchar=1,sp=0;
     int tmp;
 
     printf("<html>\n<body bgcolor=%s text=%s>\n<pre><tt>",bnames[0],cnames[0][7]);
@@ -121,7 +120,6 @@ normal:
                 printf("<b>");
             if (bl)
                 printf("<i>");
-            firstchar=1;
         }
         switch(*ch)
         {
@@ -132,18 +130,14 @@ normal:
             printf("&gt;");
             break;
         case ' ':
-            if (firstchar&&table)
+            if (table)
             {
                 printf("&nbsp;");
                 break;
             }
-            else
-                sp=1;   /* in case of multiple spaces */
         default:
             putchar(*ch);
         }
-        firstchar=sp;
-        sp=0;
         goto normal;
 esc:
         switch(*++ch)

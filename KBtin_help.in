@@ -19,10 +19,11 @@ Substitutions:
    dosubstitutes           dohighlights            change
 Information:
    help        info        messages    news        version
-Keys:
-   bind        unbind      keypad
+Input:
+   bind        unbind      keypad      retain
 Control statements:
    <number>    if          loop        foreach     match       strcmp
+   grep
 Files:
    condump     deathlog    log         unlink      read        textin
    verbose     write       writesession
@@ -56,6 +57,7 @@ General info topics (not commands):
 Scroll back using PgUp/PgDn to read the whole help index.
 For help on specific command, #help <command>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~H General syntax
 ~syntax
 Tin-Tin parses the text you type in the following way:
 1. a line of text is divided on ";" marks.
@@ -78,6 +80,7 @@ Special characters:
 
 Note: use #verbatim to turn all parsing off.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~H Color codes
 ~colorcodes
 The color codes for KBtin are enclosed by tilde (~) chars.  The general
 syntax is: ~foreground[:background[:attr]]~
@@ -87,8 +90,8 @@ Foreground colors:
  2 - ~2~green~-1~       6 - ~6~brown~-1~    10 - ~10~lt. green~-1~    14 - ~14~yellow~-1~
  3 - ~3~cyan~-1~        7 - ~7~lt. gray~-1~ 11 - ~11~aqua~-1~         15 - ~15~white~-1~
 Background colors:
- 0 - ~:0~black~-1~       2 - ~0:2~green~-1~     4 - ~0:4~red~-1~           6 - ~0:6~brown~-1~
- 1 - ~:1~blue~-1~        3 - ~0:3~cyan~-1~      5 - ~0:5~magenta~-1~       7 - ~0:7~lt. gray~-1~
+ 0 - ~0:0~black~-1~       2 - ~0:2~green~-1~     4 - ~0:4~red~-1~           6 - ~0:6~brown~-1~
+ 1 - ~0:1~blue~-1~        3 - ~0:3~cyan~-1~      5 - ~0:5~magenta~-1~       7 - ~0:7~lt. gray~-1~
 Attributes:
  0 - normal text 1 - ~::1~blinking~-1~  2 - ~::2~italic~-1~        4 - ~::4~underline~-1~
  or a sum of the above: 7 for ~::7~blinking, italic and underlined~7~ text
@@ -102,7 +105,9 @@ blinking on without affecting neither foreground nor background, and 4:
 changes foreground color to red leaving the background unchanged.
 When KBtin translates the ANSI codes coming from MUD, it uses the shortest
 possible code, without omitting any fields.  That is: ~2~2~-1~, ~0:7~0:7~-1~ or ~12:0:1~12:0:1~-1~.
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~H keys
 ~keys
 ~keyboard
 Editing keys:
@@ -374,10 +379,11 @@ Notes:
 Lists all actions matching <pattern> (or all if no pattern given).
 
 #action <text> <command> [<priority>]
-Sets a trigger on <text> to execute <command>.  The action will fire at most
-once for a single line of text ("#action blah command" won't trigger twice
-on "blah blah").  The priority affects the order in which matching actions
-will be executed, however all actions which match will fire.
+Sets a trigger on <text> to execute <command>.  The action is guaranteed
+to fire exactly once for a single line of text, but won't be triggered
+for incomplete lines (compare #promptaction).  The priority affects the
+order in which matching actions will be executed, however all actions
+which match will fire.
 The <text> can contain "%0", "%1" .. "%9" symbols, which match any
 substring.  You can then use "$1" or "%1" in the <command>, which will be
 substituted by the substring which matched "%1" in <text>.
@@ -667,6 +673,11 @@ Example:
 #bind Kpad3 se
 #bind KpadMinus u
 #bind KpadPlus d
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~retain
+
+#retain [<boolean>]
+(toggle) Causes the input box to keep the last line typed, zMud style.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~blank
 
@@ -1135,7 +1146,7 @@ and <command> can contain positional variables %0..%9, which will be filled
 according to the text in <line> which matched a given variable in <text>.
 It is usually safer to use $0..$9 instead of %0..%9 as $ removes all
 semicolons from the variables.
-In case of no match, <command2> is executed.
+In case of no match, the #elif/#else part is executed.
 
 Examples:
 #match {Elven %0} {$Victim} {#showme {Next elven scum to die: $0}}
@@ -1152,6 +1163,25 @@ Example:
  #alias a {#match {[%1]} {$0} {#showme {~2~$1~-1~ ~2~$$1~-1~ ~4~$$$1~-1~}}}
  #alias a {#match {[%1]} {$0} {#showme {{$1 ~2~$$1~-1~ ~2~$$$1~-1~ ~4~$$$$1~-1~}}}}
  ~2~Green~-1~ variables will use the values from #match, ~4~red~-1~ ones -- from #alias.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~grep
+
+#grep <regexp> <line> <command> [#elif/#else ...]
+Does a regexp match on <line>, then executes <command> if the match
+succeeded, or the #elif/#else clause in case of failure.  The regular
+expression follows the extended syntax (used by egrep), that is, you
+can use '+' and group subexpressions using '(' and ')'.
+
+If there are any subexpressions, they will be assigned to subsequent
+positional variables, starting with 1.  That is, $1 will be the first
+matched subexpression, like in Perl, sed and the like.
+$0 will be assigned the whole part of the line that matched the regexp.
+
+Example:
+ #grep {abc(.)def(.+)ghi} {abc1def12345ghi} {whatever}
+ 	$0 = "abc1def12345ghi"
+	$1 = "1"
+	$2 = "12345"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~strcmp
 
@@ -1388,11 +1418,8 @@ You can later use "$name" which means "value".  An alternate syntax is
 "${name}", which allows more complex variable names.
 
 KBtin provides you with several pseudo-variables which can be queried using
-normal variable syntax, but don't show on the variables list:
-* secstotick       - seconds till next tick
-* COLS, LINES      - screen size
-* PATH             - the current path
-* IDLETIME         - time since last text has been sent to the MUD
+normal variable syntax, but don't show on the variables list.  See
+#help pseudovars.
 
 Note: several commands like #alias, #action, #substitute and the like don't
 substitute any variables in arguments enclosed in curly braces.  To override
@@ -1410,6 +1437,25 @@ Example:
     Typing '/hunt' causes you to follow the person whose name was $Victim in
     the moment of defining the /hunt alias.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~H Pseudo-variables
+~pseudovariables
+~pseudovars
+~pseudo-variables
+~pseudo-vars
+KBtin supports a number of built-in variables.  They won't show on the list
+given by #var, and defining a variable by that name will destroy their
+special properties (they can still be restored by #unvar).
+
+* secstotick       - seconds till next tick
+* COLS, LINES      - screen size
+* PATH             - the current path
+* IDLETIME         - time since last text has been sent to the MUD
+* SESSION          - the current session
+* ASESSION         - the foreground (active) session
+* SESSIONS         - a list of all sessions defined
+* LINE, _          - (only in a #action or #promptaction): the current line
+                     of input
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~unvariable
 
 #unvariable <pattern>
@@ -1418,6 +1464,7 @@ Removes all variables whose name matches <pattern>.
 Example:
 #unvar tell*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~H Tab completion
 ~retab
 ~tablist
 ~tabadd
@@ -1425,5 +1472,6 @@ Example:
 Tab-completion is disabled in KBtin.  The current usage of the Tab key is more
 convenient in my opinion.  If you disagree, lemme know, we can think of a
 better solution.
+[Note: this will change in the next(?) version]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~*end*

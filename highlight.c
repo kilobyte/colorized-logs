@@ -276,6 +276,7 @@ void do_all_high(char *line,struct session *ses)
         *atr++=c;
         continue;
 color:
+        ; /* Why the lack of a semicolon here causes a warning is beyone me. */
     };
     *txt=0;
     *atr=c;

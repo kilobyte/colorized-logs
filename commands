@@ -1,15 +1,15 @@
-# KBtin's list of commands.  All entries depend on functions declared as:
-#   void XXX_command(char *arg, struct session *ses)
-#   struct session *XXX_command(char *arg, struct session *ses)
-# depending on whether the function name is prefixed with an * or not.
+; KBtin's list of commands.  All entries depend on functions declared as:
+;   void XXX_command(char *arg, struct session *ses)
+;   struct session *XXX_command(char *arg, struct session *ses)
+; depending on whether the function name is prefixed with an * or not.
 
 *all
 *session
 *read
 *run
 *zap
-#end    -- parsed in a specific way
-#unlink -- parsed in a specific way
+;end    -- parsed in a specific way
+;unlink -- parsed in a specific way
 verbatim
 action
 alias
@@ -63,7 +63,7 @@ prepad
 promptaction
 postpad
 random
-#retab
+;retab
 remark
 removeevent
 unevent
@@ -86,9 +86,9 @@ gag
 substring
 strlen
 system
-#tablist
-#tabadd
-#tabdelete
+;tablist
+;tabadd
+;tabdelete
 tick
 tickoff
 tickon
@@ -123,3 +123,7 @@ changeto
 send
 timecommands
 debuglog
+#ifdef HAVE_REGCOMP
+grep
+#endif
+retain

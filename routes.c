@@ -1,5 +1,13 @@
 #include "tintin.h"
+#include "config.h"
 #include <stdlib.h>
+#ifdef HAVE_STRING_H
+# include <string.h>
+#else
+# ifdef HAVE_STRINGS_H
+#  include <strings.h>
+# endif
+#endif
 
 extern char* mystrdup(char *s);
 extern char *get_arg_in_braces(char *s,char *arg,int flag);

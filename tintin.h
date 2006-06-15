@@ -29,7 +29,7 @@
 /* telnet protocol stuff */
 /*************************/
 #define TERM                    "KBtin"   /* terminal type */
-/*#define TELNET_DEBUG*/    /* uncomment to show TELNET negotiations */
+#define TELNET_DEBUG    /* uncomment to show TELNET negotiations */
 
 /************************************************************************/
 /* Do you want to use help compression or not:  with it, space is saved */
@@ -90,7 +90,7 @@
 #define DEFAULT_PRESUB FALSE              /* presub before actions */
 #define DEFAULT_TOGGLESUBS FALSE          /* turn subs on and off FALSE=ON*/
 #define DEFAULT_KEYPAD FALSE              /* start in standard keypad mode */
-
+#define DEFAULT_RETAIN FALSE              /* retain the last typed line */
 #define DEFAULT_ALIAS_MESS TRUE           /* messages for responses */
 #define DEFAULT_ACTION_MESS TRUE          /* when setting/deleting aliases, */
 #define DEFAULT_SUB_MESS TRUE             /* actions, etc. may be set to */
@@ -148,7 +148,7 @@
 
 #define BUFFER_SIZE 2048
 #define INPUT_CHUNK 512
-#define VERSION_NUM "1.0.3"
+#define VERSION_NUM "1.0.4"
 #define MSG_ALIAS       0
 #define MSG_ACTION      1
 #define MSG_SUBSTITUTE  2
@@ -225,7 +225,7 @@ struct session
   char *locations[MAX_LOCATIONS];
   struct eventnode *events;
   int path_length, no_return;
-  int socket, socketbit, issocket, naws, ga, gas;
+  int socket, socketbit, issocket, naws, ga, gas, last_term_type;
   int server_echo; /* 0=not negotiated, 1=we shouldn't echo, 2=we can echo */
   int more_coming;
   char last_line[BUFFER_SIZE];

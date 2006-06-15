@@ -24,3 +24,7 @@
   break all key sequences involving Alt.
 * A number of new editing keys has been added.
 * You can now #bind Alt-Key.
+
+1.0.4:
+* #grep, true regexp match.
+* #retain, zMud-like behaviour of the input box.

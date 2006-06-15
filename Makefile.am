@@ -4,27 +4,43 @@ help_DATA= NEWS KBtin_help.gz
 INCLUDES = -DDATA_PATH=\"$(helpdir)\"
 man_MANS = ansi2html.6 ansi2txt.6
 
-KBtin_SOURCES=action.c alias.c antisub.c files.c glob.c help.c highlight.c history.c ivars.c llist.c main.c misc.c net.c parse.c path.c session.c substitute.c ticks.c utils.c variables.c events.c user.c run.c colors.c routes.c bind.c telnet.c crc.c hash.c
+BUILT_SOURCES=commands.h load_commands.h
+KBtin_SOURCES=action.c alias.c antisub.c files.c glob.c help.c highlight.c history.c ivars.c llist.c main.c misc.c net.c parse.c path.c session.c substitute.c ticks.c utils.c variables.c events.c user.c run.c colors.c routes.c bind.c telnet.c crc.c hash.c regexp.c
 KBtin_LDADD=
 
 ansi2html_SOURCES=ansi2html.c
 ansi2txt_SOURCES=ansi2txt.c
 
-EXTRA_DIST=tintin.h KBtin_help BUGS commands make_commands.sh $(man_MANS) OLDNEWS
-CLEANFILES=commands.h load_commands.h KBtin_help.gz
+EXTRA_DIST=tintin.h KBtin_help.in BUGS commands make_commands $(man_MANS) OLDNEWS help2ansi fixmanual
+CLEANFILES=commands.h load_commands.h KBtin_help.gz manual.html
 
-commands.h: make_commands.sh commands
-	$(srcdir)/make_commands.sh <$(srcdir)/commands
+install-exec-hook:
+	$(LN_S) -f KBtin $(DESTDIR)$(bindir)/kbtin
 
-load_commands.h: commands make_commands.sh commands.h
+uninstall-local:
+	if [ -L $(DESTDIR)$(bindir)/kbtin ]; then \
+	    rm $(DESTDIR)$(bindir)/kbtin; \
+	fi
+
+
+commands.h: make_commands commands
+	$(srcdir)/make_commands <$(srcdir)/commands
+
+load_commands.h: commands make_commands commands.h
 
 # automagically update version number in tintin.h if configure.ac has
 # changed
 tintin.h: configure.ac
 	$(MAKE) update-version
 
-KBtin_help.gz: KBtin_help
-	gzip -9 <$(srcdir)/KBtin_help >KBtin_help.gz
+KBtin_help.gz: KBtin_help.in
+	gzip -9 <$(srcdir)/KBtin_help.in >KBtin_help.gz
+
+# convert the help file to html
+manual.html: KBtin_help.in help2ansi ansi2html fixmanual
+	$(srcdir)/help2ansi <$(srcdir)/KBtin_help.in|./ansi2html|$(srcdir)/fixmanual $(srcdir)/KBtin_help.in >manual.html
+#This won't work during a cross-compile, you will have to use a locally
+#built version of ansi2html.
 
 # update version number in "tintin.h"
 update-version:

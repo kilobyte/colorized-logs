@@ -10,7 +10,6 @@
 #endif
 #endif
 
-extern int colors[];
 extern int yes_no(char *txt);
 extern struct session *nullsession;
 extern char *mystrdup(char *s);
@@ -18,9 +17,9 @@ extern char *get_arg_in_braces(char *s,char *arg,int flag);
 extern void tintin_printf(struct session *ses,char *format,...);
 extern void tintin_eprintf(struct session *ses,char *format,...);
 
-
+const int colors[8]={0,4,2,6,1,5,3,7};
 int mudcolors=3;    /* 0=disabled, 1=on, 2=null, 3=null+warning */
-char *MUDcolors[16]={};
+char *MUDcolors[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 #ifdef EXT_INLINE
 inline
@@ -165,10 +164,8 @@ again:
                             ccolor=(ccolor&0x388)|(ccolor&0x70>>4)|(ccolor&7);
                             /* inverse should propagate... oh well */
                             break;
-                        case 22:
-                            if (!(ccolor&7))
-                                ccolor|=7;
                         case 21:
+                        case 22:
                             ccolor&=~8;
                             break;
                         case 23:
@@ -179,6 +176,13 @@ again:
                             break;
                         case 25:
                             ccolor&=~128;
+                            break;
+                        case 39:
+                            ccolor&=~0xf;
+                            ccolor|=7;
+                            break;
+                        case 49:
+                            ccolor&=~0x70;
                             break;
                         default:
                             if (tok[i]>=30 && tok[i]<38)

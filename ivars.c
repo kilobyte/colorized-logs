@@ -9,6 +9,13 @@ int stacks[100][4];
 #include <stdlib.h>
 #include <unistd.h>
 #endif
+#ifdef HAVE_STRING_H
+#include <string.h>
+#else
+#ifdef HAVE_STRINGS_H
+#include <strings.h>
+#endif
+#endif
 
 extern char *get_arg_in_braces(char *s,char *arg,int flag);
 extern char *space_out(char *s);

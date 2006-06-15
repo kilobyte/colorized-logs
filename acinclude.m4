@@ -1,4 +1,5 @@
 dnl check for valid pty ranges, stolen from screen sources
+dnl Note: this does break cross-compiling.
 AC_DEFUN(AC_PTYRANGES, [
 AC_MSG_CHECKING(ptyranges)
 if test -d /dev/ptym ; then
@@ -127,7 +128,7 @@ AC_DEFUN(AC_LBL_LIBRARY_NET, [
 
 
 
-dnl check whether 
+dnl check whether actual code is generated for inlined functions
 AC_DEFUN(AC_EXT_INLINE, [
 AC_MSG_CHECKING(whether inline functions can be used extern)
 AC_COMPILE_IFELSE([[

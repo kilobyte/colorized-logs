@@ -32,7 +32,7 @@
 extern struct session *sessionlist,*activesession,*nullsession;
 extern struct completenode *complete_head;
 extern char tintin_char;
-extern int keypad;
+extern int keypad,retain;
 extern pvars_t *pvars;	/* the %0, %1, %2,....%9 variables */
 extern char status[BUFFER_SIZE];
 extern int margins,marginl,marginr;
@@ -59,7 +59,8 @@ extern void tintin_printf(struct session *ses, char *format, ...);
 extern void tintin_eprintf(struct session *ses, char *format, ...);
 extern void user_beep(void);
 extern void user_done(void);
-extern void user_keypad(int onoff);
+extern void user_keypad(int kp);
+extern void user_retain(void);
 extern void write_line_mud(char *line, struct session *ses);
 extern void set_variable(char *left,char *right,struct session *ses);
 extern void do_all_high(char *line,struct session *ses);
@@ -233,6 +234,17 @@ void keypad_command(char *arg,struct session *ses)
                "#KEYPAD NOW WORKS IN THE ALTERNATE MODE.",
                "#KEYPAD KEYS ARE NOW EQUAL TO NON-KEYPAD ONES.");
     user_keypad(keypad);
+}
+
+/***********************/
+/* the #retain command */
+/***********************/
+void retain_command(char *arg,struct session *ses)
+{
+    togglebool(&retain,arg,ses,
+               "#INPUT BAR WILL NOW RETAIN THE LAST LINE TYPED.",
+               "#INPUT BAR WILL NOW BE CLEARED EVERY LINE.");
+    user_retain();
 }
 
 /*********************/
@@ -877,8 +889,8 @@ void info_command(char *arg, struct session *ses)
         ses->echo, ses->speedwalk, ses->blank, ses->verbatim);
     tintin_printf(ses, " toggle subs=%d, ignore actions=%d, PreSub=%d, verbose=%d",
         ses->togglesubs, ses->ignore, ses->presub, ses->verbose);
-    tintin_printf(ses, "Terminal size: %dx%d,  keypad: %s",
-        COLS,LINES,keypad?"alt mode":"cursor/numeric mode");
+    tintin_printf(ses, "Terminal size: %dx%d,  keypad: %s,  retain: %d",
+        COLS,LINES,keypad?"alt mode":"cursor/numeric mode",retain);
     prompt(ses);
 }
 

@@ -1,4 +1,4 @@
-dnl aclocal.m4 generated automatically by aclocal 1.4-p6
+dnl aclocal.m4t generated automatically by aclocal 1.4-p6
 
 dnl Copyright (C) 1994, 1995-8, 1999, 2001 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
@@ -11,6 +11,7 @@ dnl even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 dnl PARTICULAR PURPOSE.
 
 dnl check for valid pty ranges, stolen from screen sources
+dnl Note: this does break cross-compiling.
 AC_DEFUN(AC_PTYRANGES, [
 AC_MSG_CHECKING(ptyranges)
 if test -d /dev/ptym ; then
@@ -139,7 +140,7 @@ AC_DEFUN(AC_LBL_LIBRARY_NET, [
 
 
 
-dnl check whether 
+dnl check whether actual code is generated for inlined functions
 AC_DEFUN(AC_EXT_INLINE, [
 AC_MSG_CHECKING(whether inline functions can be used extern)
 AC_COMPILE_IFELSE([[

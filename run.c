@@ -13,7 +13,16 @@
 # endif
 #endif
 #ifdef HAVE_GRANTPT
-# include <sys/stropts.h>
+# ifdef HAVE_STROPTS_H
+#  include <stropts.h>
+# endif
+#endif
+#ifdef HAVE_STRING_H
+# include <string.h>
+#else
+# ifdef HAVE_STRINGS_H
+#  include <strings.h>
+# endif
 #endif
 #include <stdlib.h>
 #include "tintin.h"
@@ -95,10 +104,12 @@ int forkpty(int *amaster,char *dummy,struct termios *termp, struct winsize *wp)
     if (slave==-1)
         goto close_master;
 
+# ifdef HAVE_STROPTS_H
     if (isastream(slave))
         if (ioctl(slave, I_PUSH, "ptem")<0
                 ||ioctl(slave, I_PUSH, "ldterm")<0)
             goto close_slave;
+# endif
 
     goto ok;
 

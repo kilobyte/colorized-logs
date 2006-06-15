@@ -54,6 +54,7 @@ extern void tintin_printf(struct session *ses,char *format,...);
 extern void tintin_eprintf(struct session *ses,char *format,...);
 extern struct hashtable* copy_hash(struct hashtable *h);
 extern void do_in_MUD_colors(char *txt,int quotetype);
+extern int isatom(char *arg);
 
 extern struct session *sessionlist, *activesession, *nullsession;
 
@@ -245,7 +246,8 @@ struct session *new_session(char *name,char *address,int sock,int issocket,struc
     newsession->ga = 0;
     newsession->gas = 0;
     newsession->server_echo = 0;
-    newsession->telnet_buf=0;
+    newsession->telnet_buf = 0;
+    newsession->last_term_type = 0;
     newsession->next = sessionlist;
     for (i = 0; i < HISTORY_SIZE; i++)
         newsession->history[i] = NULL;
@@ -319,4 +321,28 @@ void cleanup_session(struct session *ses)
         fclose(ses->logfile);
 
     free(ses);
+}
+
+void seslist(char *result)
+{
+    struct session *sesptr;
+    int flag=0;
+
+    if ((sessionlist!=nullsession)||(nullsession->next))
+    {
+        for (sesptr = sessionlist; sesptr; sesptr = sesptr->next)
+            if (sesptr!=nullsession)
+            {
+                if (flag)
+                    *result++=' ';
+                else
+                    flag=1;
+                if (isatom(sesptr->name))
+                    result+=sprintf(result,"%s",sesptr->name);
+                else
+                    result+=sprintf(result,"{%s}",sesptr->name);
+                /* FIXME: check for buffer overflows.  Possible only
+                          for patological session names, but still...  */
+            }
+    }
 }
