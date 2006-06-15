@@ -669,6 +669,8 @@ void shell_command(char *arg,struct session *ses)
 /********************/
 struct session *zap_command(char *arg, struct session *ses)
 {
+    int flag=(ses==activesession);
+
     if (*arg)
     {
         tintin_eprintf(ses, "#ZAP <ses> is still unimplemented."); /* FIXME */
@@ -678,7 +680,7 @@ struct session *zap_command(char *arg, struct session *ses)
     {
         tintin_puts("#ZZZZZZZAAAAAAAAPPPP!!!!!!!!! LET'S GET OUTTA HERE!!!!!!!!", ses);
         cleanup_session(ses);
-        return newactive_session();
+        return flag?newactive_session():activesession;
     }
     else
         end_command("end", (struct session *)NULL);
@@ -891,6 +893,12 @@ void info_command(char *arg, struct session *ses)
                 locs++;
     }
     routes=count_routes(ses);
+    if (ses==nullsession)
+        tintin_printf(ses, "Session : {%s}  (null session)", ses->name);
+    else
+        tintin_printf(ses, "Session : {%s}  Type: %s  %s : {%s}", ses->name,
+            ses->issocket?"TCP/IP":"pty", ses->issocket?"Address":
+            "Command line", ses->address);
     tintin_printf(ses,"You have defined the following:");
     tintin_printf(ses, "Actions : %d  Promptactions: %d", actions,practions);
     tintin_printf(ses, "Aliases : %d", aliases);
@@ -904,6 +912,8 @@ void info_command(char *arg, struct session *ses)
         ses->echo, ses->speedwalk, ses->blank, ses->verbatim);
     tintin_printf(ses, " toggle subs=%d, ignore actions=%d, PreSub=%d, verbose=%d",
         ses->togglesubs, ses->ignore, ses->presub, ses->verbose);
+    tintin_printf(ses, "Ticker is %s (ticksize=%d, pretick=%d)",
+        ses->tickstatus?"enabled":"disabled", ses->tick_size, ses->pretick);
 #ifdef UI_FULLSCREEN
     tintin_printf(ses, "Terminal size: %dx%d,  keypad: %s,  retain: %d",
         COLS,LINES,keypad?"alt mode":"cursor/numeric mode",retain);

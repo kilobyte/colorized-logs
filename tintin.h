@@ -1,9 +1,10 @@
 /******************************************************************/
 /* file: tintin.h - the include file for KBtin                    */
 /******************************************************************/
-
-#include <stdio.h>
-#define UI_FULLSCREEN
+#define UI_FULLSCREEN      /* fullscreen (vs pipe) interface */
+#undef TELNET_DEBUG        /* uncomment to show TELNET negotiations */
+#undef USER_DEBUG          /* debugging of the user interface */
+#undef TERM_DEBUG          /* debugging pseudo-tty stuff */
 
 /************************/
 /* The meaning of life: */
@@ -29,7 +30,6 @@
 /* telnet protocol stuff */
 /*************************/
 #define TERM                    "KBtin"   /* terminal type */
-/*#define TELNET_DEBUG*/   /* uncomment to show TELNET negotiations */
 
 /************************************************************************/
 /* Do you want to use help compression or not:  with it, space is saved */
@@ -56,6 +56,8 @@
                          prevent Alt-XXX from being recognized, though. */
 #define XTERM_TITLE "KBtin - %s"
 #endif
+#undef  PTY_ECHO_HACK   /* not working yet */
+#define RESET_RAW       /* reset pseudo-terminals to raw mode every write */
 #define GOTO_CHAR '>'	/* be>mt -> #goto be mt */
 		/*Comment last line out to disable this behavior */
 #define OLD_LOG 0 /* set to one to use old-style logging */
@@ -108,6 +110,7 @@
 #define DEFAULT_SYSTEM_MESS TRUE
 #define DEFAULT_PATH_MESS TRUE
 #define DEFAULT_ERROR_MESS TRUE
+#define DEFAULT_PRETICK 10
 /*#define PARTIAL_LINE_MARKER "\376"*/       /* comment out to disable */
 /**************************************************************************/
 /* Should a prompt appear whenever TINTIN has written something to the    */
@@ -150,10 +153,11 @@
 #define PRIORITY 0
 #define CLEAN 0
 #define END 1
+#define K_ACTION_MAGIC "#X~4~~2~~12~[This action is being deleted!]~7~X"
 
 #define BUFFER_SIZE 2048
 #define INPUT_CHUNK 512
-#define VERSION_NUM "1.0.4d"
+#define VERSION_NUM "1.0.4e"
 #define MSG_ALIAS       0
 #define MSG_ACTION      1
 #define MSG_SUBSTITUTE  2
@@ -167,8 +171,14 @@
 #define MSG_PATH        10
 #define MSG_ERROR       11
 #define MAX_MESVAR 12
+#define HOOK_DISCONNECT 0
+#define HOOK_ZAP        1
+#define HOOK_SEND       2
+#define MAX_HOOK        3
 
 /************************ structures *********************/
+#include <stdio.h>
+
 struct listnode {
   struct listnode *next;
   char *left, *right, *pr;
@@ -218,7 +228,7 @@ struct session
   int tickstatus;
   int time0;      /* time of last tick (adjusted every tick) */
   int time10;
-  int tick_size;
+  int tick_size,pretick;
   int snoopstatus;
   FILE *logfile,*debuglogfile;
   int ignore;
@@ -230,7 +240,7 @@ struct session
   char *locations[MAX_LOCATIONS];
   struct eventnode *events;
   int path_length, no_return;
-  int socket, socketbit, issocket, naws, ga, gas, last_term_type;
+  int socket, issocket, naws, ga, gas, last_term_type;
   int server_echo; /* 0=not negotiated, 1=we shouldn't echo, 2=we can echo */
   int more_coming;
   char last_line[BUFFER_SIZE],telnet_buf[BUFFER_SIZE];

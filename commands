@@ -78,6 +78,7 @@ remark
 removeevent
 undelay
 unevent
+unpathdir
 return
 reverse
 route
@@ -153,3 +154,10 @@ retain
 
 ifexists
 ifstrequal
+
+#ifdef TERM_DEBUG
+termdebug
+#endif
+
+pretick
+show_pretick

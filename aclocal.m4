@@ -115,6 +115,7 @@ AC_DEFUN(AC_LBL_LIBRARY_NET, [
 
 
 dnl check whether actual code is generated for inlined functions
+dnl The code below is an UGLY hack, but it works.
 AC_DEFUN(AC_EXT_INLINE, [
 AC_MSG_CHECKING(whether inline functions can be used extern)
 AC_COMPILE_IFELSE([[

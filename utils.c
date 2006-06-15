@@ -15,23 +15,24 @@
 #endif
 #endif
 #include "tintin.h"
-
+#include <stdarg.h>
 #ifdef HAVE_STDLIB_H
 #include <stdlib.h>
 #endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+#include <errno.h>
 
 extern void user_done(void);
-void syserr(char *msg);
+void syserr(char *msg, ...);
 
 /*********************************************/
 /* return: TRUE if s1 is an abrevation of s2 */
 /*********************************************/
 int is_abrev(char *s1, char *s2)
 {
-  return (!strncmp(s2, s1, strlen(s1)));
+    return (!strncmp(s2, s1, strlen(s1)));
 }
 
 /********************************/
@@ -40,23 +41,31 @@ int is_abrev(char *s1, char *s2)
 /********************************/
 char *mystrdup(char *s)
 {
-  char *dup;
+    char *dup;
 
-  if ((dup = (char *)malloc(strlen(s) + 1)) == NULL)
-    syserr("Not enought memory for strdup.");
-  strcpy(dup, s);
-  return dup;
+    if ((dup = (char *)malloc(strlen(s) + 1)) == NULL)
+        syserr("Not enought memory for strdup.");
+    strcpy(dup, s);
+    return dup;
 }
 
 
 /*************************************************/
 /* print system call error message and terminate */
 /*************************************************/
-void syserr(char *msg)
+void syserr(char *msg, ...)
 {
+    va_list ap;
 #ifdef UI_FULLSCREEN
-  user_done();
+    user_done();
 #endif
-  fprintf(stderr, "ERROR:  %s\n",msg);
-  exit(1);
+    if (errno)
+        fprintf(stderr, "ERROR (%s):  ", strerror(errno));
+    else
+        fprintf(stderr, "ERROR:  ");
+    va_start(ap, msg);
+    vfprintf(stderr, msg, ap);
+    va_end(ap);
+    fprintf(stderr, "\n");
+    exit(1);
 }

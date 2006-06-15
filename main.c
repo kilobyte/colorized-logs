@@ -106,7 +106,7 @@ extern struct session *parse_input(char *input,int override_verbatim,struct sess
 extern struct completenode *complete_head;
 extern struct listnode *init_list(void);
 extern void read_complete(void);
-extern void syserr(char *msg);
+extern void syserr(char *msg, ...);
 extern void sigwinch(void);
 extern void user_resize(void);
 extern char* mystrdup(const char*);
@@ -133,6 +133,7 @@ extern void do_history(char *buffer, struct session *ses);
 extern int read_buffer_mud(char *buffer, struct session *ses);
 extern void cleanup_session(struct session *ses);
 extern void user_title(char *fmt,...);
+void make_name(char *str, char *basis, int run);
 
 void tstphandler(int sig)
 {
@@ -261,7 +262,7 @@ void setup_ulimit(void)
 
 void parse_options(int argc, char **argv, char **environ)
 {
-    char homepath[BUFFER_SIZE], temp[BUFFER_SIZE], *strptr;
+    char homepath[BUFFER_SIZE], temp[BUFFER_SIZE], sname[BUFFER_SIZE], *strptr;
     FILE *f;
     int noargs=0;
     int arg;
@@ -290,6 +291,40 @@ void parse_options(int argc, char **argv, char **environ)
                     tintin_eprintf(0, "#Invalid option: bare -c");
                 else
                     activesession=parse_input(argv[arg],0,activesession);
+            }
+            else if (!strcmp(argv[arg],"-r"))
+            {
+                if (++arg==argc)
+                    tintin_eprintf(0, "#Invalid option: bare -r");
+                else
+                {
+                    make_name(sname, argv[arg], 1);
+#ifdef HAVE_SNPRINTF
+                    snprintf(temp, BUFFER_SIZE,
+#else
+                    sprintf(temp,
+#endif
+                     "%crun %s {%s}", tintin_char, sname, argv[arg]);
+                    activesession=parse_input(temp,1,activesession);
+                }
+            }
+            else if (!strcmp(argv[arg],"-s"))
+            {
+                if (++arg==argc)
+                    tintin_eprintf(0, "#Invalid option: bare -s");
+                else if (++arg==argc)
+                    tintin_eprintf(0, "#Bad option: -s needs both an address and a port number!");
+                else
+                {
+                    make_name(sname, argv[arg-1], 1);
+#ifdef HAVE_SNPRINTF
+                    snprintf(temp, BUFFER_SIZE,
+#else
+                    sprintf(temp,
+#endif
+                     "%cses %s {%s %s}", tintin_char, sname, argv[arg-1], argv[arg]);
+                    activesession=parse_input(temp,1,activesession);
+                }
             }
             else
                 tintin_eprintf(0, "#Invalid option: {%s}",argv[arg]);
@@ -386,6 +421,7 @@ ever wants to read -- that is what docs are for.
     nullsession->address=0;
     nullsession->tickstatus = FALSE;
     nullsession->tick_size = DEFAULT_TICK_SIZE;
+    nullsession->pretick = DEFAULT_PRETICK;
     nullsession->time0 = 0;
     nullsession->snoopstatus = TRUE;
     nullsession->logfile = NULL;
@@ -410,7 +446,6 @@ ever wants to read -- that is what docs are for.
     nullsession->server_echo = 0;
     nullsession->antisubs = init_list();
     nullsession->binds = init_hash();
-    nullsession->socketbit = 0;
     nullsession->next = 0;
     nullsession->sessionstart=nullsession->idle_since=time(0);
     nullsession->debuglogfile=0;
@@ -480,9 +515,10 @@ int check_events(void)
 /***************************/
 void tintin(void)
 {
-    int done, readfdmask, result;
+    int done, result;
     struct session *sesptr, *t;
     struct timeval tv;
+    fd_set readfdmask;
 #ifdef XTERM_TITLE
     struct session *lastsession=0;
 #endif
@@ -501,14 +537,15 @@ void tintin(void)
         }
 # endif
 #endif
-        readfdmask = 1;
+        FD_ZERO(&readfdmask);
+        FD_SET(0, &readfdmask);
         for (sesptr = sessionlist; sesptr; sesptr = sesptr->next)
-            readfdmask |= sesptr->socketbit;
+            FD_SET(sesptr->socket, &readfdmask);
 
         tv.tv_sec = check_events();
         tv.tv_usec = 0;
 
-        result = select(32, (fd_set *)&readfdmask, 0, 0, &tv);
+        result = select(8*sizeof(fd_set), &readfdmask, 0, 0, &tv);
 
 #ifdef UI_FULLSCREEN
         if (need_resize)
@@ -528,7 +565,7 @@ void tintin(void)
         else if (result < 0)
             syserr("select");
 
-        if (readfdmask & 1)
+        if (FD_ISSET(0, &readfdmask))
         {
             done = process_kbd(activesession);
             if (done)
@@ -557,7 +594,7 @@ void tintin(void)
         for (sesptr = sessionlist; sesptr; sesptr = t)
         {
             t = sesptr->next;
-            if (sesptr->socketbit & readfdmask)
+            if (sesptr->socket && FD_ISSET(sesptr->socket,&readfdmask))
             {
                 aborting=0;
                 read_mud(sesptr);

@@ -18,11 +18,17 @@ CLEANFILES=commands.h load_commands.h KBtin_help.gz manual.html
 dist-hook:
 	for x in $(BUILT_SOURCES);do rm -f "$(distdir)/$$x";done
 
+#link kbtin to KBtin
+#Don't overwrite it on filesystems that ignore case, though.
 install-exec-hook:
-	$(LN_S) -f KBtin $(DESTDIR)$(bindir)/kbtin
+	if [ ! -e $(DESTDIR)$(bindir)/kbtin ]; then \
+	    $(LN_S) -f KBtin $(DESTDIR)$(bindir)/kbtin; \
+	fi
 
 install-data-hook:
-	$(LN_S) -f KBtin.6 $(DESTDIR)$(mandir)/man6/kbtin.6
+	if [ ! -e $(DESTDIR)$(mandir)/man6/kbtin.6 ]; then \
+	    $(LN_S) -f KBtin.6 $(DESTDIR)$(mandir)/man6/kbtin.6; \
+	fi
 
 uninstall-local:
 	if [ -L $(DESTDIR)$(bindir)/kbtin ]; then \
@@ -32,7 +38,7 @@ uninstall-local:
 	    rm $(DESTDIR)$(mandir)/man6/kbtin.6; \
 	fi
 
-commands.h: make_commands commands
+commands.h: make_commands commands tintin.h
 	$(srcdir)/make_commands <$(srcdir)/commands
 
 load_commands.h: commands make_commands commands.h
@@ -57,7 +63,7 @@ install-terminfo: terminfo.src
 
 # update version number in "tintin.h"
 update-version:
-	@if cat tintin.h | grep -e "$(VERSION)$" >/dev/null; then \
+	@if cat tintin.h | grep -e "$(VERSION)" >/dev/null; then \
            	touch -r tintin.h configure.ac; \
 	else \
 		if cat tintin.h | sed -e 's/#define VERSION_NUM.*/#define VERSION_NUM \"$(VERSION)\"/' > 'updated_tintin.h$'; then \

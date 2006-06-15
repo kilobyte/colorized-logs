@@ -55,12 +55,14 @@
 extern int do_telnet_protocol(char *data,int nb,struct session *ses);
 void alarm_func(int);
 
-extern struct session *sessionlist, *activesession;
+extern struct session *sessionlist, *activesession, *nullsession;
 extern int errno;
-extern void syserr(char *msg);
+extern void syserr(char *msg, ...);
 extern void tintin_printf(struct session *ses, char *format, ...);
 extern void tintin_eprintf(struct session *ses, char *format, ...);
 extern void prompt(struct session *ses);
+extern void telnet_write_line(char *line, struct session *ses);
+extern void pty_write_line(char *line, struct session *ses);
 
 /**************************************************/
 /* try connect to the mud specified by the args   */
@@ -146,24 +148,14 @@ void alarm_func(int k)
 /************************************************************/
 void write_line_mud(char *line, struct session *ses)
 {
-    char outtext[2*BUFFER_SIZE + 2],*out;
-
     if (*line)
         ses->idle_since=time(0);
-    out=outtext;
-    while(*line)
-    {
-        if ((unsigned char)*line==255)
-            *out++=255;
-        *out++=*line++;
-    }
     if (ses->issocket)
-        *out++='\r';
-    *out++='\n';
-    *out=0;
-
-    if (write(ses->socket, outtext, out-outtext) == -1)
-        syserr("write in write_to_mud");
+        telnet_write_line(line, ses);
+    else if (ses==nullsession)
+        tintin_eprintf(ses, "#spurious output: %s", line);  /* CHANGE ME */
+    else
+        pty_write_line(line, ses);
 }
 
 
@@ -222,7 +214,6 @@ int read_buffer_mud(char *buffer, struct session *ses)
             break;
         case 255:
             b=do_telnet_protocol(cpsource, i, ses);
-//            tintin_printf(ses, "Telnet protocol: %d bytes.");
             switch(b)
             {
             case -1:

@@ -381,12 +381,13 @@ struct session *do_read(FILE *myfile, char *filename, struct session *ses)
         if (flag)
         {
             puts_echoing = TRUE;
-            char_command(line, ses);
+            if (ispunct(*line) || ((unsigned char)(*line)>127))
+                char_command(line, ses);
             if (!ses->verbose)
                 puts_echoing = FALSE;
             flag = FALSE;
         }
-        for (cptr = line; *cptr && *cptr != '\n'; cptr++) ;
+        for (cptr = line; *cptr && *cptr != '\n' && *cptr!='\r'; cptr++) ;
         *cptr = '\0';
         
         if (isspace(*line) && *buffer && (*buffer==tintin_char))

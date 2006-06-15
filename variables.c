@@ -1131,7 +1131,7 @@ void implode_command(char *arg, struct session *ses)
 /***********************/
 void random_command(char *arg,struct session *ses)
 {
-    char left[BUFFER_SIZE], right[BUFFER_SIZE];
+    char left[BUFFER_SIZE], right[BUFFER_SIZE], dummy;
     int low, high, number;
 
     arg = get_arg(arg, left, 0, ses);
@@ -1140,7 +1140,7 @@ void random_command(char *arg,struct session *ses)
         tintin_eprintf(ses,"#Syntax: #random <var> <low,high>");
     else
     {
-        if (sscanf(right, "%d,%d", &low, &high) != 2)
+        if (sscanf(right, "%d,%d%c", &low, &high, &dummy) != 2)
             tintin_eprintf(ses,"#Wrong number of range arguments in #random: got {%s}.",right);
         else if (low < 0 || high < 0)
             tintin_eprintf(ses,"#Both arguments of range in #random should be >0, got %d,%d.",low,high);
@@ -1451,6 +1451,18 @@ void strcmp_command(char *line, struct session *ses)
     }
 }
 
+/**********************/
+/* the #strcmp inline */
+/**********************/
+int strcmp_inline(char *line, struct session *ses)
+{
+    char left[BUFFER_SIZE], right[BUFFER_SIZE];
+
+    line = get_arg(line, left, 0, ses);
+    line = get_arg(line, right, 1, ses);
+
+    return (!strcmp(left,right));
+}
 
 /***************************************/
 /* the #ifstrequal command             */

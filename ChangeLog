@@ -4,7 +4,7 @@
 *	\e[39m, \e[49m
 *	manual.html (just a converted version of the online help)
 *	commands that don't work on an architecture are no longer accesible
-*	outgoing 0xff bytes are sent as IAC IAC telnet sequence
+*	outgoing 0xff bytes are sent as IAC IAC telnet sequences
 *	the terminal string will cycle between "KBtin", "hardcopy",
 	"unknown" and "KBtin-1.0.4" (conforming to RFC 1091)
 *	if you undefine UI_FULLSCREEN in tintin.h, KBtin will be pipe-
@@ -14,23 +14,29 @@
 	a buffer overflow
 *	bugfix: sometimes TELNET sequences were not carried properly over
 	a packet boundary
-*	cleaned up command line parsing, added -q and -c
+*	cleaned up command line parsing, added -q, -c, -s and -r
 *	a (too short) manpage added
-*	axed the old BSD license from acinclude.m4, the only snippet we
-	use is in public domain
+*	axed the old BSD license with advertising clause from acinclude.m4,
+	the only snippet we use is in public domain
 *	window title in xterms
 *	#undelay as an alias for #remove=#unevent
 *	bugfix: \e[K and \e[D used to swallow some text
 *	core dumps will now be properly generated when appropiate
-*	tintin++ 1.86 compatibility: #ifexists, #ifstrequal
-*=test==bugfix: no more data loss when KBtin gets killed by a SIGINT (^C)
+*	#pretick
+*	tintin++ 1.86 compatibility:
+	*	#ifexists
+	*	#ifstrequal (=#strcmp)
+	*	#show_pretick (=#pretick)
+*TESTME	bugfix: no more corrupted logs when KBtin gets killed by a SIGINT (^C)
 	or a SIGHUP (disconnect)
-*	\e[J clears the current line (\e[1J and \e[2J don't work right)
+*	\e[J clears the current line (\e[1J and \e[2J still don't work ok)
 *	bugfix: #grep's regexp can now contain variables
-*=============fix ansi2html before releasing!!!======================
-*=======fix bad bytecount on telnet crap================
-*=======#unact *
-*=======-s, -r
+*	terminal size data is now passed to the pseudo-terminals
+*	bugfix: hangup if >29 sessions (oh well... :p)
+*	bugfix: #act {blah} {#unact *} no longer causes an infinite loop
+*	inlines: #grep, #match, #strcmp
+*TESTME	pty handling code changed
+*	consider \r to be an end-of-line char in #read, for M$-DOS files
 
 1.0.4:
 *	changes needed to compile on Tru64:
@@ -125,7 +131,7 @@
 *	#verbose
 *	the following flags are now local to sessions: verbose, verbatim,
 	blank, echo, speedwalk, togglesub, presub and the #message toggles
-*	csh-style "!!" history commands will now obey #verbatim
+*	shell-style "!!" history commands will now obey #verbatim
 
 0.4.2:
 *	bugfix: #writeses doesn't forget about pathdirs anymore

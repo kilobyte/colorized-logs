@@ -52,9 +52,10 @@ extern inline int getcolor(char **ptr,int *color,const int flag);
 extern inline int setcolor(char *txt,int c);
 #endif
 extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
-extern void syserr(char *msg);
+extern void syserr(char *msg, ...);
 extern struct session *activesession, *lastdraft;
 extern void telnet_resize_all(void);
+extern struct session *zap_command(char *arg, struct session *ses);
 
 char out_line[BUFFER_SIZE],b_draft[BUFFER_SIZE];
 char k_input[BUFFER_SIZE],kh_input[BUFFER_SIZE],tk_input[BUFFER_SIZE];
@@ -133,7 +134,7 @@ void term_getsize(void)
     COLS=ts.ws_col;
 }
 
-#ifdef DEBUG
+#ifdef USER_DEBUG
 void debug_info(void)
 {
     char txt[BUFFER_SIZE];
@@ -328,7 +329,7 @@ void b_scroll(int b_to)
     }
     else
         tbuf+=sprintf(tbuf,"\033[?25h");
-#ifdef DEBUG
+#ifdef USER_DEBUG
     debug_info();
 #endif
     if ((b_screenb=b_to)==b_bottom)
@@ -428,7 +429,7 @@ void b_textout(char *txt)
         };
     out_line[o_len]=0;
     tbuf+=sprintf(tbuf,"\0337");
-#ifdef DEBUG
+#ifdef USER_DEBUG
     debug_info();
 #endif
     redraw_cursor();
@@ -523,7 +524,7 @@ void textout(char *txt)
     o_lastprevcolor=o_prevcolor;
     if (o_draftlen)
         b_textout(b_draft); /* restore the draft */
-#ifdef DEBUG
+#ifdef USER_DEBUG
     debug_info();
     redraw_cursor();
     term_commit();
@@ -537,12 +538,12 @@ void textout_draft(char *txt, int flag)
     if (txt)
     {
         strcpy(b_draft,txt);
-#ifdef DEBUG
+#ifdef USER_DEBUG
         strcat(b_draft,"\376");
 #endif    
         if ((o_draftlen=strlen(b_draft)))
             b_textout(b_draft);
-#ifdef DEBUG
+#ifdef USER_DEBUG
         debug_info();
         redraw_cursor();
         term_commit();
@@ -1100,7 +1101,7 @@ int process_kbd(struct session *ses)
             if (ret(0))
                 redraw_in();
             *done_input=0;
-            parse_input("#zap",1,ses);
+            activesession=zap_command("",ses);
             return(0);
         case 5:			/* ^[E] */
             if (find_bind("^E",0,ses))
@@ -1303,7 +1304,7 @@ key_alt_tab:
             }
         }
     };
-#ifdef DEBUG
+#ifdef USER_DEBUG
     debug_info();
     redraw_cursor();
     term_commit();

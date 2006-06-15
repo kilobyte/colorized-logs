@@ -34,22 +34,23 @@ int check_regexp(char *line, char *action, pvars_t *vars, int inside, struct ses
         tintin_eprintf(ses,"#invalid regular expression: {%s}",action);
         return 0;
     }
-    if (regexec(&preg,line,10,pmatch,inside?REG_NOTBOL:0))
+    if (regexec(&preg,line,vars?10:0,pmatch,inside?REG_NOTBOL:0))
     {
         regfree(&preg);
         return FALSE;
     }
-    for (i = 0; i < 10; i++)
-    {
-        if (pmatch[i].rm_so != -1)
+    if (vars)
+        for (i = 0; i < 10; i++)
         {
-            strncpy((*vars)[i], line+pmatch[i].rm_so,
-                                pmatch[i].rm_eo-pmatch[i].rm_so);
-            *((*vars)[i] + pmatch[i].rm_eo-pmatch[i].rm_so) = '\0';
+            if (pmatch[i].rm_so != -1)
+            {
+                strncpy((*vars)[i], line+pmatch[i].rm_so,
+                                    pmatch[i].rm_eo-pmatch[i].rm_so);
+                *((*vars)[i] + pmatch[i].rm_eo-pmatch[i].rm_so) = '\0';
+            }
+            else
+                (*vars)[i][0]=0;
         }
-        else
-            (*vars)[i][0]=0;
-    }
     regfree(&preg);
     return TRUE;
 }
@@ -100,6 +101,33 @@ void grep_command(char *arg, struct session *ses)
     }
     if (*left)
         tintin_eprintf(ses,"#ERROR: cruft after #grep: {%s}",left);
+}
+
+int ng=4;
+int rrrr;
+
+/********************/
+/* the #grep inline */
+/********************/
+int grep_inline(char *arg, struct session *ses)
+{
+    char left[BUFFER_SIZE], line[BUFFER_SIZE];
+    
+    arg=get_arg(arg, left, 0, ses);
+    arg=get_arg(arg, line, 1, ses);
+    
+    if (!*left)
+    {
+        tintin_eprintf(ses,"#ERROR: valid syntax is: (#grep <pattern> <line>)");
+        return 0;
+    }
+    if (!--ng)
+        tintin_printf(ses,"--Comparing {%s} to {%s}",line,left);
+
+    rrrr=check_regexp(line, left, 0, 0, ses);
+    if (!ng)
+        tintin_printf(ses,"--Res=%d",rrrr);
+    return rrrr;
 }
 
 

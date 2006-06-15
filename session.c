@@ -44,7 +44,7 @@ extern void copyroutes(struct session *ses1,struct session *ses2);
 extern int connect_mud(char *host, char *port, struct session *ses);
 extern void kill_all(struct session *ses, int mode);
 extern void prompt(struct session *ses);
-extern void syserr(char *msg);
+extern void syserr(char *msg, ...);
 extern void textout(char *txt);
 extern void textout_draft(char *txt);
 extern void tintin_puts(char *cptr, struct session *ses);
@@ -57,6 +57,55 @@ extern int isatom(char *arg);
 
 extern struct session *sessionlist, *activesession, *nullsession;
 
+
+int session_exists(char *name)
+{
+    struct session *sesptr;
+    
+    for (sesptr = sessionlist; sesptr; sesptr = sesptr->next)
+        if (!strcmp(sesptr->name, name))
+            return 1;
+    return 0;
+}
+
+void make_name(char *str, char *basis, int run)
+{
+    char *t;
+    int i,j;
+    
+    if (run)
+        for(t=basis; (*t=='/')||isalnum(*t)||(*t=='_'); t++)
+            if (*t=='/')
+                basis=t+1;    
+    if (!isalpha(*basis))
+        goto noname;
+    strcpy(str, basis);
+    for(t=str; isalnum(*t)||(*t=='_'); t++);
+    *t=0;
+    if (!session_exists(str))
+        return;
+    i=2;
+    do sprintf(t, "%d", i++); while (session_exists(str));
+    return;
+noname:
+    for(i=1; ; i++)
+    {
+        j=i;
+        *(t=str+10)=0;
+        do
+        {
+            *--t='a'+(j-1)%('z'+1-'a');
+            j=(j-1)/('z'+1-'a');
+        } while (j);
+        if (!session_exists(t))
+        {
+            strcpy(str, t+1);
+            return;
+        }
+    }
+}
+
+
 /*
   common code for #session and #run for cases of:
     #session            - list all sessions
@@ -66,8 +115,6 @@ extern struct session *sessionlist, *activesession, *nullsession;
 int list_sessions(char *arg,struct session *ses,char *left,char *right)
 {
     struct session *sesptr;
-    /* struct listnode *ln; */
-    /* int i; */
     arg = get_arg_in_braces(arg, left, 0);
     arg = get_arg_in_braces(arg, right, 1);
 
@@ -95,16 +142,15 @@ int list_sessions(char *arg,struct session *ses,char *left,char *right)
     }
     else
     {
-        for (sesptr = sessionlist; sesptr; sesptr = sesptr->next)
-            if (strcmp(sesptr->name, left) == 0)
-            {
-                tintin_eprintf(ses,"#THERE'S A SESSION WITH THAT NAME ALREADY.");
-                prompt(NULL);
-                return(1);
-            };
-        return(0);
+        if (session_exists(left))
+        {
+            tintin_eprintf(ses,"#THERE'S A SESSION WITH THAT NAME ALREADY.");
+            prompt(NULL);
+            return 1;
+        };
+        return 0;
     };
-    return(1);
+    return 1;
 }
 
 /************************/
@@ -228,6 +274,7 @@ struct session *new_session(char *name,char *address,int sock,int issocket,struc
     newsession->address = mystrdup(address);
     newsession->tickstatus = FALSE;
     newsession->tick_size = ses->tick_size;
+    newsession->pretick = ses->pretick;
     newsession->time0 = 0;
     newsession->snoopstatus = FALSE;
     newsession->logfile = NULL;
@@ -242,9 +289,8 @@ struct session *new_session(char *name,char *address,int sock,int issocket,struc
     newsession->socket = sock;
     newsession->antisubs = copy_list(ses->antisubs, ALPHA);
     newsession->binds = copy_hash(ses->binds);
-    newsession->socketbit = 1 << sock;
     newsession->issocket = issocket;
-    newsession->naws = 0;
+    newsession->naws = !issocket;
     newsession->ga = 0;
     newsession->gas = 0;
     newsession->server_echo = 0;

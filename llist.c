@@ -29,7 +29,7 @@ extern void kill_routes(struct session *ses);
 extern void check_all_promptactions(char *line, struct session *ses);
 extern void prompt(struct session *ses);
 extern void tintin_printf(struct session *ses,char *format,...);
-extern void syserr(char *msg);
+extern void syserr(char *msg, ...);
 extern struct hashtable* init_hash();
 extern void kill_hash(struct hashtable* h);
 
@@ -327,7 +327,8 @@ void show_list(struct listnode *listhead)
 void show_list_action(struct listnode *listhead)
 {
     while ((listhead = listhead->next))
-        shownode_list_action(listhead);
+        if (strcmp(listhead->left,K_ACTION_MAGIC))
+            shownode_list_action(listhead);
 }
 
 struct listnode *search_node_with_wild(struct listnode *listhead, char *cptr)

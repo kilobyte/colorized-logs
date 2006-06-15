@@ -31,7 +31,7 @@
 extern char **environ;
 extern int COLS,LINES;
 extern struct termios old_tattr;
-extern void syserr(char *msg);
+extern void syserr(char *msg, ...);
 
 
 #ifndef HAVE_FORKPTY
@@ -53,6 +53,98 @@ static char PtyProto[] = "/dev/ptyXY";
 static char TtyProto[] = "/dev/ttyXY";
 #  endif
 # endif
+
+
+#ifdef TERM_DEBUG
+void print_stty(int fd)
+{
+    struct termios ta;
+    struct winsize ws;
+    char buf[BUFFER_SIZE],*bptr;
+#define battr(c,a,b) bptr+=sprintf(bptr," %s%s~7~",(ta.c_##c&a)?"~9~":"~2~-~4~",b,a);
+
+    memset(&ta,0,sizeof(ta));
+    memset(&ws,0,sizeof(ws));
+    tintin_printf(0, "~7~pty attributes (fd=%d):",fd);
+    if (tcgetattr(fd, &ta))
+        tintin_printf(0," attrs: unknown");
+    else
+    {
+        tintin_printf(0," attrs: cflag=~3~%x~7~, iflag=~3~%x~7~, oflag=~3~%x~7~, lflag=~3~%x~7~",
+            ta.c_cflag, ta.c_iflag, ta.c_oflag, ta.c_lflag);
+        bptr=buf+sprintf(buf," ~3~[%x]~7~:",ta.c_cflag);
+        battr(cflag,PARENB,"parenb");
+        battr(cflag,PARODD,"parodd");
+        battr(cflag,CS8,"cs8");
+        battr(cflag,HUPCL,"hupcl");
+        battr(cflag,CSTOPB,"cstopb");
+        battr(cflag,CREAD,"cread");
+        battr(cflag,CLOCAL,"clocal");
+        battr(cflag,CRTSCTS,"crtscts");
+        tintin_printf(0,"%s",buf);
+        bptr=buf+sprintf(buf," ~3~[%x]~7~:",ta.c_iflag);
+        battr(iflag,IGNBRK,"ignbrk");
+        battr(iflag,BRKINT,"brkint");
+        battr(iflag,IGNPAR,"ignpar");
+        battr(iflag,PARMRK,"parmrk");
+        battr(iflag,INPCK,"inpck");
+        battr(iflag,ISTRIP,"istrip");
+        battr(iflag,INLCR,"inlcr");
+        battr(iflag,IGNCR,"igncr");
+        battr(iflag,ICRNL,"icrnl");
+        battr(iflag,IXON,"ixon");
+        battr(iflag,IXOFF,"ixoff");
+        battr(iflag,IUCLC,"iuclc");
+        battr(iflag,IXANY,"ixany");
+        battr(iflag,IMAXBEL,"imaxbel");
+        tintin_printf(0,"%s",buf);
+        bptr=buf+sprintf(buf," ~3~[%x]~7~:",ta.c_oflag);
+        battr(oflag,OPOST,"opost");
+        battr(oflag,OLCUC,"olcuc");
+        battr(oflag,OCRNL,"ocrnl");
+        battr(oflag,ONLCR,"onlcr");
+        battr(oflag,ONOCR,"onocr");
+        battr(oflag,ONLRET,"onlret");
+        battr(oflag,OFILL,"ofill");
+        battr(oflag,OFDEL,"ofdel");
+/*
+        battr(oflag,NL0,"nl0");
+        battr(oflag,CR0,"cr0");
+        battr(oflag,TAB0,"tab0");
+        battr(oflag,BS0,"bs0");
+        battr(oflag,VT0,"vt0");
+        battr(oflag,FF0,"ff0");
+*/
+        tintin_printf(0,"%s",buf);
+        bptr=buf+sprintf(buf," ~3~[%x]~7~:",ta.c_lflag);
+        battr(lflag,ISIG,"isig");
+        battr(lflag,ICANON,"icanon");
+        battr(lflag,IEXTEN,"iexten");
+        battr(lflag,ECHO,"echo");
+        battr(lflag,ECHOE,"echoe");
+        battr(lflag,ECHOK,"echok");
+        battr(lflag,ECHONL,"echonl");
+        battr(lflag,NOFLSH,"noflsh");
+        battr(lflag,XCASE,"xcase");
+        battr(lflag,TOSTOP,"tostop");
+        battr(lflag,ECHOPRT,"echoprt");
+        battr(lflag,ECHOCTL,"echoctl");
+        battr(lflag,ECHOKE,"echoke");
+        tintin_printf(0,"%s",buf);
+    }
+    if (ioctl(fd,TIOCGWINSZ,&ws))
+        tintin_printf(0," window size: unknown");
+    else
+        tintin_printf(0," window size: %dx%d",
+            ws.ws_col,ws.ws_row);
+}
+
+void termdebug_command(char *arg, struct session *ses)
+{
+    print_stty(ses->socket);
+}
+#endif
+
 
 int forkpty(int *amaster,char *dummy,struct termios *termp, struct winsize *wp)
 {
@@ -160,9 +252,9 @@ ok:
 #endif
 
     if (termp)
-        tcsetattr(slave, TCSANOW, termp);
+        tcsetattr(master, TCSANOW, termp);
     if (wp)
-        ioctl(slave,TIOCSWINSZ,wp);
+        ioctl(master,TIOCSWINSZ,wp);
     /* let's ignore errors on this ioctl silently */
     
     pid=fork();
@@ -188,37 +280,57 @@ ok:
 }
 #endif
 
-int run(char *command)
+void pty_resize(int fd,int sx,int sy)
 {
-
-    int fd;
-
-    struct termios ta;
     struct winsize ws;
-
-#ifdef UI_FULLSCREEN
-    memcpy(&ta, &old_tattr, sizeof(ta));
-#else
-    memset(&ta, 0, sizeof(ta));
-#endif
-    ta.c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP
-                    |INLCR|IGNCR|ICRNL|IXON);
-    ta.c_oflag &= ~OPOST;
-    ta.c_lflag &= ~(ECHO|ECHONL|ICANON|ISIG|IEXTEN);
-    ta.c_cflag &= ~(CSIZE|PARENB);
-    ta.c_cflag |= CS8;
-
-    ta.c_cc[VMIN]=1;
-    ta.c_cc[VTIME]=0;
-
 #ifdef UI_FULLSCREEN
     ws.ws_row=LINES-1;
     ws.ws_col=COLS;
     ws.ws_xpixel=0;
     ws.ws_ypixel=0;
-    switch(forkpty(&fd,0,&ta,&ws))
+    ioctl(fd,TIOCSWINSZ,&ws);
+#endif
+}
+
+inline void pty_makeraw(struct termios *ta)
+{
+#ifdef UI_FULLSCREEN
+    memcpy(ta, &old_tattr, sizeof(*ta));
 #else
+    memset(ta, 0, sizeof(*ta));
+#endif
+    ta->c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP
+                    |INLCR|IGNCR|ICRNL|IXON);
+    ta->c_oflag &= ~OPOST;
+    ta->c_lflag &= ~(ECHO|ECHONL|ICANON|ISIG|IEXTEN);
+    ta->c_cflag &= ~(CSIZE|PARENB);
+    ta->c_cflag |= CS8;
+
+    ta->c_cc[VMIN]=1;
+    ta->c_cc[VTIME]=0;
+}
+
+int run(char *command)
+{
+    int fd;
+
+#ifndef PTY_ECHO_HACK
+    struct termios ta;
+    struct winsize ws;
+
+    pty_makeraw(&ta);
+
+# ifdef UI_FULLSCREEN
+    ws.ws_row=LINES-1;
+    ws.ws_col=COLS;
+    ws.ws_xpixel=0;
+    ws.ws_ypixel=0;
+    switch(forkpty(&fd,0,&ta,&ws))
+# else
     switch(forkpty(&fd,0,&ta,0))  /* not fullscreen -> no window size */
+# endif
+#else
+    switch(forkpty(&fd,0,0,0))
 #endif
     {
     case -1:
@@ -291,4 +403,37 @@ FILE *mypopen(char *command, int wr)
         close(p[!wr]);
         return fdopen(p[wr], wr?"w":"r");
     }
+}
+
+void pty_write_line(char *line, struct session *ses)
+{
+    char out[BUFFER_SIZE+1];
+    int len;
+#ifdef PTY_ECHO_HACK
+    struct termios ta, oldta;
+
+    tcgetattr(ses->socket, &oldta);
+    memcpy(&ta, &oldta, sizeof(ta));
+    pty_makeraw(&ta);
+    ta.c_cc[VMIN]=0x7fffffff;
+    tcsetattr(ses->socket, TCSANOW, &ta);
+#else
+# ifdef RESET_RAW
+    struct termios ta;
+    
+    memset(&ta, 0, sizeof(ta));
+    pty_makeraw(&ta);
+    tcsetattr(ses->socket, TCSANOW, &ta);
+# endif
+#endif
+    
+    len=sprintf(out, "%s\n", line);
+    if (write(ses->socket, out, len) == -1)
+        syserr("write in pty_write_line()");
+    
+#ifdef PTY_ECHO_HACK
+    /* FIXME: if write() blocks, they'll act in raw mode */
+    tcsetattr(ses->socket, TCSANOW, &oldta);
+    sleep(0);   /* let'em act */
+#endif
 }

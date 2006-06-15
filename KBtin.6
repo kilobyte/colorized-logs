@@ -66,6 +66,15 @@ using
 .BI -c " " "command"
 Executes a single command.  (Note: beware of the evil shell and escape
  '#'s!)
+.TP
+.BI -s " " "host" " " "port"
+Starts a new session by opening a TELNET connection to the given host on the
+given port.  KBtin will make up a session name for you.
+.TP
+.BI -r " " "shell_command"
+Starts a new session by starting a local process.  The process will be opened
+in a pseudo-terminal, making it interactive.  The session name will be made
+up by KBtin.
 .SH "SEE ALSO"
 .BR ansi2txt ,
 .BR ansi2html .

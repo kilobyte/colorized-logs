@@ -40,7 +40,7 @@ Lists:
    finditem    deleteitems foreach     finditem    getitem     isatom
    listlength  splitlist   implode     explode     sortlist
 Tickers:
-   tick        tickon      tickoff     ticksize
+   tick        tickon      tickoff     ticksize    pretick
 Events:
    delay=event remove=unevent=undelay
 Routes:
@@ -869,10 +869,10 @@ Shows time until next tick.
 #tickon
 Turns the TinTin's ticker on.
 
-At 10 seconds to tick, you will receive a message "#10 SECONDS TO TICK!!!",
-and when the tick actually happens, the message is "#TICK!!!".  These
-messages are for commands (except log) same as if they came from the MUD --
-this means, you can #action them, #gag, etc.
+At 10 (customizable by #pretick) seconds to tick, you will receive a message
+"#10 SECONDS TO TICK!!!", and when the tick actually happens, the message is
+"#TICK!!!".  These messages are for commands (except log) same as if they
+came from the MUD -- this means, you can #action them, #gag, etc.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~tickoff
 
@@ -884,6 +884,22 @@ Disables TinTin's ticker.
 #ticksize <time>
 Sets the tick size to <time> seconds.  Use #tickon to turn the ticker on,
 and "#action {#TICK!!!}" to actually do something on ticks.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~pretick
+~show_pretick
+
+#pretick <time>
+Changes the pre-tick delay to <time>.  A <time> of 3 will cause the line
+"#3 SECONDS TO TICK!!!" appear three seconds before each tick.
+Use a value of 0 to disable the pre-tick messages completely.
+
+The "#%1 SECONDS TO TICK!!!" and "TICK!!!" are the only text generated
+by KBtin that can be #ACTIONed or #GAGged.
+
+#pretick
+Toggles between no pre-tick at all and a pre-tick of the value 10.  This
+command had been added only for mainstream tintin++ compatibility, and is
+depreciated -- it's better to say "#pretick 10" explicitely.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~end
 
@@ -1143,13 +1159,17 @@ invis players;#loop 1,10 {^:$0: there is more than one of me!}
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~match
 
-#match <text> <line> <command> [#elif/#else ...]
-If <text> can be found in the <line>, <command> is executed.  Both <text>
-and <command> can contain positional variables %0..%9, which will be filled
-according to the text in <line> which matched a given variable in <text>.
+#match <act. pattern> <line> <command> [#elif/#else ...]
+If <act. pattern> can be found in the <line>, <command> is executed.  Both
+<act. pattern> and <command> can contain positional variables %0..%9, which
+will be filled according to the text in <line> which matched a given variable
+in <act. pattern.
 It is usually safer to use $0..$9 instead of %0..%9 as $ removes all
-semicolons from the variables.
-In case of no match, the #elif/#else part is executed.
+semicolons from the variables. In case of no match, the #elif/#else part
+is executed.
+
+inline #match <act. pattern> <line>
+Evaluates to 1 if <act. pattern> matches <line>, to 0 otherwise.
 
 Examples:
 #match {Elven %0} {$Victim} {#showme {Next elven scum to die: $0}}
@@ -1170,6 +1190,7 @@ Example:
 ~grep
 
 #grep <regexp> <line> <command> [#elif/#else ...]
+inline #grep <regexp> <line>
 Does a regexp match on <line>, then executes <command> if the match
 succeeded, or the #elif/#else clause in case of failure.  The regular
 expression follows the extended syntax (used by egrep), that is, you
@@ -1192,6 +1213,12 @@ Example:
 If <string1> is equal to <string2>, execute <command>, otherwise do the
 elif/else clause(s).  It's a way to avoid the limitations of #if [a==b],
 as the only character that can damage things is '}'.
+
+inline #strcmp <string1> <string2>
+Evaluates to 1 if <string1>=<string2>, to 0 otherwise.
+
+Example:
+#math score {$score+(#strcmp {$left} {$right})+($strcmp {$up} {$down})}
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~goto
 ~>
@@ -1232,7 +1259,7 @@ The <distance> is the relative length of these <commands> - usually it's
 just their length, but in some cases you may want to assign a higher values
 to routes where it is easy to be attacked, etc.  If no distance is given,
 it defaults to 10.
-If a <condition> is specified, this means the route is not always available.
+If no <condition> is specified, this means the route is always available.
 
 Examples:
 #ro li da {do 5n,2w,2n,30w,2n} 41

@@ -8,6 +8,8 @@ extern void tintin_printf(struct session *ses, char *format, ...);
 extern void tintin_eprintf(struct session *ses, char *format, ...);
 extern int LINES,COLS,isstatus;
 extern struct session *sessionlist;
+extern void pty_resize(int fd,int sx,int sy);
+extern void syserr(char *msg, ...);
 
 #define EOR 239     /* End of Record */
 #define SE  240     /* subnegotiation end */
@@ -93,8 +95,6 @@ void telnet_send_naws(struct session *ses)
     unsigned char nego[128],*np;
 
 #define PUTBYTE(b)    if ((b)==255) *np++=255;   *np++=(b);
-    if (!ses->issocket || !ses->naws)
-        return;
     np=nego;
     *np++=IAC;
     *np++=SB;
@@ -119,7 +119,7 @@ void telnet_send_naws(struct session *ses)
     }
 #endif
 #endif
-/* no UI_FULLSCREEN -> no NAWS (even though we do negotiate it (bug?) */
+/* no UI_FULLSCREEN -> no NAWS */
 }
 
 void telnet_send_ttype(struct session *ses)
@@ -152,13 +152,21 @@ void telnet_send_ttype(struct session *ses)
 #endif
 }
 
+#ifdef UI_FULLSCREEN
 void telnet_resize_all(void)
 {
     struct session *sp;
 
     for (sp=sessionlist; sp; sp=sp->next)
-        telnet_send_naws(sp);
+        if (sp->naws)
+        {
+            if (sp->issocket)
+                telnet_send_naws(sp);
+            else
+                pty_resize(sp->socket,COLS,LINES-1-!!isstatus);
+        }
 }
+#endif
 
 int do_telnet_protocol(unsigned char *data,int nb,struct session *ses)
 {
@@ -166,7 +174,6 @@ int do_telnet_protocol(unsigned char *data,int nb,struct session *ses)
     unsigned char wt;
     unsigned char answer[3];
     unsigned char nego[128],*np;
-    unsigned int neb;
 
 #define NEXTCH  cp++;               \
                 if (cp-data>=nb)    \
@@ -209,6 +216,7 @@ int do_telnet_protocol(unsigned char *data,int nb,struct session *ses)
             case DONT:  answer[1]=WONT; break;
             };
             break;
+#ifdef UI_FULLSCREEN    
         case NAWS:
             switch(wt)
             {
@@ -218,6 +226,7 @@ int do_telnet_protocol(unsigned char *data,int nb,struct session *ses)
             case DONT:  answer[1]=WONT; ses->naws=0; break;
             };
             break;
+#endif
         case END_OF_RECORD:
             switch(wt)
             {
@@ -271,10 +280,10 @@ sbloop:
             goto sbloop;
         }
         nb=cp-data;
-        neb=np-nego;
 #ifdef TELNET_DEBUG
         {
             char buf[BUFFER_SIZE],*b=buf;
+            unsigned int neb=np-nego;
             np=nego;
             b=buf+sprintf(buf, "IAC SB ");
             switch(*np)
@@ -301,7 +310,7 @@ sbloop:
                 telnet_send_ttype(ses);
             break;
         }
-        return nb+4;
+        return nb+1;
     case GA:
     case EOR:
 #ifdef TELNET_DEBUG
@@ -323,4 +332,23 @@ sbloop:
 nego_too_long:
     tintin_eprintf(ses, "#error: unterminated TELNET subnegotiation received.");
     return 2; /* we leave everything but IAC SB */
+}
+
+void telnet_write_line(char *line, struct session *ses)
+{
+    char outtext[2*BUFFER_SIZE + 2],*out;
+
+    out=outtext;
+    while(*line)
+    {
+        if ((unsigned char)*line==255)
+            *out++=255;
+        *out++=*line++;
+    }
+    *out++='\r';
+    *out++='\n';
+    *out=0;
+
+    if (write(ses->socket, outtext, out-outtext) == -1)
+        syserr("write in telnet_write_line()");
 }

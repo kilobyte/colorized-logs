@@ -115,7 +115,7 @@ NROFF = nroff
 DATA =  $(help_DATA)
 
 DIST_COMMON =  README ./stamp-h.in AUTHORS COPYING ChangeLog INSTALL \
-Makefile.am Makefile.in NEWS acinclude.m4 aclocal.m4 config.h.in \
+Makefile.am Makefile.in NEWS TODO acinclude.m4 aclocal.m4 config.h.in \
 configure configure.ac install-sh missing mkinstalldirs
 
 
@@ -365,8 +365,37 @@ distdir: $(DISTFILES)
 	done
 	$(MAKE) $(AM_MAKEFLAGS) top_distdir="$(top_distdir)" distdir="$(distdir)" dist-hook
 action.o: action.c config.h tintin.h
+alias.o: alias.c config.h tintin.h
+ansi2html.o: ansi2html.c
+ansi2txt.o: ansi2txt.c
+antisub.o: antisub.c config.h tintin.h
+bind.o: bind.c config.h tintin.h
 colors.o: colors.c tintin.h config.h
+crc.o: crc.c
+events.o: events.c config.h tintin.h
+files.o: files.c config.h tintin.h
+glob.o: glob.c config.h
+hash.o: hash.c tintin.h config.h
+help.o: help.c config.h tintin.h
+highlight.o: highlight.c config.h tintin.h
+history.o: history.c config.h tintin.h
+ivars.o: ivars.c config.h tintin.h
+llist.o: llist.c config.h tintin.h
+main.o: main.c config.h tintin.h
+misc.o: misc.c config.h tintin.h
+net.o: net.c config.h tintin.h
+parse.o: parse.c config.h tintin.h commands.h load_commands.h
+path.o: path.c config.h tintin.h
 regexp.o: regexp.c config.h tintin.h
+routes.o: routes.c tintin.h config.h
+run.o: run.c config.h tintin.h
+session.o: session.c config.h tintin.h
+substitute.o: substitute.c config.h tintin.h
+telnet.o: telnet.c config.h tintin.h
+ticks.o: ticks.c config.h tintin.h
+user.o: user.c tintin.h config.h
+utils.o: utils.c config.h tintin.h
+variables.o: variables.c config.h tintin.h
 
 info-am:
 info: info-am
@@ -459,11 +488,17 @@ maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 dist-hook:
 	for x in $(BUILT_SOURCES);do rm -f "$(distdir)/$$x";done
 
+#link kbtin to KBtin
+#Don't overwrite it on filesystems that ignore case, though.
 install-exec-hook:
-	$(LN_S) -f KBtin $(DESTDIR)$(bindir)/kbtin
+	if [ ! -e $(DESTDIR)$(bindir)/kbtin ]; then \
+	    $(LN_S) -f KBtin $(DESTDIR)$(bindir)/kbtin; \
+	fi
 
 install-data-hook:
-	$(LN_S) -f KBtin.6 $(DESTDIR)$(mandir)/man6/kbtin.6
+	if [ ! -e $(DESTDIR)$(mandir)/man6/kbtin.6 ]; then \
+	    $(LN_S) -f KBtin.6 $(DESTDIR)$(mandir)/man6/kbtin.6; \
+	fi
 
 uninstall-local:
 	if [ -L $(DESTDIR)$(bindir)/kbtin ]; then \
@@ -473,7 +508,7 @@ uninstall-local:
 	    rm $(DESTDIR)$(mandir)/man6/kbtin.6; \
 	fi
 
-commands.h: make_commands commands
+commands.h: make_commands commands tintin.h
 	$(srcdir)/make_commands <$(srcdir)/commands
 
 load_commands.h: commands make_commands commands.h
@@ -498,7 +533,7 @@ install-terminfo: terminfo.src
 
 # update version number in "tintin.h"
 update-version:
-	@if cat tintin.h | grep -e "$(VERSION)$" >/dev/null; then \
+	@if cat tintin.h | grep -e "$(VERSION)" >/dev/null; then \
            	touch -r tintin.h configure.ac; \
 	else \
 		if cat tintin.h | sed -e 's/#define VERSION_NUM.*/#define VERSION_NUM \"$(VERSION)\"/' > 'updated_tintin.h$'; then \

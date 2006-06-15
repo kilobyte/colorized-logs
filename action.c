@@ -24,6 +24,7 @@ extern int term_echoing;
 extern char tintin_char;
 extern int acnum;
 extern char *get_arg_in_braces(char *s,char *arg,int flag);
+extern char *get_arg(char *s,char *arg,int flag,struct session *ses);
 extern struct listnode *search_node_with_wild(struct listnode *listhead, char *cptr);
 extern struct listnode *searchnode_list(struct listnode *listhead, char *cptr);
 void substitute_vars(char *arg, char *result);
@@ -49,14 +50,13 @@ extern int aborting, recursion;
 int inActions=0;
 int deletedActions=0;
 char *match_start,*match_end;
-#define K_ACTION_MAGIC "#X~4~~2~~12~[This action is being deleted!]~7~X"
 
-void kill_action(struct listnode *head,struct listnode *nptr)
+int kill_action(struct listnode *head,struct listnode *nptr)
 {
     if (inActions)
     {
         if (!strcmp(nptr->left,K_ACTION_MAGIC))
-            return;
+            return 0;
         free(nptr->left);
         nptr->left=(char*)malloc(strlen(K_ACTION_MAGIC)+1);
         strcpy(nptr->left,K_ACTION_MAGIC);
@@ -64,6 +64,7 @@ void kill_action(struct listnode *head,struct listnode *nptr)
     }
     else
         deletenode_list(head,nptr);
+    return 1;
 }
 
 void zap_actions(struct session *ses)
@@ -110,6 +111,7 @@ void action_command(char *arg, struct session *ses)
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
     char pr[BUFFER_SIZE];
     struct listnode *myactions, *ln;
+    int flag;
 
     myactions = ses->actions;
     arg = get_arg_in_braces(arg, left, 0);
@@ -125,14 +127,14 @@ void action_command(char *arg, struct session *ses)
     }
     else if (*left && !*right)
     {
-        if ((ln = search_node_with_wild(myactions, left)) != NULL)
-        {
-            while ((myactions = search_node_with_wild(myactions, left)) != NULL)
-                shownode_list_action(myactions);
+        flag=0;
+        while ((myactions = search_node_with_wild(myactions, left)) != NULL)
+            if (strcmp(myactions->left,K_ACTION_MAGIC))
+                shownode_list_action(myactions), flag++;
             prompt(ses);
-        }
-        else if (ses->mesvar[1])
+        if (!flag && ses->mesvar[1])
             tintin_printf(ses,"#That action (%s) is not defined.",left);
+        prompt(ses);
     }
     else
     {
@@ -153,6 +155,7 @@ void promptaction_command(char *arg, struct session *ses)
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
     char pr[BUFFER_SIZE];
     struct listnode *myprompts, *ln;
+    int flag;
 
     myprompts = ses->prompts;
     arg = get_arg_in_braces(arg, left, 0);
@@ -168,14 +171,14 @@ void promptaction_command(char *arg, struct session *ses)
     }
     else if (*left && !*right)
     {
-        if ((ln = search_node_with_wild(myprompts, left)) != NULL)
-        {
-            while ((myprompts = search_node_with_wild(myprompts, left)) != NULL)
-                shownode_list_action(myprompts);
+        flag=0;
+        while ((myprompts = search_node_with_wild(myprompts, left)))
+            if (strcmp(myprompts->left,K_ACTION_MAGIC))
+                shownode_list_action(myprompts), flag++;
             prompt(ses);
-        }
-        else if (ses->mesvar[1])
-            tintin_printf(ses,"#That promptaction (%s) is not defined.", left);
+        if (!flag && ses->mesvar[1])
+            tintin_printf(ses,"#That promptaction (%s) is not defined.",left);
+        prompt(ses);
     }
     else
     {
@@ -184,7 +187,6 @@ void promptaction_command(char *arg, struct session *ses)
         insertnode_list(myprompts, left, right, pr, PRIORITY);
         if (ses->mesvar[1])
             tintin_printf(ses,"#Ok. {%s} now triggers {%s} @ {%s}", left, right, pr);
-        acnum++;
     }
 }
 
@@ -195,23 +197,45 @@ void promptaction_command(char *arg, struct session *ses)
 void unaction_command(char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE];
-    struct listnode *myactions, *ln, *temp;
+    struct listnode **ptr,*ln;
     int flag;
 
-
-    flag = FALSE;
-    myactions = ses->actions;
-    temp = myactions;
     arg = get_arg_in_braces(arg, left, 1);
-    while ((ln = search_node_with_wild(temp, left)) != NULL)
+    if (!*left)
     {
-        if (ses->mesvar[1])
-            tintin_printf(ses,"#Ok. {%s} is no longer an action.", ln->left);
-        kill_action(myactions, ln);
-        flag = TRUE;
-        /* temp=ln;*/
+        tintin_eprintf(ses, "#Syntax: #unaction <pattern>");
+        return;
     }
-    if (!flag && ses->mesvar[1])    /* is it an error or no? */
+    flag = 0;
+    ptr = &ses->actions->next;
+    while (*ptr)
+    {
+        ln=*ptr;
+        if (strcmp(ln->left,K_ACTION_MAGIC)&&match(left,ln->left))
+        {
+            flag=1;
+            if (ses->mesvar[1])
+                tintin_printf(ses,"#Ok. {%s} is no longer an action.", ln->left);
+            free(ln->left);
+            if (inActions)
+            {
+                ln->left=(char*)malloc(strlen(K_ACTION_MAGIC)+1);
+                strcpy(ln->left,K_ACTION_MAGIC);
+                deletedActions++;
+                ptr=&(*ptr)->next;
+            }
+            else
+            {
+                *ptr=ln->next;
+                free(ln->right);
+                free(ln->pr);
+                free(ln);
+            }
+        }
+        else
+            ptr=&(*ptr)->next;
+    }
+    if (!flag && ses->mesvar[1])    /* is it an error or not? */
         tintin_printf(ses, "#No match(es) found for {%s}", left);
 }
 
@@ -221,22 +245,45 @@ void unaction_command(char *arg, struct session *ses)
 void unpromptaction_command(char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE];
-    struct listnode *myactions, *ln, *temp;
+    struct listnode **ptr,*ln;
     int flag;
 
-    flag = FALSE;
-    myactions = ses->prompts;
-    temp = myactions;
     arg = get_arg_in_braces(arg, left, 1);
-    while ((ln = search_node_with_wild(temp, left)) != NULL)
+    if (!*left)
     {
-        if (ses->mesvar[1])
-            tintin_printf(ses,"#Ok. {%s} is no longer an action.", ln->left);
-        kill_action(myactions, ln);
-        flag = TRUE;
-        /* temp=ln;*/
+        tintin_eprintf(ses, "#Syntax: #unpromptaction <pattern>");
+        return;
     }
-    if (!flag && ses->mesvar[1])
+    flag = 0;
+    ptr = &ses->prompts->next;
+    while (*ptr)
+    {
+        ln=*ptr;
+        if (strcmp(ln->left,K_ACTION_MAGIC)&&match(left,ln->left))
+        {
+            flag=1;
+            if (ses->mesvar[1])
+                tintin_printf(ses,"#Ok. {%s} is no longer a promptaction.", ln->left);
+            free(ln->left);
+            if (inActions)
+            {
+                ln->left=(char*)malloc(strlen(K_ACTION_MAGIC)+1);
+                strcpy(ln->left,K_ACTION_MAGIC);
+                deletedActions++;
+                ptr=&(*ptr)->next;
+            }
+            else
+            {
+                *ptr=ln->next;
+                free(ln->right);
+                free(ln->pr);
+                free(ln);
+            }
+        }
+        else
+            ptr=&(*ptr)->next;
+    }
+    if (!flag && ses->mesvar[1])    /* is it an error or not? */
         tintin_printf(ses, "#No match(es) found for {%s}", left);
 }
 
@@ -497,6 +544,27 @@ void match_command(char *arg, struct session *ses)
 }
 
 
+/*********************/
+/* the #match inline */
+/*********************/
+int match_inline(char *arg, struct session *ses)
+{
+    pvars_t vars;
+    char left[BUFFER_SIZE], line[BUFFER_SIZE];
+    
+    arg=get_arg(arg, left, 0, ses);
+    arg=get_arg(arg, line, 1, ses);
+    
+    if (!*left)
+    {
+        tintin_eprintf(ses,"#ERROR: valid syntax is: (#match <pattern> <line>)");
+        return 0;
+    }
+
+    return check_one_action(line, left, &vars, 0, ses);
+}
+
+
 int match_a_string(char *line, char *mask)
 {
     char *lptr, *mptr;
@@ -626,4 +694,21 @@ int check_a_action(char *line, char *action, int inside, struct session *ses)
         return FALSE;
     else
         return TRUE;
+}
+
+
+/*********************/
+/* the #hook command */
+/*********************/
+void hook_command(char *arg, struct session *ses)
+{
+    char left[BUFFER_SIZE], right[BUFFER_SIZE],
+         temp[BUFFER_SIZE];
+    
+    arg=get_arg(arg, left, 0, ses);
+    arg=space_out(arg);
+    if (!*arg)
+    {
+    }
+    arg=get_arg_in_braces(arg, right, 1);
 }

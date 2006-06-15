@@ -12,7 +12,7 @@
 #define DELETED_HASHENTRY ((char*)init_hash)
 extern unsigned int crc(char *str);
 extern char *mystrdup(char *s);
-extern void syserr(char *msg);
+extern void syserr(char *msg, ...);
 extern struct listnode *init_list(void);
 extern int match(char *regex, char *string);
 
