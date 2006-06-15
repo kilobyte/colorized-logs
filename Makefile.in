@@ -64,15 +64,19 @@ MAKEINFO = @MAKEINFO@
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
 
-bin_PROGRAMS = KBtin
+bin_PROGRAMS = KBtin ansi2html ansi2txt
 helpdir = $(pkgdatadir)
 help_DATA = NEWS KBtin_help.gz
 INCLUDES = -DDATA_PATH=\"$(helpdir)\"
+man_MANS = ansi2html.6 ansi2txt.6
 
 KBtin_SOURCES = action.c alias.c antisub.c files.c glob.c help.c highlight.c history.c ivars.c llist.c main.c misc.c net.c parse.c path.c session.c substitute.c ticks.c utils.c variables.c events.c user.c run.c colors.c routes.c bind.c telnet.c crc.c hash.c
 KBtin_LDADD = 
 
-EXTRA_DIST = tintin.h KBtin_help BUGS commands make_commands.sh
+ansi2html_SOURCES = ansi2html.c
+ansi2txt_SOURCES = ansi2txt.c
+
+EXTRA_DIST = tintin.h KBtin_help BUGS commands make_commands.sh $(man_MANS)
 CLEANFILES = commands.h load_commands.h KBtin_help.gz
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -91,10 +95,22 @@ path.o session.o substitute.o ticks.o utils.o variables.o events.o \
 user.o run.o colors.o routes.o bind.o telnet.o crc.o hash.o
 KBtin_DEPENDENCIES = 
 KBtin_LDFLAGS = 
+ansi2html_OBJECTS =  ansi2html.o
+ansi2html_LDADD = $(LDADD)
+ansi2html_DEPENDENCIES = 
+ansi2html_LDFLAGS = 
+ansi2txt_OBJECTS =  ansi2txt.o
+ansi2txt_LDADD = $(LDADD)
+ansi2txt_DEPENDENCIES = 
+ansi2txt_LDFLAGS = 
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
+man6dir = $(mandir)/man6
+MANS = $(man_MANS)
+
+NROFF = nroff
 DATA =  $(help_DATA)
 
 DIST_COMMON =  README ./stamp-h.in AUTHORS COPYING ChangeLog INSTALL \
@@ -106,15 +122,16 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
-DEP_FILES =  .deps/action.P .deps/alias.P .deps/antisub.P .deps/bind.P \
-.deps/colors.P .deps/crc.P .deps/events.P .deps/files.P .deps/glob.P \
-.deps/hash.P .deps/help.P .deps/highlight.P .deps/history.P \
-.deps/ivars.P .deps/llist.P .deps/main.P .deps/misc.P .deps/net.P \
-.deps/parse.P .deps/path.P .deps/routes.P .deps/run.P .deps/session.P \
+DEP_FILES =  .deps/action.P .deps/alias.P .deps/ansi2html.P \
+.deps/ansi2txt.P .deps/antisub.P .deps/bind.P .deps/colors.P \
+.deps/crc.P .deps/events.P .deps/files.P .deps/glob.P .deps/hash.P \
+.deps/help.P .deps/highlight.P .deps/history.P .deps/ivars.P \
+.deps/llist.P .deps/main.P .deps/misc.P .deps/net.P .deps/parse.P \
+.deps/path.P .deps/routes.P .deps/run.P .deps/session.P \
 .deps/substitute.P .deps/telnet.P .deps/ticks.P .deps/user.P \
 .deps/utils.P .deps/variables.P
-SOURCES = $(KBtin_SOURCES)
-OBJECTS = $(KBtin_OBJECTS)
+SOURCES = $(KBtin_SOURCES) $(ansi2html_SOURCES) $(ansi2txt_SOURCES)
+OBJECTS = $(KBtin_OBJECTS) $(ansi2html_OBJECTS) $(ansi2txt_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
@@ -206,6 +223,53 @@ maintainer-clean-compile:
 KBtin: $(KBtin_OBJECTS) $(KBtin_DEPENDENCIES)
 	@rm -f KBtin
 	$(LINK) $(KBtin_LDFLAGS) $(KBtin_OBJECTS) $(KBtin_LDADD) $(LIBS)
+
+ansi2html: $(ansi2html_OBJECTS) $(ansi2html_DEPENDENCIES)
+	@rm -f ansi2html
+	$(LINK) $(ansi2html_LDFLAGS) $(ansi2html_OBJECTS) $(ansi2html_LDADD) $(LIBS)
+
+ansi2txt: $(ansi2txt_OBJECTS) $(ansi2txt_DEPENDENCIES)
+	@rm -f ansi2txt
+	$(LINK) $(ansi2txt_LDFLAGS) $(ansi2txt_OBJECTS) $(ansi2txt_LDADD) $(LIBS)
+
+install-man6:
+	$(mkinstalldirs) $(DESTDIR)$(man6dir)
+	@list='$(man6_MANS)'; \
+	l2='$(man_MANS)'; for i in $$l2; do \
+	  case "$$i" in \
+	    *.6*) list="$$list $$i" ;; \
+	  esac; \
+	done; \
+	for i in $$list; do \
+	  if test -f $(srcdir)/$$i; then file=$(srcdir)/$$i; \
+	  else file=$$i; fi; \
+	  ext=`echo $$i | sed -e 's/^.*\\.//'`; \
+	  inst=`echo $$i | sed -e 's/\\.[0-9a-z]*$$//'`; \
+	  inst=`echo $$inst | sed '$(transform)'`.$$ext; \
+	  echo " $(INSTALL_DATA) $$file $(DESTDIR)$(man6dir)/$$inst"; \
+	  $(INSTALL_DATA) $$file $(DESTDIR)$(man6dir)/$$inst; \
+	done
+
+uninstall-man6:
+	@list='$(man6_MANS)'; \
+	l2='$(man_MANS)'; for i in $$l2; do \
+	  case "$$i" in \
+	    *.6*) list="$$list $$i" ;; \
+	  esac; \
+	done; \
+	for i in $$list; do \
+	  ext=`echo $$i | sed -e 's/^.*\\.//'`; \
+	  inst=`echo $$i | sed -e 's/\\.[0-9a-z]*$$//'`; \
+	  inst=`echo $$inst | sed '$(transform)'`.$$ext; \
+	  echo " rm -f $(DESTDIR)$(man6dir)/$$inst"; \
+	  rm -f $(DESTDIR)$(man6dir)/$$inst; \
+	done
+install-man: $(MANS)
+	@$(NORMAL_INSTALL)
+	$(MAKE) $(AM_MAKEFLAGS) install-man6
+uninstall-man:
+	@$(NORMAL_UNINSTALL)
+	$(MAKE) $(AM_MAKEFLAGS) uninstall-man6
 
 install-helpDATA: $(help_DATA)
 	@$(NORMAL_INSTALL)
@@ -354,20 +418,21 @@ all-recursive-am: config.h
 install-exec-am: install-binPROGRAMS
 install-exec: install-exec-am
 
-install-data-am: install-helpDATA
+install-data-am: install-man install-helpDATA
 install-data: install-data-am
 
 install-am: all-am
 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
 install: install-am
-uninstall-am: uninstall-binPROGRAMS uninstall-helpDATA
+uninstall-am: uninstall-binPROGRAMS uninstall-man uninstall-helpDATA
 uninstall: uninstall-am
-all-am: Makefile $(PROGRAMS) $(DATA) config.h all-local
+all-am: Makefile $(PROGRAMS) $(MANS) $(DATA) config.h all-local
 all-redirect: all-am
 install-strip:
 	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
 installdirs:
-	$(mkinstalldirs)  $(DESTDIR)$(bindir) $(DESTDIR)$(helpdir)
+	$(mkinstalldirs)  $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man6 \
+		$(DESTDIR)$(helpdir)
 
 
 mostlyclean-generic:
@@ -412,9 +477,10 @@ maintainer-clean: maintainer-clean-am
 mostlyclean-binPROGRAMS distclean-binPROGRAMS clean-binPROGRAMS \
 maintainer-clean-binPROGRAMS uninstall-binPROGRAMS install-binPROGRAMS \
 mostlyclean-compile distclean-compile clean-compile \
-maintainer-clean-compile uninstall-helpDATA install-helpDATA tags \
-mostlyclean-tags distclean-tags clean-tags maintainer-clean-tags \
-distdir mostlyclean-depend distclean-depend clean-depend \
+maintainer-clean-compile install-man6 uninstall-man6 install-man \
+uninstall-man uninstall-helpDATA install-helpDATA tags mostlyclean-tags \
+distclean-tags clean-tags maintainer-clean-tags distdir \
+mostlyclean-depend distclean-depend clean-depend \
 maintainer-clean-depend info-am info dvi-am dvi check check-am \
 installcheck-am installcheck all-recursive-am install-exec-am \
 install-exec install-data-am install-data install-am install \
@@ -426,9 +492,7 @@ maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 commands.h: make_commands.sh commands
 	$(srcdir)/make_commands.sh <$(srcdir)/commands
 
-#fake dependency needed for multi-CPU systems
-load_commands.h: make_commands.sh commands commands.h
-	$(srcdir)/make_commands.sh <$(srcdir)/commands
+load_commands.h: commands make_commands.sh commands.h
 
 # since tt is almost never installed by "make install" strip it at once :)
 all-local:

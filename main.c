@@ -67,6 +67,7 @@ extern int LINES,COLS;
 char *tintin_exec;
 struct session *lastdraft;
 int aborting=0;
+char *_;
 
 struct session *sessionlist, *activesession, *nullsession;
 char **pvars;	/* the %0, %1, %2,....%9 variables */
@@ -81,6 +82,7 @@ void snoop(char *buffer, struct session *ses);
 void tintin_puts(char *cptr, struct session *ses);
 void tintin_puts1(char *cptr, struct session *ses);
 void tintin_printf(struct session *ses, const char *format, ...);
+void tintin_eprintf(struct session *ses, const char *format, ...);
 char status[BUFFER_SIZE];
 
 /************ externs *************/
@@ -183,10 +185,41 @@ void suspend_command(char *arg, struct session *ses)
     tstphandler(SIGTSTP);
 }
 
+void setup_signals(void)
+{
+    struct sigaction act;
+    sigemptyset(&act.sa_mask);
+    act.sa_flags=SA_RESTART;
+
+    if (signal(SIGTERM, (sighandler_t)myquitsig) == BADSIG)
+        syserr("signal SIGTERM");
+    if (signal(SIGQUIT, (sighandler_t)myquitsig) == BADSIG)
+        syserr("signal SIGQUIT");
+    if (signal(SIGINT, (sighandler_t)myquitsig) == BADSIG)
+        syserr("signal SIGINT");
+    act.sa_handler=(sighandler_t)tstphandler;
+    if (sigaction(SIGTSTP,&act,0))
+        syserr("sigaction SIGTSTP");
+    act.sa_handler=(sighandler_t)sigcont;
+    if (sigaction(SIGCONT,&act,0))
+        syserr("sigaction SIGCONT");
+    act.sa_handler=(sighandler_t)sigwinch;
+    if (sigaction(SIGWINCH,&act,0))
+        syserr("sigaction SIGWINCH");
+    act.sa_handler=(sighandler_t)sigchild;
+    if (sigaction(SIGCHLD,&act,0))
+        syserr("sigaction SIGCHLD");
+    if (signal(SIGSEGV,(sighandler_t)sigsegv) == BADSIG)
+        syserr("signal SIGSEGV");
+    if (signal(SIGFPE,(sighandler_t)sigfpe) == BADSIG)
+        syserr("signal SIGFPE");
+    if (signal(SIGPIPE, SIG_IGN) == BADSIG)
+        syserr("signal SIGPIPE");
+}
+
 /**************************************************************************/
 /* main() - show title - setup signals - init lists - readcoms - tintin() */
 /**************************************************************************/
-
 int main(int argc, char **argv, char **environ)
 {
     struct session *ses;
@@ -223,25 +256,7 @@ int main(int argc, char **argv, char **environ)
     if (new_news())
         tintin_printf(ses,"Check #news now!");
 
-    if (signal(SIGTERM, (sighandler_t)myquitsig) == BADSIG)
-        syserr("signal SIGTERM");
-    if (signal(SIGINT, (sighandler_t)myquitsig) == BADSIG)
-        syserr("signal SIGINT");
-    /* CHANGED to get rid of double-echoing bug when tintin++ gets suspended */
-    if (signal(SIGTSTP, (sighandler_t)tstphandler) == BADSIG)
-        syserr("signal SIGTSTP");
-    if (signal(SIGCONT, (sighandler_t)sigcont) == BADSIG)
-        syserr("signal SIGCONT");
-    if (signal(SIGWINCH,(sighandler_t)sigwinch) == BADSIG)
-        syserr("signal SIGWINCH");
-    if (signal(SIGCHLD,(sighandler_t)sigchild) == BADSIG)
-        syserr("signal SIGCHLD");
-    if (signal(SIGSEGV,(sighandler_t)sigsegv) == BADSIG)
-        syserr("signal SIGSEGV");
-    if (signal(SIGFPE,(sighandler_t)sigfpe) == BADSIG)
-        syserr("signal SIGFPE");
-    if (signal(SIGPIPE, SIG_IGN) == BADSIG)
-        syserr("signal SIGPIPE");
+    setup_signals();
     time0 = time(NULL);
 
     nullsession=(struct session *)malloc(sizeof(struct session));
@@ -274,6 +289,7 @@ int main(int argc, char **argv, char **environ)
     nullsession->binds = init_hash();
     nullsession->socketbit = 0;
     nullsession->next = 0;
+    nullsession->idle_since=time(0);
     {
         int i;
         for (i=0;i<HISTORY_SIZE;i++)
@@ -297,16 +313,15 @@ int main(int argc, char **argv, char **environ)
     nullsession->mesvar[0] = DEFAULT_ALIAS_MESS;
     nullsession->mesvar[1] = DEFAULT_ACTION_MESS;
     nullsession->mesvar[2] = DEFAULT_SUB_MESS;
-    nullsession->mesvar[3] = DEFAULT_ANTISUB_MESS;
+    nullsession->mesvar[3] = DEFAULT_EVENT_MESS;
     nullsession->mesvar[4] = DEFAULT_HIGHLIGHT_MESS;
     nullsession->mesvar[5] = DEFAULT_VARIABLE_MESS;
-    nullsession->mesvar[6] = DEFAULT_PATHDIR_MESS;
-    nullsession->mesvar[7] = DEFAULT_ROUTE_MESS;
-    nullsession->mesvar[8] = DEFAULT_GOTO_MESS;
-    nullsession->mesvar[9] = DEFAULT_BIND_MESS;
-    nullsession->mesvar[10]= DEFAULT_SYSTEM_MESS;
-    nullsession->mesvar[11]= DEFAULT_PATH_MESS;
-    nullsession->mesvar[12]= DEFAULT_ERROR_MESS;
+    nullsession->mesvar[6] = DEFAULT_ROUTE_MESS;
+    nullsession->mesvar[7] = DEFAULT_GOTO_MESS;
+    nullsession->mesvar[8] = DEFAULT_BIND_MESS;
+    nullsession->mesvar[9] = DEFAULT_SYSTEM_MESS;
+    nullsession->mesvar[10]= DEFAULT_PATH_MESS;
+    nullsession->mesvar[11]= DEFAULT_ERROR_MESS;
 
     *homepath = '\0';
     if (!strcmp(DEFAULT_FILE_DIR, "HOME"))
@@ -495,7 +510,7 @@ void read_mud(struct session *ses)
             {
 abort_log:
                 ses->logfile=0;
-                tintin_printf(ses, "#WRITE ERROR -- LOGGING DISABLED.  Disk full?");
+                tintin_eprintf(ses, "#WRITE ERROR -- LOGGING DISABLED.  Disk full?");
             }
         }
         else
@@ -559,6 +574,7 @@ void do_one_line(char *line,int nl,struct session *ses)
             got_more_kludge=1;
         };
     };
+    _=line;
     do_in_MUD_colors(line);
     isnb=isnotblank(line,0);
     if (!ses->ignore && (nl||isnb))
@@ -598,6 +614,7 @@ void do_one_line(char *line,int nl,struct session *ses)
             if (ses->snoopstatus)
                 snoop(line,ses);
     }
+    _=0;
 }
 
 /**********************************************************/
@@ -614,10 +631,15 @@ void snoop(char *buffer, struct session *ses)
 /*****************************************************/
 void tintin_puts(char *cptr, struct session *ses)
 {
-    tintin_printf(ses,cptr);
+    char line[BUFFER_SIZE];
+    strcpy(line,cptr);
     if (ses)
-        check_all_actions(cptr, ses);
-
+    {
+        _=line;
+        check_all_actions(line, ses);
+        _=0;
+    }
+    tintin_printf(ses,line);
 }
 
 /*****************************************************/
@@ -630,6 +652,7 @@ void tintin_puts1(char *cptr, struct session *ses)
 
     strcpy(line,cptr);
 
+    _=line;
     if (!ses->presub && !ses->ignore)
         check_all_actions(line, ses);
     if (!ses->togglesubs)
@@ -649,6 +672,7 @@ void tintin_puts1(char *cptr, struct session *ses)
             cptr[1]=0;
             textout(line);
         }
+    _=0;
 }
 
 void tintin_printf(struct session *ses, const char *format, ...)
@@ -661,6 +685,31 @@ void tintin_printf(struct session *ses, const char *format, ...)
 #endif
 
     if ((ses == activesession || ses == nullsession || !ses) && puts_echoing)
+    {
+        va_start(ap, format);
+#ifdef HAVE_VSNPRINTF
+        if (vsnprintf(buf, BUFFER_SIZE-1, format, ap)>BUFFER_SIZE-2)
+            buf[BUFFER_SIZE-3]='>';
+#else
+        vsprintf(buf, format, ap);
+#endif
+        va_end(ap);
+        strcat(buf, "\n");
+        textout(buf);
+    }
+}
+
+void tintin_eprintf(struct session *ses, const char *format, ...)
+{
+    va_list ap;
+#ifdef HAVE_VSNPRINTF
+    char buf[BUFFER_SIZE];
+#else
+    char buf[BUFFER_SIZE*4]; /* let's hope this will never overflow... */
+#endif
+
+    /* note: the behavior on !ses is wrong */
+    if ((ses == activesession || ses == nullsession || !ses) && (puts_echoing||!ses||ses->mesvar[11]))
     {
         va_start(ap, format);
 #ifdef HAVE_VSNPRINTF

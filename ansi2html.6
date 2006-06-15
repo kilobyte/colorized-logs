@@ -1,0 +1,33 @@
+.TH ansi2html 6 2002-09-02 KBtin KBtin
+.SH NAME
+ansi2html \- ansi to HTML converter
+.SH SYNOPSIS
+.B ansi2html
+<
+.I log
+>
+.I outfile
+.SH DESCRIPTION
+.B ansi2html
+will convert the ANSI log into a pretty HTML page, converting ANSI color
+codes into HTML tags.  Characters like
+.B "<"
+and
+.B ">"
+get disarmed by being quoted as appropiate HTML special codes
+.RB "(" "&lt;" ","
+.BR "&gt;" ")."
+Colors supported include the basic 16 colors (including dark gray),
+background colors and blink.
+.SH CAVEATS
+Unfortunately, blink shows up as italics because wretched M$ Internet
+Exploder doesn't support the
+.B "<blink>"
+tag.  This can cause some text to
+be misaligned :(  Oh well, you can always edit the source or even add a
+check for USER_AGENT if you can handle cgi scripts.
+.SH BUGS
+ANSI codes other than color codes can cause undefined results.
+.SH "SEE ALSO"
+.BR ansi2txt ,
+.BR KBtin .

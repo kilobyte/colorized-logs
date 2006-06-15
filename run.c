@@ -12,7 +12,9 @@
 #  include <sys/ioctl.h>
 # endif
 #endif
-#include <sys/stropts.h>
+#ifdef HAVE_SYS_STROPTS_H
+# include <sys/stropts.h>
+#endif
 #include <stdlib.h>
 #include "tintin.h"
 
@@ -38,9 +40,9 @@ int forkpty(int *amaster,struct termios *termp, struct winsize *wp)
     {
         close(filedes[0]);
         return -1;
-        master=filedes[0];
-        slave=filedes[1];
     }
+    master=filedes[0];
+    slave=filedes[1];
 #else
 #ifdef HAVE_PTSNAME
     char *name;
@@ -72,10 +74,12 @@ int forkpty(int *amaster,struct termios *termp, struct winsize *wp)
     if (slave==-1)
         goto close_master;
 
+#ifdef HAVE_SYS_STROPTS_H
     if (isastream(slave))
         if (ioctl(slave, I_PUSH, "ptem")<0
                 ||ioctl(slave, I_PUSH, "ldterm")<0)
             goto close_slave;
+#endif
 
     goto ok;
 
@@ -115,9 +119,6 @@ ok:
     }
 }
 
-/********************/
-/* the #run command */
-/********************/
 int run(char *command)
 {
 

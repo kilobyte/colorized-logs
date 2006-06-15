@@ -29,12 +29,12 @@ extern struct session *nullsession;
 extern char *get_arg_in_braces(char *s,char *arg,int flag);
 extern void user_done(void);
 extern struct listnode *searchnode_list(struct listnode *listhead,char *cptr);
-extern void tintin_puts(char *cptr, struct session *ses);
 extern void prompt(struct session *ses);
 extern void char_command(char *arg,struct session *ses);
 extern void substitute_myvars(char *arg,char *result,struct session *ses);
 extern void substitute_vars(char *arg, char *result);
 extern void tintin_printf(struct session *ses, char *format, ...);
+extern void tintin_eprintf(struct session *ses, char *format, ...);
 extern void user_condump(FILE *f);
 extern char *space_out(char *s);
 extern struct listnode* hash2list(struct hashtable *h, char *pat);
@@ -106,7 +106,7 @@ void read_complete(void)
     }
     if (myfile == NULL)
     {
-        tintin_puts("no tab.txt file, no completion list\n", (struct session *)NULL);
+        tintin_eprintf(0,"no tab.txt file, no completion list");
         return;
     }
     while (fgets(buffer, sizeof(buffer), myfile))
@@ -132,9 +132,9 @@ void read_complete(void)
     }
     tcomplete->next = NULL;
     fclose(myfile);
-    tintin_puts("tab.txt file loaded.\n", (struct session *)NULL);
+    tintin_printf(0,"tab.txt file loaded.");
     prompt(NULL);
-    tintin_puts("\n", (struct session *)NULL);
+    tintin_printf(0,"");
 
 }
 
@@ -154,7 +154,7 @@ void unlink_command(char *arg, struct session *ses)
         unlink(file);
     }
     else
-        tintin_puts("#unlink <filename> to remove it", ses);
+        tintin_eprintf(ses, "#ERROR: valid syntax is: #unlink <filename>");
 
 }
 
@@ -186,10 +186,10 @@ void deathlog_command(char *arg, struct session *ses)
             fclose(fh);
         }
         else
-            tintin_puts("#COULDN'T OPEN FILE.", ses);
+            tintin_eprintf(ses, "#ERROR: COULDN'T OPEN FILE {%s}.", fname);
     }
     else
-        tintin_puts("#Syntax: #deathlog <file> <text>", ses);
+        tintin_eprintf(ses, "#ERROR: valid syntax is: #deathlog <file> <text>");
 }
 
 /************************/
@@ -216,10 +216,10 @@ void condump_command(char *arg, struct session *ses)
             fclose(fh);
         }
         else
-            tintin_puts("#COULDN'T OPEN FILE.", ses);
+            tintin_eprintf(ses,"#ERROR: COULDN'T OPEN FILE {%s}.", fname);
     }
     else
-        tintin_puts("#Syntax: #condump <file>", ses);
+        tintin_eprintf(ses, "#Syntax: #condump <file>");
     prompt(NULL);
 }
 
@@ -237,7 +237,7 @@ void log_command(char *arg, struct session *ses)
             if (ses->logfile)
             {
                 fclose(ses->logfile);
-                tintin_puts("#OK. LOGGING TURNED OFF.", ses);
+                tintin_printf(ses, "#OK. LOGGING TURNED OFF.");
             }
             get_arg_in_braces(arg, temp, 1);
             substitute_vars(temp, fname);
@@ -245,26 +245,26 @@ void log_command(char *arg, struct session *ses)
             expand_filename(temp, fname);
             if ((strlen(fname)<4)||(strcmp(fname+strlen(fname)-3,".gz")))
                 if ((ses->logfile = fopen(fname, "w")))
-                    tintin_puts("#OK. LOGGING.....", ses);
+                    tintin_printf(ses, "#OK. LOGGING TO {%s} .....", fname);
                 else
-                    tintin_puts("#COULDN'T OPEN FILE.", ses);
+                    tintin_eprintf(ses, "#ERROR: COULDN'T OPEN FILE {%s}.", fname);
             else
                 if ((ses->logfile = popen(strcat(strcpy(temp,"gzip -9 >"),fname), "w")))
-                    tintin_puts("#OK. LOGGING.....", ses);
+                    tintin_printf(ses, "#OK. LOGGING TO {%s} .....", fname);
                 else
-                    tintin_puts("#COULDN'T OPEN PIPE.", ses);
+                    tintin_eprintf(ses, "#ERROR: COULDN'T OPEN PIPE: {gzip -9 >%s}.", fname);
         }
         else if (ses->logfile)
         {
             fclose(ses->logfile);
             ses->logfile = NULL;
-            tintin_puts("#OK. LOGGING TURNED OFF.", ses);
+            tintin_printf(ses, "#OK. LOGGING TURNED OFF.");
         }
         else
-            tintin_puts("#LOGGING ALREADY OFF.", ses);
+            tintin_printf(ses, "#LOGGING ALREADY OFF.");
     }
     else
-        tintin_puts("#THERE'S NO SESSION TO LOG.", ses);
+        tintin_eprintf(ses, "#THERE'S NO SESSION TO LOG.");
     prompt(NULL);
 }
 
@@ -284,7 +284,7 @@ struct session *read_command(char *filename, struct session *ses)
     expand_filename(buffer, filename);
     if ((myfile = fopen(filename, "r")) == NULL)
     {
-        tintin_puts("#ERROR - COULDN'T OPEN THAT FILE.", ses);
+        tintin_eprintf(ses, "#ERROR - COULDN'T OPEN FILE {%s}.", filename);
         prompt(NULL);
         return ses;
     }
@@ -326,7 +326,7 @@ struct session *read_command(char *filename, struct session *ses)
             if (ignore_lines || (strlen(cptr)+strlen(buffer) >= BUFFER_SIZE/2))
             {
                 puts_echoing=1;
-                tintin_printf(ses,"#ERROR! LINE %d TOO LONG IN %s, TRUNCATING", nl, filename);
+                tintin_eprintf(ses,"#ERROR! LINE %d TOO LONG IN %s, TRUNCATING", nl, filename);
                 *line=0;
                 ignore_lines=1;
                 puts_echoing=ses->verbose;
@@ -393,13 +393,13 @@ void write_command(char *filename, struct session *ses)
     expand_filename(buffer, filename);
     if (*filename == '\0')
     {
-        tintin_puts("#write <filename>", ses);
+        tintin_eprintf(ses, "#ERROR: syntax is: #write <filename>");
         prompt(NULL);
         return;
     }
     if ((myfile = fopen(filename, "w")) == NULL)
     {
-        tintin_puts("#ERROR - COULDN'T OPEN THAT FILE.", ses);
+        tintin_eprintf(ses, "#ERROR - COULDN'T OPEN FILE {%s}.", filename);
         prompt(NULL);
         return;
     }
@@ -483,7 +483,7 @@ void write_command(char *filename, struct session *ses)
     zap_list(templist);
 
     fclose(myfile);
-    tintin_puts("#COMMANDS-FILE WRITTEN.", ses);
+    tintin_printf(ses, "#COMMANDS-FILE WRITTEN.");
     return;
 }
 
@@ -535,13 +535,13 @@ void writesession_command(char *filename, struct session *ses)
     expand_filename(buffer, filename);
     if (*filename == '\0')
     {
-        tintin_puts("#ERROR - COULDN'T OPEN THAT FILE.", ses);
+        tintin_eprintf(ses, "#ERROR - COULDN'T OPEN FILE {%s}.", filename);
         prompt(NULL);
         return;
     }
     if ((myfile = fopen(filename, "w")) == NULL)
     {
-        tintin_puts("#ERROR - COULDN'T OPEN THAT FILE.", ses);
+        tintin_eprintf(ses, "#ERROR - COULDN'T OPEN FILE {%s}.", filename);
         prompt(NULL);
         return;
     }
@@ -656,7 +656,7 @@ void writesession_command(char *filename, struct session *ses)
     zap_list(onptr);
 
     fclose(myfile);
-    tintin_puts("#COMMANDS-FILE WRITTEN.", ses);
+    tintin_printf(ses, "#COMMANDS-FILE WRITTEN.");
     return;
 }
 
@@ -734,13 +734,13 @@ void textin_command(char *arg, struct session *ses)
     get_arg_in_braces(arg, arg, 1);
     if (ses == nullsession)
     {
-        tintin_puts("You can't read any text in without a session being active.", NULL);
+        tintin_eprintf(ses, "#You can't read any text in without a session being active.");
         prompt(NULL);
         return;
     }
     if ((myfile = fopen(arg, "r")) == NULL)
     {
-        tintin_puts("ERROR: No file exists under that name.\n", ses);
+        tintin_eprintf(ses, "ERROR: File {%s} doesn't exist.", arg);
         prompt(ses);
         return;
     }
@@ -751,7 +751,7 @@ void textin_command(char *arg, struct session *ses)
         write_line_mud(buffer, ses);
     }
     fclose(myfile);
-    tintin_puts("File read - Success.\n", ses);
+    tintin_printf(ses,"#File read - Success.");
     prompt(ses);
 
 }

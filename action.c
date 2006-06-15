@@ -39,6 +39,7 @@ extern struct session *parse_input(char *input,int override_verbatim,struct sess
 extern int is_abrev(char *s1, char *s2);
 extern void if_command(char *arg, struct session *ses);
 extern void tintin_printf(struct session *ses,char *format,...);
+extern void tintin_eprintf(struct session *ses,char *format,...);
 extern int in_alias;
 int var_len[10];
 char *var_ptr[10];
@@ -282,7 +283,7 @@ void substitute_vars(char *arg, char *result)
                     len-=valuelen-numands-1;
                     if (!aborting)
                     {                    
-                        tintin_printf(0,"#ERROR: command+vars too long in {%s}.",ARG);
+                        tintin_eprintf(0,"#ERROR: command+vars too long in {%s}.",ARG);
                         aborting=1;
                     }
                     goto novar1;
@@ -314,7 +315,7 @@ novar1:
                     len-=valuelen-numands-1;
                     if (!aborting)
                     {
-                        tintin_printf(0,"#ERROR: command+vars too long in {%s}.",ARG);
+                        tintin_eprintf(0,"#ERROR: command+vars too long in {%s}.",ARG);
                         aborting=1;
                     }
                     goto novar2;
@@ -455,7 +456,7 @@ void match_command(char *arg, struct session *ses)
     
     if (!*left || !*right)
     {
-        tintin_printf(ses,"#Syntax: #match <pattern> <line> <command> [#else ...]");
+        tintin_eprintf(ses,"#ERROR: valid syntax is: #match <pattern> <line> <command> [#else ...]");
         return;
     }
 
@@ -485,7 +486,7 @@ void match_command(char *arg, struct session *ses)
         }
     }
     if (*left)
-        tintin_printf(ses,"#ERROR: cruft after #match: {%s}",left);
+        tintin_eprintf(ses,"#ERROR: cruft after #match: {%s}",left);
 }
 
 

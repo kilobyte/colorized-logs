@@ -1374,7 +1374,7 @@ fi
 
 PACKAGE=KBtin
 
-VERSION=0.4.4
+VERSION=0.4.5
 
 if test "`cd $srcdir && pwd`" != "`pwd`" && test -f $srcdir/config.status; then
   { { echo "$as_me:$LINENO: error: source directory already configured; run \"make distclean\" there first" >&5
@@ -1478,7 +1478,7 @@ ac_config_commands="$ac_config_commands default-1"
 
 
 # No stinking -g!
-CFLAGS=-O6
+CFLAGS=-O3
 
 # Checks for programs.
 for ac_prog in gawk mawk nawk awk
@@ -2954,7 +2954,8 @@ done
 
 
 
-for ac_header in stdlib.h strings.h string.h sys/time.h termios.h unistd.h
+
+for ac_header in stdlib.h strings.h string.h sys/time.h termios.h unistd.h sys/stropts.h
 do
 as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
 if eval "test \"\${$as_ac_Header+set}\" = set"; then

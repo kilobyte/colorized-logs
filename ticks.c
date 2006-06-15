@@ -40,6 +40,8 @@ struct session *sessionlist;
 extern void tintin_puts(char *, struct session *);
 extern void execute_event(struct eventnode *ev, struct session *ses);
 extern void tintin_puts1(char *cptr, struct session *ses);
+extern void tintin_printf(struct session *ses, char *format, ...);
+extern void tintin_eprintf(struct session *ses, char *format, ...);
 
 /* local globals */
 int sec_to_tick, time0, tick_size = 75;
@@ -108,13 +110,13 @@ void ticksize_command(char *arg,struct session *ses)
     }
     if (!*arg || !isdigit(*arg))
     {
-        tintin_printf(ses, "#SYNTAX: #ticksize <number>");
+        tintin_eprintf(ses, "#SYNTAX: #ticksize <number>");
         return;
     }
     x=strtol(arg,&err,10);
     if (*err || x<1 || x>=0x7fffffff)
     {
-        tintin_printf(ses, "#TICKSIZE OUT OF RANGE (1..%d)", 0x7fffffff);
+        tintin_eprintf(ses, "#TICKSIZE OUT OF RANGE (1..%d)", 0x7fffffff);
         return;
     }
     ses->tick_size = x;

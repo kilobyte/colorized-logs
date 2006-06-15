@@ -16,6 +16,7 @@ extern struct session *nullsession;
 extern char *mystrdup(char *s);
 extern char *get_arg_in_braces(char *s,char *arg,int flag);
 extern void tintin_printf(struct session *ses,char *format,...);
+extern void tintin_eprintf(struct session *ses,char *format,...);
 
 
 int mudcolors=3;    /* 0=disabled, 1=on, 2=null, 3=null+warning */
@@ -253,7 +254,7 @@ void mudcolors_command(char *arg,struct session *ses)
     if (!*arg)
     {
 error_msg:
-        tintin_printf(ses,"#Syntax: #mudcolors OFF, #mudcolors {} or #mudcolors {c0} {c1} ... {c15}");
+        tintin_eprintf(ses,"#ERROR: valid syntax is: #mudcolors OFF, #mudcolors {} or #mudcolors {c0} {c1} ... {c15}");
         return;
     }
     if (!yes_no(arg))

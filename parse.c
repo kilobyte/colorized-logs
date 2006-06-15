@@ -36,6 +36,7 @@ extern int is_speedwalk_dirs(char *cp);
 extern void substitute_myvars(char *arg,char *result,struct session *ses);
 extern void substitute_vars(char *arg, char *result);
 extern void tintin_printf(struct session *ses,char *format,...);
+extern void tintin_eprintf(struct session *ses,char *format,...);
 extern void write_line_mud(char *line, struct session *ses);
 extern int do_goto(char *txt,struct session *ses);
 extern void do_out_MUD_colors(char *line);
@@ -144,7 +145,7 @@ struct session *parse_input(char *input,int override_verbatim,struct session *se
                 {
                     if (!aborting)
                     {
-                        tintin_printf(ses,"#ERROR: arguments too long in %s %s %s",command,arg,(*pvars)[0]);
+                        tintin_eprintf(ses,"#ERROR: arguments too long in %s %s %s",command,arg,(*pvars)[0]);
                         aborting=1;
                     }
                 }
@@ -274,7 +275,7 @@ int do_goto(char *txt,struct session *ses)
 
         if (!(ch=get_hash(ses->myvars, "loc"))||(!*ch))
         {
-            tintin_printf(ses,"#Cannot goto from $loc, it is not set!");
+            tintin_eprintf(ses,"#Cannot goto from $loc, it is not set!");
             return 1;
         }
         sprintf(tmp,"{%s} {%s}",ch,txt+1);
@@ -319,7 +320,7 @@ struct session *parse_tintin_command(char *command, char *arg,struct session *se
         }
         else
         {
-            tintin_printf(ses,"#Cannot repeat a command a non-positive number of times.");
+            tintin_eprintf(ses,"#Cannot repeat a command a non-positive number of times.");
             prompt(ses);
         }
         return (ses);
@@ -337,7 +338,7 @@ struct session *parse_tintin_command(char *command, char *arg,struct session *se
                 
     else
     {
-        tintin_printf(ses,"#UNKNOWN TINTIN-COMMAND: [%c%s]",tintin_char,command);
+        tintin_eprintf(ses,"#UNKNOWN TINTIN-COMMAND: [%c%s]",tintin_char,command);
         prompt(ses);
     }
     return (ses);
@@ -518,7 +519,7 @@ char *get_arg_in_braces(char *s,char *arg,int flag)
         *arg++ = *s++;
     }
     if (!*s)
-        tintin_printf(0,"#Unmatched braces error! Bad argument is \"%s\".", ptr);
+        tintin_eprintf(0,"#Unmatched braces error! Bad argument is \"%s\".", ptr);
     else
         s++;
     *arg = '\0';
@@ -591,7 +592,7 @@ char *get_command(char *s, char *arg)
             else
                 break;
         }
-        else if (!inside && *s == ' ')
+        else if (!inside && (*s==' ' || *s==9))
             break;
         else
             *arg++ = *s++;
@@ -622,7 +623,7 @@ void write_com_arg_mud(char *command, char *argument, int nsp, struct session *s
 
     if (ses==nullsession)
     {
-        tintin_printf(ses, "#NO SESSION ACTIVE. USE THE %cSESSION COMMAND TO START ONE.", tintin_char);
+        tintin_eprintf(ses, "#NO SESSION ACTIVE. USE THE %cSESSION COMMAND TO START ONE.", tintin_char);
         prompt(NULL);
     }
     else
@@ -645,7 +646,7 @@ void write_com_arg_mud(char *command, char *argument, int nsp, struct session *s
             if (fwrite(outtext, i + 1, 1, ses->logfile)<1)
             {
                 ses->logfile=0;
-                tintin_printf(ses, "#WRITE ERROR -- LOGGING DISABLED.  Disk full?");
+                tintin_eprintf(ses, "#WRITE ERROR -- LOGGING DISABLED.  Disk full?");
             };
     }
 }

@@ -17,6 +17,16 @@
 #define memmove(d, s, n) bcopy ((s), (d), (n))
 #endif
 #endif
+#if TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# if HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
 
 #include <errno.h>
 #include <sys/types.h>
@@ -49,6 +59,7 @@ extern struct session *sessionlist, *activesession;
 extern int errno;
 extern void syserr(char *msg);
 extern void tintin_printf(struct session *ses, char *format, ...);
+extern void tintin_eprintf(struct session *ses, char *format, ...);
 extern void prompt(struct session *ses);
 
 /**************************************************/
@@ -68,7 +79,7 @@ int connect_mud(char *host, char *port, struct session *ses)
 
         if ((hp = gethostbyname(host)) == NULL)
         {
-            tintin_printf(ses, "#ERROR - UNKNOWN HOST: {%s}", host);
+            tintin_eprintf(ses, "#ERROR - UNKNOWN HOST: {%s}", host);
             prompt(NULL);
             return 0;
         }
@@ -79,7 +90,7 @@ int connect_mud(char *host, char *port, struct session *ses)
         sockaddr.sin_port = htons(atoi(port));	/* inteprete port part */
     else
     {
-        tintin_printf(ses, "#THE PORT SHOULD BE A NUMBER (got {%s}).", port);
+        tintin_eprintf(ses, "#THE PORT SHOULD BE A NUMBER (got {%s}).", port);
         prompt(NULL);
         return 0;
     }
@@ -105,16 +116,16 @@ int connect_mud(char *host, char *port, struct session *ses)
         switch (errno)
         {
         case EINTR:
-            tintin_printf(ses, "#CONNECTION TIMED OUT.");
+            tintin_eprintf(ses, "#CONNECTION TIMED OUT.");
             break;
         case ECONNREFUSED:
-            tintin_printf(ses, "#ERROR - Connection refused.");
+            tintin_eprintf(ses, "#ERROR - Connection refused.");
             break;
         case ENETUNREACH:
-            tintin_printf(ses, "#ERROR - Network unreachable.");
+            tintin_eprintf(ses, "#ERROR - Network unreachable.");
             break;
         default:
-            tintin_printf(ses, "#Couldn't connect to %s:%s",host,port);
+            tintin_eprintf(ses, "#Couldn't connect to %s:%s",host,port);
         }
         prompt(NULL);
         return 0;
@@ -137,6 +148,8 @@ void write_line_mud(char *line, struct session *ses)
 {
     char outtext[BUFFER_SIZE + 2];
 
+    if (*line)
+        ses->idle_since=time(0);
     strcpy(outtext, line);
     if (ses->issocket)
         strcat(outtext, "\r\n");

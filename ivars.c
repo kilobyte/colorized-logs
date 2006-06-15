@@ -3,7 +3,7 @@
 #include "config.h"
 #include "tintin.h"
 #include <ctype.h>
-int stacks[100][3];
+int stacks[100][4];
 
 #ifdef HAVE_UNISTD_H
 #include <stdlib.h>
@@ -28,6 +28,7 @@ extern int strlen_inline(char *arg, struct session *ses);
 extern void substitute_myvars(char *arg,char *result,struct session *ses);
 extern void substitute_vars(char *arg, char *result);
 extern void tintin_printf(struct session *ses,char *format,...);
+extern void tintin_eprintf(struct session *ses,char *format,...);
 
 
 extern char tintin_char;
@@ -45,7 +46,7 @@ void math_command(char *line, struct session *ses)
     line = get_arg_in_braces(line, right, 1);
     if (!*left||!*right)
     {
-        tintin_printf(ses,"#Syntax: #math <variable> <expression>");
+        tintin_eprintf(ses,"#Syntax: #math <variable> <expression>");
         return;
     };
     substitute_vars(right, result);
@@ -68,13 +69,13 @@ void if_command(char *line, struct session *ses)
     line = get_arg_in_braces(line, right, 1);
     substitute_vars(left, temp);
     substitute_myvars(temp, left, ses);
-    
+
     if (!*left || !*right)
     {
-        tintin_printf(ses,"#if <condition> <command> [#elif <condition> <command>] [...] [#else <command>]");
+        tintin_eprintf(ses,"#ERROR: valid syntax is: if <condition> <command> [#elif <condition> <command>] [...] [#else <command>]");
         return;
     }
-    
+
     if (eval_expression(left,ses))
         parse_input(right,1,ses);
     else
@@ -108,7 +109,7 @@ void strcmp_command(char *line, struct session *ses)
     line = get_arg_in_braces(line, right, 0);
     substitute_vars(right, temp);
     substitute_myvars(temp, right, ses);
-    
+
     if (!strcmp(left,right))
     {
         line=get_arg_in_braces(line, right, 1);
@@ -143,7 +144,7 @@ int do_inline(char *line,int *res,struct session *ses)
     *ptr=0;
     line=space_out(line);
     /*
-  	    tintin_printf(ses,"#executing inline command [%c%s] with [%s]",tintin_char,command,line);
+       tintin_printf(ses,"#executing inline command [%c%s] with [%s]",tintin_char,command,line);
     */	
     if (is_abrev(command,"finditem"))
         *res=finditem_inline(line,ses);
@@ -157,7 +158,7 @@ int do_inline(char *line,int *res,struct session *ses)
         *res=random_inline(line,ses);
     else
     {
-        tintin_printf(ses,"#Unknown inline command [%c%s]!",tintin_char,command);
+        tintin_eprintf(ses,"#Unknown inline command [%c%s]!",tintin_char,command);
         return 0;
     };
 
@@ -196,7 +197,7 @@ int eval_expression(char *arg,struct session *ses)
             }
             if ((flag && (begin != -1)) || (!flag && (begin == -1)))
             {
-                tintin_printf(ses,"#Unmatched parentheses error in {%s}.",arg);
+                tintin_eprintf(ses,"#Unmatched parentheses error in {%s}.",arg);
                 return 0;
             }
             if (flag)
@@ -209,7 +210,7 @@ int eval_expression(char *arg,struct session *ses)
             i = do_one_inside(begin, end);
             if (!i)
             {
-                tintin_printf(ses, "#Invalid expression to evaluate in {%s}", arg);
+                tintin_eprintf(ses, "#Invalid expression to evaluate in {%s}", arg);
                 return 0;
             }
         }
@@ -255,7 +256,7 @@ int conv_to_ints(char *arg,struct session *ses)
             if(!*ptr)
                 return 0; /* error */
             if(*ptr == ']')
-                tintin_printf(ses, "#Compare %s to what ? (only one var between [ ])", left);
+                tintin_eprintf(ses, "#Compare %s to what ? (only one var between [ ])", left);
             /* fprintf(stderr, "Left argument = '%s'\n", left); */
             switch(*ptr)
             {
@@ -317,11 +318,19 @@ int conv_to_ints(char *arg,struct session *ses)
         else if (*ptr == '$')
         {
             if (ses->mesvar[5])
-                tintin_printf(ses, "#Undefined variable in {%s}.", arg);
+                tintin_eprintf(ses, "#Undefined variable in {%s}.", arg);
             stacks[i][1] = 15;
             stacks[i][2] = 0;
-            while (isalpha(*(ptr + 1)))
-                ptr++;
+            if (*(++ptr)=='{')
+            {
+                ptr=get_arg_in_braces(ptr,temp,0);
+            }
+            else
+            {
+                while (isalpha(*ptr) || *ptr=='_' || isdigit(*ptr))
+                    ptr++;
+            }
+            ptr--;
         }
         /* jku: end of changes */
         else if (*ptr == '(') {
@@ -336,16 +345,22 @@ int conv_to_ints(char *arg,struct session *ses)
                 stacks[i][1] = 2;
         } else if (*ptr == '*') {
             stacks[i][1] = 3;
+            stacks[i][3] = 0;
         } else if (*ptr == '/') {
-            stacks[i][1] = 4;
+            stacks[i][1] = 3;
+            stacks[i][3] = 1;
         } else if (*ptr == '+') {
             stacks[i][1] = 5;
+            stacks[i][3] = 2;
         } else if (*ptr == '-') {
             flag = -1;
             if (i > 0)
                 flag = stacks[i - 1][1];
             if (flag == 15)
-                stacks[i][1] = 6;
+            {
+                stacks[i][1] = 5;
+                stacks[i][3] = 3;
+            }
             else {
                 tptr = ptr;
                 ptr++;
@@ -358,15 +373,21 @@ int conv_to_ints(char *arg,struct session *ses)
         } else if (*ptr == '>') {
             if (*(ptr + 1) == '=') {
                 stacks[i][1] = 8;
+                stacks[i][3] = 4;
                 ptr++;
-            } else
-                stacks[i][1] = 7;
+            } else {
+                stacks[i][1] = 8;
+                stacks[i][3] = 5;
+            }
         } else if (*ptr == '<') {
             if (*(ptr + 1) == '=') {
                 ptr++;
-                stacks[i][1] = 10;
-            } else
-                stacks[i][1] = 9;
+                stacks[i][1] = 8;
+                stacks[i][3] = 6;
+            } else {
+                stacks[i][1] = 8;
+                stacks[i][3] = 7;
+            }
         } else if (*ptr == '=') {
             stacks[i][1] = 11;
             if (*(ptr + 1) == '=')
@@ -393,7 +414,7 @@ int conv_to_ints(char *arg,struct session *ses)
             stacks[i][1] = 15;
             stacks[i][2] = 0;
         } else {
-            tintin_printf(ses,"#Error. Invalid expression in #if or #math in {%s}.",arg);
+            tintin_eprintf(ses,"#Error. Invalid expression in #if or #math in {%s}.",arg);
             return 0;
         }
         if (*ptr != ' ') {
@@ -459,43 +480,42 @@ int do_one_inside(int begin, int end)
             if (stacks[ploc][1] != 15)
                 return 0;
             switch (highest) {
-            case 3:			/* highest priority is * */
+            case 3:			/* highest priority is *,/ */
                 stacks[ploc][0] = stacks[next][0];
-                stacks[ploc][2] *= stacks[next][2];
-                break;
-            case 4:			/* highest priority is / */
-                stacks[ploc][0] = stacks[next][0];
-                if (stacks[next][2])
-                    stacks[ploc][2] /= stacks[next][2];
+                if (stacks[loc][3]==0)
+                    stacks[ploc][2] *= stacks[next][2];
                 else
+                    if (stacks[next][2])
+                        stacks[ploc][2] /= stacks[next][2];
+                    else
+                    {
+                        stacks[ploc][2]=0;
+                        tintin_eprintf(0, "#Error: Division by zero.");
+                    }
+                break;
+            case 5:			/* highest priority is +,- */
+                stacks[ploc][0] = stacks[next][0];
+                if (stacks[loc][3]==2)
+                    stacks[ploc][2] += stacks[next][2];
+                else
+                    stacks[ploc][2] -= stacks[next][2];
+                break;
+            case 8:			/* highest priority is >,>=,<,<= */
+                stacks[ploc][0] = stacks[next][0];
+                switch(stacks[loc][3])
                 {
-                    stacks[ploc][2]=0;
-                    tintin_printf(0, "#Error: Division by zero.");
+                case 5:
+                    stacks[ploc][2] = (stacks[ploc][2] > stacks[next][2]);
+                    break;
+                case 4:
+                    stacks[ploc][2] = (stacks[ploc][2] >= stacks[next][2]);
+                    break;
+                case 7:
+                    stacks[ploc][2] = (stacks[ploc][2] < stacks[next][2]);
+                    break;
+                case 6:
+                    stacks[ploc][2] = (stacks[ploc][2] <= stacks[next][2]);
                 }
-                break;
-            case 5:			/* highest priority is + */
-                stacks[ploc][0] = stacks[next][0];
-                stacks[ploc][2] += stacks[next][2];
-                break;
-            case 6:			/* highest priority is - */
-                stacks[ploc][0] = stacks[next][0];
-                stacks[ploc][2] -= stacks[next][2];
-                break;
-            case 7:			/* highest priority is > */
-                stacks[ploc][0] = stacks[next][0];
-                stacks[ploc][2] = (stacks[ploc][2] > stacks[next][2]);
-                break;
-            case 8:			/* highest priority is >= */
-                stacks[ploc][0] = stacks[next][0];
-                stacks[ploc][2] = (stacks[ploc][2] >= stacks[next][2]);
-                break;
-            case 9:			/* highest priority is < */
-                stacks[ploc][0] = stacks[next][0];
-                stacks[ploc][2] = (stacks[ploc][2] < stacks[next][2]);
-                break;
-            case 10:			/* highest priority is <= */
-                stacks[ploc][0] = stacks[next][0];
-                stacks[ploc][2] = (stacks[ploc][2] <= stacks[next][2]);
                 break;
             case 11:			/* highest priority is == */
                 stacks[ploc][0] = stacks[next][0];
@@ -514,7 +534,7 @@ int do_one_inside(int begin, int end)
                 stacks[ploc][2] = (stacks[ploc][2] || stacks[next][2]);
                 break;
             default:
-                tintin_printf(0,"#Programming error *slap Bill*");
+                tintin_eprintf(0,"#Programming error *slap Bill*");
                 return 0;
             }
         }

@@ -1,20 +1,22 @@
-bin_PROGRAMS=KBtin
+bin_PROGRAMS=KBtin ansi2html ansi2txt
 helpdir = $(pkgdatadir)
 help_DATA= NEWS KBtin_help.gz
 INCLUDES = -DDATA_PATH=\"$(helpdir)\"
+man_MANS = ansi2html.6 ansi2txt.6
 
 KBtin_SOURCES=action.c alias.c antisub.c files.c glob.c help.c highlight.c history.c ivars.c llist.c main.c misc.c net.c parse.c path.c session.c substitute.c ticks.c utils.c variables.c events.c user.c run.c colors.c routes.c bind.c telnet.c crc.c hash.c
 KBtin_LDADD=
 
-EXTRA_DIST=tintin.h KBtin_help BUGS commands make_commands.sh
+ansi2html_SOURCES=ansi2html.c
+ansi2txt_SOURCES=ansi2txt.c
+
+EXTRA_DIST=tintin.h KBtin_help BUGS commands make_commands.sh $(man_MANS)
 CLEANFILES=commands.h load_commands.h KBtin_help.gz
 
 commands.h: make_commands.sh commands
 	$(srcdir)/make_commands.sh <$(srcdir)/commands
 
-#fake dependency needed for multi-CPU systems
-load_commands.h: make_commands.sh commands commands.h
-	$(srcdir)/make_commands.sh <$(srcdir)/commands
+load_commands.h: commands make_commands.sh commands.h
 
 # since tt is almost never installed by "make install" strip it at once :)
 all-local:

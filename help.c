@@ -26,6 +26,7 @@ extern void check_all_promptactions(char *line, struct session *ses);
 extern void prompt(struct session *ses);
 extern char *tintin_exec;
 extern void tintin_printf(struct session *ses, const char *format, ...);
+extern void tintin_eprintf(struct session *ses, const char *format, ...);
 extern FILE *mypopen(char *command);
 
 FILE *check_file(char *filestring)
@@ -78,18 +79,18 @@ void help_command(char *arg,struct session *ses)
     }
     if (myfile == NULL)
     {
-        tintin_printf(0, "#Help file not found - no help available.");
-        tintin_printf(0, "#Locations checked:");
+        tintin_eprintf(0, "#Help file not found - no help available.");
+        tintin_eprintf(0, "#Locations checked:");
         if (strcmp(DEFAULT_FILE_DIR, "HOME"))
-            tintin_printf(0, "#      %s/KBtin_help%s", DEFAULT_FILE_DIR,
+            tintin_eprintf(0, "#      %s/KBtin_help%s", DEFAULT_FILE_DIR,
                 DEFAULT_COMPRESSION_EXT);
 #ifdef DATA_PATH
-        tintin_printf(0, "#      %s/KBtin_help%s", DATA_PATH,
+        tintin_eprintf(0, "#      %s/KBtin_help%s", DATA_PATH,
             DEFAULT_COMPRESSION_EXT);
 #endif
-        tintin_printf(0, "#      %s_help%s",tintin_exec,
+        tintin_eprintf(0, "#      %s_help%s",tintin_exec,
             DEFAULT_COMPRESSION_EXT);
-        tintin_printf(0, "#      %s/KBtin_help%s", getenv("HOME"),
+        tintin_eprintf(0, "#      %s/KBtin_help%s", getenv("HOME"),
             DEFAULT_COMPRESSION_EXT);
         prompt(NULL);
         return;

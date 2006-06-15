@@ -14,8 +14,11 @@ extern struct session *parse_input(char *input,int override_verbatim,struct sess
 extern void substitute_myvars(char *arg,char *result,struct session *ses);
 extern void substitute_vars(char *arg, char *result);
 extern void tintin_printf(struct session *ses,char *format,...);
+extern void tintin_eprintf(struct session *ses,char *format,...);
 extern void set_variable(char *left,char *right,struct session *ses);
 extern char tintin_char;
+extern int is_abrev(char *s1, char *s2);
+extern void if_command(char *arg, struct session *ses);
 
 
 void addroute(struct session *ses,int a,int b,char *way,int dist,char *cond)
@@ -202,7 +205,7 @@ void route_command(char *arg,struct session *ses)
 				ses->locations[i]=mystrdup(a);
 				goto found_i;
 			};
-		tintin_printf(ses,"#TOO MANY LOCATIONS!");
+		tintin_eprintf(ses,"#TOO MANY LOCATIONS!");
 		return;
 	};
 found_i:
@@ -217,7 +220,7 @@ found_i:
 				ses->locations[j]=mystrdup(b);
 				goto found_j;
 			};
-		tintin_printf(ses,"#TOO MANY LOCATIONS!");
+		tintin_eprintf(ses,"#TOO MANY LOCATIONS!");
 		kill_unused_locations(ses);
 		return;
 	};
@@ -227,12 +230,12 @@ found_j:
 		d=strtol(dist,&arg,0);
 		if (*arg)
 		{
-			tintin_printf(ses,"#Hey! Route length has to be a number! Got {%s}.",arg);
+			tintin_eprintf(ses,"#Hey! Route length has to be a number! Got {%s}.",arg);
 			kill_unused_locations(ses);
 			return;
 		};
 		if ((d<0)&&(ses->mesvar[6]||ses->mesvar[11]))
-			tintin_printf(ses,"#Error: distance cannot be negative!");
+			tintin_eprintf(ses,"#Error: distance cannot be negative!");
 	}
 	else
 		d=DEFAULT_ROUTE_DISTANCE;
@@ -271,7 +274,7 @@ void unroute_command(char *arg,struct session *ses)
 	
 	if ((!*a)||(!*b))
 	{
-		tintin_printf(ses,"#SYNTAX: #unroute <from> <to>");
+		tintin_eprintf(ses,"#SYNTAX: #unroute <from> <to>");
 		return;
 	};
 
@@ -322,7 +325,7 @@ void goto_command(char *arg,struct session *ses)
 	
 	if ((!A)||(!B))
 	{
-		tintin_printf(ses,"#SYNTAX: #goto <from> <to>");
+		tintin_eprintf(ses,"#SYNTAX: #goto <from> <to>");
 		return;
 	};
 	
@@ -331,7 +334,7 @@ void goto_command(char *arg,struct session *ses)
 			break;
 	if (a==MAX_LOCATIONS)
 	{
-		tintin_printf(ses,"#Location not found: [%s]",A);
+		tintin_eprintf(ses,"#Location not found: [%s]",A);
 		return;
 	};
 	for (b=0;b<MAX_LOCATIONS;b++)
@@ -339,7 +342,7 @@ void goto_command(char *arg,struct session *ses)
 			break;
 	if (b==MAX_LOCATIONS)
 	{
-		tintin_printf(ses,"#Location not found: [%s]",B);
+		tintin_eprintf(ses,"#Location not found: [%s]",B);
 		return;
 	};
 	for (i=0;i<MAX_LOCATIONS;i++)
@@ -356,7 +359,7 @@ void goto_command(char *arg,struct session *ses)
 				s=d[i=j];
 		if (s==INF)
 		{
-			tintin_printf(ses,"#No route from %s to %s!",A,B);
+			tintin_eprintf(ses,"#No route from %s to %s!",A,B);
 			return;
 		};
 		ok[i]=1;
@@ -431,7 +434,7 @@ void dogoto_command(char *arg,struct session *ses)
 	
 	if ((!*A)||(!*B))
 	{
-		tintin_printf(ses,"#SYNTAX: #dogoto <from> <to> [<distvar> [<locvar> [<pathvar>]]] [#else ...]");
+		tintin_eprintf(ses,"#SYNTAX: #dogoto <from> <to> [<distvar> [<locvar> [<pathvar>]]] [#else ...]");
 		return;
 	};
 	flag=*distvar||*locvar||*pathvar;
@@ -531,7 +534,7 @@ not_found:
         }
     }
     if (*left)
-        tintin_printf(ses,"#ERROR: cruft after #dogoto: {%s}",left);
+        tintin_eprintf(ses,"#ERROR: cruft after #dogoto: {%s}",left);
     if (!flag)
         tintin_printf(ses,"No paths from %s to %s found.",A,B);
 }

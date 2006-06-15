@@ -21,6 +21,7 @@ extern char *get_arg_in_braces();
 extern void show_aliases();
 extern void prompt();
 extern void tintin_printf(struct session *ses,const char *format,...);
+extern void tintin_eprintf(struct session *ses,const char *format,...);
 extern void show_list(struct listnode *listhead);
 extern void set_hash(struct hashtable *h, char *key, char *value);
 extern struct listnode* hash2list(struct hashtable *h, char *pat);
@@ -96,7 +97,7 @@ void alias_command(char *arg, struct session *ses)
     {
         if ((ch=strchr(left, ' ')))
         {
-            tintin_printf(ses, "#ERROR: aliases cannot contain spaces! Bad alias: {%s}", left);
+            tintin_eprintf(ses, "#ERROR: aliases cannot contain spaces! Bad alias: {%s}", left);
             if (ch==left)
                 return;
             *ch=0;

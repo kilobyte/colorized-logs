@@ -34,10 +34,12 @@ extern void show_list(struct listnode *listhead);
 extern void substitute_myvars(char *arg,char *result,struct session *ses);
 extern void substitute_vars(char *arg, char *result);
 extern void tintin_printf(struct session *ses, char *format, ...);
+extern void tintin_eprintf(struct session *ses, char *format, ...);
 
 extern int hinum;
 extern inline int getcolor(char **ptr,int *color,const int flag);
 extern inline int setcolor(char *txt,int c);
+extern int puts_echoing;
 
 struct colordef
 {
@@ -166,7 +168,7 @@ void highlight_command(char *arg, struct session *ses)
             if (!*right)
             {
                 if (ses->mesvar[4] || ses->mesvar[11])
-                    tintin_printf(ses,"#Highlight WHAT?");
+                    tintin_eprintf(ses,"#Highlight WHAT?");
                 return;
             }
             if ((ln = searchnode_list(myhighs, right)) != NULL)
@@ -180,8 +182,15 @@ void highlight_command(char *arg, struct session *ses)
         else
         {
             int i;
+            
+            if (!puts_echoing && ses->mesvar[11])
+            {
+                tintin_eprintf(ses,"#Invalid highlighting color: {%s}",left);
+                return;
+            }
+            
             if (strcmp(left,"list"))
-                tintin_printf(ses,"Invalid highlighting color, valid colors are:");
+                tintin_printf(ses,"#Invalid highlighting color, valid colors are:");
             tmp3[0]=0;
             tmp1=tmp3;
             for (i=0;cNames[i].num!=-1;i++)

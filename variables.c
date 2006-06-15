@@ -50,6 +50,7 @@ extern void shownode_list(struct listnode *nptr);
 extern void substitute_vars(char *arg, char *result);
 extern int timetilltick(struct session *ses);
 extern void tintin_printf(struct session *ses, char *format, ...);
+extern void tintin_eprintf(struct session *ses, char *format, ...);
 extern char *mystrdup(char *s);
 extern void zap_list(struct listnode *nptr);
 extern char* get_hash(struct hashtable *h, char *key);
@@ -63,6 +64,7 @@ extern pvars_t *pvars;
 extern int LINES,COLS;
 extern int in_alias;
 extern int aborting;
+extern char *_;
 
 void set_variable(char *left,char *right,struct session *ses)
 {
@@ -136,7 +138,7 @@ void substitute_myvars(char *arg,char *result,struct session *ses)
                     {
                         if (!aborting)
                         {
-                            tintin_printf(ses,"#ERROR: command+variables too long while substituting $%s%s%s.",
+                            tintin_eprintf(ses,"#ERROR: command+variables too long while substituting $%s%s%s.",
                                 specvar?"{":"",varname,specvar?"}":"");
                             aborting=1;
                         }
@@ -162,13 +164,20 @@ void substitute_myvars(char *arg,char *result,struct session *ses)
                     if (strcmp(varname,"PATH")==0)
                         path2var(value,ses);
                     else
+                    if (strcmp(varname,"IDLETIME")==0)
+                        sprintf(value,"%ld",time(0)-ses->idle_since);
+                    else
+                    if (_ && (strcmp(varname,"LINE")==0 ||
+                        strcmp(varname,"_")==0))
+                        strcpy(value,_);
+                    else
                         goto novar;
                     valuelen=strlen(value);
                     if ((len+=valuelen-counter-varlen) > BUFFER_SIZE-10)
                     {
                         if (!aborting)
                         {
-                            tintin_printf(ses,"#ERROR: command+variables too long while substituting $%s.",varname);
+                            tintin_eprintf(ses,"#ERROR: command+variables too long while substituting $%s.",varname);
                             aborting=1;
                         }
                         len-=valuelen-counter-varlen;
@@ -272,7 +281,7 @@ void listlength_command(char *arg,struct session *ses)
 
     arg = get_arg_in_braces(arg, left,0);
     if (!*left)
-        tintin_printf(ses,"#Error - Syntax: #listlength {dest var} {list}");
+        tintin_eprintf(ses,"#Error - Syntax: #listlength {dest var} {list}");
     else
     {
         get_arg_in_braces(arg, list, 1);
@@ -347,7 +356,7 @@ void finditem_command(char *arg,struct session *ses)
     substitute_vars(list,temp);
     substitute_myvars(temp,list, ses);
     if (!*left)
-        tintin_printf(ses,"#Error - Syntax: #finditem {dest var} {item} {list}");
+        tintin_eprintf(ses,"#Error - Syntax: #finditem {dest var} {item} {list}");
     else
     {
         sprintf(item,"%d",find_item(item,list));
@@ -394,7 +403,7 @@ void getitem_command(char *arg,struct session *ses)
 
     if (!*destvar || !*itemnrtxt)
     {
-        tintin_printf(ses,"#Error - Syntax: #getitem {destination variable} {item number} {list}");
+        tintin_eprintf(ses,"#Error - Syntax: #getitem {destination variable} {item number} {list}");
     }
     else
     {
@@ -403,7 +412,7 @@ void getitem_command(char *arg,struct session *ses)
         substitute_vars(itemnrtxt, temp1);
         substitute_myvars(temp1, itemnrtxt, ses);
         if (sscanf(itemnrtxt,"%d",&itemnr) != 1)
-            tintin_printf(ses,"#Error in #getitem - expected a _number_ as item number, got {%s}.",itemnrtxt);
+            tintin_eprintf(ses,"#Error in #getitem - expected a _number_ as item number, got {%s}.",itemnrtxt);
         else
         {
             get_arg_in_braces(arg, list, 1);
@@ -423,7 +432,7 @@ void getitem_command(char *arg,struct session *ses)
                 else
                 {
                     set_variable(destvar,"",ses);
-                    if (ses->mesvar[5] || ses->mesvar[11])
+                    if (ses->mesvar[5])
                         tintin_printf(ses,"#Item doesn't exist!");
                 }
             }
@@ -481,7 +490,7 @@ void isatom_command(char *line,struct session *ses)
     line = get_arg_in_braces(line, left, 0);
     if (!*left)
     {
-        tintin_printf(ses,"#Syntax: #isatom <dest. var> <list>");
+        tintin_eprintf(ses,"#Syntax: #isatom <dest. var> <list>");
         return;
     };
     line = get_arg_in_braces(line, right, 1);
@@ -598,7 +607,7 @@ int is_braced_atom(char *s,struct session *ses)
     /* this error occurs when there are to many opening delimiters */
     if(nest > 0)
     {
-        tintin_printf(ses,"Unmatched braces error - too many opening delimiters");
+        tintin_eprintf(ses,"Unmatched braces error - too many opening delimiters");
         return FALSE;
     }
 
@@ -648,7 +657,7 @@ int is_braced_atom_2(char *beg,char *end,struct session *ses)
     /* this should not happen anyway */
     if(nest > 0)
     {
-        tintin_printf(ses,"Unmatched braces error - too many '%c'",DEFAULT_OPEN);
+        tintin_eprintf(ses,"Unmatched braces error - too many '%c'",DEFAULT_OPEN);
         return FALSE;
     }
 
@@ -759,7 +768,7 @@ void splitlist_command(char *arg,struct session *ses)
 
     if (!*headvar || !*tailvar)
     {
-        tintin_printf(ses,"#Error - Syntax: #splitlist {head variable} {tail variable}"
+        tintin_eprintf(ses,"#Error - Syntax: #splitlist {head variable} {tail variable}"
                      "{list} [{head size}]");
         return; /* on ERROR */
     }
@@ -783,12 +792,12 @@ void splitlist_command(char *arg,struct session *ses)
         substitute_myvars(temp, headlengthtxt, ses);
         if (sscanf(headlengthtxt,"%d",&head_length) != 1)
         {
-            tintin_printf(ses,"#Error in #splitlist - head size has to be number>=0, got {%s}.",headlengthtxt);
+            tintin_eprintf(ses,"#Error in #splitlist - head size has to be number>=0, got {%s}.",headlengthtxt);
             return; /* on ERROR */
         }
         if (head_length < 0)
         {
-            tintin_printf(ses,"#Error in #splitlist - head size could not be negative, got {%d}.",head_length);
+            tintin_eprintf(ses,"#Error in #splitlist - head size could not be negative, got {%d}.",head_length);
             return; /* on ERROR */
         }
     } /* end if */
@@ -816,7 +825,7 @@ void deleteitems_command(char *arg,struct session *ses)
 
     arg = get_arg_in_braces(arg, left,0);
     if (!*left)
-        tintin_printf(ses,"#Error - Syntax: #deleteitem {dest. variable} {list} {item}");
+        tintin_eprintf(ses,"#Error - Syntax: #deleteitem {dest. variable} {list} {item}");
     else
     {
         arg=get_arg_in_braces(arg, list, 0);
@@ -867,7 +876,7 @@ void foreach_command(char *arg,struct session *ses)
     get_arg_in_braces(arg,right,1);
     if (!*right)
     {
-        tintin_printf(ses,"#foreach {list} command");
+        tintin_eprintf(ses,"#SYNTAX: foreach {list} command");
         return;
     }
     lastvars=pvars;
@@ -907,7 +916,7 @@ void sortlist_command(char *arg,struct session *ses)
     substitute_myvars(temp,right,ses);
     if (!*left)
     {
-        tintin_printf(ses,"#sortlist var {list}");
+        tintin_eprintf(ses,"#SYNTAX: sortlist var {list}");
         return;
     }
     
@@ -947,7 +956,7 @@ void tolower_command(char *arg,struct session *ses)
     substitute_vars(right, temp);
     substitute_myvars(temp, right, ses);
     if (!*left)
-        tintin_printf(ses,"#Syntax: #tolower <var> <text>");
+        tintin_eprintf(ses,"#Syntax: #tolower <var> <text>");
     else
     {
         for (p = right; *p; p++)
@@ -970,7 +979,7 @@ void toupper_command(char *arg,struct session *ses)
     substitute_vars(right, temp);
     substitute_myvars(temp, right, ses);
     if (!*left)
-        tintin_printf(ses,"#Syntax: #toupper <var> <text>");
+        tintin_eprintf(ses,"#Syntax: #toupper <var> <text>");
     else
     {
         for (p = right; *p; p++)
@@ -993,7 +1002,7 @@ void firstupper_command(char *arg,struct session *ses)
     substitute_vars(right, temp);
     substitute_myvars(temp, right, ses);
     if (!*left)
-        tintin_printf(ses,"#Syntax: #firstupper <var> <text>");
+        tintin_eprintf(ses,"#Syntax: #firstupper <var> <text>");
     else
     {
         for (p = right; *p; p++)
@@ -1017,7 +1026,7 @@ void strlen_command(char *arg, struct session *ses)
     substitute_vars(right, temp);
     substitute_myvars(temp, right, ses);
     if (!*left)
-        tintin_printf(ses,"#Syntax: #strlen <var> <text>");
+        tintin_eprintf(ses,"#Syntax: #strlen <var> <text>");
     else
     {
         sprintf(right, "%d", strlen(right));
@@ -1080,7 +1089,7 @@ void reverse_command(char *arg,struct session *ses)
     arg = get_arg_in_braces(arg, origstring, 1);
 
     if (!*destvar)
-        tintin_printf(ses,"#Error - Syntax: #reverse {destination variable} {string}");
+        tintin_eprintf(ses,"#Error - Syntax: #reverse {destination variable} {string}");
     else
     {
         substitute_vars(destvar, temp);
@@ -1114,7 +1123,7 @@ void explode_command(char *arg, struct session *ses)
     substitute_vars(right, res);
     substitute_myvars(res, right, ses);
     if (!*left || !*del)
-        tintin_printf(ses,"#Syntax: #explode <var> <delimiter> <text>");
+        tintin_eprintf(ses,"#Syntax: #explode <var> <delimiter> <text>");
     else
     {
         r=res;
@@ -1139,7 +1148,7 @@ void explode_command(char *arg, struct session *ses)
 
         if (strlen(res)>BUFFER_SIZE-10)
         {
-            tintin_printf(ses,"#ERROR: exploded line too long in #explode {%s} {%s} {%s}",left,del,right);
+            tintin_eprintf(ses,"#ERROR: exploded line too long in #explode {%s} {%s} {%s}",left,del,right);
             res[BUFFER_SIZE-10]=0;
         }        
         set_variable(left,res,ses);
@@ -1166,7 +1175,7 @@ void implode_command(char *arg, struct session *ses)
     substitute_vars(right, temp);
     substitute_myvars(temp, right, ses);
     if (!*left || !*del)
-        tintin_printf(ses,"#Syntax: #implode <var> <delimiter> <list>");
+        tintin_eprintf(ses,"#Syntax: #implode <var> <delimiter> <list>");
     else
     {
         dellen=strlen(del);
@@ -1178,7 +1187,7 @@ void implode_command(char *arg, struct session *ses)
             p = get_arg_in_braces(p, temp, 0);
             if ((len+=strlen(temp)+dellen) > BUFFER_SIZE-10)
             {
-                tintin_printf(ses,"#ERROR: imploded line too long in #implode {%s} {%s} {%s}",left,del,right);
+                tintin_eprintf(ses,"#ERROR: imploded line too long in #implode {%s} {%s} {%s}",left,del,right);
                 break;
             }
             r+=sprintf(r, "%s%s", del, temp);
@@ -1199,7 +1208,7 @@ void random_command(char *arg,struct session *ses)
     arg = get_arg_in_braces(arg, left, 0);
     arg = get_arg_in_braces(arg, right, 1);
     if (!*left || !*right)
-        tintin_printf(ses,"#Syntax: #random <var> <low,high>");
+        tintin_eprintf(ses,"#Syntax: #random <var> <low,high>");
     else
     {
         substitute_vars(left, result);
@@ -1207,9 +1216,9 @@ void random_command(char *arg,struct session *ses)
         substitute_vars(right, result);
         substitute_myvars(result, right, ses);
         if (sscanf(right, "%d,%d", &low, &high) != 2)
-            tintin_printf(ses,"#Wrong number of range arguments in #random: got {%s}.",right);
+            tintin_eprintf(ses,"#Wrong number of range arguments in #random: got {%s}.",right);
         else if (low < 0 || high < 0)
-            tintin_printf(ses,"#Both arguments of range in #random should be >0, got %d,%d.",low,high);
+            tintin_eprintf(ses,"#Both arguments of range in #random should be >0, got %d,%d.",low,high);
         else
         {
             if (low > high)
@@ -1234,15 +1243,15 @@ int random_inline(char *arg, struct session *ses)
 
     arg = get_arg_in_braces(arg, right, 1);
     if (!*right)
-        tintin_printf(ses,"#Syntax: #random <low,high>");
+        tintin_eprintf(ses,"#Syntax: #random <low,high>");
     else
     {
         substitute_vars(right, result);
         substitute_myvars(result, right, ses);
         if (sscanf(right, "%d,%d", &low, &high) != 2)
-            tintin_printf(ses,"#Wrong number of range arguments in #random: got {%s}.",right);
+            tintin_eprintf(ses,"#Wrong number of range arguments in #random: got {%s}.",right);
         else if (low < 0 || high < 0)
-            tintin_printf(ses,"#Both arguments of range in #random should be >0, got %d,%d.",low,high);
+            tintin_eprintf(ses,"#Both arguments of range in #random should be >0, got %d,%d.",low,high);
         else
         {
             if (low > high)
@@ -1254,39 +1263,6 @@ int random_inline(char *arg, struct session *ses)
         }
     }
     return 0;
-}
-
-/***********************/
-/* the #strip command  */
-/***********************/
-void strip_command(char *arg,struct session *ses)
-{
-    char left[BUFFER_SIZE], right[BUFFER_SIZE], result[BUFFER_SIZE], *p;
-
-    arg = get_arg_in_braces(arg, left, 0);
-    arg = get_arg_in_braces(arg, right, 1);
-    if (!*left || !*right)
-        tintin_printf(ses,"#Syntax: #strip <var> <string>");
-    else
-    {
-        substitute_vars(left, result);
-        substitute_myvars(result, left, ses);
-        substitute_vars(right, result);
-        substitute_myvars(result, right, ses);
-        p = right;
-        while(*p)
-        {
-            if(*p == ' ')
-                *p = '_';
-            else if(*p == ',')
-            {
-                *p = '\0';
-                break;
-            }
-            p++;
-        }
-        set_variable(left,right,ses);
-    }
 }
 
 /*****************************************************/
@@ -1311,7 +1287,7 @@ void postpad_command(char *arg,struct session *ses)
     arg = get_arg_in_braces(arg, textstr, 1);
 
     if (!*lengthstr)
-        tintin_printf(ses,"#Error - Syntax: #postpad {dest var} {length} {text}");
+        tintin_eprintf(ses,"#Error - Syntax: #postpad {dest var} {length} {text}");
     else
     {
         substitute_vars(destvar, temp);
@@ -1322,7 +1298,7 @@ void postpad_command(char *arg,struct session *ses)
         substitute_myvars(temp, textstr, ses);
 
         if (!sscanf(lengthstr,"%d",&length) || (length < 1) || (length > BUFFER_SIZE-10))
-            tintin_printf(ses,"#Error in #postpad - length has to be a positive number >0, got {%s}.",lengthstr);
+            tintin_eprintf(ses,"#Error in #postpad - length has to be a positive number >0, got {%s}.",lengthstr);
         else
         {
             strncpy(newtextstr, textstr, length);
@@ -1359,7 +1335,7 @@ void prepad_command(char *arg,struct session *ses)
     arg = get_arg_in_braces(arg, textstr, 1);
 
     if (!*lengthstr)
-        tintin_printf(ses,"#Error - Syntax: #prepad {dest var} {length} {text}");
+        tintin_eprintf(ses,"#Error - Syntax: #prepad {dest var} {length} {text}");
     else
     {
         substitute_vars(destvar,temp);
@@ -1370,7 +1346,7 @@ void prepad_command(char *arg,struct session *ses)
         substitute_myvars(temp,textstr,ses);
 
         if (!sscanf(lengthstr,"%d",&length) || (length < 1) || (length>BUFFER_SIZE-10))
-            tintin_printf(ses,"#Error in #prepad - length has to be a positive number >0, got {%s}.",lengthstr);
+            tintin_eprintf(ses,"#Error in #prepad - length has to be a positive number >0, got {%s}.",lengthstr);
         else
         {
             len_diff = length - strlen(textstr);
@@ -1398,8 +1374,8 @@ int time2secs(char *tt,struct session *ses)
     if (!*tt)
     {
 bad:
-        tintin_printf(ses,"#time format should be: <#y[ears][,] #d #h #m [and] #[s]> or just <#> of seconds.");
-        tintin_printf(ses,"#got: {%s}.",tt);
+        tintin_eprintf(ses,"#time format should be: <#y[ears][,] #d #h #m [and] #[s]> or just <#> of seconds.");
+        tintin_eprintf(ses,"#got: {%s}.",tt);
         return INVALID_TIME;
     };
     t=0;
@@ -1533,7 +1509,7 @@ void substring_command(char *arg,struct session *ses)
         l=1;
 
     if (!*left || (p==mid) || (*p) || (r<0))
-        tintin_printf(ses, "#substr <var> <l>[,<r>] <string>");
+        tintin_eprintf(ses, "#SYNTAX: substr <var> <l>[,<r>] <string>");
     else
     {
         s=strlen(right);

@@ -74,7 +74,6 @@ showme
 snoop
 speedwalk
 splitlist
-strip
 suspend
 shell
 status
@@ -116,3 +115,5 @@ atoi
 strcmp
 verbose
 dogoto
+changeto
+send

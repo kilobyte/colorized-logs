@@ -91,10 +91,9 @@
 #define DEFAULT_ALIAS_MESS TRUE           /* messages for responses */
 #define DEFAULT_ACTION_MESS TRUE          /* when setting/deleting aliases, */
 #define DEFAULT_SUB_MESS TRUE             /* actions, etc. may be set to */
-#define DEFAULT_ANTISUB_MESS TRUE         /* default either on or off */
-#define DEFAULT_HIGHLIGHT_MESS TRUE       /* TRUE=ON FALSE=OFF */
+#define DEFAULT_HIGHLIGHT_MESS TRUE       /* default either on or off */
 #define DEFAULT_VARIABLE_MESS TRUE        /* might want to turn off these */
-#define DEFAULT_PATHDIR_MESS TRUE
+#define DEFAULT_EVENT_MESS TRUE
 #define DEFAULT_ROUTE_MESS TRUE
 #define DEFAULT_GOTO_MESS TRUE
 #define DEFAULT_BIND_MESS TRUE
@@ -144,8 +143,21 @@
 #define END 1
 
 #define BUFFER_SIZE 2048
+#define VERSION_NUM "0.4.5"
+#define MSG_ALIAS       0
+#define MSG_ACTION      1
+#define MSG_SUBSTITUTE  2
+#define MSG_EVENT       3
+#define MSG_HIGHLIGHT   4
+#define MSG_VARIABLE    5
+#define MSG_ROUTE       6
+#define MSG_GOTO        7
+#define MSG_BIND        8
+#define MSG_SYSTEM      9
+#define MSG_PATH        10
+#define MSG_ERROR       11
 #define MAX_MESVAR 12
-#define VERSION_NUM "0.4.4"
+
 /************************ structures *********************/
 struct listnode {
   struct listnode *next;
@@ -212,6 +224,7 @@ struct session {
   int telnet_buf;
   int verbose,blank,echo,speedwalk,togglesubs,presub,verbatim;
   int mesvar[MAX_MESVAR+1];
+  int idle_since;
 };
 
 typedef char pvars_t[10][BUFFER_SIZE];

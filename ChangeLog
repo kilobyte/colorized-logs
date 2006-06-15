@@ -1,8 +1,31 @@
+0.4.5:
+*	man pages for ansi2txt and ansi2html
+*	added ^P, ^N and ^U to the editing keys
+*	$IDLETIME
+*	#change
+*	added tab as a valid separator between command and its arguments
+*	changed all(?) error messages to use tintin_eprintf() instead
+	of tintin_printf().  If "#message error" is on, eprintf will
+	pierce even the !#verbose gag.
+*	added ^A, ^E, ^F, ^B, ^T, ^K, ^W and ^Y, changed behavior of ^D
+	on non-empty lines
+*	bugfix: undefined non-alphabetic variables no longer cause
+	expressions to fail
+*	#send added in place of #verbatim <text>, so no #verbatim is not
+	overloaded any longer
+*	bugfix: resizing the window or using #status no longer screws up
+	the display on SunOS
+*	proper signal handling for systems where signals follow System V
+	semantics
+
 0.4.4:
 *	#dogoto
 *	bugfix: #ticksize 0, #ticksize 123blah
 *	bugfix: #gag with invalid syntax was handled incorrectly
-------priorities-------
+*	removed #strip, it was completely useless
+*	bugfix: {* /}, {+ -}, {<= < > >=} evaluate correctly now
+*	renamed log2{html,txt} to ansi2{html,txt} and actually bundled
+	them with KBtin
 
 0.4.3:
 *	action/promptaction priorities are sorted in a semi-lexicographic

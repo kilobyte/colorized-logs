@@ -12,6 +12,7 @@ extern char *get_arg_in_braces(char *s,char *arg,int flag);
 extern int match(char *regex, char *string);
 extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
 extern void tintin_printf(struct session *ses, const char *format, ...);
+extern void tintin_eprintf(struct session *ses, const char *format, ...);
 extern struct session *nullsession;
 extern void substitute_myvars(char *arg,char *result,struct session *ses);
 extern void substitute_vars(char *arg, char *result);
@@ -33,7 +34,7 @@ void list_events(char *arg, struct session *ses)
 
     if (!ses)
     {
-        tintin_printf(ses,"#NO SESSION ACTIVE => NO EVENTS!");
+        tintin_eprintf(ses,"#NO SESSION ACTIVE => NO EVENTS!");
         return;
     }
 
@@ -76,7 +77,7 @@ void delay_command(char *arg, struct session *ses)
 
     if (!ses)
     {
-        tintin_printf(ses,"#NO SESSION ACTIVE => NO EVENTS!");
+        tintin_eprintf(ses,"#NO SESSION ACTIVE => NO EVENTS!");
         return;
     }
 
@@ -94,7 +95,7 @@ void delay_command(char *arg, struct session *ses)
 
     if (!*left || (delay=strtol(left,&cptr,10))<=0 || *cptr)
     {
-        tintin_printf(ses, "#EVENT IGNORED (DELAY={%s}), HAS TO BE A NUMBER >0",left);
+        tintin_eprintf(ses, "#EVENT IGNORED (DELAY={%s}), HAS TO BE A NUMBER >0",left);
         return;
     }
 
@@ -156,7 +157,7 @@ void undelay_command(char *arg, struct session *ses)
 
     if (!ses)
     {
-        tintin_printf(ses,"#NO SESSION ACTIVE => NO EVENTS!");
+        tintin_eprintf(ses,"#NO SESSION ACTIVE => NO EVENTS!");
         return;
     }
 
@@ -166,7 +167,7 @@ void undelay_command(char *arg, struct session *ses)
     
     if (!*left)
     {
-        tintin_printf(ses,"#REMOVE WHICH EVENT?");
+        tintin_eprintf(ses,"#ERROR: valid syntax is: #undelay {event pattern}");
         return;
     }
 

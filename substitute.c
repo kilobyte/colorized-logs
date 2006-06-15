@@ -28,12 +28,14 @@ extern void prompt(struct session *ses);
 extern void show_list(struct listnode *listhead);
 extern void shownode_list(struct listnode *nptr);
 extern void tintin_printf(struct session *ses, char *format, ...);
+extern void tintin_eprintf(struct session *ses, char *format, ...);
 extern void substitute_vars(char *arg, char *result);
 extern void substitute_myvars(char *arg,char *result,struct session *ses);
 
 extern pvars_t *pvars;
 extern int subnum;
 extern char *match_start,*match_end;
+extern char *_;
 
 /***************************/
 /* the #substitute command */
@@ -211,4 +213,20 @@ void do_all_sub(char *line, struct session *ses)
         }
 
     pvars=lastpvars;
+}
+
+void changeto_command(char *arg, struct session *ses)
+{
+    char left[BUFFER_SIZE], temp[BUFFER_SIZE];
+
+    if (!_)
+    {
+        tintin_eprintf(ses, "#ERROR: #change is allowed only inside an action/promptaction");
+        return;
+    }
+
+    get_arg_in_braces(arg, left, 1);
+    substitute_vars(left, temp);
+    substitute_myvars(temp, left, ses);
+    strcpy(_, left);
 }

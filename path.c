@@ -49,6 +49,7 @@ extern void shownode_list(struct listnode *nptr);
 extern void tintin_puts(char *cptr, struct session *ses);
 extern void tintin_puts1(char *cptr, struct session *ses);
 extern void tintin_printf(struct session *ses,char *format,...);
+extern void tintin_eprintf(struct session *ses,char *format,...);
 extern void prepare_actionalias(char *string, char *result, struct session *ses);
 extern char* get_hash(struct hashtable *h, char *key);
 extern void set_hash(struct hashtable *h, char *key, char *value);
@@ -111,7 +112,7 @@ void savepath_command(char *arg, struct session *ses)
 
             if (!ses->path_length)
             {
-                tintin_puts("#No path to save!",ses);
+                tintin_eprintf(ses, "#No path to save!");
                 return;
             }
 
@@ -129,7 +130,7 @@ void savepath_command(char *arg, struct session *ses)
                 }
                 else
                 {
-                    tintin_puts("#Error - buffer too small to contain alias", ses);
+                    tintin_eprintf(ses, "#Error - buffer too small to contain alias");
                     break;
                 }
             }
@@ -137,7 +138,7 @@ void savepath_command(char *arg, struct session *ses)
             parse_input(result,1,ses);
         }
         else
-            tintin_puts("#savepath <alias>", ses);
+            tintin_eprintf(ses, "#Syntax: savepath <alias>");
     }
     else
         tintin_printf(ses,"No session active => NO PATH TO SAVE!");
@@ -173,7 +174,7 @@ void path2var(char *var, struct session *ses)
             }
             else
             {
-                tintin_puts("#Error - buffer too small to contain alias", ses);
+                tintin_eprintf(ses, "#Error - buffer too small to contain alias");
                 *r++=0;
                 break;
             }
@@ -235,7 +236,7 @@ void return_command(char *arg,struct session *ses)
         }
         if (!ses->path_length)
         {
-            tintin_puts("#No place to return from!", ses);
+            tintin_eprintf(ses, "#No place to return from!");
             return;
         }
         
@@ -249,7 +250,7 @@ void return_command(char *arg,struct session *ses)
             n=strtol(arg,&err,10);
             if (*err || n<0)
             {
-                tintin_printf(ses, "#return [<num>|all], got {%s}", arg);
+                tintin_eprintf(ses, "#return [<num>|all], got {%s}", arg);
                 return;
             }
             if (!n)     /* silently ignore "#return 0" */

@@ -1,4 +1,4 @@
-dnl aclocal.m4t generated automatically by aclocal 1.4-p6
+dnl aclocal.m4 generated automatically by aclocal 1.4-p6
 
 dnl Copyright (C) 1994, 1995-8, 1999, 2001 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation

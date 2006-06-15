@@ -98,8 +98,7 @@
   Examples:
      #foreach {Omm Consola Murre Aethia} rescue
 
-     #alias cc {#var message {$$0};#foreach {$clan} __cc}
-     #alias __cc {tell $0 [clancomm] $message}
+     #alias cc {#var message {$0};#foreach {$clan} {tell $0 [cc] $message}}
 
 0.3.3:                                           Mon Mar 26 23:00:00 CET 2001
 * pseudovariables $COLS and $LINES can be used to query the size of terminal
@@ -197,3 +196,28 @@
   run an simulated #goto and retrieve the path length, visited locations
   and on-path commands.  Or, you can use "#dogoto <from> <to>" to display
   the path.
+* ansi2txt and ansi2html have been moved into the main tarball
+
+0.4.5:
+* $IDLETIME will tell you how long your character has been idle
+* #change <text>, an one-time substitution from inside an action
+* if you turn on "#message error", error messages will appear even during
+  a #read -- #reads used to be totally silent if you were not in the
+  verbose mode
+* the following readline-like editing keys have been added:
+    ^A 		moves cursor to the beginning of the line (same as Home)
+    ^E		moves cursor to the end of the line                (End)
+    ^F		moves cursor one character to the right    (right arrow)
+    ^B		moves cursor one character to the left      (left arrow)
+    ^P		previous command from the history list        (up arrow)
+    ^N		next command from the history list          (down arrow)
+    ^D          delete character to the right (Del), #zap on an empty line
+    ^T          transposes two characters under cursor
+    ^K		kill text from cursor to the end of line
+    ^U		kill text backwards from cursor to the beginning of the line
+    ^W		delete the word behind cursor
+    ^Y          yank the text deleted in last ^K, ^U or ^W at the cursor
+* #send <text> sends <text> to the MUD without most of usual parsing -- only
+  variables get substituted.  It is useful for overriding #aliases, like:
+  #alias {w} {#math x {$x-1};#send {w}}, without having to resort to really
+  hairy tricks.

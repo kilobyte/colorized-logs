@@ -26,8 +26,8 @@ extern struct session *parse_input(char *input,int override_verbatim,struct sess
 extern int is_abrev(char *s1, char *s2);
 extern void check_all_promptactions(char *line, struct session *ses);
 extern void prompt(struct session *ses);
-extern void tintin_puts(char *cptr, struct session *ses);
 extern void tintin_printf(struct session *ses,char *format,...);
+extern void tintin_eprintf(struct session *ses,char *format,...);
 
 /************************/
 /* the #history command */
@@ -133,7 +133,7 @@ struct session *parse_history_command(char *command, char *arg, struct session *
             }
         }
     }
-    tintin_puts("#I DON'T REMEMBER THAT COMMAND.", ses);
+    tintin_eprintf(ses, "#HISTORY: I DON'T REMEMBER THAT COMMAND.");
 
     return ses;
 }

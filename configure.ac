@@ -1,11 +1,11 @@
 # Process this file with autoconf to produce a configure script.
 AC_INIT
-AM_INIT_AUTOMAKE(KBtin, 0.4.4)
+AM_INIT_AUTOMAKE(KBtin, 0.4.5)
 AC_CONFIG_SRCDIR([action.c])
 AM_CONFIG_HEADER(config.h)
 
 # No stinking -g!
-CFLAGS=-O6
+CFLAGS=-O3
 
 # Checks for programs.
 AC_PROG_AWK
@@ -19,7 +19,7 @@ AC_PROG_LN_S
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_HEADER_TIOCGWINSZ
-AC_CHECK_HEADERS([stdlib.h strings.h string.h sys/time.h termios.h unistd.h])
+AC_CHECK_HEADERS([stdlib.h strings.h string.h sys/time.h termios.h unistd.h sys/stropts.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST

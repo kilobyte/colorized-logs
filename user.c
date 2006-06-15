@@ -36,6 +36,7 @@ extern void telnet_resize_all(void);
 
 char done_input[BUFFER_SIZE],out_line[BUFFER_SIZE],b_draft[BUFFER_SIZE];
 char k_input[BUFFER_SIZE],kh_input[BUFFER_SIZE],tk_input[BUFFER_SIZE];
+char yank_buffer[BUFFER_SIZE];
 int k_len,k_pos,k_scrl,tk_len,tk_pos,tk_scrl;
 int o_len,o_pos,o_color,o_oldcolor,o_prevcolor,o_draftlen,o_lastcolor,o_lastprevcolor;
 int b_first,b_current,b_last,b_bottom,b_screenb,o_strongdraft;
@@ -127,6 +128,9 @@ void debug_info(void)
     sprintf(txt,"b_first=%d, b_current=%d, b_last=%d, b_bottom=%d, b_screenb=%d",
             b_first,b_current,b_last,b_bottom,b_screenb);
     tbuf+=sprintf(tbuf,"\e[1;%df\e[41;33;1m[\e[41;35m%s\e[41;33m]\e[37;40;0m",COLS-strlen(txt)-1,txt);
+    sprintf(txt,"k_len=%d, strlen(k_input)=%d, k_pos=%d, k_scrl=%d",
+            k_len,strlen(k_input),k_pos,k_scrl);
+    tbuf+=sprintf(tbuf,"\e[2;%df\e[41;33;1m[\e[41;35m%s\e[41;33m]\e[37;40;0m",COLS-strlen(txt)-1,txt);
 }
 #endif
 
@@ -328,7 +332,7 @@ void b_addline(void)
     strcpy(new,out_line);
     if (b_bottom==b_first+B_LENGTH)
         b_shorten();
-    b_output[b_current%B_LENGTH]=new;
+    b_output[(unsigned int)b_current%(unsigned int)B_LENGTH]=new;
     o_pos=0;
     o_len=setcolor(out_line,o_oldcolor=o_color);
     if (b_bottom<++b_current)
@@ -599,6 +603,8 @@ static int val=0;
 int process_kbd(struct session *ses)
 {
     char ch;
+    int i;
+    
     if (read(0,&ch,1)!=1)
         return(0);
     switch(state)
@@ -637,7 +643,7 @@ int process_kbd(struct session *ses)
                 switch(ch)
                 {
 
-
+                prev_history:
                 case 'A':	/* up arrow */
                     if (b_bottom!=b_screenb)
                         b_scroll(b_bottom);
@@ -653,6 +659,7 @@ int process_kbd(struct session *ses)
                     countpos();
                     redraw_in();
                     break;
+                next_history:
                 case 'B':	/* down arrow */
                     if (b_bottom!=b_screenb)
                         b_scroll(b_bottom);
@@ -669,6 +676,7 @@ int process_kbd(struct session *ses)
                     countpos();
                     redraw_in();
                     break;
+                key_cursor_left:
                 case 'D':	/* left arrow */
                     if (b_bottom!=b_screenb)
                         b_scroll(b_bottom);
@@ -684,6 +692,7 @@ int process_kbd(struct session *ses)
                     else
                         redraw_in();
                     break;
+                key_cursor_right:
                 case 'C':	/* right arrow */
                     if (b_bottom!=b_screenb)
                         b_scroll(b_bottom);
@@ -729,6 +738,7 @@ int process_kbd(struct session *ses)
                             else
                                 write(1,"\007",1);
                             break;
+                        key_home:
                         case 1:		/* [Home] */
                         case 7:
                             if (b_bottom!=b_screenb)
@@ -745,6 +755,7 @@ int process_kbd(struct session *ses)
                             else
                                 redraw_in();
                             break;
+                        key_end:
                         case 4:		/* [End] */
                         case 8:
                             if (b_bottom!=b_screenb)
@@ -761,17 +772,15 @@ int process_kbd(struct session *ses)
                             else
                                 redraw_in();
                             break;
+                        key_del:
                         case 3:		/* [Del] */
                             if (b_bottom!=b_screenb)
                                 b_scroll(b_bottom);
                             if (k_pos==k_len)
                                 break;
-                            {
-                                int i;
-                                for (i=k_pos;i<=k_len;++i)
-                                    k_input[i]=k_input[i+1];
-                                --k_len;
-                            };
+                            for (i=k_pos;i<=k_len;++i)
+                            k_input[i]=k_input[i+1];
+                            --k_len;
                             redraw_in();
                             break;
                         default:
@@ -810,9 +819,6 @@ int process_kbd(struct session *ses)
     case 0:
         switch(ch)
         {
-        case 27:
-            state=1;
-            break;
         case '\n':
         case '\r':
             if (b_bottom!=b_screenb)
@@ -825,7 +831,6 @@ int process_kbd(struct session *ses)
             tbuf+=sprintf(tbuf,"\e[%d;1f\e[0;37;4%dm\e[2K",scr_len+1,INPUT_COLOR);
             if (margins&&(marginl<=COLS))
             {
-                int i;
                 tbuf+=sprintf(tbuf,"\e[%d;%df\e[0;37;4%dm",
                               scr_len+1,marginl,MARGIN_COLOR);
                 if (marginr<=COLS)
@@ -839,11 +844,49 @@ int process_kbd(struct session *ses)
             scr_curs=0;
             term_commit();
             return(1);
-        case 9:			/* [Tab] */
-            if (find_bind("Tab",0,ses))
+        case 1:			/* ^[A] */
+            if (find_bind("^A",0,ses))
+                break;
+            goto key_home;
+        case 2:			/* ^[B] */
+            if (find_bind("^B",0,ses))
+                break;
+            goto key_cursor_left;
+        case 4:			/* ^[D] */
+            if (find_bind("^D",0,ses))
+                break;
+            if (k_pos||k_len)
+                goto key_del;
+            *done_input=0;
+            parse_input("#zap",1,ses);
+            return(0);
+        case 5:			/* ^[E] */
+            if (find_bind("^E",0,ses))
+                break;
+            goto key_end;
+        case 6:			/* ^[F] */
+            if (find_bind("^F",0,ses))
+                break;
+            goto key_cursor_right;
+        case 8:			/* ^[H] */
+            if (find_bind("^H",0,ses))
+                break;
+        case 127:       /* [backspace] */
+            if (b_bottom!=b_screenb)
+                b_scroll(b_bottom);
+            if (k_pos==0)
                 break;
             {
-                int i;
+                for (i=--k_pos;i<=k_len;++i)
+                    k_input[i]=k_input[i+1];
+                --k_len;
+            };
+            redraw_in();
+            break;
+        case 9:			/* [Tab],^[I] */
+            if (find_bind("Tab",0,ses)||find_bind("^I",0,ses))
+                break;
+            {
                 char buf[BUFFER_SIZE];
                 strcpy(buf,k_input);
                 strcpy(k_input,tk_input);
@@ -854,27 +897,106 @@ int process_kbd(struct session *ses)
             };
             redraw_in();
             break;
-        case 4:			/* ^[D] */
-            if (find_bind("^D",0,ses))
+        case 11:		/* ^[K] */
+            if (find_bind("^K",0,ses))
                 break;
-            *done_input=0;
-            parse_input("#zap",1,ses);
-            return(0);
-        case 8:			/* ^[H] */
-            if (find_bind("^H",0,ses))
+            if (b_bottom!=b_screenb)
+                b_scroll(b_bottom);
+            if (k_pos==k_len)
                 break;
-        case 127:
+            memmove(yank_buffer,k_input+k_pos,k_len-k_pos);
+            yank_buffer[k_len-k_pos]=0;
+            k_input[k_pos]=0;
+            k_len=k_pos;
+            redraw_in();
+            break;
+        case 14:		/* ^[N] */
+            if (find_bind("^N",0,ses))
+                break;
+            goto next_history;
+        case 16:		/* ^[P] */
+            if (find_bind("^P",0,ses))
+                break;
+            goto prev_history;
+        case 20:		/* ^[T] */
+            if (find_bind("^T",0,ses))
+                break;
+            if (b_bottom!=b_screenb)
+                b_scroll(b_bottom);
+            if (!k_pos||!k_len)
+                break;
+            if (k_pos==k_len)
+            {
+                ch=k_input[k_pos-2];
+                k_input[k_pos-2]=k_input[k_pos-1];
+                k_input[k_pos-1]=ch;
+            }
+            else
+            {
+                ch=k_input[k_pos];
+                k_input[k_pos]=k_input[k_pos-1];
+                k_input[k_pos-1]=ch;
+                k_pos++;
+            };
+            redraw_in();
+            break;
+        case 21:		/* ^[U] */
+            if (find_bind("^U",0,ses))
+                break;
             if (b_bottom!=b_screenb)
                 b_scroll(b_bottom);
             if (k_pos==0)
                 break;
-            {
-                int i;
-                for (i=--k_pos;i<=k_len;++i)
-                    k_input[i]=k_input[i+1];
-                --k_len;
-            };
+            memmove(yank_buffer,k_input,k_pos);
+            yank_buffer[k_pos]=0;
+            memmove(k_input,k_input+k_pos,k_len-k_pos+1);
+            k_len-=k_pos;
+            k_pos=k_scrl=0;
             redraw_in();
+            break;
+        case 23:		/* ^[W] */
+            if (find_bind("^W",0,ses))
+                break;
+            if (b_bottom!=b_screenb)
+                b_scroll(b_bottom);
+            if (k_pos==0)
+                break;
+            i=k_pos-1;
+            while((i>=0)&&isspace(k_input[i]))
+                i--;
+            while((i>=0)&&!isspace(k_input[i]))
+                i--;
+            i=k_pos-i-1;
+            memmove(yank_buffer,k_input+k_pos-i,i);
+            yank_buffer[i]=0;
+            memmove(k_input+k_pos-i,k_input+k_pos,k_len-k_pos);
+            k_len-=i;
+            k_input[k_len]=0;
+            k_pos-=i;
+            redraw_in();
+            break;
+        case 25:		/* ^[Y] */
+            if (find_bind("^Y",0,ses))
+                break;
+            if (b_bottom!=b_screenb)
+                b_scroll(b_bottom);
+            if (!yank_buffer[0])
+            {
+                write(1,"\007",1);
+                break;
+            }
+            i=strlen(yank_buffer);
+            if (i+k_len>=BUFFER_SIZE)
+                i=BUFFER_SIZE-1-k_len;
+            memmove(k_input+k_pos+i,k_input+k_pos,k_len-k_pos);
+            memmove(k_input+k_pos,yank_buffer,i);
+            k_len+=i;
+            k_input[k_len]=0;
+            k_pos+=i;
+            redraw_in();
+            break;
+        case 27:        /* [Esc] or a control sequence */
+            state=1;
             break;
         default:
             if (b_bottom!=b_screenb)
@@ -912,6 +1034,11 @@ int process_kbd(struct session *ses)
             }
         }
     };
+#ifdef DEBUG
+    debug_info();
+    redraw_cursor();
+    term_commit();
+#endif
     return(0);
 }
 
