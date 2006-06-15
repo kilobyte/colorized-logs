@@ -253,8 +253,10 @@ int main(int argc, char **argv, char **environ)
     tintin_printf(0,"                              ~8~#run advent adventure");
     tintin_printf(0,"                              ~8~#run sql mysql");
     tintin_printf(0,"~15~#help                         ~7~to get the help index");
+#if 0
     if (new_news())
         tintin_printf(ses,"Check #news now!");
+#endif
 
     setup_signals();
     time0 = time(NULL);

@@ -611,9 +611,15 @@ int process_kbd(struct session *ses)
     {
     case 4:			/* ESC O */
         state=0;
+        switch(ch)
+        {
+        case 'H':
+            goto key_home;
+        case 'F':
+            goto key_end;
+        }
         if (b_bottom!=b_screenb)
             b_scroll(b_bottom);
-                                                    
         {
             char txt[128];
             sprintf(txt,"ESCO%c",ch);
@@ -708,6 +714,10 @@ int process_kbd(struct session *ses)
                     else
                         redraw_in();
                     break;
+                case 'H':
+                    goto key_home;
+                case 'F':
+                    goto key_end;
                 default:
                     if (b_bottom!=b_screenb)
                         b_scroll(b_bottom);

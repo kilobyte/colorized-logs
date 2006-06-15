@@ -6,8 +6,14 @@
 /* Define to 1 if you don't have `vprintf' but do have `_doprnt.' */
 #undef HAVE_DOPRNT
 
+/* Define to 1 if you have the `forkpty' function. */
+#undef HAVE_FORKPTY
+
 /* Define to 1 if you have the `getpt' function. */
 #undef HAVE_GETPT
+
+/* Define to 1 if you have the `grantpt' function. */
+#undef HAVE_GRANTPT
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
@@ -47,9 +53,6 @@
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
 #undef HAVE_SYS_STAT_H
-
-/* Define to 1 if you have the <sys/stropts.h> header file. */
-#undef HAVE_SYS_STROPTS_H
 
 /* Define to 1 if you have the <sys/time.h> header file. */
 #undef HAVE_SYS_TIME_H
@@ -92,6 +95,12 @@
 
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
+
+/* blah */
+#undef PTYRANGE0
+
+/* blah */
+#undef PTYRANGE1
 
 /* Define as the return type of signal handlers (`int' or `void'). */
 #undef RETSIGTYPE

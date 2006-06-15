@@ -1374,7 +1374,7 @@ fi
 
 PACKAGE=KBtin
 
-VERSION=0.4.5
+VERSION=1.0.0
 
 if test "`cd $srcdir && pwd`" != "`pwd`" && test -f $srcdir/config.status; then
   { { echo "$as_me:$LINENO: error: source directory already configured; run \"make distclean\" there first" >&5
@@ -2954,8 +2954,7 @@ done
 
 
 
-
-for ac_header in stdlib.h strings.h string.h sys/time.h termios.h unistd.h sys/stropts.h
+for ac_header in stdlib.h strings.h string.h sys/time.h termios.h unistd.h
 do
 as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
 if eval "test \"\${$as_ac_Header+set}\" = set"; then
@@ -3636,7 +3635,9 @@ done
 
 
 
-for ac_func in memcpy getpt ptsname vsnprintf _getpty
+
+
+for ac_func in memcpy getpt ptsname vsnprintf _getpty grantpt forkpty
 do
 as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
 echo "$as_me:$LINENO: checking for $ac_func" >&5
@@ -3711,6 +3712,45 @@ _ACEOF
 fi
 done
 
+
+
+{ echo "$as_me:$LINENO: checking for ptyranges..." >&5
+echo "$as_me: checking for ptyranges..." >&6;}
+if test -d /dev/ptym ; then
+pdir='/dev/ptym'
+else
+pdir='/dev'
+fi
+cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+#include "confdefs.h"
+#ifdef M_UNIX
+   yes;
+#endif
+
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  egrep "yes" >/dev/null 2>&1; then
+  ptys=`echo /dev/ptyp??`
+else
+  ptys=`echo $pdir/pty??`
+fi
+rm -f conftest*
+
+if test "$ptys" != "$pdir/pty??" ; then
+p0=`echo $ptys | tr ' ' '\012' | sed -e 's/^.*\(.\).$/\1/g' | sort -u | tr -d '\012'`
+p1=`echo $ptys | tr ' ' '\012' | sed -e 's/^.*\(.\)$/\1/g'  | sort -u | tr -d '\012'`
+
+cat >>confdefs.h <<_ACEOF
+#define PTYRANGE0 "$p0"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define PTYRANGE1 "$p1"
+_ACEOF
+
+fi
 
 
     # Most operating systems have gethostbyname() in the default searched

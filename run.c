@@ -12,7 +12,7 @@
 #  include <sys/ioctl.h>
 # endif
 #endif
-#ifdef HAVE_SYS_STROPTS_H
+#ifdef HAVE_GRANTPT
 # include <sys/stropts.h>
 #endif
 #include <stdlib.h>
@@ -24,7 +24,27 @@ extern struct termios old_tattr;
 extern void syserr(char *msg);
 
 
-int forkpty(int *amaster,struct termios *termp, struct winsize *wp)
+#ifndef HAVE_FORKPTY
+# if !(defined(HAVE__GETPTY) || defined(HAVE_GRANTPT))  
+/*
+ * if no PTYRANGE[01] is in the config file, we pick a default
+ */
+#  ifndef PTYRANGE0
+#   define PTYRANGE0 "qpr"
+#  endif
+#  ifndef PTYRANGE1
+#   define PTYRANGE1 "0123456789abcdef"
+#  endif
+#  ifdef M_UNIX
+static char PtyProto[] = "/dev/ptypXY";
+static char TtyProto[] = "/dev/ttypXY";
+#  else
+static char PtyProto[] = "/dev/ptyXY";
+static char TtyProto[] = "/dev/ttyXY";
+#  endif
+# endif
+
+int forkpty(int *amaster,char *dummy,struct termios *termp, struct winsize *wp)
 {
     int master,slave;
     int pid;
@@ -44,17 +64,18 @@ int forkpty(int *amaster,struct termios *termp, struct winsize *wp)
     master=filedes[0];
     slave=filedes[1];
 #else
-#ifdef HAVE_PTSNAME
+#ifdef HAVE_GRANTPT
+# ifdef HAVE_PTSNAME
     char *name;
-#else
+# else
     char name[80];
-#endif
+# endif
 
-#ifdef HAVE_GETPT
+# ifdef HAVE_GETPT
     master=getpt();
-#else
+# else
     master=open("/dev/ptmx", O_RDWR);
-#endif
+# endif
 
     if (master<0)
         return -1;
@@ -62,24 +83,22 @@ int forkpty(int *amaster,struct termios *termp, struct winsize *wp)
     if (grantpt(master)<0||unlockpt(master)<0)
         goto close_master;
 
-#ifdef HAVE_PTSNAME
+# ifdef HAVE_PTSNAME
     if (!(name=(char*)ptsname(master)))
         goto close_master;
-#else
+# else
     if (ptsname_r(master,name,80))
         goto close_master;
-#endif
+# endif
 
     slave=open(name,O_RDWR);
     if (slave==-1)
         goto close_master;
 
-#ifdef HAVE_SYS_STROPTS_H
     if (isastream(slave))
         if (ioctl(slave, I_PUSH, "ptem")<0
                 ||ioctl(slave, I_PUSH, "ldterm")<0)
             goto close_slave;
-#endif
 
     goto ok;
 
@@ -91,6 +110,41 @@ close_master:
     return -1;
 
 ok:
+#else
+  char *p, *q, *l, *d;
+  char PtyName[32], TtyName[32];
+
+  strcpy(PtyName, PtyProto);
+  strcpy(TtyName, TtyProto);
+  for (p = PtyName; *p != 'X'; p++)
+    ;
+  for (q = TtyName; *q != 'X'; q++)
+    ;
+  for (l = PTYRANGE0; (*p = *l) != '\0'; l++)
+    {
+      for (d = PTYRANGE1; (p[1] = *d) != '\0'; d++)
+        {
+/*        tintin_printf(0,"OpenPTY tries '%s'", PtyName);*/
+          if ((master = open(PtyName, O_RDWR | O_NOCTTY)) == -1)
+            continue;
+          q[0] = *l;
+          q[1] = *d;
+          if (access(TtyName, R_OK | W_OK))
+            {
+              close(master);
+              continue;
+            }
+          if((slave=open(TtyName, O_RDWR|O_NOCTTY))==-1)
+	  {
+	  	close(master);
+	  	continue;
+	  }
+          goto ok;
+        }
+    }
+  return -1;
+  ok:
+#endif
 #endif
 
     tcsetattr(slave, TCSANOW, termp);
@@ -118,6 +172,7 @@ ok:
         return pid;
     }
 }
+#endif
 
 int run(char *command)
 {
@@ -143,7 +198,7 @@ int run(char *command)
     ws.ws_xpixel=0;
     ws.ws_ypixel=0;
 
-    switch(forkpty(&fd,&ta,&ws))
+    switch(forkpty(&fd,0,&ta,&ws))
     {
     case -1:
         return(0);

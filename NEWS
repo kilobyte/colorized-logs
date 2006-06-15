@@ -183,7 +183,7 @@
 * bugfixes, bugfixes, bugfixes
 * A warning is printed if you try to define an alias containing spaces.
 
-0.4.3:
+0.4.3:                                           May 15 23:03 CET 2002
 * action/promptaction priority of 10 no longer sorts between 1 and 2
 * new #message type: error.  Turn it on to prevent error messages from
   being lost even if their appropiate message type is hidden.
@@ -191,14 +191,14 @@
 * #verbatim, #blank, #echo, #speedwalk, #togglesub, #presub and #message
   are now local to each session.
 
-0.4.4:
+0.4.4:                                           Sep  2 22:25 CET 2002
 * #dogoto <from> <to> [<distvar> <locvar> <pathvar>] [#else ...] will
   run an simulated #goto and retrieve the path length, visited locations
   and on-path commands.  Or, you can use "#dogoto <from> <to>" to display
   the path.
 * ansi2txt and ansi2html have been moved into the main tarball
 
-0.4.5:
+0.4.5:                                           Sep 11 02:51 CET 2002
 * $IDLETIME will tell you how long your character has been idle
 * #change <text>, an one-time substitution from inside an action
 * if you turn on "#message error", error messages will appear even during
@@ -221,3 +221,6 @@
   variables get substituted.  It is useful for overriding #aliases, like:
   #alias {w} {#math x {$x-1};#send {w}}, without having to resort to really
   hairy tricks.
+
+1.0.0:
+* first public release

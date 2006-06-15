@@ -143,7 +143,7 @@
 #define END 1
 
 #define BUFFER_SIZE 2048
-#define VERSION_NUM "0.4.5"
+#define VERSION_NUM "1.0.0"
 #define MSG_ALIAS       0
 #define MSG_ACTION      1
 #define MSG_SUBSTITUTE  2

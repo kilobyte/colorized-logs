@@ -1,3 +1,7 @@
+1.0.0:
+*	first public release
+*	the message prompting to read #news is disabled for this version
+
 0.4.5:
 *	man pages for ansi2txt and ansi2html
 *	added ^P, ^N and ^U to the editing keys
@@ -17,6 +21,8 @@
 	the display on SunOS
 *	proper signal handling for systems where signals follow System V
 	semantics
+*	added support for BSD-style pseudoterminals, needed for run.c to
+	compile on BSD systems
 
 0.4.4:
 *	#dogoto

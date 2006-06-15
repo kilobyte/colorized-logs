@@ -1,3 +1,32 @@
+dnl check for valid pty ranges, stolen from screen sources
+AC_DEFUN(AC_PTYRANGES, [
+AC_CHECKING(for ptyranges)
+if test -d /dev/ptym ; then
+pdir='/dev/ptym'
+else
+pdir='/dev'
+fi
+dnl SCO uses ptyp%d
+AC_EGREP_CPP(yes,
+[#ifdef M_UNIX
+   yes;
+#endif
+], ptys=`echo /dev/ptyp??`, ptys=`echo $pdir/pty??`)
+dnl if test -c /dev/ptyp19; then
+dnl ptys=`echo /dev/ptyp??`
+dnl else
+dnl ptys=`echo $pdir/pty??`
+dnl fi
+if test "$ptys" != "$pdir/pty??" ; then
+p0=`echo $ptys | tr ' ' '\012' | sed -e 's/^.*\(.\).$/\1/g' | sort -u | tr -d '\012'`
+p1=`echo $ptys | tr ' ' '\012' | sed -e 's/^.*\(.\)$/\1/g'  | sort -u | tr -d '\012'`
+AC_DEFINE_UNQUOTED(PTYRANGE0,"$p0",[blah])
+AC_DEFINE_UNQUOTED(PTYRANGE1,"$p1",[blah])
+fi
+])
+
+
+
 dnl @(#) $Header: /home/jku/CVS/fe/aclocal.m4,v 2.1 1999/01/03 21:16:17 jku Exp $ (LBL)
 dnl
 dnl Copyright (c) 1995, 1996, 1997
@@ -21,7 +50,6 @@ dnl MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 dnl
 dnl LBL autoconf macros
 dnl
-
 
 dnl
 dnl Attempt to determine additional libraries needed for network programs
