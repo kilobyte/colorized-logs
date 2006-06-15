@@ -115,7 +115,7 @@ extern void check_all_actions(char *line, struct session *ses);
 extern void check_all_promptactions(char *line, struct session *ses);
 extern void do_all_high(char *line,struct session *ses);
 extern void do_all_sub(char *line, struct session *ses);
-extern void do_in_MUD_colors(char *txt);
+extern void do_in_MUD_colors(char *txt,int quotetype);
 extern void init_bind(void);
 extern int isnotblank(char *line,int flag);
 extern int match(char *regex, char *string);
@@ -599,7 +599,7 @@ void do_one_line(char *line,int nl,struct session *ses)
         };
     };
     _=line;
-    do_in_MUD_colors(line);
+    do_in_MUD_colors(line,0);
     isnb=isnotblank(line,0);
     if (!ses->ignore && (nl||isnb))
         check_all_promptactions(line, ses);

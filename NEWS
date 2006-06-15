@@ -14,3 +14,13 @@
 * If your terminal happens to support underline and/or italics, you
   can use them in your highlights/whatever.  Of course, if the MUD
   happens to use these codes, they'll work, too.
+
+1.0.3:
+* #timecommand can help profile your scripts.
+* The "Esc" key will no longer work.  In fact, it can produce bad keycodes.
+  Sorry, but due to ancient VT100 design quirks, Esc conflicts with a lot of
+  other keys.  Besides, almost no Unix programs handle it correctly anyway.
+  If this bothers you, you can define BARE_ESC in tintin.h; that will
+  break all key sequences involving Alt.
+* A number of new editing keys has been added.
+* You can now #bind Alt-Key.

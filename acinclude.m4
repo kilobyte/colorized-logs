@@ -1,6 +1,6 @@
 dnl check for valid pty ranges, stolen from screen sources
 AC_DEFUN(AC_PTYRANGES, [
-AC_CHECKING(for ptyranges)
+AC_MSG_CHECKING(ptyranges)
 if test -d /dev/ptym ; then
 pdir='/dev/ptym'
 else
@@ -22,6 +22,9 @@ p0=`echo $ptys | tr ' ' '\012' | sed -e 's/^.*\(.\).$/\1/g' | sort -u | tr -d '\
 p1=`echo $ptys | tr ' ' '\012' | sed -e 's/^.*\(.\)$/\1/g'  | sort -u | tr -d '\012'`
 AC_DEFINE_UNQUOTED(PTYRANGE0,"$p0",[The range of Xes in /dev/ptyXY])
 AC_DEFINE_UNQUOTED(PTYRANGE1,"$p1",[The range of Ys in /dev/ptyXY])
+AC_MSG_RESULT([$p0,$p1])
+else
+AC_MSG_RESULT([])
 fi
 ])
 
@@ -121,3 +124,16 @@ AC_DEFUN(AC_LBL_LIBRARY_NET, [
     # DLPI needs putmsg under HPUX so test for -lstr while we're at it
     AC_CHECK_LIB(str, putmsg)
     ])
+
+
+
+dnl check whether 
+AC_DEFUN(AC_EXT_INLINE, [
+AC_MSG_CHECKING(whether inline functions can be used extern)
+AC_COMPILE_IFELSE([[
+extern inline void blah();int main(){return 0;}
+]],[AC_DEFINE(EXT_INLINE,[],[Define if inline functions can be called extern])
+AC_MSG_RESULT([yes])],
+AC_MSG_RESULT([no])
+)
+])

@@ -1,5 +1,8 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* Define if inline functions can be called extern */
+#undef EXT_INLINE
+
 /* Define to 1 if `TIOCGWINSZ' requires <sys/ioctl.h>. */
 #undef GWINSZ_IN_SYS_IOCTL
 

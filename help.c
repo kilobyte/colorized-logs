@@ -144,9 +144,5 @@ void help_command(char *arg,struct session *ses)
         }
     }
     prompt(NULL);
-#if COMPRESSED_HELP
-    pclose(myfile);
-#else
     fclose(myfile);
-#endif
 }

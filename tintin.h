@@ -53,6 +53,8 @@
 #endif
 /*#define GRAY2 */    /* if you have problems with the dark gray (~8~) color */
 /*#define IGNORE_INT*//* uncomment to disable INT (usually ^C) from keyboard */
+/*#define BARE_ESC*/  /* uncomment to allow use of bare ESC key.  It will
+                         prevent Alt-XXX from being recognized, though. */
 #define GOTO_CHAR '>'	/* be>mt -> #goto be mt */
 		/*Comment last line out to disable this behavior */
 #define OLD_LOG 0 /* set to one to use old-style logging */
@@ -146,7 +148,7 @@
 
 #define BUFFER_SIZE 2048
 #define INPUT_CHUNK 512
-#define VERSION_NUM "1.0.2"
+#define VERSION_NUM "1.0.3"
 #define MSG_ALIAS       0
 #define MSG_ACTION      1
 #define MSG_SUBSTITUTE  2

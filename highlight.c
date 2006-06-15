@@ -37,8 +37,13 @@ extern void tintin_printf(struct session *ses, char *format, ...);
 extern void tintin_eprintf(struct session *ses, char *format, ...);
 
 extern int hinum;
+#ifdef EXT_INLINE
 extern inline int getcolor(char **ptr,int *color,const int flag);
 extern inline int setcolor(char *txt,int c);
+#else
+extern int getcolor(char **ptr,int *color,const int flag);
+extern int setcolor(char *txt,int c);
+#endif
 extern int puts_echoing;
 
 struct colordef

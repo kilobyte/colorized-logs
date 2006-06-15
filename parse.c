@@ -40,8 +40,14 @@ extern void tintin_eprintf(struct session *ses,char *format,...);
 extern void write_line_mud(char *line, struct session *ses);
 extern int do_goto(char *txt,struct session *ses);
 extern void do_out_MUD_colors(char *line);
-inline char *space_out(char *s);
-inline char *get_arg_in_braces(char *s,char *arg,int flag);
+#ifdef EXT_INLINE
+inline
+#endif
+char *space_out(char *s);
+#ifdef EXT_INLINE
+inline
+#endif
+char *get_arg_in_braces(char *s,char *arg,int flag);
 void write_com_arg_mud(char *command, char *argument, int nsp, struct session *ses);
 void prompt(struct session *ses);
 extern char* get_hash(struct hashtable *h, char *key);
@@ -518,7 +524,10 @@ inline char *get_arg_with_spaces(char *s, char *arg)
     return s;
 }
 
-inline char *get_arg_in_braces(char *s,char *arg,int flag)
+#ifdef EXT_INLINE
+inline
+#endif
+char *get_arg_in_braces(char *s,char *arg,int flag)
 {
     int nest = 0;
     char *ptr;
@@ -648,7 +657,10 @@ char *get_command(char *s, char *arg)
 /* spaceout - advance ptr to next none-space */
 /* return: ptr to the first none-space       */
 /*********************************************/
-inline char *space_out(char *s)
+#ifdef EXT_INLINE
+inline
+#endif
+char *space_out(char *s)
 {
     while (isspace(*s))
         s++;

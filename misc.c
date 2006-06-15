@@ -64,10 +64,15 @@ extern void write_line_mud(char *line, struct session *ses);
 extern void set_variable(char *left,char *right,struct session *ses);
 extern void do_all_high(char *line,struct session *ses);
 extern void do_all_sub(char *line, struct session *ses);
+#ifdef EXT_INLINE
 extern inline int getcolor(char **ptr,int *color,const int flag);
+#else
+extern int getcolor(char **ptr,int *color,const int flag);
+#endif
 extern void user_pause(void);
 extern void user_resume(void);
 extern void kill_all(struct session *ses, int mode);
+extern void do_in_MUD_colors(char *txt,int quotetype);
 
 int yes_no(char *txt)
 {
@@ -595,7 +600,10 @@ void system_command(char *arg,struct session *ses)
             return;
         };
         while (fgets(buf,BUFFER_SIZE,output))
+        {
+            do_in_MUD_colors(buf,1);
             textout(buf);
+        }
         fclose(output);
         if (ses->mesvar[9])
             tintin_puts1("#OK COMMAND EXECUTED.", ses);
@@ -1012,6 +1020,11 @@ void remark_command(char *arg, struct session *ses)
 /***********************/
 /* the #nop(e) command */
 /***********************/
+/*
+ I receive a _bug_ report that this command is named "nop" not "nope".
+ Even though that's a ridiculous idea, it won't hurt those of us who
+ can spell. :p
+*/
 void nope_command(char *arg, struct session *ses)
 {
 }
@@ -1031,10 +1044,10 @@ void killall_command(char *arg, struct session *ses)
     kill_all(ses, CLEAN);
 }
 
-/**********************/
-/* the #gauge command */
-/**********************/
-void gauge_command(char *arg, struct session *ses)
+/****************************/
+/* the #timecommand command */
+/****************************/
+void timecommands_command(char *arg, struct session *ses)
 {
     struct timeval tv1,tv2;
     char sec[BUFFER_SIZE],usec[BUFFER_SIZE],right[BUFFER_SIZE];
@@ -1044,7 +1057,7 @@ void gauge_command(char *arg, struct session *ses)
     arg = get_arg(arg, right, 1, ses);
     if (!*right)
     {
-        tintin_eprintf(ses,"#Syntax: #gauge <sec> <usec> <command>");
+        tintin_eprintf(ses,"#Syntax: #timecommand <sec> <usec> <command>");
         return;
     }
     gettimeofday(&tv1, 0);

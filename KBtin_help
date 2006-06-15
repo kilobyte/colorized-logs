@@ -34,7 +34,7 @@ Text variables:
    firstupper  tolower     toupper     substring   prepad      postpad
    reverse     strlen      decolorize  atoi
 Time:
-   ctime       time        gauge
+   ctime       time
 Lists:
    finditem    deleteitems foreach     finditem    getitem     isatom
    listlength  splitlist   implode     explode     sortlist
@@ -45,7 +45,7 @@ Events:
 Routes:
    goto        >           route       unroute     dogoto
 Misc:
-   killall
+   killall     timecommand
 Paths:
    map         mark        path        unmap       pathdir     return
    savepath    unpathdir
@@ -109,25 +109,25 @@ Editing keys:
   Backspace, ^H            - erase character left from cursor
   Del                      - erase character at cursor
   left/right arrows, ^B/^F - move cursor
+  Alt-B/Alt-F              - move cursor to the last/next word
   Home, ^A                 - place cursor at the beginning of the input line
   End, ^E                  - place cursor at the end of the input line
-  Esc                      - erase the input line, not touching the ^Y buffer
-  ^U/^K                    - erase input line before/after cursor
-  ^W                       - erase word behind cursor
-  ^T                       - transpose characters at cursor
-  ^Y                       - paste text deleted by last ^U, ^K or ^W
-  Tab                      - switch input buffers
-Scrollback:
-  PgUp                     - scroll back
-  PgDn                     - scroll forward
-History:
+  ^U/^K                    - delete input line before/after cursor
+  ^W                       - delete "word" until whitespace behind cursor
+  ^T/Alt-T                 - transpose characters/words at cursor
+  Alt-D/Alt-Backpace       - delete word backwards/forward
+  ^Y                       - paste last deleted text
+  Alt-L/Alt-U/Alt-C        - lowercase/uppercase/capitalize current word
+  Ctrl-Tab, Alt-Tab        - switch input buffers
   up/down arrows, ^P/^N    - recall a line from the history
+Scrollback:
+  PgUp/PgDn                - scroll back/forward
 
-The "Tab" key needs some explanation.  Let's assume you are typing in a very
-long tell, and something which requires your immediate attention happened.
-You could use "Esc" to clear your input, however that would forfeit your tell.
-Solution: press "Tab" to switch input lines, do whatever you need, then press
-"Tab" again and continue your tell.
+The "Ctrl-Tab" key needs some explanation.  Let's assume you are typing in a
+very long tell, and something which requires your immediate attention happened.
+You could use "^U" to clear your input, however that would forfeit your tell.
+Solution: press "Ctrl-Tab" to switch input lines, do whatever you need, then
+press "Ctrl-Tab" again and continue your tell.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~<session>
 
@@ -649,9 +649,10 @@ For all you quakers out here, the command to nuke all keybindings is
 #keypad [<boolean>]
 Switches the keypad (rightmost part of keyboard) between the standard mode
 (where it works as either arrow keys or numbers, depending on NumLock state)
-and the alternate mode, where it can be used for keybindings.
-You will prefer the alternate mode if you enjoy walking using the keypad
-keys.
+and the alternate mode, where it can be used for keybindings.  You will
+prefer the alternate mode if you enjoy walking using the keypad keys.
+NOTE: The support for this command is broken on some terminals which don't
+implement vt100 codes properly.
 
 Example:
 #keypad on
@@ -797,7 +798,7 @@ Sets <dest.var> to the number of seconds elapsed since 1970.
 
 #time <dest.var> <time>
 Parses the string <time> and converts it to seconds.  Allowed formats are:
-* "345"                                    assumed to be given in seconds
+* "345"               (assumed to be given in seconds)
 * "1y 245d 15h 30m 4s"
 * "11 hours, 59 minutes and 45 seconds"
 
@@ -806,16 +807,17 @@ Examples:
 
 #action {The armoury will reset in %1.} {
 		#time armreset $1;
-		#math arm {$armreset-$now-1800};
-		#delay $arm {#showme Armoury reset in 30 minutes!}
+		#time now;
+		#math tmp {$armreset-$now-1800};
+		#delay $tmp {#showme Armoury reset in 30 minutes!}
 	}
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~gauge
+~timecommand
 
-#gauge {} {} <command>
+#timecommand {} {} <command>
 Prints the time it took to perform a command.
 
-#gauge <sec> <usec> <command>
+#timecommand <sec> <usec> <command>
 Measures the time it took to perform a command, it is $sec seconds and
 $usec microseconds.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

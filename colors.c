@@ -22,7 +22,10 @@ extern void tintin_eprintf(struct session *ses,char *format,...);
 int mudcolors=3;    /* 0=disabled, 1=on, 2=null, 3=null+warning */
 char *MUDcolors[16]={};
 
-inline int getcolor(char **ptr,int *color,const int flag)
+#ifdef EXT_INLINE
+inline
+#endif
+int getcolor(char **ptr,int *color,const int flag)
 {
     int fg,bg,blink;
     char *txt=*ptr;
@@ -85,7 +88,10 @@ inline int getcolor(char **ptr,int *color,const int flag)
     return 1;
 }
 
-inline int setcolor(char *txt,int c)
+#ifdef EXT_INLINE
+inline
+#endif
+int setcolor(char *txt,int c)
 {
     if (c==-1)
         return sprintf(txt,"~-1~");
@@ -98,7 +104,7 @@ inline int setcolor(char *txt,int c)
 
 #define MAXTOK 10
 
-void do_in_MUD_colors(char *txt)
+void do_in_MUD_colors(char *txt,int quotetype)
 {
     static int ccolor=7;
     /* worst case: buffer full of FormFeeds, with color=1023 */
@@ -209,11 +215,19 @@ error:
             back=txt;
             if (getcolor(&txt,&i,1))
             {
-                *out++='`';
+                if (quotetype)
+                {
+                    *out++='~';
+                    *out++='~';
+                    *out++=':';
+                    *out++='~';
+                }
+                else
+                    *out++='`';
                 back++;
                 while (back<txt)
                     *out++=*back++;
-                *out++='`';
+                *out++=quotetype?'~':'`';
                 break;
             };
         default:

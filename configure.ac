@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 AC_INIT
-AM_INIT_AUTOMAKE(KBtin, 1.0.2)
+AM_INIT_AUTOMAKE(KBtin, 1.0.3)
 AC_CONFIG_SRCDIR([action.c])
 AM_CONFIG_HEADER(config.h)
 
@@ -31,6 +31,7 @@ AC_CHECK_FUNCS([memcpy getpt ptsname snprintf vsnprintf _getpty grantpt forkpty]
 
 AC_PTYRANGES
 AC_LBL_LIBRARY_NET
+AC_EXT_INLINE
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

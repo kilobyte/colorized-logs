@@ -53,7 +53,7 @@ extern void tintin_puts1(char *cptr, struct session *ses);
 extern void tintin_printf(struct session *ses,char *format,...);
 extern void tintin_eprintf(struct session *ses,char *format,...);
 extern struct hashtable* copy_hash(struct hashtable *h);
-extern void do_in_MUD_colors(char *txt);
+extern void do_in_MUD_colors(char *txt,int quotetype);
 
 extern struct session *sessionlist, *activesession, *nullsession;
 
@@ -306,7 +306,7 @@ void cleanup_session(struct session *ses)
     {
         textout_draft(0);
         sprintf(buf,"%s\n",ses->last_line);
-        do_in_MUD_colors(buf);
+        do_in_MUD_colors(buf,0);
         textout(buf);
     };
     sprintf(buf, "#SESSION '%s' DIED.", ses->name);

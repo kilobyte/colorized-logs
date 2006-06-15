@@ -121,5 +121,5 @@ verbose
 dogoto
 changeto
 send
-gauge
+timecommands
 debuglog

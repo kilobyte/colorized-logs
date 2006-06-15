@@ -1,3 +1,18 @@
+1.0.4:
+*	changes needed to compile on Tru-64:
+	*	no "extern inline"
+	*	\e -> \033
+
+1.0.3:
+*	bugfix: color codes in programs spawned by #systems work correctly
+	once again
+*	removed Esc from editing keys
+*	made it possible to #bind sequences containing Alt
+*	added Alt-{<,>,B,F,L,U,C,Backspace,T} to the editing keys
+*	#gauge renamed to #timecommand, and documented
+*	bugfix: don't use pclose(), as we're not using real popen()
+*	bugfix: #reverse
+
 1.0.2:
 *	bugfix: #send with no session
 *	#gauge
