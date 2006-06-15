@@ -62,3 +62,6 @@
 	  a compile-time option) and ttyrec.
 * Added ttyrec2ansi, a filter to strip the timing information from ttyrec
   files.
+
+1.0.6a:
+* Oops... #log didn't obey $variables.

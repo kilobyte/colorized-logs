@@ -1,3 +1,6 @@
+1.0.6a:
+*	bugfix: variables were not resolved in #log
+
 1.0.6:
 *	made commands case-insensitive, so #ALIAS works
 *	bugfix: the prority of "6a" is supposed to come before "60"

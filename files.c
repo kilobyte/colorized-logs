@@ -397,12 +397,12 @@ void log_command(char *arg, struct session *ses)
             get_arg_in_braces(arg, temp, 1);
             substitute_vars(temp, fname);
             substitute_myvars(fname, temp, ses);
-            ses->logfile=open_logfile(ses,fname,
+            ses->logfile=open_logfile(ses,temp,
                 "#OK. LOGGING TO {%s} .....",
                 "#OK. APPENDING LOG TO {%s} .....",
                 "#OK. PIPING LOG TO {%s} .....");
             if (ses->logfile)
-                ses->logname=mystrdup(fname);
+                ses->logname=mystrdup(temp);
         }
         else if (ses->logfile)
         {
@@ -440,12 +440,12 @@ void debuglog_command(char *arg, struct session *ses)
         get_arg_in_braces(arg, temp, 1);
         substitute_vars(temp, fname);
         substitute_myvars(fname, temp, ses);
-            ses->debuglogfile=open_logfile(ses,fname,
+            ses->debuglogfile=open_logfile(ses,temp,
                 "#OK. DEBUGLOG SET TO {%s} .....",
                 "#OK. DEBUGLOG APPENDING TO {%s} .....",
                 "#OK. DEBUGLOG PIPED TO {%s} .....");
         if (ses->debuglogfile)
-            ses->debuglogname=mystrdup(fname);
+            ses->debuglogname=mystrdup(temp);
     }
     else if (ses->debuglogfile)
     {
