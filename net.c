@@ -24,6 +24,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <signal.h>
+#include <stdlib.h>
 #include "tintin.h"
 
 #ifndef BADSIG
@@ -41,81 +42,84 @@
 #endif
 
 
-void do_telnet_protecol();
+extern int do_telnet_protecol(char *data,int nb,struct session *ses);
 void alarm_func(int);
 
-extern int sessionsstarted;
-extern struct listnode *common_aliases, *common_actions, *common_subs;
 extern struct session *sessionlist, *activesession;
 extern int errno;
+extern void syserr(char *msg);
+extern void tintin_printf(struct session *ses, char *format, ...);
+extern void prompt(struct session *ses);
 
 /**************************************************/
 /* try connect to the mud specified by the args   */
 /* return fd on success / 0 on failure            */
 /**************************************************/
-int connect_mud(host, port, ses)
-     char *host;
-     char *port;
-     struct session *ses;
+int connect_mud(char *host, char *port, struct session *ses)
 {
-  int sock, connectresult;
-  struct sockaddr_in sockaddr;
+    int sock, connectresult;
+    struct sockaddr_in sockaddr;
 
-  if (isdigit(*host))		/* interprete host part */
-    sockaddr.sin_addr.s_addr = inet_addr(host);
-  else {
-    struct hostent *hp;
+    if (isdigit(*host))		/* interprete host part */
+        sockaddr.sin_addr.s_addr = inet_addr(host);
+    else
+    {
+        struct hostent *hp;
 
-    if ((hp = gethostbyname(host)) == NULL) {
-      tintin_puts("#ERROR - UNKNOWN HOST.", ses);
-      prompt(NULL);
-      return 0;
+        if ((hp = gethostbyname(host)) == NULL)
+        {
+            tintin_printf(ses, "#ERROR - UNKNOWN HOST: {%s}", host);
+            prompt(NULL);
+            return 0;
+        }
+        memcpy((char *)&sockaddr.sin_addr, hp->h_addr, sizeof(sockaddr.sin_addr));
     }
-    memcpy((char *)&sockaddr.sin_addr, hp->h_addr, sizeof(sockaddr.sin_addr));
-  }
 
-  if (isdigit(*port))
-    sockaddr.sin_port = htons(atoi(port));	/* inteprete port part */
-  else {
-    tintin_puts("#THE PORT SHOULD BE A NUMBER.", ses);
-    prompt(NULL);
-    return 0;
-  }
-
-  if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-    syserr("socket");
-
-  sockaddr.sin_family = AF_INET;
-
-
-  tintin_puts("#Trying to connect..", ses);
-
-  if (signal(SIGALRM, alarm_func) == BADSIG)
-    syserr("signal SIGALRM");
-
-  alarm(15);			/* We'll allow connect to hang in 15seconds! NO MORE! */
-  connectresult = connect(sock, (struct sockaddr *)&sockaddr, sizeof(sockaddr));
-  alarm(0);
-
-  if (connectresult) {
-    close(sock);
-    switch (errno) {
-    case EINTR:
-      tintin_puts("#CONNECTION TIMED OUT.", ses);
-      break;
-    case ECONNREFUSED:
-      tintin_puts("#ERROR - CONNECTION REFUSED.", ses);
-      break;
-    case ENETUNREACH:
-      tintin_puts("#ERROR - THE NETWORK IS NOT REACHABLE FROM THIS HOST.", ses);
-      break;
-    default:
-      tintin_puts("#Couldn't connect", ses);
+    if (isdigit(*port))
+        sockaddr.sin_port = htons(atoi(port));	/* inteprete port part */
+    else
+    {
+        tintin_printf(ses, "#THE PORT SHOULD BE A NUMBER (got {%s}).", port);
+        prompt(NULL);
+        return 0;
     }
-    prompt(NULL);
-    return 0;
-  }
-  return sock;
+
+    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+        syserr("socket");
+
+    sockaddr.sin_family = AF_INET;
+
+
+    tintin_printf(ses, "#Trying to connect...");
+
+    if (signal(SIGALRM, alarm_func) == BADSIG)
+        syserr("signal SIGALRM");
+
+    alarm(15);			/* We'll allow connect to hang in 15seconds! NO MORE! */
+    connectresult = connect(sock, (struct sockaddr *)&sockaddr, sizeof(sockaddr));
+    alarm(0);
+
+    if (connectresult)
+    {
+        close(sock);
+        switch (errno)
+        {
+        case EINTR:
+            tintin_printf(ses, "#CONNECTION TIMED OUT.");
+            break;
+        case ECONNREFUSED:
+            tintin_printf(ses, "#ERROR - Connection refused.");
+            break;
+        case ENETUNREACH:
+            tintin_printf(ses, "#ERROR - Network unreachable.");
+            break;
+        default:
+            tintin_printf(ses, "#Couldn't connect to %s:%s",host,port);
+        }
+        prompt(NULL);
+        return 0;
+    }
+    return sock;
 }
 
 /*****************/
@@ -123,79 +127,103 @@ int connect_mud(host, port, ses)
 /*****************/
 void alarm_func(int k)
 {
-  /* nothing happens :) */
+    /* nothing happens :) */
 }
 
 /************************************************************/
 /* write line to the mud ses is connected to - add \n first */
 /************************************************************/
-void write_line_mud(line, ses)
-     char *line;
-     struct session *ses;
+void write_line_mud(char *line, struct session *ses)
 {
-  char outtext[BUFFER_SIZE + 2];
+    char outtext[BUFFER_SIZE + 2];
 
-  strcpy(outtext, line);
-  strcat(outtext, "\n");
+    strcpy(outtext, line);
+    if (ses->issocket)
+        strcat(outtext, "\r\n");
+    else
+        strcat(outtext, "\n");
 
-  if (write(ses->socket, outtext, strlen(outtext)) == -1)
-    syserr("write in write_to_mud");
+    if (write(ses->socket, outtext, strlen(outtext)) == -1)
+        syserr("write in write_to_mud");
+    ses->idle_since=time(0);
 }
 
 
 /*******************************************************************/
 /* read at most BUFFER_SIZE chars from mud - parse protocol stuff  */
 /*******************************************************************/
-int read_buffer_mud(buffer, ses)
-     char *buffer;
-     struct session *ses;
+int read_buffer_mud(char *buffer, struct session *ses)
 {
-  int i, didget;
-  char tmpbuf[BUFFER_SIZE], *cpsource, *cpdest;
+    int i, didget, b;
+    char tmpbuf[BUFFER_SIZE], *cpsource, *cpdest;
 
-  didget = read(ses->socket, tmpbuf, 512);
-  ses->old_more_coming=ses->more_coming;
-  if (didget == 512)
-    ses->more_coming = 1;
-  else
-    ses->more_coming = 0;
-  if (didget < 0)
-    return 0;			/*syserr("read from socket");  we do this here instead - dunno quite 
-				   why, but i got some mysterious connection read by peer on some hps */
 
-  else if (didget == 0)
-    return 0;
+    if (!ses->issocket)
+    {
+        didget=read(ses->socket, buffer, 512);
+        if (didget<=0)
+            return -1;
+        ses->more_coming=(didget==512);
+        buffer[didget]=0;
+        return didget;
+    }
+    
+    didget = read(ses->socket, tmpbuf+ses->telnet_buf, 512-ses->telnet_buf);
 
-  else {
+    if (didget < 0)
+        return -1;
+
+    else if (didget == 0)
+        return -1;
+    
+    if ((didget+=ses->telnet_buf) == 512)
+        ses->more_coming = 1;
+    else
+        ses->more_coming = 0;
+    ses->telnet_buf=0;
+    ses->ga=0;
+
     tmpbuf[didget]=0;
     cpsource = tmpbuf;
     cpdest = buffer;
     i = didget;
-    while (i > 0) {
-      if (*(unsigned char *)cpsource == 255) {
-	do_telnet_protecol(*cpsource, *(cpsource + 1), *(cpsource + 2), ses);
-	i -= 3;
-	cpsource += 3;
-      } else {
-	*cpdest++ = *cpsource++;
-	i--;
-      }
+    while (i > 0)
+    {
+        switch(*(unsigned char *)cpsource)
+        {
+        case 0:
+            i--;
+            didget--;
+            cpsource++;
+            break;
+        case 255:
+            b=do_telnet_protecol(cpsource, i, ses);
+            if (b==-1)
+            {
+                ses->telnet_buf=i;
+                memmove(tmpbuf, cpsource, i);
+                *cpdest=0;
+                return didget-ses->telnet_buf;
+            }
+            if (b==-2)
+            {
+            	i-=2;
+            	didget-=2;
+            	cpsource+=2;
+/*            	*cpdest++=164;*/
+            	if (!i)
+            		ses->ga=1;
+            	break;
+            }
+            i -= b;
+            didget-=b;
+            cpsource += b;
+            break;
+        default:
+            *cpdest++ = *cpsource++;
+            i--;
+        }
     }
-  }
-  *cpdest = '\0';
-  return didget;
-}
-
-
-/*****************************************************************/
-/* respond according to the telnet protecol - weeeeelllllll..... */
-/*****************************************************************/
-void do_telnet_protecol(dat0, dat1, dat2, ses)
-     int dat0;
-     int dat1;
-     int dat2;
-     struct session *ses;
-{
-/* we don't do anything here.. why should we? add the stuff yourself if
-   you feel like being nice..... */
+    *cpdest = '\0';
+    return didget;
 }

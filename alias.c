@@ -20,80 +20,79 @@
 extern char *get_arg_in_braces();
 extern void show_aliases();
 extern void prompt();
-extern struct listnode *search_node_with_wild();
-extern struct listnode *searchnode_list();
+extern struct listnode *search_node_with_wild(struct listnode *listhead, char *cptr);
+extern struct listnode *searchnode_list(struct listnode *listhead, char *cptr);
+extern void tintin_printf(struct session *ses,char *format,...);
+extern void shownode_list(struct listnode *nptr);
+extern void deletenode_list(struct listnode *listhead, struct listnode *nptr);
+extern void insertnode_list(struct listnode *listhead, char *ltext, char *rtext, char *prtext, int mode);
+extern void show_list(struct listnode *listhead);
 
-extern struct listnode *common_aliases;
-extern char vars[10][BUFFER_SIZE];	/* the %0, %1, %2,....%9 variables */
+
 extern int alnum;
 extern int mesvar[6];
 
 /**********************/
 /* the #alias command */
 /**********************/
-void alias_command(arg, ses)
-     char *arg;
-     struct session *ses;
+void alias_command(char *arg, struct session *ses)
 {
-  char left[BUFFER_SIZE], right[BUFFER_SIZE], arg2[BUFFER_SIZE];
-  struct listnode *myaliases, *ln;
+    char left[BUFFER_SIZE], right[BUFFER_SIZE];
+    struct listnode *myaliases, *ln;
 
-  myaliases = (ses) ? ses->aliases : common_aliases;
-  arg = get_arg_in_braces(arg, left, 0);
-  arg = get_arg_in_braces(arg, right, 1);
+    myaliases = ses->aliases;
+    arg = get_arg_in_braces(arg, left, 0);
+    arg = get_arg_in_braces(arg, right, 1);
 
-  if (!*left) {
-    tintin_puts2("#Defined aliases:", ses);
-    show_list(myaliases);
-    prompt(ses);
-  } else if (*left && !*right) {
-    if ((ln = search_node_with_wild(myaliases, left)) != NULL) {
-      while ((myaliases = search_node_with_wild(myaliases, left)) != NULL) {
-	shownode_list(myaliases);
-      }
-      prompt(ses);
-    } else if (mesvar[0]) {
-      sprintf(right, "#No match(es) found for {%s}", left);
-      tintin_puts2(right, ses);
+    if (!*left)
+    {
+        tintin_printf(ses,"#Defined aliases:");
+        show_list(myaliases);
+        prompt(ses);
     }
-  } else {
-    if ((ln = searchnode_list(myaliases, left)) != NULL)
-      deletenode_list(myaliases, ln);
-    insertnode_list(myaliases, left, right, "0", ALPHA);
-    if (mesvar[0]) {
-      sprintf(arg2,"#Ok. {%s} aliases {%s}.", left, right);
-      tintin_puts2(arg2, ses);
+    else if (*left && !*right)
+    {
+        if ((ln = search_node_with_wild(myaliases, left)) != NULL)
+        {
+            while ((myaliases = search_node_with_wild(myaliases, left)) != NULL)
+                shownode_list(myaliases);
+            prompt(ses);
+        }
+        else if (mesvar[0])
+            tintin_printf(ses, "#No match(es) found for {%s}.", left);
     }
-    alnum++;
-  }
+    else
+    {
+        if ((ln = searchnode_list(myaliases, left)) != NULL)
+            deletenode_list(myaliases, ln);
+        insertnode_list(myaliases, left, right, 0, ALPHA);
+        if (mesvar[0])
+            tintin_printf(ses,"#Ok. {%s} aliases {%s}.", left, right);
+        alnum++;
+    }
 }
 
 /************************/
 /* the #unalias command */
 /************************/
-void unalias_command(arg, ses)
-     char *arg;
-     struct session *ses;
+void unalias_command(char *arg, struct session *ses)
 {
-  char left[BUFFER_SIZE], result[BUFFER_SIZE];
-  struct listnode *myaliases, *ln, *temp;
-  int flag;
+    char left[BUFFER_SIZE];
+    struct listnode *myaliases, *ln, *temp;
+    int flag;
 
-  flag = FALSE;
-  myaliases = (ses) ? ses->aliases : common_aliases;
-  temp = myaliases;
-  arg = get_arg_in_braces(arg, left, 1);
-  while ((ln = search_node_with_wild(temp, left)) != NULL) {
-    flag = TRUE;
-    if (mesvar[0]) {
-      sprintf(result,"#Ok. {%s} is no longer an alias.", ln->left);
-      tintin_puts2(result, ses);
+    flag = FALSE;
+    myaliases = ses->aliases;
+    temp = myaliases;
+    arg = get_arg_in_braces(arg, left, 1);
+    while ((ln = search_node_with_wild(temp, left)) != NULL)
+    {
+        flag = TRUE;
+        if (mesvar[0])
+            tintin_printf(ses,"#Ok. {%s} is no longer an alias.", ln->left);
+        /* temp=ln; */
+        deletenode_list(myaliases, ln);
     }
-    /* temp=ln; */
-    deletenode_list(myaliases, ln);
-  }
-  if (!flag && mesvar[0]) {
-    sprintf(result, "#No match(es) found for {%s}", left);
-    tintin_puts2(result, ses);
-  }
+    if (!flag && mesvar[0])
+        tintin_printf(ses, "#No match(es) found for {%s}", left);
 }

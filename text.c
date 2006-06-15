@@ -17,43 +17,48 @@
 #endif
 #include "tintin.h"
 
-extern struct session *parse_input();
-extern char *get_arg_in_braces();
+extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
+extern char *get_arg_in_braces(char *s,char *arg,int flag);
 extern int puts_echoing;
 extern int verbose;
 extern char tintin_char;
 extern int verbatim;
-extern void verbatim_command();
+extern struct session *nullsession;
+extern void check_all_promptactions(char *line, struct session *ses);
+extern void prompt(struct session *ses);
+extern void tintin_puts(char *cptr, struct session *ses);
+extern void write_line_mud(char *line, struct session *ses);
+
 
 /**********************************/
 /* load a file for input to mud.  */
 /**********************************/
-void read_file(arg, ses)
-     char *arg;
-     struct session *ses;
+void read_file(char *arg, struct session *ses)
 {
-  FILE *myfile;
-  char buffer[BUFFER_SIZE], *cptr;
+    FILE *myfile;
+    char buffer[BUFFER_SIZE], *cptr;
 
-  get_arg_in_braces(arg, arg, 1);
-  if (ses == NULL) {
-    tintin_puts("You can't read any text in without a session being active.", NULL);
-    prompt(NULL);
-    return;
-  }
-  if ((myfile = fopen(arg, "r")) == NULL) {
-    tintin_puts("ERROR: No file exists under that name.\n", (struct session *)NULL);
-    prompt(NULL);
-    return;
-  }
-  while (fgets(buffer, sizeof(buffer), myfile)) {
-    for (cptr = buffer; *cptr && *cptr != '\n'; cptr++) ;
-    *cptr = '\0';
-    write_line_mud(buffer, ses);
-  }
-  fclose(myfile);
-  tintin_puts("File read - Success.\n", (struct session *)NULL);
-  prompt(NULL);
-  tintin_puts("\n", (struct session *)NULL);
+    get_arg_in_braces(arg, arg, 1);
+    if (ses == nullsession)
+    {
+        tintin_puts("You can't read any text in without a session being active.", NULL);
+        prompt(NULL);
+        return;
+    }
+    if ((myfile = fopen(arg, "r")) == NULL)
+    {
+        tintin_puts("ERROR: No file exists under that name.\n", ses);
+        prompt(ses);
+        return;
+    }
+    while (fgets(buffer, sizeof(buffer), myfile))
+    {
+        for (cptr = buffer; *cptr && *cptr != '\n'; cptr++) ;
+        *cptr = '\0';
+        write_line_mud(buffer, ses);
+    }
+    fclose(myfile);
+    tintin_puts("File read - Success.\n", ses);
+    prompt(ses);
 
 }

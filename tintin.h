@@ -1,20 +1,35 @@
-/*********************************************************************/
-/* file: tintin.h - the include file for tintin++                    */
-/*                             TINTIN ++                             */
-/*          (T)he K(I)cki(N) (T)ickin D(I)kumud Clie(N)t             */
-/*                    modified by Bill Reiss 1993                    */
-/*                     coded by peter unold 1992                     */
-/*********************************************************************/
+/******************************************************************/
+/* file: tintin.h - the include file for KBtin                    */
+/******************************************************************/
 
 #include <stdio.h>
-#include <curses.h>
+#define UI_FULLSCREEN
+
 /************************/
 /* The meaning of life: */
 /************************/
-#undef TRUE
-#undef FALSE
 #define TRUE 1
 #define FALSE 0
+
+/**********************/
+/* color ANSI numbers */
+/**********************/
+#ifdef UI_FULLSCREEN
+#define COLOR_BLACK	0
+#define COLOR_BLUE	4
+#define COLOR_GREEN	2
+#define COLOR_CYAN	6
+#define COLOR_RED	1
+#define COLOR_MAGENTA	5
+#define COLOR_YELLOW	3
+#define COLOR_WHITE	7
+#endif
+
+/*************************/
+/* telnet protocol stuff */
+/*************************/
+#define TERM                    "KBtin"   /* terminal type */
+/*#define TELNET_DEBUG    /* uncomment to show TELNET negotiations */
 
 /************************************************************************/
 /* Do you want to use help compression or not:  with it, space is saved */
@@ -33,7 +48,14 @@
 /***********************************************/
 /* Some default values you might wanna change: */
 /***********************************************/
-#define SCREEN_WIDTH 80
+#ifdef UI_FULLSCREEN
+#define CONSOLE_LENGTH 40960
+#define STATUS_COLOR COLOR_BLACK
+#endif
+/*#define GRAY2 */    /* if you have problems with the dark gray (~8~) color */
+/*#define IGNORE_INT*//* uncomment to disable INT (usually ^C) from keyboard */
+#define GOTO_CHAR '>'	/* be>mt -> #goto be mt */
+		/*Comment last line out to disable this behavior */
 #define ALPHA 1
 #define PRIORITY 0
 #define CLEAN 0
@@ -41,29 +63,35 @@
 #define OLD_LOG 0 /* set to one to use old-style logging */
 #define DEFAULT_OPEN '{' /*character that starts an argument */
 #define DEFAULT_CLOSE '}' /*character that ends an argument */
-#define SYSTEM_COMMAND_DEFAULT "system"   /* name of the system command */
 #define HISTORY_SIZE 30                   /* history size */
-#define MAX_PATH_LENGTH 200               /* max path lenght */
+#define MAX_PATH_LENGTH 256               /* max path lenght */
+#define MAX_LOCATIONS 512
 #define DEFAULT_TINTIN_CHAR '#'           /* tintin char */
-#define DEFAULT_TICK_SIZE 75              /* typical for diku */
+#define DEFAULT_TICK_SIZE 60
+#define DEFAULT_ROUTE_DISTANCE 10
 #define DEFAULT_VERBATIM_CHAR '\\'        /* if an input starts with this
                                              char, it will be sent 'as is'
                                              to the MUD */
 #ifndef DEFAULT_FILE_DIR
-#define DEFAULT_FILE_DIR "/usr/local/lib/tintin" /* Path to Tintin files, or HOME */
+#define DEFAULT_FILE_DIR "." /* Path to Tintin files, or HOME */
 #endif
 #if COMPRESSED_HELP
-#define DEFAULT_COMPRESSION_EXT ".Z"     /* for compress: ".Z" */
-#define DEFAULT_EXPANSION_STR "uncompress -c "/* for compress: "uncompress -c" */
+#define DEFAULT_COMPRESSION_EXT ".gz"     /* for compress: ".Z" */
+#define DEFAULT_EXPANSION_STR "gzip -cd "/* for compress: "uncompress -c" */
+#else
+#define DEFAULT_COMPRESSION_EXT ""
 #endif
+#define NEWS_FILE   "NEWS"
 
 #define DEFAULT_DISPLAY_BLANK TRUE        /* blank lines */
 #define DEFAULT_ECHO TRUE                 /* echo */         
 #define DEFAULT_IGNORE FALSE              /* ignore */
 #define DEFAULT_SPEEDWALK FALSE           /* speedwalk */
+	/* note: speedwalks are possible only on some primitive MUDs
+	   with only 4 basic directions (w,e,n,s)                    */
 #define DEFAULT_PRESUB FALSE              /* presub before actions */
 #define DEFAULT_TOGGLESUBS FALSE          /* turn subs on and off FALSE=ON*/
-#define DEFAULT_MUDCOLORS TRUE            /* convert ~n~ to color codes */
+#define DEFAULT_KEYPAD FALSE              /* start in standard keypad mode */
 
 #define DEFAULT_ALIAS_MESS TRUE           /* messages for responses */
 #define DEFAULT_ACTION_MESS TRUE          /* when setting/deleting aliases, */
@@ -72,25 +100,52 @@
 #define DEFAULT_HIGHLIGHT_MESS TRUE       /* TRUE=ON FALSE=OFF */
 #define DEFAULT_VARIABLE_MESS TRUE        /* might want to turn off these */
 #define DEFAULT_PATHDIR_MESS TRUE
+#define DEFAULT_ROUTE_MESS TRUE
+#define DEFAULT_GOTO_MESS TRUE
+#define DEFAULT_BIND_MESS TRUE
+#define DEFAULT_SYSTEM_MESS TRUE
+#define DEFAULT_PATH_MESS TRUE
+/*#define PARTIAL_LINE_MARKER "\376"*/       /* comment out to disable */
+/**************************************************************************/
+/* Should a prompt appear whenever TINTIN has written something to the    */
+/* screen?                                                                */
+/**************************************************************************/
+#define FORCE_PROMPT FALSE
 /**************************************************************************/
 /* Whenever TINTIN has written something to the screen, the program sends */
-/* a CR/LF to the diku to force a new prompt to appear. You can have      */
+/* a CR/LF to the MUD to force a new prompt to appear. You can have       */
 /* TINTIN print it's own pseudo prompt instead.                           */
 /**************************************************************************/
-#define PSEUDO_PROMPT TRUE
-#define UI_FULLSCREEN
+#define PSEUDO_PROMPT FALSE
 /*************************************************************************/
 /* The text below is checked for. If it trickers then echo is turned off */
 /* echo is turned back on the next time the user types a return          */
 /*************************************************************************/
-#define PROMPT_FOR_PW_TEXT "assword:"
+#define PROMPT_FOR_PW_TEXT "*assword:*"
+/*************************************************************************/
+/* Whether the MUD tells us to echo off, let's check whether it's a      */
+/* password input prompt, or a --More-- prompt.  Unfortunately, both     */
+/* types can come in a variety of types ("*assword:", "Again:", national */
+/* languages, etc), so it's better to assume it's a password if unsure.  */
+/*************************************************************************/
+#define PROMPT_FOR_MORE_TEXT "*line * of *"
+
+#define STOP_AT_SPACES 0
+#define WITH_SPACES 1
+
+#define REMOVE_ONEELEM_BRACES /* remove braces around one element list in 
+				 #splitlist command i.e. {atom} -> atom
+				 similar to #getitemnr command behaviour */
+
+#define EMPTY_LINE "-gag-"
 
 /**************************************************************************/ 
 /* The stuff below here shouldn't be modified unless you know what you're */
 /* doing........                                                          */
 /**************************************************************************/ 
 #define BUFFER_SIZE 2048
-#define VERSION_NUM "0.2.3"
+#define MAX_MESVAR 11
+#define VERSION_NUM "0.4.1"
 /************************ structures *********************/
 struct listnode {
   struct listnode *next;
@@ -108,22 +163,40 @@ struct eventnode {
   int time; /* time_t */
 };
 
+struct routenode
+{
+	struct routenode *next;
+	int dest;
+	char *path;
+	int distance;
+	char *cond;
+};
+
 struct session {
   struct session *next;
   char *name;
   char *address;
   int tickstatus;
   int time0;      /* time of last tick (adjusted every tick) */
+  int time10;
   int tick_size;
   int snoopstatus;
   FILE *logfile;
   int ignore;
-  struct listnode *aliases, *actions, *subs, *myvars, *highs, *antisubs;  
+  struct listnode *aliases, *actions, *prompts, *subs, *myvars, *highs, *antisubs, *binds;
   char *history[HISTORY_SIZE];
   struct listnode *path, *pathdirs;
+  struct routenode *routes[MAX_LOCATIONS];
+  char *locations[MAX_LOCATIONS];
   struct eventnode *events;
-  int path_length, path_list_size;
-  int socket, socketbit;
-  int old_more_coming,more_coming;
+  int path_length, no_return;
+  int socket, socketbit, issocket, naws, ga, gas;
+  int server_echo; /* 0=not negotiated, 1=we shouldn't echo, 2=we can echo */
+  int idle_since;
+  int more_coming;
   char last_line[BUFFER_SIZE];
+  int telnet_buf;
 };
+
+typedef char pvars_t[10][BUFFER_SIZE];
+typedef char* hashtable;

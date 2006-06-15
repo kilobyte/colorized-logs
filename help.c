@@ -12,98 +12,140 @@
 #ifdef HAVE_STDLIB_H
 #include <stdlib.h>
 #endif
+#ifdef HAVE_STRING_H
+#include <string.h>
+#else
+#ifdef HAVE_STRINGS_H
+#include <strings.h>
+#endif
+#endif
+
+extern char tintin_char;
+extern int is_abrev(char *s1, char *s2);
+extern void check_all_promptactions(char *line, struct session *ses);
+extern void prompt(struct session *ses);
+extern char *tintin_exec;
+extern void tintin_printf(struct session *ses, const char *format, ...);
+extern FILE *mypopen(char *command);
 
 FILE *check_file(char *filestring)
 {
 #if COMPRESSED_HELP
-  char sysfile[BUFFER_SIZE];
+    char sysfile[BUFFER_SIZE];
+    FILE *f;
 
-  sprintf(sysfile, "%s %s", DEFAULT_EXPANSION_STR, filestring);
-  if (fopen(filestring, "r"))
-    return (FILE *) popen(sysfile, "r");
-  return NULL;
+    sprintf(sysfile, "%s%s", filestring, DEFAULT_COMPRESSION_EXT);
+    if ((f=fopen(sysfile, "r")))
+        fclose(f);
+    else
+        return 0;
+    sprintf(sysfile, "%s %s%s", DEFAULT_EXPANSION_STR, filestring,
+        DEFAULT_COMPRESSION_EXT);
+    return mypopen(sysfile);
 #else
-  return (FILE *) fopen(filestring, "r");
+    return (FILE *) fopen(filestring, "r");
 #endif
 }
 
-void help_command(arg)
-     char *arg;
+void help_command(char *arg)
 {
-  FILE *myfile=NULL;
-  char *cptr, text[80], line[80], filestring[500];
-  int flag, counter;
+    FILE *myfile=NULL;
+    char text[BUFFER_SIZE], line[BUFFER_SIZE], filestring[BUFFER_SIZE];
+    int flag;
 
-  flag = TRUE;
-  if (strcmp(DEFAULT_FILE_DIR, "HOME")) {
-    sprintf(filestring, "%s/.tt_help.txt", DEFAULT_FILE_DIR);
-#if COMPRESSED_HELP
-    strcat(filestring, DEFAULT_COMPRESSION_EXT);
+    flag = TRUE;
+    if (strcmp(DEFAULT_FILE_DIR, "HOME"))
+    {
+        sprintf(filestring, "%s/KBtin_help", DEFAULT_FILE_DIR);
+        myfile = check_file(filestring);
+    }
+#ifdef DATA_PATH
+    if (myfile == NULL)
+    {
+        sprintf(filestring, "%s/KBtin_help", DATA_PATH);
+        myfile = check_file(filestring);
+    }
 #endif
-    myfile = check_file(filestring);
-  }
-  if (myfile == NULL) {
-    sprintf(filestring, "%s/.tt_help.txt", getenv("HOME"));
-#if COMPRESSED_HELP
-    strcat(filestring, DEFAULT_COMPRESSION_EXT);
+    if (myfile == NULL)
+    {
+        sprintf(filestring, "%s_help", tintin_exec);
+        myfile = check_file(filestring);
+    }
+    if (myfile == NULL)
+    {
+        sprintf(filestring, "%s/KBtin_help", getenv("HOME"));
+        myfile = check_file(filestring);
+    }
+    if (myfile == NULL)
+    {
+        tintin_printf(0, "#Help file not found - no help available.");
+        tintin_printf(0, "#Locations checked:");
+        if (strcmp(DEFAULT_FILE_DIR, "HOME"))
+            tintin_printf(0, "#      %s/KBtin_help%s", DEFAULT_FILE_DIR,
+                DEFAULT_COMPRESSION_EXT);
+#ifdef DATA_PATH
+        tintin_printf(0, "#      %s/KBtin_help%s", DATA_PATH,
+            DEFAULT_COMPRESSION_EXT);
 #endif
-    if ((myfile = check_file(filestring)) == NULL) {
-      char err[1000];
-
-      sprintf(err, "#Help file '%s' not found - no help available.", filestring);
-      tintin_puts2(err, NULL);
-      prompt(NULL);
-      return;
+        tintin_printf(0, "#      %s_help%s",tintin_exec,
+            DEFAULT_COMPRESSION_EXT);
+        tintin_printf(0, "#      %s/KBtin_help%s", getenv("HOME"),
+            DEFAULT_COMPRESSION_EXT);
+        prompt(NULL);
+        return;
     }
-  }
-  if (*arg) {
-    sprintf(text, "~%s", arg);
-    cptr = text;
-
-    while (*++cptr) {
-      *cptr = toupper(*cptr);
+    if (*arg==tintin_char)
+        arg++;
+    if (*arg)
+    {
+        sprintf(text, "~%s", arg);
+        while (flag)
+        {
+            fgets(line, sizeof(line), myfile);
+            if (*line == '~')
+            {
+                if (*(line + 1) == '*')
+                {
+                    tintin_printf(0,"#Sorry, no help on that word.");
+                    flag = FALSE;
+                }
+                else if (is_abrev(text, line))
+                {
+                    while (flag)
+                    {
+                        fgets(line, sizeof(line), myfile);
+                        if ((*line == '~')&&(*(line+1)=='~'))
+                            flag = FALSE;
+                        else
+                        {
+                            *(line + strlen(line) - 1) = '\0';
+                            if (*line!='~')
+                                tintin_printf(0,"%s",line);
+                        }
+                    }
+                }
+            }
+        }
     }
-    while (flag) {
-      fgets(line, sizeof(line), myfile);
-      if (*line == '~') {
-	if (*(line + 1) == '*') {
-	  tintin_puts2("#Sorry, no help on that word.", (struct session *)NULL);
-	  flag = FALSE;
-	} else if (is_abrev(text, line)) {
-	  counter = 0;
-	  while (flag) {
-	    fgets(line, sizeof(line), myfile);
-	    if (*line == '~')
-	      flag = FALSE;
-	    else {
-	      *(line + strlen(line) - 1) = '\0';
-	      tintin_puts2(line, (struct session *)NULL);
-	    }
-	    if (flag && (counter++ > 23)) {
-	      tintin_puts2("[ -- Press a key to continue -- ]",
-			   (struct session *)NULL);
-	      getchar();
-	      counter = 0;
-	    }
-	  }
-	}
-      }
+    else
+    {
+        while (flag)
+        {
+            fgets(line, sizeof(line), myfile);
+            if ((*line == '~')&&(*(line+1)=='~'))
+                flag = FALSE;
+            else
+            {
+                *(line + strlen(line) - 1) = '\0';
+                if (*line!='~')
+                    tintin_printf(0,"%s",line);
+            }
+        }
     }
-  } else {
-    while (flag) {
-      fgets(line, sizeof(line), myfile);
-      if (*line == '~')
-	flag = FALSE;
-      else {
-	*(line + strlen(line) - 1) = '\0';
-	tintin_puts2(line, (struct session *)NULL);
-      }
-    }
-  }
-  prompt(NULL);
+    prompt(NULL);
 #if COMPRESSED_HELP
-  pclose(myfile);
+    pclose(myfile);
 #else
-  fclose(myfile);
+    fclose(myfile);
 #endif
 }

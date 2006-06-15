@@ -18,10 +18,7 @@
 #include <signal.h>
 #include <assert.h>
 #include "tintin.h"
-
-#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -34,6 +31,8 @@ struct session *sessionlist;
 
 /* extern functions */
 extern void tintin_puts(char *, struct session *);
+extern void execute_event(struct eventnode *ev, struct session *ses);
+extern void tintin_puts1(char *cptr, struct session *ses);
 
 /* local globals */
 int sec_to_tick, time0, tick_size = 75;
@@ -42,118 +41,117 @@ int ticker_interrupted;
 /*********************/
 /* the #tick command */
 /*********************/
-void tick_command(ses)
-     struct session *ses;
+void tick_command(struct session *ses)
 {
-  if (ses) {
-    char buf[100];
-    int to_tick;
+    if (ses)
+    {
+        char buf[100];
+        int to_tick;
 
-    to_tick = ses->tick_size - (time(NULL) - ses->time0) % ses->tick_size;
-    sprintf(buf, "THERE'S NOW %d SECONDS TO NEXT TICK.", to_tick);
-    tintin_puts(buf, ses);
-  } else
-    tintin_puts("#NO SESSION ACTIVE => NO TICKER!", ses);
+        to_tick = ses->tick_size - (time(NULL) - ses->time0) % ses->tick_size;
+        sprintf(buf, "THERE'S NOW %d SECONDS TO NEXT TICK.", to_tick);
+        tintin_puts(buf, ses);
+    }
+    else
+        tintin_puts("#NO SESSION ACTIVE => NO TICKER!", ses);
 }
 
 /************************/
 /* the #tickoff command */
 /************************/
-void tickoff_command(ses)
-     struct session *ses;
+void tickoff_command(struct session *ses)
 {
-  if (ses) {
-    ses->tickstatus = FALSE;
-    tintin_puts("#TICKER IS NOW OFF.", ses);
-  } else
-    tintin_puts("#NO SESSION ACTIVE => NO TICKER!", ses);
+    if (ses)
+    {
+        ses->tickstatus = FALSE;
+        tintin_puts("#TICKER IS NOW OFF.", ses);
+    }
+    else
+        tintin_puts("#NO SESSION ACTIVE => NO TICKER!", ses);
 }
 
 /***********************/
 /* the #tickon command */
 /***********************/
-void tickon_command(ses)
-     struct session *ses;
+void tickon_command(struct session *ses)
 {
-  if (ses) {
-    ses->tickstatus = TRUE;
-    if(ses->time0 == 0)
-      ses->time0 = time(NULL);
-    tintin_puts("#TICKER IS NOW ON.", ses);
-  } else
-    tintin_puts("#NO SESSION ACTIVE => NO TICKER!", ses);
-}
-
-/************************/
-/* the #tickset command */
-/************************/
-void tickset_command(ses)
-     struct session *ses;
-{
-  if (ses)
-    ses->time0 = time(NULL);	/* we don't prompt! too many ticksets... */
-  else
-    tintin_puts("#NO SESSION ACTIVE => NO TICKER!", ses);
+    if (ses)
+    {
+        ses->tickstatus = TRUE;
+        if(ses->time0 == 0)
+            ses->time0 = time(NULL);
+        tintin_puts("#TICKER IS NOW ON.", ses);
+    }
+    else
+        tintin_puts("#NO SESSION ACTIVE => NO TICKER!", ses);
 }
 
 /*************************/
 /* the #ticksize command */
 /*************************/
-void ticksize_command(arg, ses)
-     char *arg;
-     struct session *ses;
+void ticksize_command(char *arg,struct session *ses)
 {
-  if (ses) {
-    if (*arg != '\0') {
-      if (isdigit(*arg)) {
-	ses->tick_size = atoi(arg);
-	ses->time0 = time(NULL);
-	tintin_puts("#OK NEW TICKSIZE SET", ses);
-      } else
-	tintin_puts("#SPECIFY A NUMBER!!!!TRYING TO CRASH ME EH?", ses);
-    } else
-      tintin_puts("#SET THE TICK-SIZE TO WHAT?", ses);
-  } else
-    tintin_puts("#NO SESSION ACTIVE => NO TICKER!", ses);
+    if (ses)
+    {
+        if (*arg != '\0')
+        {
+            if (isdigit(*arg))
+            {
+                ses->tick_size = atoi(arg);
+                ses->time0 = time(NULL);
+                tintin_puts("#OK NEW TICKSIZE SET", ses);
+            }
+            else
+                tintin_puts("#SPECIFY A NUMBER!!!!TRYING TO CRASH ME EH?", ses);
+        }
+        else
+            tintin_puts("#SET THE TICK-SIZE TO WHAT?", ses);
+    }
+    else
+        tintin_puts("#NO SESSION ACTIVE => NO TICKER!", ses);
+}
+
+int timetilltick(struct session *ses)
+{
+    return ses->tick_size - (time(NULL) - ses->time0) % ses->tick_size;
 }
 
 /* returns the time (since 1970) of next event (tick) */
 int check_event(int time, struct session *ses)
 {
-  int tt; /* tick time */
-  int et; /* event time */
-  struct eventnode *ev, *nextev;
+    int tt; /* tick time */
+    int et; /* event time */
+    struct eventnode *ev;
 
-  assert(ses != NULL);
+    assert(ses != NULL);
 
-  /* events check  - to powinno wyladowac w #delay */
-  if(ses->events) {
-    nextev=ses->events;
-    while((ev=nextev) && ev->time <= time) {
-      nextev=ev->next;
-      execute_event(ev, ses);
-      free(ev);
+    /* events check  - that should be done in #delay */
+    while((ev=ses->events) && (ev->time<=time))
+    {
+        ses->events=ev->next;
+        execute_event(ev, ses);
+        free(ev);
     }
-    if(ses->events != nextev)
-      ses->events = nextev;
-  }
-  et = (ses->events) ? ses->events->time : 0;
+    et = (ses->events) ? ses->events->time : 0;
 
-  /* ticks check */
-  tt = ses->time0 + ses->tick_size; /* expected time of tick */
-  
-  if (tt <= time) {
-    if (ses->tickstatus)
-      tintin_puts("#TICK!!!", ses);
-    ses->time0 = time - (time - ses->time0) % ses->tick_size;
-    tt = ses->time0 + ses->tick_size;
-  }
-  else if (ses->tickstatus && tt-10==time && ses->tick_size!=10)
-    tintin_puts("#10 SECONDS TO TICK!!!", ses);
+    /* ticks check */
+    tt = ses->time0 + ses->tick_size; /* expected time of tick */
 
+    if (tt <= time)
+    {
+        if (ses->tickstatus)
+            tintin_puts1("#TICK!!!",ses);
+        ses->time0 = time - (time - ses->time0) % ses->tick_size;
+        tt = ses->time0 + ses->tick_size;
+    }
+    else if (ses->tickstatus && tt-10==time && ses->tick_size>10 && time!=ses->time10)
+    {
+        tintin_puts1("#10 SECONDS TO TICK!!!",ses);
+        ses->time10=time;
+    }
 
-  if(ses->tickstatus && ses->tick_size > 10 && tt-time > 10)
-    tt-=10;
+    if(ses->tickstatus && ses->tick_size>10 && tt-time>10)
+        tt-=10;
 
-  return ((et<tt && et!=0) ? et : tt);
+    return ((et<tt && et!=0) ? et : tt);
 }

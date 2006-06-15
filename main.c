@@ -7,7 +7,6 @@
 /*********************************************************************/
 #include "config.h"
 #include <stdlib.h>
-
 #ifdef STDC_HEADERS
 #include <string.h>
 #include <stdlib.h>
@@ -17,6 +16,7 @@
 #define memmove(d, s, n) bcopy ((s), (d), (n))
 #endif
 #endif
+#include <stdarg.h>
 
 #include <signal.h>
 #include "tintin.h"
@@ -25,21 +25,23 @@
 #include <sys/wait.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #ifndef BADSIG
 #define BADSIG (void (*)())-1
 #endif
 
+typedef void (*sighandler_t)(int);
+
 /*************** globals ******************/
 int blank = DEFAULT_DISPLAY_BLANK;
 int term_echoing = TRUE;
-int Echo = DEFAULT_ECHO;
+int echo = DEFAULT_ECHO;
 int speedwalk = DEFAULT_SPEEDWALK;
 int togglesubs = DEFAULT_TOGGLESUBS;
 int presub = DEFAULT_PRESUB;
-int mudcolors = DEFAULT_MUDCOLORS;
-int sessionsstarted;
+int keypad= DEFAULT_KEYPAD;
 int puts_echoing = TRUE;
 int verbose = FALSE;
 int alnum = 0;
@@ -47,73 +49,83 @@ int acnum = 0;
 int subnum = 0;
 int varnum = 0;
 int hinum = 0;
+int routnum = 0;
 int pdnum = 0;
 int antisubnum = 0;
+int bindnum = 0;
 int verbatim = 0;
 char homepath[1025];
 char E = 27;
+int gotpassword=0;
+int got_more_kludge=0;
 extern int hist_num;
 extern int need_resize;
+extern int LINES,COLS;
+char *tintin_exec;
+struct session *lastdraft;
+int aborting=0;
 
-struct session *sessionlist, *activesession;
-struct listnode *common_aliases, *common_actions, *common_subs, *common_myvars;
-struct listnode *common_highs, *common_antisubs, *common_pathdirs;
-char vars[10][BUFFER_SIZE];	/* the %0, %1, %2,....%9 variables */
+struct session *sessionlist, *activesession, *nullsession;
+char **pvars;	/* the %0, %1, %2,....%9 variables */
 char tintin_char = DEFAULT_TINTIN_CHAR;
 char verbatim_char = DEFAULT_VERBATIM_CHAR;
-char system_com[80] = SYSTEM_COMMAND_DEFAULT;
-int mesvar[7];
-int display_row, display_col, input_row, input_col;
+int mesvar[MAX_MESVAR+1];
 int split_line, term_columns;
 char prev_command[BUFFER_SIZE];
-int text_came;
-void tintin();
-void read_mud();
-void do_one_line();
-void snoop();
-void tintin_puts();
-void tintin_puts2();
+void tintin(void);
+void read_mud(struct session *ses);
+void do_one_line(char *line,int nl,struct session *ses);
+void snoop(char *buffer, struct session *ses);
+void tintin_puts(char *cptr, struct session *ses);
+void tintin_puts1(char *cptr, struct session *ses);
+void tintin_printf(struct session *ses, const char *format, ...);
 char status[BUFFER_SIZE];
 
 /************ externs *************/
 extern char done_input[BUFFER_SIZE];
-extern void user_init();
-extern int process_kbd();
+extern void user_init(void);
+extern int process_kbd(struct session *ses);
 extern void textout(char *txt);
-extern void user_pause();
-extern void user_resume();
+extern void user_pause(void);
+extern void user_resume(void);
 
 extern int ticker_interrupted, time0;
 extern int tick_size, sec_to_tick;
 
-static void myquitsig();
-extern struct session *newactive_session();
-extern struct session *parse_input();
-extern struct session *read_command();
+static void myquitsig(void);
+extern struct session *newactive_session(void);
+extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
+extern struct session *read_command(char *filename, struct session *ses);
 extern struct completenode *complete_head;
-extern struct listnode *init_list();
-extern void read_complete();
-extern void syserr();
-extern void sigwinch();
-extern void user_resize();
-
-extern int do_one_antisub();
-extern void do_one_sub();
-extern void do_one_high();
-extern void prompt();
-extern int check_event();
-extern void check_all_actions();
+extern struct listnode *init_list(void);
+extern void read_complete(void);
+extern void syserr(char *msg);
+extern void sigwinch(void);
+extern void user_resize(void);
+extern char* mystrdup(const char*);
+extern int do_one_antisub(char *line, struct session *ses);
+extern void prompt(struct session *ses);
+extern int check_event(int time, struct session *ses);
+extern void check_all_actions(char *line, struct session *ses);
+extern void check_all_promptactions(char *line, struct session *ses);
+extern void do_all_high(char *line,struct session *ses);
+extern void do_all_sub(char *line, struct session *ses);
+extern void do_in_MUD_colors(char *txt);
+extern void init_bind(void);
+extern int isnotblank(char *line,int flag);
+extern int match(char *regex, char *string);
+extern void textout_draft(char *txt, int flag);
+extern void user_done(void);
+extern void user_passwd(int x);
+extern int iscompleteprompt(char *line);
+void echo_input(char *txt);
 
 #ifdef HAVE_TIME_H
 #include <time.h>
 #endif
-int read();
-extern void do_history();
-extern int read_buffer_mud();
-extern void cleanup_session();
-int write();
-
-int last_line_length;
+extern void do_history(char *buffer, struct session *ses);
+extern int read_buffer_mud(char *buffer, struct session *ses);
+extern void cleanup_session(struct session *ses);
 
 #if defined(HAVE_SYS_TERMIO_H) && !defined(BSD_ECHO)
 #include <sys/termio.h>
@@ -128,397 +140,561 @@ unsigned short c_lflag;
 #endif
 #endif
 
-/* CHANGED to get rid of double-echoing bug when tintin++ gets suspended */
-void tstphandler(sig)
-     int sig;
+void tstphandler(int sig)
 {
-  user_pause();
-  kill(getpid(), SIGSTOP);
-  user_resume();
+    user_pause();
+    kill(getpid(), SIGSTOP);
 }
 
-
-void sigchild()
+void sigcont(void)
 {
-    waitpid(0,0,WNOHANG);
+    user_resume();
+}
+
+void sigchild(void)
+{
+    while (waitpid(-1,0,WNOHANG)>0);
+}
+
+void sigsegv(void)
+{
+    user_done();
+    write(2,"Segmentation fault.\n",20);
+    exit(11);
+}
+
+int new_news(void)
+{
+    struct stat KBtin, news;
+    
+    if (stat(tintin_exec, &KBtin))
+        return 0;       /* can't stat the executable??? */
+    if (stat(NEWS_FILE, &news))
+#ifdef DATA_PATH
+        if (stat(DATA_PATH "/" NEWS_FILE, &news))
+#endif
+            return 0;       /* either no NEWS file, or can't stat it */
+    return (news.st_ctime>=news.st_atime)||(KBtin.st_ctime+10>news.st_atime);
 }
 
 /**************************************************************************/
 /* main() - show title - setup signals - init lists - readcoms - tintin() */
 /**************************************************************************/
 
-/* int - make @#$%^* GCC happy */
-int main(argc, argv, environ)
-     int argc;
-     char **argv;
-     char **environ;
+int main(int argc, char **argv, char **environ)
 {
-  struct session *ses;
-  char *strptr, temp[BUFFER_SIZE];
-  int arg_num;
-  int fd;
+    struct session *ses;
+    char *strptr, temp[BUFFER_SIZE];
+    int arg_num;
+    int fd;
 
-  strcpy(status,".");
-  user_init();  
-  text_came = FALSE;
-  read_complete();
-  hist_num=-1;
-  ses = NULL;
-  srand(getpid());
+    tintin_exec=argv[0];
+    init_bind();
+    strcpy(status,EMPTY_LINE);
+    user_init();
+    /*  read_complete();		no tab-completion */
+    hist_num=-1;
+    ses = NULL;
+    srand(getpid());
+    lastdraft=0;
 
-  tintin_puts2("~2~##################################################", ses);
-  sprintf(temp, "#                ~11~K B t i n~7~     v %-15s ~2~#", VERSION_NUM);
-  tintin_puts2(temp, ses);
-  tintin_puts2("#~7~ based on ~12~tintin++~7~ v 2.1.9 by Peter Unold,      ~2~#", ses);
-  tintin_puts2("#~7~  Bill Reiss, David A. Wagner, Joann Ellsworth, ~2~#", ses);
-  tintin_puts2("#~7~    Jeremy C. Jack and Ulan@GrimneMUD           ~2~#", ses);
-  tintin_puts2("##################################################~7~", ses);
-  tintin_puts2("Check #news now!", ses);
+    tintin_printf(ses,"~2~##################################################");
+    tintin_printf(ses, "#~7~                ~12~K B ~3~t i n~7~     v %-15s ~2~#", VERSION_NUM);
+    tintin_printf(ses,"#~7~ current developer: ~9~Adam Borowski               ~2~#");
+    tintin_printf(ses,"#~7~                        (~9~kilobyte@mimuw.edu.pl~7~) ~2~#");
+    tintin_printf(ses,"#~7~ based on ~12~tintin++~7~ v 2.1.9 by Peter Unold,      ~2~#");
+    tintin_printf(ses,"#~7~  Bill Reiss, David A. Wagner, Joann Ellsworth, ~2~#");
+    tintin_printf(ses,"#~7~     Jeremy C. Jack, Ulan@GrimneMUD and         ~2~#");
+    tintin_printf(ses,"#~7~  Jacek Narebski (jnareb@jester.ds2.uw.edu.pl)  ~2~#");
+    tintin_printf(ses,"##################################################~7~");
+    tintin_printf(ses,"~15~#session <name> <host> <port> ~7~to connect to a remote server");
+    tintin_printf(ses,"                              ~8~#ses t2t towers.angband.com 9999");
+    tintin_printf(ses,"~15~#run <name> <command>         ~7~to run a local command");
+    tintin_printf(ses,"                              ~8~#run advent adventure");
+    tintin_printf(ses,"                              ~8~#run sql mysql");
+    tintin_printf(ses,"~15~#help                         ~7~to get the help index");
+    if (new_news())
+        tintin_printf(ses,"Check #news now!");
 
-  if (signal(SIGTERM, myquitsig) == BADSIG)
-    syserr("signal SIGTERM");
-  if (signal(SIGINT, myquitsig) == BADSIG)
-    syserr("signal SIGINT");
-  /* CHANGED to get rid of double-echoing bug when tintin++ gets suspended */
-  if (signal(SIGTSTP, tstphandler) == BADSIG)
-    syserr("signal SIGTSTP");
-  if (signal(SIGWINCH,sigwinch) == BADSIG)
-  	syserr("signal SIGWINCH");
-  if (signal(SIGCHLD,sigchild) == BADSIG)
-  	syserr("signal SIGCHLD");
-  time0 = time(NULL);
+    if (signal(SIGTERM, (sighandler_t)myquitsig) == BADSIG)
+        syserr("signal SIGTERM");
+    if (signal(SIGINT, (sighandler_t)myquitsig) == BADSIG)
+        syserr("signal SIGINT");
+    /* CHANGED to get rid of double-echoing bug when tintin++ gets suspended */
+    if (signal(SIGTSTP, (sighandler_t)tstphandler) == BADSIG)
+        syserr("signal SIGTSTP");
+    if (signal(SIGCONT, (sighandler_t)sigcont) == BADSIG)
+        syserr("signal SIGCONT");
+    if (signal(SIGWINCH,(sighandler_t)sigwinch) == BADSIG)
+        syserr("signal SIGWINCH");
+    if (signal(SIGCHLD,(sighandler_t)sigchild) == BADSIG)
+        syserr("signal SIGCHLD");
+    if (signal(SIGSEGV,(sighandler_t)sigsegv) == BADSIG)
+        syserr("signal SIGSEGV");
+    if (signal(SIGPIPE, SIG_IGN) == BADSIG)
+        syserr("signal SIGPIPE");
+    time0 = time(NULL);
 
-  common_aliases = init_list();
-  common_actions = init_list();
-  common_subs = init_list();
-  common_myvars = init_list();
-  common_highs = init_list();
-  common_antisubs = init_list();
-  common_pathdirs = init_list();
-  mesvar[0] = DEFAULT_ALIAS_MESS;
-  mesvar[1] = DEFAULT_ACTION_MESS;
-  mesvar[2] = DEFAULT_SUB_MESS;
-  mesvar[3] = DEFAULT_ANTISUB_MESS;
-  mesvar[4] = DEFAULT_HIGHLIGHT_MESS;
-  mesvar[5] = DEFAULT_VARIABLE_MESS;
-  mesvar[6] = DEFAULT_PATHDIR_MESS;
-  *homepath = '\0';
-  if (!strcmp(DEFAULT_FILE_DIR, "HOME"))
-    if ((strptr = (char *)getenv("HOME")))
-      strcpy(homepath, strptr);
+    nullsession=(struct session *)malloc(sizeof(struct session));
+    nullsession->name=mystrdup("KBtin");
+    nullsession->address=0;
+    nullsession->tickstatus = FALSE;
+    nullsession->tick_size = DEFAULT_TICK_SIZE;
+    nullsession->time0 = 0;
+    nullsession->snoopstatus = TRUE;
+    nullsession->logfile = NULL;
+    nullsession->ignore = DEFAULT_IGNORE;
+    nullsession->aliases = init_list();
+    nullsession->actions = init_list();
+    nullsession->prompts = init_list();
+    nullsession->subs = init_list();
+    nullsession->myvars = init_list();
+    nullsession->highs = init_list();
+    nullsession->pathdirs = init_list();
+    nullsession->socket = 0;
+    nullsession->issocket = 0;
+    nullsession->naws = 0;
+    nullsession->server_echo = 0;
+    nullsession->antisubs = init_list();
+    nullsession->binds = init_list();
+    nullsession->socketbit = 0;
+    nullsession->next = 0;
+    {
+        int i;
+        for (i=0;i<HISTORY_SIZE;i++)
+            nullsession->history[i]=0;
+        for (i=0;i<MAX_LOCATIONS;i++)
+        {
+            nullsession->routes[i]=0;
+            nullsession->locations[i]=0;
+        }
+    };
+    nullsession->path = init_list();
+    nullsession->no_return = 0;
+    nullsession->path_length = 0;
+    nullsession->last_line[0] = 0;
+    nullsession->events = NULL;
+    sessionlist = nullsession;
+    activesession = nullsession;
+    pvars=0;
+
+    mesvar[0] = DEFAULT_ALIAS_MESS;
+    mesvar[1] = DEFAULT_ACTION_MESS;
+    mesvar[2] = DEFAULT_SUB_MESS;
+    mesvar[3] = DEFAULT_ANTISUB_MESS;
+    mesvar[4] = DEFAULT_HIGHLIGHT_MESS;
+    mesvar[5] = DEFAULT_VARIABLE_MESS;
+    mesvar[6] = DEFAULT_PATHDIR_MESS;
+    mesvar[7] = DEFAULT_ROUTE_MESS;
+    mesvar[8] = DEFAULT_GOTO_MESS;
+    mesvar[9] = DEFAULT_BIND_MESS;
+    mesvar[10]= DEFAULT_SYSTEM_MESS;
+    mesvar[11]= DEFAULT_PATH_MESS;
+
+    *homepath = '\0';
+    if (!strcmp(DEFAULT_FILE_DIR, "HOME"))
+        if ((strptr = (char *)getenv("HOME")))
+            strcpy(homepath, strptr);
+        else
+            *homepath = '\0';
     else
-      *homepath = '\0';
-  else
-    strcpy(homepath, DEFAULT_FILE_DIR);
-  arg_num = 1;
-  if (argc > 1 && argv[1]) {
-    if (*argv[1] == '-' && *(argv[1] + 1) == 'v') {
-      arg_num = 2;
-      verbose = TRUE;
+        strcpy(homepath, DEFAULT_FILE_DIR);
+    arg_num = 1;
+    if (argc > 1 && argv[1])
+    {
+        if (*argv[1] == '-' && *(argv[1] + 1) == 'v')
+        {
+            arg_num = 2;
+            verbose = TRUE;
+        }
     }
-  }
-  if (argc > arg_num && argv[arg_num]) {
-    activesession = read_command(argv[arg_num], NULL);
-  } else {
-    strcpy(temp, homepath);
-    strcat(temp, "/.tintinrc");
-    if ((fd = open(temp, O_RDONLY)) > 0) {	/* Check if it exists */
-      close(fd);
-      activesession = read_command(temp, NULL);
-    } else {
-      if ((strptr = (char *)getenv("HOME"))) {
-	strcpy(homepath, strptr);
-	strcpy(temp, homepath);
-	strcat(temp, "/.tintinrc");
-	if ((fd = open(temp, O_RDONLY)) > 0) {	/* Check if it exists */
-	  close(fd);
-	  activesession = read_command(temp, NULL);
-	}
-      }
+    activesession=nullsession;
+    if (argc > arg_num)
+        while (argc>arg_num)
+        {
+            tintin_printf(0, "#READING {%s}", argv[arg_num]);
+            activesession = read_command(argv[arg_num++], activesession);
+        }
+    else
+    {
+        strcpy(temp, homepath);
+        strcat(temp, "/.tintinrc");
+        if ((fd = open(temp, O_RDONLY)) > 0)
+        {                   	/* Check if it exists */
+            close(fd);
+            activesession = read_command(temp, activesession);
+        }
+        else
+        {
+            if ((strptr = (char *)getenv("HOME")))
+            {
+                strcpy(homepath, strptr);
+                strcpy(temp, homepath);
+                strcat(temp, "/.tintinrc");
+                if ((fd = open(temp, O_RDONLY)) > 0)
+                {	                /* Check if it exists */
+                    close(fd);
+                    activesession = read_command(temp, nullsession);
+                }
+            }
+        }
     }
-  }
-  tintin();
+    tintin();
+    return 0;
 }
 
 /******************************************************/
 /* return seconds to next tick (global, all sessions) */
 /* also display tick messages                         */
 /******************************************************/
-int check_events()
+int check_events(void)
 {
-  struct session *sp;
-  int tick_time = 0, curr_time, tt;
+    struct session *sp;
+    int tick_time = 0, curr_time, tt;
 
-  curr_time = time(NULL);
-  for (sp = sessionlist; sp; sp = sp->next) {
-      tt = check_event(curr_time, sp);
-      /* printf("#%s %d(%d)\n", sp->name, tt, curr_time); */
-      if (tt > curr_time && (tick_time == 0 || tt < tick_time)) {
-	tick_time = tt;
-      }
-  }
+    curr_time = time(NULL);
+    for (sp = sessionlist; sp; sp = sp->next)
+    {
+        tt = check_event(curr_time, sp);
+        /* printf("#%s %d(%d)\n", sp->name, tt, curr_time); */
+        if (tt > curr_time && (tick_time == 0 || tt < tick_time))
+            tick_time = tt;
+    }
 
-  if (tick_time > curr_time)
-    return (tick_time - curr_time);
-  return (50);	/* we don't return 0 to kluge around a bug in #select */
+    if (tick_time > curr_time)
+        return (tick_time - curr_time);
+    return (0);
 }
 
 /***************************/
 /* the main loop of tintin */
 /***************************/
-void tintin()
+void tintin(void)
 {
-  char buffer[BUFFER_SIZE], strng[80];
-  int didget, done, readfdmask, result;
-  struct session *sesptr, *t;
-  struct timeval tv;
+    int done, readfdmask, result;
+    struct session *sesptr, *t;
+    struct timeval tv;
 
-  while (TRUE) {
-    readfdmask = 1;
-    for (sesptr = sessionlist; sesptr; sesptr = sesptr->next)
-      readfdmask |= sesptr->socketbit;
-    /* ticker_interrupted=FALSE; */
+    while (TRUE)
+    {
+        readfdmask = 1;
+        for (sesptr = sessionlist; sesptr; sesptr = sesptr->next)
+            readfdmask |= sesptr->socketbit;
 
-    tv.tv_sec = check_events();
-    tv.tv_usec = 0;
+        tv.tv_sec = check_events();
+        tv.tv_usec = 0;
 
-    result = select(32, (fd_set *) & readfdmask, 0, 0, (struct timeval *)&tv);
+        result = select(32, (fd_set *)&readfdmask, 0, 0, &tv);
 
-    if (result == 0)
-      continue;
-    else if (result < 0 && errno == EINTR)
-/*      tintin_puts("#Interrupted system call - ignoring... :)\n", \
-		  (struct session *)NULL); */;
-        	     /* getting a signal is not a reason to spam the user */
-    else if (result < 0)
-      syserr("select");
-      
-   if (need_resize)
-   	user_resize();
+        if (need_resize)
+        {
+            char buf[BUFFER_SIZE];
+            
+            user_resize();
+            sprintf(buf, "#NEW SCREEN SIZE: %dx%d.", COLS, LINES);
+            tintin_puts1(buf, activesession);
+        }
 
+        if (result == 0)
+            continue;
+        else if (result < 0 && errno == EINTR)
+            continue;   /* Interrupted system call */
+        else if (result < 0)
+            syserr("select");
 
-    if (readfdmask & 1) {
-      done = process_kbd(activesession);
-      if (done) {
-	hist_num=-1;
-	if (term_echoing) {
-	  if (activesession && *done_input)
-	    if (strcmp(done_input, prev_command))
-	      do_history(done_input, activesession);
-	  if (Echo)
-	  {
-	      textout(done_input);
-	      textout("\n");
-	  };
-	}
-	if (*done_input)
-	  strcpy(prev_command, done_input);
-	activesession = parse_input(done_input, activesession);
-      }
+        if (readfdmask & 1)
+        {
+            done = process_kbd(activesession);
+            if (done)
+            {
+                hist_num=-1;
+                if (term_echoing || (got_more_kludge && done_input[0]))
+                    /* got_more_kludge: echo any non-empty line */
+                {
+                    if (activesession && *done_input)
+                        if (strcmp(done_input, prev_command))
+                            do_history(done_input, activesession);
+                    if (echo)
+                        echo_input(done_input);
+                }
+                if (*done_input)
+                    strcpy(prev_command, done_input);
+                aborting=0;
+                activesession = parse_input(done_input,0,activesession);
+            }
+        }
+        for (sesptr = sessionlist; sesptr; sesptr = t)
+        {
+            t = sesptr->next;
+            if (sesptr->socketbit & readfdmask)
+            {
+                aborting=0;
+                read_mud(sesptr);
+            }
+        }
+        if (activesession->server_echo
+            && (2-activesession->server_echo != gotpassword))
+        {
+            gotpassword= 2-activesession->server_echo;
+            if (!gotpassword)
+                got_more_kludge=0;
+            user_passwd(gotpassword && !got_more_kludge);
+            term_echoing=!gotpassword;
+        }
     }
-    for (sesptr = sessionlist; sesptr; sesptr = t) {
-      t = sesptr->next;
-      if (sesptr->socketbit & readfdmask) {
-	read_mud(sesptr);
-      }
-    }
-  }
 }
 
 
 /*************************************************************/
 /* read text from mud and test for actions/snoop/substitutes */
 /*************************************************************/
-void read_mud(ses)
-     struct session *ses;
+void read_mud(struct session *ses)
 {
-	char buffer[BUFFER_SIZE], linebuffer[BUFFER_SIZE], *cpsource, *cpdest;
-	char temp[BUFFER_SIZE];
-	int didget, n, count;
+    char buffer[BUFFER_SIZE], linebuffer[BUFFER_SIZE], *cpsource, *cpdest;
+    char temp[BUFFER_SIZE];
+    int didget, n, count;
 
-	if (!(didget = read_buffer_mud(buffer, ses)))
-	{
-  		cleanup_session(ses);
-		if (ses == activesession)
-			activesession = newactive_session();
-		return;
-	};
-	if (ses->logfile)
-		if (!OLD_LOG)
-		{
-			count = 0;
-			for (n = 0; n < didget; n++)
-				if (buffer[n] != '\r')
-					temp[count++] = buffer[n];
-			fwrite(temp, count, 1, ses->logfile);
-		}
-		else
-			fwrite(buffer, didget, 1, ses->logfile);
+    if ((didget = read_buffer_mud(buffer, ses))==-1)
+    {
+        cleanup_session(ses);
+        if (ses == activesession)
+            activesession = newactive_session();
+        return;
+    }
+    else
+    {
+        if (!didget)
+            return; /* possible if only telnet protocol data was received */
+    }
+    if (ses->logfile)
+    {
+        if (!OLD_LOG)
+        {
+            count = 0;
+            for (n = 0; n < didget; n++)
+                if (buffer[n] != '\r')
+                    temp[count++] = buffer[n];
+            if (fwrite(temp, count, 1, ses->logfile)<1)
+            {
+abort_log:
+                ses->logfile=0;
+                tintin_printf(ses, "#WRITE ERROR -- LOGGING DISABLED.  Disk full?");
+            }
+        }
+        else
+            if (fwrite(buffer, didget, 1, ses->logfile)<didget)
+                goto abort_log;
+    }
 
-	cpsource = buffer;
-	cpdest = linebuffer;
-	if (ses->old_more_coming == 1)
-	{
-		strcpy(linebuffer, ses->last_line);
-		cpdest += strlen(linebuffer);
-	};
-	while (*cpsource)
-	{		/*cut out each of the lines and process */
-	    	if (*cpsource == '\n' || *cpsource == '\r')
-    		{
-			*cpdest = '\0';
-			do_one_line(linebuffer, ses);
+    cpsource = buffer;
+    strcpy(linebuffer, ses->last_line);
+    cpdest = strchr(linebuffer,'\0');
 
-			if (!(*linebuffer == '.' && !*(linebuffer + 1)))
-			{
-				char tmp[2];
-				tmp[0]=*cpsource++;
-				tmp[1]=0;
-				textout(tmp);
-			}
-			else
-				cpsource++;
-			cpdest = linebuffer;
-		}
-		else
-			*cpdest++ = *cpsource++;
-	}
-	*cpdest = '\0';
-	if (ses->more_coming)
-		strcpy(ses->last_line, linebuffer);
-	else
-		do_one_line(linebuffer, ses);
+    while (*cpsource)
+    {		/*cut out each of the lines and process */
+        if (*cpsource == '\n')
+        {
+            *cpdest = '\0';
+            do_one_line(linebuffer,1,ses);
+
+            cpsource++;
+            *(cpdest = linebuffer)=0;
+        }
+        else
+            if (*cpsource=='\r')
+                cpsource++;
+            else
+                *cpdest++ = *cpsource++;
+    }
+    if (cpdest-linebuffer>512) /* let's split too long lines */
+    {
+        *cpdest=0;
+        do_one_line(linebuffer,1,ses);
+        cpdest=linebuffer;
+    }
+    *cpdest = '\0';
+    strcpy(ses->last_line,linebuffer);
+    if (!ses->more_coming)
+        if (cpdest!=linebuffer)
+            do_one_line(linebuffer,0,ses);
 }
 /**********************************************************/
 /* do all of the functions to one line of buffer          */
 /**********************************************************/
-void do_one_line(line, ses)
-     char *line;
-     struct session *ses;
+void do_one_line(char *line,int nl,struct session *ses)
 {
-  if (mudcolors)
-      do_in_MUD_colors(line);
-  if (!presub && !ses->ignore)
-    check_all_actions(line, ses);
-  if (!togglesubs)
-    if (!do_one_antisub(line, ses))
-      do_all_sub(line, ses);
-  if (presub && !ses->ignore)
-    check_all_actions(line, ses);
-  do_all_high(line, ses);
-  if (isnotblank(line))
-      if (ses==activesession)
-	textout(line);
-      else
-	if (ses->snoopstatus)
-  		snoop(line,ses);
+    int isnb;
+
+    switch (ses->server_echo)
+    {
+    case 0:
+        if (match(PROMPT_FOR_PW_TEXT,line) && !gotpassword)
+        {
+            gotpassword=1;
+            user_passwd(1);
+            term_echoing=FALSE;
+        };
+        break;
+    case 1:
+        if (match(PROMPT_FOR_MORE_TEXT,line))
+        {
+            user_passwd(0);
+            got_more_kludge=1;
+        };
+    };
+    do_in_MUD_colors(line);
+    isnb=isnotblank(line,0);
+    if (!ses->ignore && (nl || isnotblank(line,0)))
+        check_all_promptactions(line, ses);
+    if (nl && !presub && !ses->ignore)
+        check_all_actions(line, ses);
+    if (!togglesubs && (nl||isnb) && !do_one_antisub(line, ses))
+        do_all_sub(line, ses);
+    if (nl && presub && !ses->ignore)
+        check_all_actions(line, ses);
+    if (isnb&&!togglesubs)
+        do_all_high(line, ses);
+    if (isnotblank(line,blank))
+    {
+        if (ses==activesession)
+        {
+            if (nl)
+            {
+                if (!activesession->server_echo)
+                    gotpassword=0;
+                sprintf(strchr(line,0),"\n");
+                textout_draft(0, 0);
+                textout(line);
+                lastdraft=0;
+            }
+            else
+            {
+                isnb = ses->gas ? ses->ga : iscompleteprompt(line);
+#ifdef PARTIAL_LINE_MARKER
+                sprintf(strchr(line,0),PARTIAL_LINE_MARKER);
+#endif
+                textout_draft(line, isnb);
+                lastdraft=ses;
+            }
+        }
+        else
+            if (ses->snoopstatus)
+                snoop(line,ses);
+    }
 }
 
 /**********************************************************/
 /* snoop session ses - chop up lines and put'em in buffer */
 /**********************************************************/
-void snoop(buffer, ses)
-     char *buffer;
-     struct session *ses;
+void snoop(char *buffer, struct session *ses)
 {
-  /* int n; */
-  char *cpsource, *cpdest, line[BUFFER_SIZE], linebuffer[BUFFER_SIZE],
-    header[BUFFER_SIZE];
-
-  *linebuffer = '\0';
-  if (display_col != 1) {
-    sprintf(line, "\n");
-    strcat(linebuffer, line);
-  }
-  cpsource = buffer;
-  sprintf(header, "%s%% ", ses->name);
-  strcpy(line, header);
-  cpdest = line + strlen(line);
-  while (*cpsource) {
-    if (*cpsource == '\n' || *cpsource == '\r') {
-      *cpdest++ = *cpsource++;
-      if (*cpsource == '\n' || *cpsource == '\r')
-	*cpdest++ = *cpsource++;
-      *cpdest = '\0';
-      strcat(linebuffer, line);
-      cpdest = line + strlen(header);
-    } else
-      *cpdest++ = *cpsource++;
-  }
-  if (cpdest != line + strlen(header)) {
-    *cpdest++ = '\n';
-    *cpdest = '\0';
-    strcat(linebuffer, line);
-  }
-  textout(linebuffer);
-  display_col = 1;
+    tintin_printf(0,"%s%% %s\n",ses->name,buffer);
 }
 
 /*****************************************************/
 /* output to screen should go throught this function */
 /* text gets checked for actions                     */
 /*****************************************************/
-void tintin_puts(cptr, ses)
-     char *cptr;
-     struct session *ses;
+void tintin_puts(char *cptr, struct session *ses)
 {
-  tintin_puts2(cptr, ses);
-  if (ses)
-    check_all_actions(cptr, ses);
+    tintin_printf(ses,cptr);
+    if (ses)
+        check_all_actions(cptr, ses);
 
 }
+
 /*****************************************************/
 /* output to screen should go throught this function */
-/* not checked for actions                           */
+/* text gets checked for substitutes and actions     */
 /*****************************************************/
-void tintin_puts2(cptr, ses)
-     char *cptr;
-     struct session *ses;
+void tintin_puts1(char *cptr, struct session *ses)
 {
-  char strng[1024];
+    char line[BUFFER_SIZE];
 
-  if ((ses == activesession || ses == NULL) && puts_echoing) {
-    sprintf(strng, "%s\n", cptr);
-    textout(strng);
-    display_col = 1;
-    text_came = TRUE;
-  }
+    strcpy(line,cptr);
+
+    if (!presub && !ses->ignore)
+        check_all_actions(line, ses);
+    if (!togglesubs)
+        if (!do_one_antisub(line, ses))
+            do_all_sub(line, ses);
+    if (presub && !ses->ignore)
+        check_all_actions(line, ses);
+    if (!togglesubs)
+        do_all_high(line, ses);
+    if (isnotblank(line,blank))
+        if (ses==activesession)
+        {
+            cptr=strchr(line,0);
+            if (cptr-line>=BUFFER_SIZE-2)
+                cptr=line+BUFFER_SIZE-2;
+            cptr[0]='\n';
+            cptr[1]=0;
+            textout(line);
+        }
 }
-/*****************************************************/
-/* output to screen should go throught this function */
-/* not checked for actions                           */
-/*****************************************************/
-void tintin_puts3(cptr, ses)
-     char *cptr;
-     struct session *ses;
-{
-  char strng[1024];
 
-  if ((ses == activesession || ses == NULL) && puts_echoing) {
-    cptr++;
-    sprintf(strng, "%s\n", cptr);
-    textout(strng);
-    display_col = 1;
-  }
-  text_came = TRUE;
+void tintin_printf(struct session *ses, const char *format, ...)
+{
+    va_list ap;
+#ifdef HAVE_VSNPRINTF
+    char buf[BUFFER_SIZE];
+#else
+    char buf[BUFFER_SIZE*4]; /* let's hope this will never overflow... */
+#endif
+
+    if ((ses == activesession || ses == nullsession || !ses) && puts_echoing)
+    {
+        va_start(ap, format);
+#ifdef HAVE_VSNPRINTF
+        if (vsnprintf(buf, BUFFER_SIZE-1, format, ap)>BUFFER_SIZE-2)
+            buf[BUFFER_SIZE-3]='>';
+#else
+        vsprintf(buf, format, ap);
+#endif
+        va_end(ap);
+        strcat(buf, "\n");
+        textout(buf);
+    }
+}
+
+void echo_input(char *txt)
+{
+    char out[BUFFER_SIZE],*cptr,*optr;
+    
+    optr=out;
+    cptr=txt;
+    while (*cptr)
+    {
+        if ((*optr++=*cptr++)=='~')
+            optr+=sprintf(optr, "~:~");
+        if (optr-out > BUFFER_SIZE-10)
+            break;
+    }
+    *optr++='\n';
+    *optr=0;
+    textout(out);
 }
 
 /**********************************************************/
 /* Here's where we go when we wanna quit TINTIN FAAAAAAST */
 /**********************************************************/
-static void myquitsig()
+static void myquitsig(void)
 {
-  struct session *sesptr, *t;
+    struct session *sesptr, *t;
 
-  for (sesptr = sessionlist; sesptr; sesptr = t) {
-    t = sesptr->next;
-    cleanup_session(sesptr);
-  }
-  sesptr = NULL;
+    for (sesptr = sessionlist; sesptr; sesptr = t)
+    {
+        t = sesptr->next;
+        if (sesptr!=nullsession)
+            cleanup_session(sesptr);
+    }
+    sesptr = NULL;
 
-   textout("\nYour fireball hits TINTIN with full force, causing an immediate death.\n");
-   textout("TINTIN is dead! R.I.P.\n");
-   textout("Your blood freezes as you hear TINTIN's death cry.\n");
-  user_done();
-  exit(0);
+    textout("~7~\n");
+    textout("Your fireball hits TINTIN with full force, causing an immediate death.\n");
+    textout("TINTIN is dead! R.I.P.\n");
+    textout("Your blood freezes as you hear TINTINs death cry.\n");
+    user_done();
+    exit(0);
 }

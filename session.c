@@ -16,31 +16,33 @@
 #endif
 #endif
 #include "tintin.h"
-
-#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 
-void show_session();
-struct session *new_session();
+void show_session(struct session *ses);
+struct session *new_session(char *name,char *address,int sock,int issocket,struct session *ses);
 
-extern char *get_arg_in_braces();
-extern char *space_out();
-extern char *mystrdup();
-extern struct listnode *copy_list();
-extern struct listnode *init_list();
+extern char *get_arg_in_braces(char *s,char *arg,int flag);
+extern char *space_out(char *s);
+extern char *mystrdup(char *s);
+extern struct listnode *copy_list(struct listnode *sourcelist,int mode);
+extern struct listnode *init_list(void);
 extern int run(char *command);
+extern void copyroutes(struct session *ses1,struct session *ses2);
+extern int connect_mud(char *host, char *port, struct session *ses);
+extern void kill_all(struct session *ses, int mode);
+extern void prompt(struct session *ses);
+extern void syserr(char *msg);
+extern void textout(char *txt);
+extern void textout_draft(char *txt);
+extern void textout_draft(char *txt);
+extern void tintin_puts(char *cptr, struct session *ses);
+extern void tintin_puts1(char *cptr, struct session *ses);
+extern void tintin_printf(struct session *ses,char *format,...);
 
-extern int sessionsstarted;
-extern struct session *sessionlist, *activesession;
-extern struct listnode *common_aliases, *common_actions, *common_subs;
-extern struct listnode *common_myvars, *common_highs, *common_antisubs;
-extern struct listnode *common_pathdirs;
-extern char vars[10][BUFFER_SIZE];	/* the %0, %1, %2,....%9 variables */
-
+extern struct session *sessionlist, *activesession, *nullsession;
 
 /*
   common code for #session and #run for cases of:
@@ -59,7 +61,8 @@ int list_sessions(char *arg,struct session *ses,char *left,char *right)
   if (!*left) {
     tintin_puts("#THESE SESSIONS HAS BEEN DEFINED:", ses);
     for (sesptr = sessionlist; sesptr; sesptr = sesptr->next)
-      show_session(sesptr);
+      if (sesptr!=nullsession)
+        show_session(sesptr);
     prompt(ses);
   } else if (*left && !*right) {
     for (sesptr = sessionlist; sesptr; sesptr = sesptr->next)
@@ -113,7 +116,7 @@ struct session *session_command(char *arg,struct session *ses)
   if (!(sock = connect_mud(host, port, ses)))
     return ses;
 
-	return(new_session(left,right,sock,ses));
+	return(new_session(left,right,sock,1,ses));
 }
 
 
@@ -140,15 +143,14 @@ struct session *run_command(char *arg,struct session *ses)
 		return ses;
 	}
 
-	return(new_session(left,right,sock,ses));
+	return(new_session(left,right,sock,0,ses));
 }
 
 
 /******************/
 /* show a session */
 /******************/
-void show_session(ses)
-     struct session *ses;
+void show_session(struct session *ses)
 {
   char temp[BUFFER_SIZE];
 
@@ -160,34 +162,34 @@ void show_session(ses)
     strcat(temp, " (snooped)");
   if (ses->logfile)
     strcat(temp, " (logging)");
-  tintin_puts2(temp, (struct session *)NULL);
-  prompt(NULL);
+  tintin_printf(0, "%s", temp);
 }
 
 /**********************************/
 /* find a new session to activate */
 /**********************************/
-struct session *newactive_session()
+struct session *newactive_session(void)
 {
-
-  if (sessionlist) {
+  if ((activesession=sessionlist)==nullsession)
+  	activesession=activesession->next;
+  if (activesession) {
     char buf[BUFFER_SIZE];
 
-    activesession = sessionlist;
-    sprintf(buf, "#SESSION '%s' ACTIVATED.", sessionlist->name);
-    tintin_puts(buf, NULL);
+    sprintf(buf, "#SESSION '%s' ACTIVATED.", activesession->name);
+    tintin_puts1(buf, activesession);
   } else
-    tintin_puts("#THERE'S NO ACTIVE SESSION NOW.", NULL);
-  prompt(NULL);
-  return sessionlist;
+  {
+    activesession=nullsession;
+    tintin_puts1("#THERE'S NO ACTIVE SESSION NOW.", activesession);
+  }
+  return activesession;
 }
 
 
 /**********************/
 /* open a new session */
 /**********************/
-struct session *new_session(char *name,char *address,int sock,
-                            struct session *ses)
+struct session *new_session(char *name,char *address,int sock,int issocket,struct session *ses)
 {
   struct session *newsession;
   int i;
@@ -202,28 +204,41 @@ struct session *new_session(char *name,char *address,int sock,
   newsession->snoopstatus = FALSE;
   newsession->logfile = NULL;
   newsession->ignore = DEFAULT_IGNORE;
-  newsession->aliases = copy_list(common_aliases, ALPHA);
-  newsession->actions = copy_list(common_actions, PRIORITY);
-  newsession->subs = copy_list(common_subs, ALPHA);
-  newsession->myvars = copy_list(common_myvars, ALPHA);
-  newsession->highs = copy_list(common_highs, ALPHA);
-  newsession->pathdirs = copy_list(common_pathdirs, ALPHA);
+  newsession->aliases = copy_list(nullsession->aliases, ALPHA);
+  newsession->actions = copy_list(nullsession->actions, PRIORITY);
+  newsession->prompts = copy_list(nullsession->prompts, PRIORITY);
+  newsession->subs = copy_list(nullsession->subs, ALPHA);
+  newsession->myvars = copy_list(nullsession->myvars, ALPHA);
+  newsession->highs = copy_list(nullsession->highs, ALPHA);
+  newsession->pathdirs = copy_list(nullsession->pathdirs, ALPHA);
   newsession->socket = sock;
-  newsession->antisubs = copy_list(common_antisubs, ALPHA);
+  newsession->antisubs = copy_list(nullsession->antisubs, ALPHA);
+  newsession->binds = copy_list(nullsession->binds, ALPHA);
   newsession->socketbit = 1 << sock;
+  newsession->issocket = issocket;
+  newsession->naws = 0;
+  newsession->ga = 0;
+  newsession->gas = 0;
+  newsession->server_echo = 0;
+  newsession->telnet_buf=0;
   newsession->next = sessionlist;
   for (i = 0; i < HISTORY_SIZE; i++)
     newsession->history[i] = NULL;
-  newsession->path = init_list(newsession->path);
-  newsession->path_list_size = 0;
+  newsession->path = init_list();
+  newsession->no_return = 0;
   newsession->path_length = 0;
   newsession->more_coming = 0;
   newsession->events = NULL;
-  newsession->old_more_coming=0;
+  for (i=0;i<MAX_LOCATIONS;i++)
+  {
+  	newsession->routes[i]=0;
+  	newsession->locations[i]=0;
+  };
+  copyroutes(nullsession,newsession);
+  newsession->last_line[0]=0;
+  newsession->idle_since=time(0);
   sessionlist = newsession;
   activesession = newsession;
-  sessionsstarted++;
-
 
   return (newsession);
 }
@@ -231,14 +246,12 @@ struct session *new_session(char *name,char *address,int sock,
 /*****************************************************************************/
 /* cleanup after session died. if session=activesession, try find new active */
 /*****************************************************************************/
-void cleanup_session(ses)
-     struct session *ses;
+void cleanup_session(struct session *ses)
 {
   int i;
   char buf[BUFFER_SIZE];
   struct session *sesptr;
 
-  sessionsstarted--;
   kill_all(ses, END);
   /* printf("DEBUG: Hist: %d \n\r",HISTORY_SIZE); */
   /* CHANGED to fix a possible memory leak
@@ -254,6 +267,12 @@ void cleanup_session(ses)
     for (sesptr = sessionlist; sesptr->next != ses; sesptr = sesptr->next) ;
     sesptr->next = ses->next;
   }
+  if (ses==activesession)
+  {
+    textout_draft(0);
+    sprintf(buf,"%s\n",ses->last_line);
+    textout(buf);
+  };
   sprintf(buf, "#SESSION '%s' DIED.", ses->name);
   tintin_puts(buf, NULL);
 /*  if(write(ses->socket, "ctld\n", 5)<5)

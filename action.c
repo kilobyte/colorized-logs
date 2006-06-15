@@ -16,38 +16,86 @@
 #endif
 #endif
 #include "tintin.h"
+#include <stdlib.h>
 
-extern struct session *activesession;
-extern struct listnode *common_actions;
-extern char vars[10][BUFFER_SIZE];	/* the &0, %1, %2,....%9 variables */
+extern struct session *activesession, *nullsession;
+extern pvars_t *pvars;	/* the %0, %1, %2,....%9 variables */
 extern int term_echoing;
-extern int Echo;
 extern char tintin_char;
 extern int acnum;
 extern int mesvar[6];
-extern char *get_arg_in_braces();
-extern struct listnode *search_node_with_wild();
-extern struct listnode *searchnode_list();
-extern int user_getpassword;
-void substitute_vars();
+extern char *get_arg_in_braces(char *s,char *arg,int flag);
+extern struct listnode *search_node_with_wild(struct listnode *listhead, char *cptr);
+extern struct listnode *searchnode_list(struct listnode *listhead, char *cptr);
+void substitute_vars(char *arg, char *result);
+extern void deletenode_list(struct listnode *listhead, struct listnode *nptr);
+extern void show_list_action(struct listnode *listhead);
+extern void prompt(struct session *ses);
+extern void shownode_list_action(struct listnode *nptr);
+extern void insertnode_list(struct listnode *listhead, char *ltext, char *rtext, char *prtext, int mode);
+extern void substitute_myvars(char *arg,char *result,struct session *ses);
+int check_one_action(char *line, char *action, pvars_t *vars, int inside, struct session *ses);
+int check_a_action(char *line, char *action, int inside, struct session *ses);
+extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
+extern int is_abrev(char *s1, char *s2);
+extern void if_command(char *arg, struct session *ses);
+extern void tintin_printf(struct session *ses,char *format,...);
+extern int in_alias;
 int var_len[10];
 char *var_ptr[10];
+extern int aborting;
 
 #define K_ACTION_MAGIC "#X~4~~2~~12~[This action is being deleted!]~7~X"
 int inActions=0;
 int deletedActions=0;
+char *match_start,*match_end;
 
 void kill_action(struct listnode *head,struct listnode *nptr)
 {
-	if (inActions)
-	{
-		free(nptr->left);
-		nptr->left=(char*)malloc(strlen(K_ACTION_MAGIC)+1);
-		strcpy(nptr->left,K_ACTION_MAGIC);
-		deletedActions++;
-	}
-	else
-	    deletenode_list(head,nptr);
+    if (inActions)
+    {
+        if (!strcmp(nptr->left,K_ACTION_MAGIC))
+            return;
+        free(nptr->left);
+        nptr->left=(char*)malloc(strlen(K_ACTION_MAGIC)+1);
+        strcpy(nptr->left,K_ACTION_MAGIC);
+        deletedActions++;
+    }
+    else
+        deletenode_list(head,nptr);
+}
+
+void zap_actions(struct session *ses)
+{
+    struct listnode *l,*ln,*ol;
+
+    ln =(ol=ses->actions)->next;
+    while (ln)
+        if (strcmp(ln->left,K_ACTION_MAGIC))
+            ln=(ol=ln)->next;
+        else
+        {
+            l=ln;
+            ol->next=ln=ln->next;
+            free(l->left);
+            free(l->right);
+            free(l->pr);
+            free(l);
+        }
+    ln =(ol=ses->prompts)->next;
+    while (ln)
+        if (strcmp(ln->left,K_ACTION_MAGIC))
+            ln=(ol=ln)->next;
+        else
+        {
+            l=ln;
+            ol->next=ln=ln->next;
+            free(l->left);
+            free(l->right);
+            free(l->pr);
+            free(l);
+        }
+    deletedActions=0;
 }
 
 /***********************/
@@ -56,157 +104,266 @@ void kill_action(struct listnode *head,struct listnode *nptr)
 
 /*  Priority code added by Joann Ellsworth 2/2/94 */
 
-void action_command(arg, ses)
-     char *arg;
-     struct session *ses;
+void action_command(char *arg, struct session *ses)
 {
-  char left[BUFFER_SIZE], right[BUFFER_SIZE], result[BUFFER_SIZE];
-  char pr[BUFFER_SIZE];
-  struct listnode *myactions, *ln;
+    char left[BUFFER_SIZE], right[BUFFER_SIZE];
+    char pr[BUFFER_SIZE];
+    struct listnode *myactions, *ln;
 
-  myactions = (ses) ? ses->actions : common_actions;
-  arg = get_arg_in_braces(arg, left, 0);
-  arg = get_arg_in_braces(arg, right, 1);
-  arg = get_arg_in_braces(arg, pr, 1);
-  if (!*pr)
-    strcpy(pr, "5");		/* defaults priority to 5 if no value given */
-  if (!*left) {
-    tintin_puts2("#Defined actions:", ses);
-    show_list_action(myactions);
-    prompt(ses);
-  } else if (*left && !*right) {
-    if ((ln = search_node_with_wild(myactions, left)) != NULL) {
-      while ((myactions = search_node_with_wild(myactions, left)) != NULL) {
-	shownode_list_action(myactions);
-      }
-      prompt(ses);
-    } else if (mesvar[1])
-      tintin_puts("#That action is not defined.", ses);
-  } else {
-    if ((ln = searchnode_list(myactions, left)) != NULL)
-      kill_action(myactions, ln);
-    insertnode_list(myactions, left, right, pr, PRIORITY);
-    if (mesvar[1]) {
-      sprintf(result,"#Ok. {%s} now triggers {%s} @ {%s}", left, right, pr);
-      tintin_puts2(result, ses);
+    myactions = ses->actions;
+    arg = get_arg_in_braces(arg, left, 0);
+    arg = get_arg_in_braces(arg, right, 1);
+    arg = get_arg_in_braces(arg, pr, 1);
+    if (!*pr)
+        strcpy(pr, "5");		/* defaults priority to 5 if no value given */
+    if (!*left)
+    {
+        tintin_printf(ses,"#Defined actions:");
+        show_list_action(myactions);
+        prompt(ses);
     }
-    acnum++;
-  }
+    else if (*left && !*right)
+    {
+        if ((ln = search_node_with_wild(myactions, left)) != NULL)
+        {
+            while ((myactions = search_node_with_wild(myactions, left)) != NULL)
+                shownode_list_action(myactions);
+            prompt(ses);
+        }
+        else if (mesvar[1])
+            tintin_printf(ses,"#That action (%s) is not defined.",left);
+    }
+    else
+    {
+        if ((ln = searchnode_list(myactions, left)) != NULL)
+            kill_action(myactions, ln);
+        insertnode_list(myactions, left, right, pr, PRIORITY);
+        if (mesvar[1])
+            tintin_printf(ses,"#Ok. {%s} now triggers {%s} @ {%s}", left, right, pr);
+        acnum++;
+    }
 }
+
+/*****************************/
+/* the #promptaction command */
+/*****************************/
+void promptaction_command(char *arg, struct session *ses)
+{
+    char left[BUFFER_SIZE], right[BUFFER_SIZE];
+    char pr[BUFFER_SIZE];
+    struct listnode *myprompts, *ln;
+
+    myprompts = ses->prompts;
+    arg = get_arg_in_braces(arg, left, 0);
+    arg = get_arg_in_braces(arg, right, 1);
+    arg = get_arg_in_braces(arg, pr, 1);
+    if (!*pr)
+        strcpy(pr, "5");		/* defaults priority to 5 if no value given */
+    if (!*left)
+    {
+        tintin_printf(ses,"#Defined prompts:");
+        show_list_action(myprompts);
+        prompt(ses);
+    }
+    else if (*left && !*right)
+    {
+        if ((ln = search_node_with_wild(myprompts, left)) != NULL)
+        {
+            while ((myprompts = search_node_with_wild(myprompts, left)) != NULL)
+                shownode_list_action(myprompts);
+            prompt(ses);
+        }
+        else if (mesvar[1])
+            tintin_printf(ses,"#That promptaction (%s) is not defined.", left);
+    }
+    else
+    {
+        if ((ln = searchnode_list(myprompts, left)) != NULL)
+            kill_action(myprompts, ln);
+        insertnode_list(myprompts, left, right, pr, PRIORITY);
+        if (mesvar[1])
+            tintin_printf(ses,"#Ok. {%s} now triggers {%s} @ {%s}", left, right, pr);
+        acnum++;
+    }
+}
+
 
 /*************************/
 /* the #unaction command */
 /*************************/
-void unaction_command(arg, ses)
-     char *arg;
-     struct session *ses;
+void unaction_command(char *arg, struct session *ses)
 {
-  char left[BUFFER_SIZE], result[BUFFER_SIZE];
-  struct listnode *myactions, *ln, *temp;
-  int flag;
+    char left[BUFFER_SIZE];
+    struct listnode *myactions, *ln, *temp;
+    int flag;
 
-  flag = FALSE;
-  myactions = (ses) ? ses->actions : common_actions;
-  temp = myactions;
-  arg = get_arg_in_braces(arg, left, 1);
-  while ((ln = search_node_with_wild(temp, left)) != NULL) {
-    if (mesvar[1]) {
-      sprintf(result,"#Ok. {%s} is no longer a trigger.", ln->left);
-      tintin_puts2(result, ses);
+
+    flag = FALSE;
+    myactions = ses->actions;
+    temp = myactions;
+    arg = get_arg_in_braces(arg, left, 1);
+    while ((ln = search_node_with_wild(temp, left)) != NULL)
+    {
+        if (mesvar[1])
+            tintin_printf(ses,"#Ok. {%s} is no longer a trigger.", ln->left);
+        kill_action(myactions, ln);
+        flag = TRUE;
+        /* temp=ln;*/
     }
-    kill_action(myactions, ln);
-    flag = TRUE;
-    /* temp=ln;*/
-  }
-  if (!flag && mesvar[1]) {
-    sprintf(result, "#No match(es) found for {%s}", left);
-    tintin_puts2(result, ses);
-  }
+    if (!flag && mesvar[1])
+        tintin_printf(ses, "#No match(es) found for {%s}", left);
+}
+
+/*******************************/
+/* the #unpromptaction command */
+/*******************************/
+void unpromptaction_command(char *arg, struct session *ses)
+{
+    char left[BUFFER_SIZE];
+    struct listnode *myactions, *ln, *temp;
+    int flag;
+
+    flag = FALSE;
+    myactions = ses->prompts;
+    temp = myactions;
+    arg = get_arg_in_braces(arg, left, 1);
+    while ((ln = search_node_with_wild(temp, left)) != NULL)
+    {
+        if (mesvar[1])
+            tintin_printf(ses,"#Ok. {%s} is no longer a trigger.", ln->left);
+        kill_action(myactions, ln);
+        flag = TRUE;
+        /* temp=ln;*/
+    }
+    if (!flag && mesvar[1])
+        tintin_printf(ses, "#No match(es) found for {%s}", left);
 }
 
 /**************************************************************************/
 /* run throught each of the commands on the right side of an alias/action */
 /* expression, call substitute_text() for all commands but #alias/#action */
 /**************************************************************************/
-void prepare_actionalias(string, result, ses)
-     char *string;
-     char *result;
-     struct session *ses;
+void prepare_actionalias(char *string, char *result, struct session *ses)
 {
+    char arg[BUFFER_SIZE];
 
-  char arg[BUFFER_SIZE];
-
-  *result = '\0';
-  substitute_vars(string, arg);
-  substitute_myvars(arg, result, ses);
+    substitute_vars(string, arg);
+    substitute_myvars(arg, result, ses);
 }
 
 /*************************************************************************/
 /* copy the arg text into the result-space, but substitute the variables */
 /* %0..%9 with the real variables                                        */
 /*************************************************************************/
-void substitute_vars(arg, result)
-     char *arg;
-     char *result;
+void substitute_vars(char *arg, char *result)
 {
-  int nest = 0;
-  int numands, n;
-  char *ptr;
+    int nest = 0;
+    int numands, n;
+    char *ptr,*ARG=arg;
+    int valuelen,len=strlen(arg);
 
-  while (*arg) {
-
-    if (*arg == '%') {		/* substitute variable */
-      numands = 0;
-      while (*(arg + numands) == '%')
-	numands++;
-      if (isdigit(*(arg + numands)) && numands == (nest + 1)) {
-	n = *(arg + numands) - '0';
-	strcpy(result, vars[n]);
-	arg = arg + numands + 1;
-	result += strlen(vars[n]);
-      } else {
-	strncpy(result, arg, numands + 1);
-	arg += numands + 1;
-	result += numands + 1;
-      }
+    if (!pvars)
+    {
+        strcpy(result, arg);
+        return;
     }
-    if (*arg == '$') {		/* substitute variable */
-      numands = 0;
-      while (*(arg + numands) == '$')
-	numands++;
-      if (isdigit(*(arg + numands)) && numands == (nest + 1)) {
-	n = *(arg + numands) - '0';
-	ptr = vars[n];
-	while (*ptr) {
-	  if (*ptr == ';')
-	    ptr++;
-	  else
-	    *result++ = *ptr++;
-	}
-	arg = arg + numands + 1;
-      } else {
-	strncpy(result, arg, numands);
-	arg += numands;
-	result += numands;
-      }
-    } else if (*arg == DEFAULT_OPEN) {
-      nest++;
-      *result++ = *arg++;
-    } else if (*arg == DEFAULT_CLOSE) {
-      nest--;
-      *result++ = *arg++;
-    } else if (*arg == '\\' && nest == 0) {
-      while (*arg == '\\')
-	*result++ = *arg++;
-      if (*arg == '%') {
-	result--;
-	*result++ = *arg++;
-	*result++ = *arg++;
-      }
-    } else
-      *result++ = *arg++;
-  }
-  *result = '\0';
+    while (*arg)
+    {
+        if (*arg == '%')
+        {		/* substitute variable */
+            numands = 1;        /* at least one */
+            while (*(arg + numands) == '%')
+                numands++;
+            if (isdigit(*(arg + numands)) && numands == (nest + 1))
+            {
+                n = *(arg + numands) - '0';
+                valuelen=strlen((*pvars)[n]);
+                if ((len+=valuelen-numands-1) > BUFFER_SIZE-10)
+                {
+                    len-=valuelen-numands-1;
+                    if (!aborting)
+                    {                    
+                        tintin_printf(0,"#ERROR: command+vars too long in {%s}.",ARG);
+                        aborting=1;
+                    }
+                    goto novar1;
+                }
+                strcpy(result, (*pvars)[n]);
+                arg = arg + numands + 1;
+                result += valuelen;
+            }
+            else
+            {
+novar1:
+                strncpy(result, arg, numands + 1);
+                arg += numands + 1;
+                result += numands + 1;
+            }
+            in_alias=0; /* not a simple alias */
+        }
+        if (*arg == '$')
+        {		/* substitute variable */
+            numands = 1;        /* at least one */
+            while (*(arg + numands) == '$')
+                numands++;
+            if (isdigit(*(arg + numands)) && numands == (nest + 1))
+            {
+                n = *(arg + numands) - '0';
+                valuelen=strlen((*pvars)[n]);
+                if ((len+=valuelen-numands-1) > BUFFER_SIZE-10)
+                {
+                    len-=valuelen-numands-1;
+                    if (!aborting)
+                    {
+                        tintin_printf(0,"#ERROR: command+vars too long in {%s}.",ARG);
+                        aborting=1;
+                    }
+                    goto novar2;
+                }
+                ptr = (*pvars)[n];
+                while (*ptr)
+                {
+                    if (*ptr == ';')
+                        ptr++;      /* we don't care if len is too small */
+                    else
+                        *result++ = *ptr++;
+                }
+                arg = arg + numands + 1;
+            }
+            else
+            {
+novar2:
+                strncpy(result, arg, numands);
+                arg += numands;
+                result += numands;
+            }
+            in_alias=0; /* not a simple alias */
+        }
+        else if (*arg == DEFAULT_OPEN)
+        {
+            nest++;
+            *result++ = *arg++;
+        }
+        else if (*arg == DEFAULT_CLOSE)
+        {
+            nest--;
+            *result++ = *arg++;
+        }
+        else if (*arg == '\\' && nest == 0)
+        {
+            while (*arg == '\\')
+                *result++ = *arg++;
+            if (*arg == '%')
+            {
+                result--;
+                *result++ = *arg++;
+                *result++ = *arg++;
+            }
+        }
+        else
+            *result++ = *arg++;
+    }
+    *result = '\0';
 }
 
 
@@ -214,166 +371,252 @@ void substitute_vars(arg, result)
 /**********************************************/
 /* check actions from a sessions against line */
 /**********************************************/
-void check_all_actions(line, ses)
-     char *line;
-     struct session *ses;
+void check_all_actions(char *line, struct session *ses)
 {
+    struct listnode *ln;
+    pvars_t vars,*lastpvars;
 
-  struct listnode *ln,*ol;
-  static char temp[BUFFER_SIZE] = PROMPT_FOR_PW_TEXT;
-  char strng[BUFFER_SIZE];
+    ln = ses->actions;
+    inActions=1;
 
-  if (check_one_action(line, temp, ses) && ses == activesession) {
-    user_getpassword=TRUE;
-    term_echoing = FALSE;
-  }
-  ln = (ses) ? ses->actions : common_actions;
+    while ((ln = ln->next))
+    {
+        if (check_one_action(line, ln->left, &vars, 0, ses))
+        {
+            lastpvars = pvars;
+            pvars = &vars;
+            if (mesvar[1] && activesession == ses)
+            {
+                char buffer[BUFFER_SIZE];
 
-  inActions=1;
-
-  while ((ln = ln->next)) {
-    if (check_one_action(line, ln->left, ses)) {
-      char buffer[BUFFER_SIZE];
-
-      prepare_actionalias(ln->right, buffer, ses);
-      if (mesvar[1] && activesession == ses) {
-	sprintf(strng, "[ACTION: %s]", buffer);
-	tintin_puts2(strng, activesession);
-      }
-      parse_input(buffer, ses);
-/*      return;*/		/* KB: we want ALL actions to be done */
+                prepare_actionalias(ln->right, buffer, ses);
+                tintin_printf(ses,"[ACTION: %s]", buffer);
+            }
+            parse_input(ln->right,1,ses);
+            pvars = lastpvars;
+            /*      return;*/		/* KB: we want ALL actions to be done */
+        }
     }
-  }
-  ln =(ol=(ses)?ses->actions:common_actions)->next;
-  while (deletedActions && ln)
-      if (strcmp(ln->left,K_ACTION_MAGIC))
-          ln=(ol=ln)->next;
-      else
-      {
-          struct listnode *l;
-	  l=ln;
-	  ol->next=ln=ln->next;
-	  free(l->left);
-	  free(l->right);
-	  free(l->pr);
-	  free(l);
-	  deletedActions--;
-      }
-      
-  inActions=0;
+    if (deletedActions)
+        zap_actions(ses);
+    inActions=0;
 }
 
-int match_a_string(line, mask)
-     char *line;
-     char *mask;
+
+/**********************************************/
+/* check actions from a sessions against line */
+/**********************************************/
+void check_all_promptactions(char *line, struct session *ses)
 {
-  char *lptr, *mptr;
+    struct listnode *ln;
+    pvars_t vars,*lastpvars;
 
-  lptr = line;
-  mptr = mask;
-  while (*lptr && *mptr && !(*mptr == '%' && isdigit(*(mptr + 1)))) {
-    if (*lptr++ != *mptr++)
-      return -1;
-  }
-  if (!*mptr || (*mptr == '%' && isdigit(*(mptr + 1)))) {
-    return (int)(lptr - line);
-  }
-  return -1;
-}
+    ln = ses->prompts;
+    inActions=1;
 
-int check_one_action(line, action, ses)
-     char *line;
-     char *action;
-     struct session *ses;
-{
-  int i;
+    while ((ln = ln->next))
+    {
+        if (check_one_action(line, ln->left, &vars, 0, ses))
+        {
+            lastpvars=pvars;
+            pvars=&vars;
+            if (mesvar[1] && activesession == ses)
+            {
+                char buffer[BUFFER_SIZE];
 
-  if (check_a_action(line, action, ses)) {
-    for (i = 0; i < 10; i++) {
-      if (var_len[i] != -1) {
-	strncpy(vars[i], var_ptr[i], var_len[i]);
-	*(vars[i] + var_len[i]) = '\0';
-      }
+                prepare_actionalias(ln->right, buffer, ses);
+                tintin_printf(ses, "[PROMPT-ACTION: %s]", buffer);
+            }
+            parse_input(ln->right,1,ses);
+            pvars=lastpvars;
+            /*      return;*/		/* KB: we want ALL actions to be done */
+        }
     }
-    return TRUE;
-  } else
-    return FALSE;
+    if (deletedActions)
+        zap_actions(ses);
+    inActions=0;
 }
+
+
+/**********************/
+/* the #match command */
+/**********************/
+void match_command(char *arg, struct session *ses)
+{
+    pvars_t vars,*lastpvars;
+    char left[BUFFER_SIZE], line[BUFFER_SIZE], right[BUFFER_SIZE],
+         temp[BUFFER_SIZE];
+    int flag=0;
+    
+    arg=get_arg_in_braces(arg, left, 0);
+    arg=get_arg_in_braces(arg, line, 0);
+    arg=get_arg_in_braces(arg, right, 0);
+    substitute_vars(line, temp);
+    substitute_myvars(temp, line, ses);
+    
+    if (!*left || !*right)
+    {
+        tintin_printf(ses,"#Syntax: #match <pattern> <line> <command> [#else ...]");
+        return;
+    }
+
+    if (check_one_action(line, left, &vars, 0, ses))
+    {
+        lastpvars = pvars;
+        pvars = &vars;
+        parse_input(right,1,ses);
+        pvars = lastpvars;
+        flag=1;
+    }
+    arg=get_arg_in_braces(arg, left, 0);
+    if (*left == tintin_char)
+    {
+        if (is_abrev(left + 1, "else"))
+        {
+            get_arg_in_braces(arg, right, 1);
+            if (!flag)
+                parse_input(right,1,ses);
+            return;
+        }
+        if (is_abrev(left + 1, "elif"))
+        {
+            if (!flag)
+                if_command(arg, ses);
+            return;
+        }
+    }
+    if (*left)
+        tintin_printf(ses,"#ERROR: cruft after #match: {%s}",left);
+}
+
+
+int match_a_string(char *line, char *mask)
+{
+    char *lptr, *mptr;
+
+    lptr = line;
+    mptr = mask;
+    while (*lptr && *mptr && !(*mptr == '%' && isdigit(*(mptr + 1))))
+        if (*lptr++ != *mptr++)
+            return -1;
+    if (!*mptr || (*mptr == '%' && isdigit(*(mptr + 1))))
+        return (int)(lptr - line);
+    return -1;
+}
+
+int check_one_action(char *line, char *action, pvars_t *vars, int inside, struct session *ses)
+{
+    int i;
+
+    if (check_a_action(line, action, inside, ses))
+    {
+        for (i = 0; i < 10; i++)
+        {
+            if (var_len[i] != -1)
+            {
+                strncpy((*vars)[i], var_ptr[i], var_len[i]);
+                *((*vars)[i] + var_len[i]) = '\0';
+            }
+            else
+                (*vars)[i][0]=0;
+        }
+        return TRUE;
+    }
+    else
+        return FALSE;
+}
+
 /******************************************************************/
 /* check if a text triggers an action and fill into the variables */
 /* return TRUE if triggered                                       */
 /******************************************************************/
-int check_a_action(line, action, ses)
-     char *line;
-     char *action;
-     struct session *ses;
+int check_a_action(char *line, char *action, int inside, struct session *ses)
 {
-  char result[BUFFER_SIZE];
-  char *temp2, *tptr, *lptr, *lptr2;
-  int i, flag_anchor, len, flag;
+    char result[BUFFER_SIZE];
+    char *temp2, *tptr, *lptr, *lptr2;
+    int i, flag_anchor, len;
 
-  for (i = 0; i < 10; i++)
-    var_len[i] = -1;
-  flag_anchor = FALSE;
-  lptr = line;
-  substitute_myvars(action, result, ses);
-  tptr = result;
-  if (*tptr == '^') {
-    tptr++;
-    flag_anchor = TRUE;
-    /* CHANGED to fix a bug with #action {^%0 foo}
-     * Thanks to Spencer Sun for the bug report (AND fix!)
-     if (*tptr!=*line)
-     return FALSE;
-     */
-  }
-  if (flag_anchor) {
-    if ((len = match_a_string(lptr, tptr)) == -1)
-      return FALSE;
-    lptr += len;
-    tptr += len;
-  } else {
-    flag = TRUE;
-    len = -1;
-    while (*lptr && flag) {
-      if ((len = match_a_string(lptr, tptr)) != -1) {
-	flag = FALSE;
-      } else
-	lptr++;
+    for (i = 0; i < 10; i++)
+        var_len[i] = -1;
+    flag_anchor = FALSE;
+    lptr = line;
+    substitute_myvars(action, result, ses);
+    tptr = result;
+    if (*tptr == '^')
+    {
+        if (inside)
+            return 0;
+        tptr++;
+        flag_anchor = TRUE;
+        /* CHANGED to fix a bug with #action {^%0 foo}
+         * Thanks to Spencer Sun for the bug report (AND fix!)
+         if (*tptr!=*line)
+         return FALSE;
+         */
     }
-    if (len != -1) {
-      lptr += len;
-      tptr += len;
-    } else
-      return FALSE;
-  }
-  while (*lptr && *tptr) {
-    temp2 = tptr + 2;
-    if (!*temp2) {
-      var_len[*(tptr + 1) - 48] = strlen(lptr);
-      var_ptr[*(tptr + 1) - 48] = lptr;
-      return TRUE;
+    if (flag_anchor)
+    {
+        if ((len = match_a_string(lptr, tptr)) == -1)
+            return FALSE;
+        match_start=lptr;
+        lptr += len;
+        tptr += len;
     }
-    lptr2 = lptr;
-    flag = TRUE;
-    len = -1;
-    while (*lptr2 && flag) {
-      if ((len = match_a_string(lptr2, temp2)) != -1) {
-	flag = FALSE;
-      } else
-	lptr2++;
+    else
+    {
+        len = -1;
+        while (*lptr)
+            if ((len = match_a_string(lptr, tptr)) != -1)
+                break;
+            else
+                lptr++;
+        if (len != -1)
+        {
+            match_start=lptr;
+            lptr += len;
+            tptr += len;
+        }
+        else
+            return FALSE;
     }
-    if (len != -1) {
-      var_len[*(tptr + 1) - 48] = lptr2 - lptr;
-      var_ptr[*(tptr + 1) - 48] = lptr;
-      lptr = lptr2 + len;
-      tptr = temp2 + len;
-    } else {
-      return FALSE;
+    while (*lptr && *tptr)
+    {
+        temp2 = tptr + 2;
+        if (!*temp2)
+        {
+            var_len[*(tptr + 1) - 48] = strlen(lptr);
+            var_ptr[*(tptr + 1) - 48] = lptr;
+            match_end=""; /* NOTE: to use (match_end-line) change this line */
+            return TRUE;
+        }
+        lptr2 = lptr;
+        len = -1;
+        while (*lptr2)
+        {
+            if ((len = match_a_string(lptr2, temp2)) != -1)
+                break;
+            else
+                lptr2++;
+        }
+        if (len != -1)
+        {
+            var_len[*(tptr + 1) - 48] = lptr2 - lptr;
+            var_ptr[*(tptr + 1) - 48] = lptr;
+            lptr = lptr2 + len;
+            tptr = temp2 + len;
+        }
+        else
+            return FALSE;
     }
-  }
-  if (*tptr)
-    return FALSE;
-  else
-    return TRUE;
+    if ((*tptr=='%')&&isdigit(*(tptr+1)))
+    {
+        var_len[*(tptr+1)-48]=0;
+        var_ptr[*(tptr+1)-48]=lptr;
+        tptr+=2;
+    };
+    match_end=lptr;
+    if (*tptr)
+        return FALSE;
+    else
+        return TRUE;
 }

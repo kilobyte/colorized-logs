@@ -7,165 +7,180 @@
 
 extern struct session *sessionlist;
 extern struct session *activesession;
-extern int Echo;
+extern int echo;
 
-extern char *get_arg_in_braces();
+extern char *get_arg_in_braces(char *s,char *arg,int flag);
+extern int mesvar[];
+extern int match(char *regex, char *string);
+extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
+extern void tintin_printf(struct session *ses, const char *format, ...);
+extern struct session *nullsession;
+extern void substitute_myvars(char *arg,char *result,struct session *ses);
+extern void substitute_vars(char *arg, char *result);
 
 void execute_event(struct eventnode *ev, struct session *ses)
 {
-  char tmp[BUFFER_SIZE];
-
-  if(Echo && activesession == ses) {
-    sprintf(tmp, "[EVENT: %s]", ev->event);
-    tintin_puts2(tmp, ses);
-  }
-  parse_input(ev->event, ses);
+    if(activesession==ses && mesvar[3])
+        tintin_printf(ses, "[EVENT: %s]", ev->event);
+    parse_input(ev->event,1,ses);
 }
 
 /* list active events matching regexp arg */
-void list_events(arg, ses)
-     char *arg;
-     struct session *ses;
+void list_events(char *arg, struct session *ses)
 {
-  char temp[BUFFER_SIZE], left[BUFFER_SIZE];
-  int ct; /* current time */
-  int flag;
-  struct eventnode *ev;
+    char left[BUFFER_SIZE];
+    int ct; /* current time */
+    int flag;
+    struct eventnode *ev;
 
-  if (!ses) {
-    tintin_puts("#NO SESSION ACTIVE => NO EVENTS!", ses);
-    return;
-  }
-
-  ct = time(NULL);
-  ev = ses->events;
-  arg = get_arg_in_braces(arg, left, 1);
-
-  if (!*left) {
-    tintin_puts("#Defined events:", ses);
-    while(ev != NULL) {
-      sprintf(temp, "(%d)\t {%s}", ev->time-ct, ev->event);
-      tintin_puts(temp, ses);
-      ev = ev->next;
+    if (!ses)
+    {
+        tintin_printf(ses,"#NO SESSION ACTIVE => NO EVENTS!");
+        return;
     }
-  }
-  else {
-    flag = 0;
-    while(ev != NULL) {
-      if (match(left, ev->event)) {
-        sprintf(temp, "(%d)\t {%s}", ev->time-ct, ev->event);
-        tintin_puts(temp, ses);
-	flag = 1;
-      }
-      ev = ev->next;
+
+    ct = time(NULL);
+    ev = ses->events;
+    arg = get_arg_in_braces(arg, left, 1);
+
+    if (!*left)
+    {
+        tintin_printf(ses,"#Defined events:");
+        while(ev != NULL)
+        {
+            tintin_printf(ses, "(%d)\t {%s}", ev->time-ct, ev->event);
+            ev = ev->next;
+        }
     }
-    if (flag == 0)
-      tintin_puts("#THAT EVENT IS NOT DEFINED.", ses);
-  }
+    else
+    {
+        flag = 0;
+        while(ev != NULL)
+        {
+            if (match(left, ev->event))
+            {
+                tintin_printf(ses, "(%d)\t {%s}", ev->time-ct, ev->event);
+                flag = 1;
+            }
+            ev = ev->next;
+        }
+        if (flag == 0)
+            tintin_printf(ses,"#THAT EVENT (%s) IS NOT DEFINED.", left);
+    }
 }
 
 /* add new event to the list */
-void delay_command(arg, ses)
-     char *arg;
-     struct session *ses;
+void delay_command(char *arg, struct session *ses)
 {
-  char left[BUFFER_SIZE], right[BUFFER_SIZE];
-  int delay;
-  struct eventnode *ev, *ptr, *ptrlast;
+    char left[BUFFER_SIZE], right[BUFFER_SIZE], temp[BUFFER_SIZE], *cptr;
+    int delay;
+    struct eventnode *ev, *ptr, *ptrlast;
 
-  if (!ses) {
-    tintin_puts("#NO SESSION ACTIVE => NO EVENTS!", ses);
-    return;
-  }
-
-  arg = get_arg_in_braces(arg, left, 0);
-  arg = get_arg_in_braces(arg, right, 1);
-  if(!*right) {
-    list_events(left, ses);
-    return;
-  }
-
-  if ((delay = atoi(left)) == 0) {
-    tintin_puts("#EVENT IGNORED => DELAY=0", ses);
-    return;
-  }
-
-  ev = (struct eventnode *)malloc(sizeof(struct eventnode));
-  ev->time = time(NULL) + delay;
-  ev->next = NULL;
-  ev->event = (char *)malloc(strlen(right)+1);
-  strcpy(ev->event, right);
-
-  if(ses->events == NULL) {
-    ses->events = ev;
-  }
-  else if(ses->events->time > ev->time) {
-    ev->next = ses->events;
-    ses->events = ev;
-  }
-  else {
-    ptr = ses->events;
-    while((ptrlast = ptr) && (ptr = ptr->next)) {
-      if(ptr->time > ev->time) {
-	ev->next = ptr;
-	ptrlast->next = ev;
-	return;
-      }
+    if (!ses)
+    {
+        tintin_printf(ses,"#NO SESSION ACTIVE => NO EVENTS!");
+        return;
     }
-    ptrlast->next = ev;
+
+    arg = get_arg_in_braces(arg, left, 0);
+    arg = get_arg_in_braces(arg, right, 1);
+    substitute_vars(left, temp);
+    substitute_myvars(temp, left, ses);
+    substitute_vars(right, temp);
+    substitute_myvars(temp, right, ses);
+    if(!*right)
+    {
+        list_events(left, ses);
+        return;
+    }
+
+    if (!*left || (delay=strtol(left,&cptr,10))<=0 || *cptr)
+    {
+        tintin_printf(ses, "#EVENT IGNORED (DELAY={%s}), HAS TO BE A NUMBER >0",left);
+        return;
+    }
+
+    ev = (struct eventnode *)malloc(sizeof(struct eventnode));
+    ev->time = time(NULL) + delay;
     ev->next = NULL;
-    return;
-  }
+    ev->event = (char *)malloc(strlen(right)+1);
+    strcpy(ev->event, right);
+
+    if(ses->events == NULL)
+        ses->events = ev;
+    else if(ses->events->time > ev->time)
+    {
+        ev->next = ses->events;
+        ses->events = ev;
+    }
+    else
+    {
+        ptr = ses->events;
+        while((ptrlast = ptr) && (ptr = ptr->next))
+        {
+            if(ptr->time > ev->time)
+            {
+                ev->next = ptr;
+                ptrlast->next = ev;
+                return;
+            }
+        }
+        ptrlast->next = ev;
+        ev->next = NULL;
+        return;
+    }
 }
 
 /* remove ev->next from list */
-struct eventnode *remove_event(struct eventnode *ev)
+void remove_event(struct eventnode **ev)
 {
-  struct eventnode *tmp;
-  if(ev) {
-    tmp = ev->next;
-    free(ev->event);
-    free(ev);
-    return(tmp);
-  }
-  return(NULL);
+    struct eventnode *tmp;
+    if(*ev)
+    {
+        tmp = (*ev)->next;
+        free((*ev)->event);
+        free(*ev);
+        *ev=tmp;
+    }
 }
 
 /* remove events matching regexp arg from list */
-void remove_command(arg, ses)
-     char *arg;
-     struct session *ses;
+void remove_command(char *arg, struct session *ses)
 {
-  char temp[BUFFER_SIZE], left[BUFFER_SIZE];
-  int flag;
-  struct eventnode *ev;
-  
-  fprintf(stderr, "#REMOVE: %s\n", arg);
-  if (!ses) {
-    tintin_puts("#NO SESSION ACTIVE => NO EVENTS!", ses);
-    return;
-  }
-tintin_puts("#NIE CHCIALO MI SIE PISAC TEJ PROCEDURY :))", ses);
-return;
+    char temp[BUFFER_SIZE], left[BUFFER_SIZE];
+    int flag;
+    struct eventnode **ev;
 
-  ev = ses->events;
-  arg = get_arg_in_braces(arg, left, 1);
-
-  flag = 0;
-  if (*left && ses->events) {
-    if(match(left, ses->events->event)) {
-      
+    if (!ses)
+    {
+        tintin_printf(ses,"#NO SESSION ACTIVE => NO EVENTS!");
+        return;
     }
-    else {
-      while(ev != NULL) {
-        if (match(left, ev->event)) {
-          tintin_puts(temp, ses);
-          flag = 1;
+
+    arg = get_arg_in_braces(arg, left, 1);
+    substitute_vars(left, temp);
+    substitute_myvars(temp, left, ses);
+    
+    if (!*left)
+    {
+        tintin_printf(ses,"#REMOVE WHICH EVENT?");
+        return;
+    }
+
+    flag = 0;
+    ev = &(ses->events);
+    while (*ev)
+        if (match(left, (*ev)->event))
+        {
+            flag=1;
+            if (ses==activesession && mesvar[3])
+                tintin_printf(ses, "#Ok. Event {%s} at %d won't be executed.",
+                    (*ev)->event, (*ev)->time-time(0));
+            remove_event(ev);
         }
-        ev = ev->next;
-      }
-    }
-  }
-  if (flag == 0)
-    tintin_puts("#THAT EVENT IS NOT DEFINED.", ses);
+        else
+            ev=&((*ev)->next);
+        
+    if (flag == 0)
+        tintin_printf(ses,"#THAT EVENT IS NOT DEFINED.");
 }

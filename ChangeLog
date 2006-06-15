@@ -1,9 +1,181 @@
-0.2.0
-*	color codes system added (~0~..~15~)
-*	#mudcolors command added
+0.4.1:
+*	#cr doesn't send two lines instead of one
+*	#atoi
+*	#verbatim <line>
 
-0.1.1
-*	if more than one action matches, all are applied.
-*	#showme no longer triggers actions
-*	#run command added
-*	#status command added
+0.4.0:
+*	TELNET protocol support.  KBtin understands the following options:
+	-	ECHO              (we attempt to turn off their echo)
+	-	SUPPRESS GO AHEAD
+	-	TERMINAL-TYPE     (type sent is "KBtin")
+	-	NAWS              (window size updated every SIGWINCH)
+*	catching SIGCONT to redraw screen after being stopped
+*	--More-- kludge
+*	"make install" will install NEWS and KBtin_help.gz
+*	TERM environment option in #run passed as "KBtin"
+
+0.3.9:
+*	multiple config files given from command-line when invoking KBtin
+*	#sub {a} {b} works as old #sub {%1a%2} {%1b%2}
+*	substitutes can trigger multiple times in a single line
+	(#sub {a} {b} on "hahahaha" -> "hbhbhbhb")
+*	bugfix: #action no longer segfaults
+*	bugfix: changing the routes while in #goto won't crash KBtin anymore
+        (we use the old data)
+*	we send \r\n instead of \n, for compatibility with the telnet
+	protocol (only for real sockets, of course)
+*	the NEWS file is statted to tell if KBtin was updated since the
+	last time you read it.  BUG: the check will fail if several users
+	share the same copy of KBtin
+
+0.3.8:
+*	changed tintin_puts2 to tintin_printf through the whole source
+*	more verbose error messages in most cases
+*	bugfix: #verbatim can be used in the middle of an alias
+*	incomplete lines are no longer considered prompts if the background
+	color is non-black at the end
+*	promptactions fire on "blank" with nothing but spaces and colorcodes
+	only if they're complete -- to prevent expensive processing of
+	highlights and substituties
+*	optimized set_variable
+*	buffer-overflow checks in most functions
+*	aborting commands in case of a buffer overflow (incomplete!)
+*	#match doesn't substitute old values of variables in its command
+	anymore (use $$1 to get them)
+*	bugfix: #delay can be called from events without events disappearing
+*	bugfix: write errors while logging no longer crash KBtin
+*	#condump can dump log to a .gz file
+*	changed configure.in to work with newer versions of autoconf
+*	ESC[m properly recognized as ESC[0m
+*	#shell
+*	bugfix: \line before creating a session was improperly echoed
+*	bugfix: tab (ASCII 09) characters no longer screw up linewrap
+*	help.c now uses mypopen instead of popen to hide "Broken pipe"
+	messages
+*	workaround for systems with no *n*printf
+*	ignoring errors on ioctl(TIOCSWINSZ)
+
+0.3.7:
+*	& added to the list of possible prompt chars
+*	#sortlist
+*	bugfix: no more segfaults in #write
+*	#match
+*	messages from successful calls of #system can be disabled by #mess
+	#system
+*	lines are joined together in #read only in case of a tintin-command
+*	#decolorize
+
+0.3.6:
+*	parse.c didn't check for #unpromptaction! Aargh!
+*	#char now accepts also ASCII characters >127
+*	all bindable keys scroll screen to the bottom of output
+*	#gag and #ungag no longer touch regular substitutes
+*	promptactions fire on complete lines as well
+*	a quirk in VT100 standard: \n as 81th character in line should be
+	ignored
+*	bugfix: ${varname} with positional variables in varname
+*	#dosubstitutes
+*	#dohighlights
+*	incomplete lines ending with one of: ?:>.*$#] are considered prompts
+	and left there if the user types something
+*	local echo shows color codes intact instead of changing color text
+*	#run now sets the pseudo-terminal modes correctly. This means no
+	double-echoing unless a stupid program like telnet changes the
+	modes.
+*	bugfix: #zap doesn't (hopefully) leave zombie processes anymore
+*	tilde conversion in filenames: "~/" = home dir, "~user/" = user's
+	home dir
+*	#if substituted variables in its command part too early
+
+0.3.5:
+*	most commands substitute variables in their args
+*	#help checks also the dir where KBtin binary resides
+*	#removeevent can be used to remove #delays
+*	#event and #unevent as other names for #delay and #remove
+*	bugfix: #foreach no longer prepends space to implicit arguments
+
+0.3.4:
+*	KBtin now compiles with -Wall with almost no warnings (save for those
+        related to ioctl and pseudo-terminals)
+*	delayed variable substitution - FINALLY!!!
+*	#foreach can now use positional parameters instead of simple append
+*	spaces between the command and first argument are not ignored if it's
+        a MUD command
+*	statistics from multiple #reads are combined into one
+*	split-line in #read
+*	#map works again only on #pathdirs
+*	bugfix: cannot delete the same action twice
+*	bugfix: deleting an alias being executed
+
+0.3.3:
+*	$COLS and $LINES pseudovariables will give you the terminal size
+*	>place as a shortcut for $loc>place
+*	spaces before the command are no longer ignored
+*	#strlen command and inline
+*	#map now doesn't ignore commands which are not among #pathdirs
+*	#log <name> now works properly if already logging
+*	variable names can now contain digits and underscores
+*	events no longer ignore '#message events' turned off (duh!)
+*	#explode and #implode commands
+*	#substr instead of #index
+*	$PATH pseudovariable
+*	help file added
+
+0.3.2:
+*	#index uses now 1-based indices (for consistency with other commands)
+*	#select and old #foreach removed - variable names shouldn't be used
+        for storing values!
+*	#foreach command: iterating through a list
+*	bugfix: #suspend now deals properly with terminal settings
+*	bugfix: #system no longer screws up display if the command writes
+        anything to the screen
+*	#boss - removed, the input line will give you away anyway
+*	#write and #writesession now write #gag instead of #substitute {-gag-}
+*	bugfix: ~~ is no longer considered a color code
+
+0.3.1:
+*	~fg:bg:blink~ color codes
+*	ESC[nC
+*	#promptaction command added
+*	splitting long lines coming from MUD to prevent buffer overflows
+
+0.3.0:
+*	background and blink color codes (0..255)
+*	rewriting last line of output to make actions guaranteed
+*	more flexible time format
+*	portable implementation of run.c
+
+0.2.9:
+*	#margin command added
+*	actions, delays and binds ignore #verbatim
+*	bugfix: ^D now works ok in #verbatim mode
+*	#bind command added
+*	bugfix: #blank should now work properly, fixing this bug improved
+        KBtin's speed about twice BTW :-)
+*	incoming ~n~ codes are changed to `n~ instead of working as a
+        colorcode
+*	unused listnode->pr fields now use 0 instead of allocating a string
+	just to put "0" there (that was a waste of memory)
+
+0.2.8a:
+*	gz-logging
+
+0.2.8:
+*	bugfix: [Esc] works again
+*	#write and #writesession now support routes
+*	#writesession now writes also changed aliases/actions/whatsoever
+*	multi-color highlights
+
+0.2.7:
+*	KBtin no longer uses the ncurses library! (major rewrite of user.c)
+	
+0.2.6:
+*	fixed bug in simplify_list when an item is a single character
+	Ex.: #splitlist head tail {a b c d}
+*	fixed bug if an argument of an alias has embedded braces
+	Ex.: #alias aa {#showme $1}
+	     aa {{a b} c d}
+*	bugfix: #verbatim no longer crashes KBtin
+*	no longer removing braces from the tail of the list in #splitlist
+	Ex.: iterating through list 'a {b c} d e {f g}'
+*	#deleteitems command added

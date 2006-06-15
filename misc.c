@@ -16,469 +16,543 @@
 #include <ctype.h>
 #include "tintin.h"
 
-#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
 
 /* externs */
-extern struct listnode *search_node_with_wild();
-
-extern struct session *newactive_session();
-extern struct listnode *common_aliases, *common_actions, *common_subs,
- *common_myvars;
-extern struct listnode *common_highs, *common_antisubs, *common_pathdirs;
-extern char *get_arg_in_braces();
-extern struct session *sessionlist,*activesession;
+extern struct session *sessionlist,*activesession,*nullsession;
 extern struct completenode *complete_head;
 extern char tintin_char;
-extern int Echo;
+extern int echo;
 extern int speedwalk;
 extern int presub;
 extern int blank;
 extern int togglesubs;
-extern int mudcolors;
 extern int blank;
-extern char vars[10][BUFFER_SIZE];	/* the %0, %1, %2,....%9 variables */
+extern int keypad;
+extern pvars_t *pvars;	/* the %0, %1, %2,....%9 variables */
 extern int mesvar[7];
 extern int verbatim;
 extern char status[BUFFER_SIZE];
-void system_command(char *, struct session *);
+extern int margins,marginl,marginr;
+extern FILE *mypopen(char *command);
+extern int LINES,COLS;
+extern void cleanup_session(struct session *ses);
+extern int count_list(struct listnode *listhead);
+extern int count_routes(struct session *ses);
+extern char *get_arg_in_braces(char *s,char *arg,int flag);
+extern int is_abrev(char *s1, char *s2);
+extern struct session *newactive_session(void);
+extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
+extern void prepare_actionalias(char *string, char *result, struct session *ses);
+extern void prompt(struct session *ses);
+extern void show_status(void);
+extern void substitute_myvars(char *arg,char *result,struct session *ses);
+extern void substitute_vars(char *arg, char *result);
+extern void textout(char *txt);
+extern void textout_draft(char *txt);
+extern void tintin_puts(char *cptr,struct session *ses);
+extern void tintin_puts1(char *cptr,struct session *ses);
+extern void tintin_printf(struct session *ses, char *format, ...);
+extern void user_beep(void);
+extern void user_done(void);
+extern void user_keypad(int onoff);
+extern void write_line_mud(char *line, struct session *ses);
+extern void set_variable(char *left,char *right,struct session *ses);
+extern void do_all_high(char *line,struct session *ses);
+extern void do_all_sub(char *line, struct session *ses);
+extern inline int getcolor(char **ptr,int *color,const int flag);
+extern void user_pause(void);
+extern void user_resume(void);
 
-/****************************/
-/* the cr command           */
-/****************************/
-void cr_command(ses)
-     struct session *ses;
+int yes_no(char *txt)
 {
-  if (ses != NULL)
-    write_line_mud("\n", ses);
+    if (!*txt)
+        return -2;
+    if (!strcmp(txt,"0"))
+        return 0;
+    if (!strcmp(txt,"1"))
+        return 1;
+    if (!strcasecmp(txt,"NO"))
+        return 0;
+    if (!strcasecmp(txt,"YES"))
+        return 1;
+    if (!strcasecmp(txt,"OFF"))
+        return 0;
+    if (!strcasecmp(txt,"ON"))
+        return 1;
+    if (!strcasecmp(txt,"FALSE"))
+        return 0;
+    if (!strcasecmp(txt,"TRUE"))
+        return 1;
+    return -1;
 }
-/****************************/
-/* the version command      */
-/****************************/
-void version_command()
-{
-  char temp[80];
 
-  sprintf(temp, "#You are using TINTIN++ %s\n\r", VERSION_NUM);
-  tintin_puts2(temp, NULL);
-  prompt(NULL);
+void togglebool(int *b, char *arg, struct session *ses, char *msg1, char *msg2)
+{
+    char tmp[BUFFER_SIZE];
+    int old=*b;
+
+    get_arg_in_braces(arg,arg,1);
+    if (*arg)
+    {
+        substitute_vars(arg,tmp);
+        substitute_myvars(tmp,arg,ses);
+        switch(yes_no(arg))
+        {
+        case 0:
+            *b=0; break;
+        case 1:
+            *b=1; break;
+        default:
+            tintin_printf(ses,"#Valid boolean values are: 1/0, YES/NO, TRUE/FALSE, ON/OFF. Got {%s}.",arg);
+        }
+    }
+    else
+        *b=!*b;
+    if (*b!=old)
+        tintin_printf(ses,*b?msg1:msg2);
 }
 
 /****************************/
-/* the verbatim command,    */
-/* used as a toggle         */
+/* the #cr command          */
 /****************************/
-void verbatim_command()
+void cr_command(struct session *ses)
 {
-  verbatim = !verbatim;
-  if (verbatim)
-    tintin_puts2("#All text is now sent 'as is'.", (struct sesssion *)NULL);
-  else
-    tintin_puts2("#Text is no longer sent 'as is'.", (struct session *)NULL);
-  prompt(NULL);
+    if (ses != nullsession)
+        write_line_mud("", ses);
+}
+
+/****************************/
+/* the #version command     */
+/****************************/
+void version_command(void)
+{
+    tintin_printf(0, "#You are using KBtin %s\n", VERSION_NUM);
+    prompt(NULL);
+}
+
+/****************************/
+/* the #verbatim command    */
+/****************************/
+void verbatim_command(char *arg,struct session *ses)
+{
+    char temp1[BUFFER_SIZE], temp2[BUFFER_SIZE];
+    if (*arg)
+    {
+        arg = get_arg_in_braces(arg, temp1, 1);
+        substitute_vars(temp1, temp2);
+        substitute_myvars(temp2, temp1, ses);
+        write_line_mud(temp1,ses);
+        return;
+    }
+    if ((verbatim=!verbatim))
+        tintin_printf(0,"#All text is now sent 'as is'.");
+    else
+        tintin_printf(0,"#Text is no longer sent 'as is'.");
 }
 
 /********************/
 /* the #all command */
 /********************/
-struct session *all_command(arg, ses)
-     char *arg;
-     struct session *ses;
+struct session *all_command(char *arg,struct session *ses)
 {
-  struct session *sesptr;
+    struct session *sesptr;
 
-  if (sessionlist) {
-    get_arg_in_braces(arg, arg, 1);
-    for (sesptr = sessionlist; sesptr; sesptr = sesptr->next)
-      parse_input(arg, sesptr);
-  } else
-    tintin_puts("BUT THERE ISN'T ANY SESSION AT ALL!", ses);
-  return ses;
+    if ((sessionlist!=nullsession)||(nullsession->next))
+    {
+        get_arg_in_braces(arg, arg, 1);
+        for (sesptr = sessionlist; sesptr; sesptr = sesptr->next)
+            if (sesptr!=nullsession)
+                parse_input(arg,1,sesptr);
+    }
+    else
+        tintin_printf(ses,"#BUT THERE ISN'T ANY SESSION AT ALL!");
+    return ses;
 }
 
 /*********************/
 /* the #bell command */
 /*********************/
-void bell_command(ses)
-     struct session *ses;
-
+void bell_command(struct session *ses)
 {
-  user_beep();
+    user_beep();
 }
 
-
-/*********************/
-/* the #boss command */
-/*********************/
-void boss_command(ses)
-     struct session *ses;
-{
-  char temp[80] = "";
-  int i;
-
-  for (i = 0; i < 50; i++) {
-    sprintf(temp, "parsed %d branches starting from node %d, %d nodes", i, 50 - i, 23 + i * 3 / 2);
-    tintin_puts2(temp, (struct session *)NULL);
-  }
-  getchar();			/* stop screen from scrolling stuff */
-}
 
 /*********************/
 /* the #char command */
 /*********************/
-void char_command(arg, ses)
-     char *arg;
-     struct session *ses;
+void char_command(char *arg,struct session *ses)
 {
-  char strng[80];
-
-  get_arg_in_braces(arg, arg, 1);
-  if (ispunct(*arg)) {
-    tintin_char = *arg;
-    sprintf(strng, "#OK. TINTIN-CHAR is now {%c}\n", tintin_char);
-    tintin_puts2(strng, (struct session *)NULL);
-  } else
-    tintin_puts2("#SPECIFY A PROPER TINTIN-CHAR! SOMETHING LIKE # OR /!", (struct session *)NULL);
+    get_arg_in_braces(arg, arg, 1);
+    if (ispunct(*arg) || ((unsigned char)(*arg)>127))
+    {
+        tintin_char = *arg;
+        tintin_printf(ses, "#OK. TINTIN-CHAR is now {%c}", tintin_char);
+    }
+    else
+        tintin_printf(ses,"#SPECIFY A PROPER TINTIN-CHAR! SOMETHING LIKE # OR /!");
 }
 
 
 /*********************/
 /* the #echo command */
 /*********************/
-void echo_command(ses)
-     struct session *ses;
+void echo_command(char *arg,struct session *ses)
 {
-  Echo = !Echo;
-  if (Echo)
-    tintin_puts("#ECHO IS NOW ON.", ses);
-  else
-    tintin_puts("#ECHO IS NOW OFF.", ses);
+    togglebool(&echo,arg,ses,
+               "#ECHO IS NOW ON.",
+               "#ECHO IS NOW OFF.");
+}
+
+/***********************/
+/* the #keypad command */
+/***********************/
+void keypad_command(char *arg,struct session *ses)
+{
+    togglebool(&keypad,arg,ses,
+               "#KEYPAD NOW WORKS IN THE ALTERNATE MODE.",
+               "#KEYPAD KEYS ARE NOW EQUAL TO NON-KEYPAD ONES.");
+    user_keypad(keypad);
 }
 
 /*********************/
 /* the #end command */
 /*********************/
-void end_command(command, ses)
-     char *command;
-     struct session *ses;
+void end_command(char *command, struct session *ses)
 {
-  struct session *sp;
+    struct session *sp;
 
-  if (strcmp(command, "end"))
-    tintin_puts("#YOU HAVE TO WRITE #end - NO LESS, TO END!", ses);
-  else {
-    struct session *sesptr;
+    if (strcmp(command, "end"))
+        tintin_printf(ses,"#YOU HAVE TO WRITE #end - NO LESS, TO END!");
+    else
+    {
+        struct session *sesptr;
 
-    for (sesptr = sessionlist; sesptr; sesptr = sp) {
-      sp = sesptr->next;
-      cleanup_session(sesptr);
+        for (sesptr = sessionlist; sesptr; sesptr = sp)
+        {
+            sp = sesptr->next;
+            if (sesptr!=nullsession)
+                cleanup_session(sesptr);
+        }
+        ses = NULL;  /* a message from DIKUs... we can leave it though */
+        tintin_printf(ses,"TINTIN suffers from bloodlack, and the lack of a beating heart...");
+        tintin_printf(ses,"TINTIN is dead! R.I.P.");
+        tintin_printf(ses,"Your blood freezes as you hear TINTIN's death cry.");
+        user_done();
+        exit(0);
     }
-    ses = NULL;
-    tintin_puts2("TINTIN suffers from bloodlack, and the lack of a beating heart...", ses);
-   tintin_puts2("TINTIN is dead! R.I.P.", ses);
-   tintin_puts2("Your blood freezes as you hear TINTIN's death cry.", ses);
-    user_done();
-    exit(0);
-  }
 }
 
 /***********************/
 /* the #ignore command */
 /***********************/
-void ignore_command(ses)
-     struct session *ses;
+void ignore_command(char *arg,struct session *ses)
 {
-  if (ses) {
-    if (ses->ignore = !ses->ignore)
-      tintin_puts("#ACTIONS ARE IGNORED FROM NOW ON.", ses);
+    if (ses!=nullsession)
+        togglebool(&ses->ignore,arg,ses,
+                   "#ACTIONS ARE IGNORED FROM NOW ON.",
+                   "#ACTIONS ARE NO LONGER IGNORED.");
     else
-      tintin_puts("#ACTIONS ARE NO LONGER IGNORED.", ses);
-  } else
-    tintin_puts("#No session active => Nothing to ignore!", ses);
+        tintin_printf(ses,"#No session active => Nothing to ignore!");
 }
 
 /**********************/
 /* the #presub command */
 /**********************/
-void presub_command(ses)
-     struct session *ses;
+void presub_command(char *arg,struct session *ses)
 {
-  presub = !presub;
-  if (presub)
-    tintin_puts("#ACTIONS ARE NOW PROCESSED ON SUBSTITUTED BUFFER.", ses);
-  else
-    tintin_puts("#ACTIONS ARE NO LONGER DONE ON SUBSTITUTED BUFFER.", ses);
+    togglebool(&presub,arg,ses,
+               "#ACTIONS ARE NOW PROCESSED ON SUBSTITUTED BUFFER.",
+               "#ACTIONS ARE NO LONGER DONE ON SUBSTITUTED BUFFER.");
 }
 
 /**********************/
 /* the #blank command */
 /**********************/
-void blank_command(ses)
-     struct session *ses;
+void blank_command(char *arg,struct session *ses)
 {
-  blank = !blank;
-  if (blank)
-    tintin_puts("#INCOMING BLANK LINES ARE NOW DISPLAYED.", ses);
-  else
-    tintin_puts("#INCOMING BLANK LINES ARE NO LONGER DISPLAYED.", ses);
+    togglebool(&blank,arg,ses,
+               "#INCOMING BLANK LINES ARE NOW DISPLAYED.",
+               "#INCOMING BLANK LINES ARE NO LONGER DISPLAYED.");
 }
 
 /**************************/
 /* the #togglesubs command */
 /**************************/
-void togglesubs_command(ses)
-     struct session *ses;
+void togglesubs_command(char *arg,struct session *ses)
 {
-  togglesubs = !togglesubs;
-  if (togglesubs)
-    tintin_puts("#SUBSTITUTES ARE NOW IGNORED.", ses);
-  else
-    tintin_puts("#SUBSTITUTES ARE NO LONGER IGNORED.", ses);
+    togglebool(&togglesubs,arg,ses,
+               "#SUBSTITUTES ARE NOW IGNORED.",
+               "#SUBSTITUTES ARE NO LONGER IGNORED.");
 }
 
-/**************************/
-/* the #mudcolors command */
-/**************************/
-void mudcolors_command(ses)
-     struct session *ses;
+/************************/
+/* the #margins command */
+/************************/
+void margins_command(char *arg,struct session *ses)
 {
-  mudcolors = !mudcolors;
-  if (mudcolors)
-    tintin_puts("#MUD-colors (substituting ~n~ for colors) enabled.", ses);
-  else
-    tintin_puts("#MUD-colors function disabled.", ses);
+    int l,r;
+    char num[BUFFER_SIZE], temp[BUFFER_SIZE], *tmp;
+
+    if (margins)
+    {
+        margins=0;
+        tintin_printf(ses,"#MARGINS DISABLED.");
+    }
+    else
+    {
+        l=marginl;
+        r=marginr;
+        if (arg)
+        {
+            arg=get_arg_in_braces(arg,num,0);
+            substitute_vars(num, temp);
+            substitute_myvars(temp, num, ses);
+            if (*num)
+            {
+                l=strtoul(num,&tmp,10);
+                if (*tmp||(l<=0))
+                {
+                    tintin_printf(ses,"#Left margin must be a positive number! Got {%s}.",num);
+                    return;
+                }
+                if (l>=BUFFER_SIZE)
+                {
+                    tintin_printf(ses,"#Left margin too big (%d)!",l);
+                    return;
+                }
+            };
+            arg=get_arg_in_braces(arg,num,1);
+            substitute_vars(num, temp);
+            substitute_myvars(temp, num, ses);
+            if (*num)
+            {
+                r=strtoul(num,&tmp,10);
+                if (*tmp||(r<l))
+                {
+                    tintin_printf(ses,"#Right margin must be a number greater than the left margin! Got {%s}.",tmp);
+                    return;
+                }
+                if (r>=BUFFER_SIZE)
+                {
+                    tintin_printf(ses,"#Right margin too big (%d)!",r);
+                    return;
+                }
+            }
+        };
+        marginl=l;
+        marginr=r;
+        margins=1;
+        tintin_printf(ses,"#MARGINS ENABLED.");
+    }
 }
 
 
 /***********************/
 /* the #showme command */
 /***********************/
-void showme_command(arg, ses)
-     char *arg;
-     struct session *ses;
+void showme_command(char *arg,struct session *ses)
 {
-  char result[BUFFER_SIZE], strng[BUFFER_SIZE];
+    char result[BUFFER_SIZE];
 
-  get_arg_in_braces(arg, arg, 1);
-  prepare_actionalias(arg, result, ses);
-  sprintf(strng, "%s", result);
-  tintin_puts2(strng, ses);	/* KB: no longer check for actions */
-  /*sprintf(strng,"%s\n",result);
-     if(ses->logfile)
-     fwrite(strng, strlen(strng), 1, ses->logfile); */
+    get_arg_in_braces(arg, arg, 1);
+    prepare_actionalias(arg, result, ses);
+    tintin_printf(ses,"%s",result);	/* KB: no longer check for actions */
+    /*
+    if(ses->logfile)
+       fprintf(ses->logfile,"%s\n",result);
+    */
 }
 
 /***********************/
 /* the #loop command   */
 /***********************/
-void loop_command(arg, ses)
-     char *arg;
-     struct session *ses;
+void loop_command(char *arg, struct session *ses)
 {
-  char left[BUFFER_SIZE], right[BUFFER_SIZE];
-  char result[BUFFER_SIZE];
-  int flag, bound1, bound2, counter;
+    char left[BUFFER_SIZE], right[BUFFER_SIZE];
+    char result[BUFFER_SIZE];
+    int flag, bound1, bound2, counter;
+    pvars_t vars,*lastpvars;
 
-  arg = get_arg_in_braces(arg, left, 0);
-  arg = get_arg_in_braces(arg, right, 1);
-  flag = 1;
-  substitute_vars(left, result, ses);
-  substitute_myvars(result, left, ses);
-  if (sscanf(left, "%d,%d", &bound1, &bound2) != 2)
-    tintin_puts2("#Wrong number of arguments in #loop", ses);
-  else {
+    arg = get_arg_in_braces(arg, left, 0);
+    arg = get_arg_in_braces(arg, right, 1);
     flag = 1;
-    counter = bound1;
-    while (flag == 1) {
-      sprintf(vars[0], "%d", counter);
-      substitute_vars(right, result);
-      parse_input(result, ses);
-      if (bound1 < bound2) {
-	counter++;
-	if (counter > bound2)
-	  flag = 0;
-      } else {
-	counter--;
-	if (counter < bound2)
-	  flag = 0;
-      }
+    substitute_vars(left, result);
+    substitute_myvars(result, left, ses);
+    if (sscanf(left, "%d,%d", &bound1, &bound2) != 2)
+        tintin_printf(ses,"#Wrong number of arguments in #loop: {%s}.",left);
+    else
+    {
+        if (pvars)
+            for (counter=1; counter<10; counter++)
+                strcpy(vars[counter],(*pvars)[counter]);
+        else
+            for (counter=1; counter<10; counter++)
+                strcpy(vars[counter],"");
+        lastpvars=pvars;
+        pvars=&vars;
+    
+        flag = 1;
+        counter = bound1;
+        while (flag == 1)
+        {
+            sprintf(vars[0], "%d", counter);
+            parse_input(right,1,ses);
+            if (bound1 < bound2)
+            {
+                counter++;
+                if (counter > bound2)
+                    flag = 0;
+            }
+            else
+            {
+                counter--;
+                if (counter < bound2)
+                    flag = 0;
+            }
+        }
+        pvars=lastpvars;
     }
-  }
 }
 
-/*************************/
-/* the #select command   */
-/*************************/
-void select_command(arg, ses)
-     char *arg;
-     struct session *ses;
-{
-  char left[BUFFER_SIZE], mid[BUFFER_SIZE], right[BUFFER_SIZE];
-  char result[BUFFER_SIZE];
-  struct listnode *ln;
-  ln = (ses) ? ses->myvars : common_myvars;
-
-
-  arg = get_arg_in_braces(arg, left, 0);
-  arg = get_arg_in_braces(arg, mid, 0);
-  arg = get_arg_in_braces(arg, right, 0);
-  if(!*left || !*mid || !*right) {
-    tintin_puts2("#select <pattern> <pattern> <expr>", ses);
-  }
-  substitute_vars(left, result, ses);
-  substitute_myvars(result, left, ses);
-  substitute_vars(mid, result, ses);
-  substitute_myvars(result, mid, ses);
-  while((ln = search_node_with_wild(ln, left)) != NULL) {
-    if(match(ln->left, mid)) {
-      sprintf(vars[0], "%s", ln->right);
-      substitute_vars(right, result);
-      parse_input(result, ses);
-      return;
-    }
-  }
-  arg = get_arg_in_braces(arg, left, 0); /* nothing matched, if command */
-  if(*left == tintin_char) {
-    if(is_abrev(left + 1, "else")) {
-      arg = get_arg_in_braces(arg, right, 1);
-      substitute_vars(right, result);
-      substitute_myvars(result, right, ses);
-      parse_input(right, ses);
-    }
-    else if(is_abrev(left + 1, "elif"))
-      if_command(arg, ses);
-  }
-}
-
-/**************************/
-/* the #foreach command   */
-/**************************/
-void foreach_command(arg, ses)
-     char *arg;
-     struct session *ses;
-{
-  char left[BUFFER_SIZE], right[BUFFER_SIZE];
-  char result[BUFFER_SIZE];
-  struct listnode *ln;
-  ln = (ses) ? ses->myvars : common_myvars;
-
-
-  arg = get_arg_in_braces(arg, left, 0);
-  arg = get_arg_in_braces(arg, right, 1);
-  if(!*left || !*right) {
-    tintin_puts2("#foreach <pattern> <expr>", ses);
-  }
-  substitute_vars(left, result, ses);
-  substitute_myvars(result, left, ses);
-/*  tintin_puts2(left, ses);
-  tintin_puts2(right, ses);*/
-  while((ln = search_node_with_wild(ln, left)) != NULL) {
-    sprintf(vars[0], "%s", ln->right);
-    substitute_vars(right, result);
-    parse_input(result, ses);
-  }
-}
+char *msNAME[]=
+    {
+        "aliases",
+        "actions",
+        "substitutes",
+        "events",
+        "highlights",
+        "variables",
+        "routes",
+        "gotos",
+        "binds",
+        "#system",
+        "paths",
+        "all"
+    };
 
 /************************/
 /* the #message command */
 /************************/
-void message_command(arg, ses)
-     char *arg;
-     struct session *ses;
+void message_command(char *arg,struct session *ses)
 {
-  char offon[2][20];
-  int mestype;
-  char ms[7][20], tpstr[80];
+    char offon[2][20];
+    int mestype;
+    char tpstr[BUFFER_SIZE],type[BUFFER_SIZE],onoff[BUFFER_SIZE];
 
-  sscanf("aliases actions substitutes antisubstitutes highlights variables all",
-	 "%s %s %s %s %s %s %s", ms[0], ms[1], ms[2], ms[3], ms[4], ms[5], ms[6]);
-  strcpy(offon[0], "OFF.");
-  strcpy(offon[1], "ON.");
-  get_arg_in_braces(arg, arg, 1);
-  if (!*arg)
-  {
-  	for (mestype=0;mestype<6;++mestype)
-  	{
-	    sprintf(tpstr, "#Messages concerning %s are %s",
-	         ms[mestype], offon[mesvar[mestype]]);
-            tintin_puts2(tpstr, ses);
-  	};
-  	return;
-  };
-  
-  mestype = 0;
-  while (!is_abrev(arg, ms[mestype]) && mestype < 7)
-    mestype++;
-  if (mestype == 7)
-    tintin_puts2("#Invalid message type to toggle.", ses);
-  else {
-    if (mestype<6)
+    strcpy(offon[0], "OFF.");
+    strcpy(offon[1], "ON.");
+    arg=get_arg_in_braces(arg, type, 0);
+    arg=get_arg_in_braces(arg, onoff, 1);
+    substitute_vars(type, tpstr);
+    substitute_myvars(tpstr, type, ses);
+    substitute_vars(onoff, tpstr);
+    substitute_myvars(tpstr, onoff, ses);
+    if (!*type)
     {
-	mesvar[mestype] = !mesvar[mestype];
-    	sprintf(tpstr, "#Ok. messages concerning %s are now %s",
-	    ms[mestype], offon[mesvar[mestype]]);
-    	tintin_puts2(tpstr, ses);
-    }
+        for (mestype=0;mestype<MAX_MESVAR;++mestype)
+            tintin_printf(ses, "#Messages concerning %s are %s",
+                    msNAME[mestype], offon[mesvar[mestype]]);
+        return;
+    };
+    mestype = 0;
+    while ((mestype<MAX_MESVAR+1)&&(!is_abrev(type, msNAME[mestype])))
+        mestype++;
+    if (mestype == MAX_MESVAR+1)
+        tintin_printf(ses,"#Invalid message type to toggle: {%s}",type);
     else
     {
-	int b=1;
-	for (mestype=0;mestype<6;mestype++)
-	    if (mesvar[mestype])	/* at least one type is ON? */
-		b=0;				/* disable them all */
-	for (mestype=0;mestype<6;mestype++)
-	    mesvar[mestype]=b;
-	if (b)
-	    tintin_puts2("#Ok. All messages are now ON.");
-	else
-	    tintin_puts2("#Ok. All messages are now OFF.");
+        if (mestype<MAX_MESVAR)
+        {
+            switch(yes_no(onoff))
+            {
+            case 0:
+                mesvar[mestype]=0;
+                break;
+            case 1:
+                mesvar[mestype]=1;
+                break;
+            case -1:
+                tintin_printf(ses, "#Hey! What should I do with %s? Specify a boolean value, not {%s}.",
+                        msNAME[mestype],onoff);
+                return;
+            default:
+                mesvar[mestype]=!mesvar[mestype];
+            };
+            tintin_printf(ses,"#Ok. messages concerning %s are now %s",
+                    msNAME[mestype], offon[mesvar[mestype]]);
+        }
+        else
+        {
+            int b=yes_no(onoff);
+            if (b==-1)
+            {
+                tintin_printf(ses,"#Hey! What should I do with all messages? Specify a boolean, not {%s}.",onoff);
+                return;
+            };
+            if (b==-2)
+            {
+                b=1;
+                for (mestype=0;mestype<MAX_MESVAR;mestype++)
+                    if (mesvar[mestype])	/* at least one type is ON? */
+                        b=0;			/* disable them all */
+            };
+            for (mestype=0;mestype<MAX_MESVAR;mestype++)
+                mesvar[mestype]=b;
+            if (b)
+                tintin_printf(ses,"#Ok. All messages are now ON.");
+            else
+                tintin_printf(ses,"#Ok. All messages are now OFF.");
+        }
     }
-  }
 }
 
 /**********************/
 /* the #snoop command */
 /**********************/
-void snoop_command(arg, ses)
-     char *arg;
-     struct session *ses;
+void snoop_command(char *arg,struct session *ses)
 {
-  char buf[100];
-  struct session *sesptr = ses;
+    char buf[BUFFER_SIZE];
+    struct session *sesptr = ses;
 
-  if (ses) {
-    get_arg_in_braces(arg, arg, 1);
-    if (*arg) {
-      for (sesptr = sessionlist; sesptr && strcmp(sesptr->name, arg); sesptr = sesptr->next) ;
-      if (!sesptr) {
-	tintin_puts("#NO SESSION WITH THAT NAME!", ses);
-	return;
-      }
+    if (ses)
+    {
+        get_arg_in_braces(arg, arg, 1);
+        substitute_vars(arg, buf);
+        substitute_myvars(buf, arg, ses);
+        if (*arg)
+        {
+            for (sesptr = sessionlist; sesptr && strcmp(sesptr->name, arg); sesptr = sesptr->next) ;
+            if (!sesptr)
+            {
+                tintin_printf(ses,"#There is no session named {%s}!",arg);
+                return;
+            }
+        }
+        if (sesptr->snoopstatus)
+        {
+            sesptr->snoopstatus = FALSE;
+            tintin_printf(ses, "#UNSNOOPING SESSION '%s'", sesptr->name);
+        }
+        else
+        {
+            sesptr->snoopstatus = TRUE;
+            tintin_printf(ses,"#SNOOPING SESSION '%s'", sesptr->name);
+        }
     }
-    if (sesptr->snoopstatus) {
-      sesptr->snoopstatus = FALSE;
-      sprintf(buf, "#UNSNOOPING SESSION '%s'", sesptr->name);
-      tintin_puts(buf, ses);
-    } else {
-      sesptr->snoopstatus = TRUE;
-      sprintf(buf, "#SNOOPING SESSION '%s'", sesptr->name);
-      tintin_puts(buf, ses);
-    }
-  } else
-    tintin_puts("#NO SESSION ACTIVE => NO SNOOPING", ses);
+    else
+        tintin_printf(ses,"#NO SESSION ACTIVE => NO SNOOPING");
 }
 
 /**************************/
 /* the #speedwalk command */
 /**************************/
-void speedwalk_command(ses)
-     struct session *ses;
+void speedwalk_command(char *arg,struct session *ses)
 {
-  speedwalk = !speedwalk;
-  if (speedwalk)
-    tintin_puts("#SPEEDWALK IS NOW ON.", ses);
-  else
-    tintin_puts("#SPEEDWALK IS NOW OFF.", ses);
+    togglebool(&speedwalk,arg,ses,
+               "#SPEEDWALK IS NOW ON.",
+               "#SPEEDWALK IS NOW OFF.");
 }
 
 
@@ -487,39 +561,80 @@ void speedwalk_command(ses)
 /***********************/
 void status_command(char *arg,struct session *ses)
 {
-	if (ses!=activesession)
-		return;
-	get_arg_in_braces(arg,arg,1);
-	if (*arg)
-	{
-		char buf1[BUFFER_SIZE],buf2[BUFFER_SIZE];
-		substitute_vars(arg,buf1);
-		substitute_myvars(buf1,buf2,ses);
-		strncpy(status,buf2,BUFFER_SIZE);
-	}
-	else
-		strcpy(status,".");
-	show_status();
+    if (ses!=activesession)
+        return;
+    get_arg_in_braces(arg,arg,1);
+    if (*arg)
+    {
+        char buf1[BUFFER_SIZE],buf2[BUFFER_SIZE];
+        substitute_vars(arg,buf1);
+        substitute_myvars(buf1,buf2,ses);
+        strncpy(status,buf2,BUFFER_SIZE);
+    }
+    else
+        strcpy(status,EMPTY_LINE);
+    show_status();
 }
 
 
 /***********************/
 /* the #system command */
 /***********************/
-void system_command(arg, ses)
-     char *arg;
-     struct session *ses;
+void system_command(char *arg,struct session *ses)
 {
-  get_arg_in_braces(arg, arg, 1);
-  if (*arg) {
-    tintin_puts3("^#OK EXECUTING SHELL COMMAND.", ses);
-    user_pause();
-    system(arg);
-    user_resume();
-    tintin_puts3("!#OK COMMAND EXECUTED.", ses);
-  } else
-    tintin_puts2("#EXECUTE WHAT COMMAND?", ses);
-  prompt(NULL);
+    char temp[BUFFER_SIZE];
+
+    get_arg_in_braces(arg, arg, 1);
+    substitute_vars(arg, temp);
+    substitute_myvars(temp, arg, ses);
+    if (*arg)
+    {
+        FILE *output;
+        char buf[BUFFER_SIZE];
+        
+        if (mesvar[9])
+            tintin_puts1("#EXECUTING SHELL COMMAND.", ses);
+        if (!(output = mypopen(arg)))
+        {
+            tintin_puts1("#ERROR EXECUTING SHELL COMMAND.",ses);
+            prompt(NULL);
+            return;
+        };
+        while (fgets(buf,BUFFER_SIZE,output))
+            textout(buf);
+        fclose(output);
+        if (mesvar[9])
+            tintin_puts1("#OK COMMAND EXECUTED.", ses);
+    }
+    else
+        tintin_printf(ses,"#EXECUTE WHAT COMMAND?");
+    prompt(NULL);
+
+}
+
+/**********************/
+/* the #shell command */
+/**********************/
+void shell_command(char *arg,struct session *ses)
+{
+    char temp[BUFFER_SIZE];
+
+    get_arg_in_braces(arg, arg, 1);
+    substitute_vars(arg, temp);
+    substitute_myvars(temp, arg, ses);
+    if (*arg)
+    {
+        if (mesvar[9])
+            tintin_puts1("#EXECUTING SHELL COMMAND.", ses);
+        user_pause();
+        system(arg);
+        user_resume();
+        if (mesvar[9])
+            tintin_puts1("#OK COMMAND EXECUTED.", ses);
+    }
+    else
+        tintin_printf(ses,"#EXECUTE WHAT COMMAND?");
+    prompt(NULL);
 
 }
 
@@ -527,274 +642,376 @@ void system_command(arg, ses)
 /********************/
 /* the #zap command */
 /********************/
-struct session *zap_command(ses)
-     struct session *ses;
+struct session *zap_command(struct session *ses)
 {
-  tintin_puts("#ZZZZZZZAAAAAAAAPPPP!!!!!!!!! LET'S GET OUTTA HERE!!!!!!!!", ses);
-  if (ses) {
-    cleanup_session(ses);
-    return newactive_session();
-  } else {
-    end_command("end", (struct session *)NULL);
-  }
-}
-
-void news_command(ses)
-struct session *ses;
-{
-    char line[BUFFER_SIZE];
-    FILE* news=fopen("news","r");
-    if (news)
+    if (ses!=nullsession)
     {
-	textout("~2~");
-	while (fgets(line,BUFFER_SIZE,news))
-	    textout(line);
-	textout("~7~\n");
+        tintin_puts("#ZZZZZZZAAAAAAAAPPPP!!!!!!!!! LET'S GET OUTTA HERE!!!!!!!!", ses);
+        cleanup_session(ses);
+        return newactive_session();
     }
     else
-	textout("`news' file not found!\n");
-    prompt(ses);
+        end_command("end", (struct session *)NULL);
+    return 0;   /* stupid lint */
 }
 
-
-/************************/
-/* the #wizlist command */
-/************************/
-/*
-   void wizlist_command(ses)
-   struct session *ses;
-   {
-   tintin_puts2("==========================================================================", ses);
-   tintin_puts2("                           Implementor:", ses);
-   tintin_puts2("                              Valgar ", ses);
-   tintin_puts2("", ses);
-   tintin_puts2("          Special thanks to Grimmy for all her help :)", ses);
-   tintin_puts2("\n\r                         TINTIN++ testers:", ses);
-   tintin_puts2(" Nemesis, Urquan, Elvworn, Kare, Merjon, Grumm, Tolebas, Winterblade ", ses);
-   tintin_puts2("\n\r A very special hello to Zoe, Oura, GODDESS, Reyna, Randela, Kell, ", ses);
-   tintin_puts2("                  and everyone else at GrimneDIKU\n\r", ses);
-   tintin_puts2("==========================================================================", ses);
-   prompt(ses);
-   }
- */
-
-void wizlist_command(ses)
-     struct session *ses;
+void news_command(struct session *ses)
 {
-
-  tintin_puts2("==========================================================================", ses);
-  tintin_puts2("  There are too many people to thank for making tintin++ into one of the", ses);
-  tintin_puts2("finest clients available.  Those deserving mention though would be ", ses);
-  tintin_puts2("Peter Unold, Bill Reiss, Joann Ellsworth, Jeremy Jack, and the many people", ses);
-  tintin_puts2("who send us bug reports and suggestions.", ses);
-  tintin_puts2("            Enjoy!!!  And keep those suggestions coming in!!\n", ses);
-  tintin_puts2("                       The Management...", ses);
-  tintin_puts2("==========================================================================", ses);
+    char line[BUFFER_SIZE];
+    FILE* news=fopen( NEWS_FILE , "r");
+#ifdef DATA_PATH
+    if (!news)
+        news=fopen( DATA_PATH "/" NEWS_FILE , "r");
+#endif
+    if (news)
+    {
+        tintin_printf(ses,"~2~");
+        while (fgets(line,BUFFER_SIZE,news))
+        {
+            *(char *)strchr(line,'\n')=0;
+            tintin_printf(ses,"%s",line);
+        }
+        tintin_printf(ses,"~7~");
+    }
+    else
+#ifdef DATA_PATH
+        tintin_printf(ses,"#'%s' file not found in '%s'",
+            NEWS_FILE, DATA_PATH);
+#else
+        tintin_printf(ses,"#'%s' file not found!", NEWS_FILE);
+#endif
+    prompt(ses);
 }
 
 
 /*********************************************************************/
 /*   tablist will display the all items in the tab completion file   */
 /*********************************************************************/
-void tablist(tcomplete)
-     struct completenode *tcomplete;
+void tablist(struct completenode *tcomplete)
 {
-  int count, done;
-  char tbuf[BUFFER_SIZE];
-  struct completenode *tmp;
+    int count, done;
+    char tbuf[BUFFER_SIZE];
+    struct completenode *tmp;
 
-  done = 0;
-  if (tcomplete == NULL) {
-    tintin_puts2("Sorry.. But you have no words in your tab completion file", NULL);
-    return;
-  }
-  count = 1;
-  *tbuf = '\0';
-
-/* 
-   I'll search through the entire list, printing thre names to a line then
-   outputing the line.  Creates a nice 3 column effect.  To increase the # 
-   if columns, just increase the mod #.  Also.. decrease the # in the %s's
- */
-
-  for (tmp = tcomplete->next; tmp != NULL; tmp = tmp->next) {
-    if ((count % 3)) {
-      if (count == 1)
-	sprintf(tbuf, "%25s", tmp->strng);
-      else
-	sprintf(tbuf, "%s%25s", tbuf, tmp->strng);
-      done = 0;
-      ++count;
-    } else {
-      sprintf(tbuf, "%s%25s", tbuf, tmp->strng);
-      tintin_puts2(tbuf, NULL);
-      done = 1;
-      *tbuf = '\0';
-      ++count;
+    done = 0;
+    if (tcomplete == NULL)
+    {
+        tintin_printf(0,"Sorry.. But you have no words in your tab completion file");
+        return;
     }
-  }
-  if (!done)
-    tintin_puts2(tbuf, NULL);
-  prompt(NULL);
+    count = 1;
+    *tbuf = '\0';
+
+    /*
+       I'll search through the entire list, printing thre names to a line then
+       outputing the line.  Creates a nice 3 column effect.  To increase the # 
+       if columns, just increase the mod #.  Also.. decrease the # in the %s's
+     */
+
+    for (tmp = tcomplete->next; tmp != NULL; tmp = tmp->next)
+    {
+        if ((count % 3))
+        {
+            if (count == 1)
+                sprintf(tbuf, "%25s", tmp->strng);
+            else
+                sprintf(tbuf, "%s%25s", tbuf, tmp->strng);
+            done = 0;
+            ++count;
+        }
+        else
+        {
+            tintin_printf(0,"%s%25s", tbuf, tmp->strng);
+            done = 1;
+            *tbuf = '\0';
+            ++count;
+        }
+    }
+    if (!done)
+        tintin_printf(0,"%s",tbuf);
+    prompt(NULL);
 }
 
-void tab_add(arg)
-     char *arg;
+void tab_add(char *arg)
 {
-  struct completenode *tmp, *tmpold, *tcomplete;
-  struct completenode *newt;
-  char *newcomp, buff[BUFFER_SIZE];
+    struct completenode *tmp, *tmpold, *tcomplete;
+    struct completenode *newt;
+    char *newcomp, buff[BUFFER_SIZE];
 
-  tcomplete = complete_head;
+    tcomplete = complete_head;
 
-  if ((arg == NULL) || (strlen(arg) <= 0)) {
-    tintin_puts("Sorry, you must have some word to add.", NULL);
+    if ((arg == NULL) || (strlen(arg) <= 0))
+    {
+        tintin_puts("Sorry, you must have some word to add.", NULL);
+        prompt(NULL);
+        return;
+    }
+    get_arg_in_braces(arg, buff, 1);
+
+    if ((newcomp = (char *)(malloc(strlen(buff) + 1))) == NULL)
+    {
+        user_done();
+        fprintf(stderr, "Could not allocate enough memory for that Completion word.\n");
+        exit(1);
+    }
+    strcpy(newcomp, buff);
+    tmp = tcomplete;
+    while (tmp->next != NULL)
+    {
+        tmpold = tmp;
+        tmp = tmp->next;
+    }
+
+    if ((newt = (struct completenode *)(malloc(sizeof(struct completenode)))) == NULL)
+    {
+        user_done();
+        fprintf(stderr, "Could not allocate enough memory for that Completion word.\n");
+        exit(1);
+    }
+    newt->strng = newcomp;
+    newt->next = NULL;
+    tmp->next = newt;
+    tmp = newt;
+    sprintf(buff, "#New word %s added to tab completion list.", arg);
+    tintin_puts(buff, NULL);
     prompt(NULL);
-    return;
-  }
-  get_arg_in_braces(arg, buff, 1);
-
-  if ((newcomp = (char *)(malloc(strlen(buff) + 1))) == NULL) {
-    user_done();
-    fprintf(stderr, "Could not allocate enough memory for that Completion word.\n");
-    exit(1);
-  }
-  strcpy(newcomp, buff);
-  tmp = tcomplete;
-  while (tmp->next != NULL) {
-    tmpold = tmp;
-    tmp = tmp->next;
-  }
-
-  if ((newt = (struct completenode *)(malloc(sizeof(struct completenode)))) == NULL) {
-    user_done();
-    fprintf(stderr, "Could not allocate enough memory for that Completion word.\n");
-    exit(1);
-  }
-  newt->strng = newcomp;
-  newt->next = NULL;
-  tmp->next = newt;
-  tmp = newt;
-  sprintf(buff, "#New word %s added to tab completion list.", arg);
-  tintin_puts(buff, NULL);
-  prompt(NULL);
 }
 
-void tab_delete(arg)
-     char *arg;
+void tab_delete(char *arg)
 {
-  struct completenode *tmp, *tmpold, *tmpnext, *tcomplete;
-  char s_buff[BUFFER_SIZE], c_buff[BUFFER_SIZE];
+    struct completenode *tmp, *tmpold, *tmpnext, *tcomplete;
+    char s_buff[BUFFER_SIZE], c_buff[BUFFER_SIZE];
 
-  tcomplete = complete_head;
+    tcomplete = complete_head;
 
-  if ((arg == NULL) || (strlen(arg) <= 0)) {
-    tintin_puts("#Sorry, you must have some word to delete.", NULL);
-    prompt(NULL);
-    return;
-  }
-  get_arg_in_braces(arg, s_buff, 1);
-  tmp = tcomplete->next;
-  tmpold = tcomplete;
-  if (tmpold->strng == NULL) {	/* (no list if the second node is null) */
-    tintin_puts("#There are no words for you to delete!", NULL);
-    prompt(NULL);
-    return;
-  }
-  strcpy(c_buff, tmp->strng);
-  while ((tmp->next != NULL) && (strcmp(c_buff, s_buff) != 0)) {
-    tmpold = tmp;
-    tmp = tmp->next;
+    if ((arg == NULL) || (strlen(arg) <= 0))
+    {
+        tintin_puts("#Sorry, you must have some word to delete.", NULL);
+        prompt(NULL);
+        return;
+    }
+    get_arg_in_braces(arg, s_buff, 1);
+    tmp = tcomplete->next;
+    tmpold = tcomplete;
+    if (tmpold->strng == NULL)
+    {                          /* (no list if the second node is null) */
+        tintin_puts("#There are no words for you to delete!", NULL);
+        prompt(NULL);
+        return;
+    }
     strcpy(c_buff, tmp->strng);
-  }
-  if (tmp->next != NULL) {
-    tmpnext = tmp->next;
-    tmpold->next = tmpnext;
-    free(tmp);
-    tintin_puts("#Tab word deleted.", NULL);
-    prompt(NULL);
-  } else {
-    if (strcmp(c_buff, s_buff) == 0) {	/* for the last node to delete */
-      tmpold->next = NULL;
-      free(tmp);
-      tintin_puts("#Tab word deleted.", NULL);
-      prompt(NULL);
-      return;
+    while ((tmp->next != NULL) && (strcmp(c_buff, s_buff) != 0))
+    {
+        tmpold = tmp;
+        tmp = tmp->next;
+        strcpy(c_buff, tmp->strng);
     }
-    tintin_puts("Word not found in list.", NULL);
-    prompt(NULL);
-  }
+    if (tmp->next != NULL)
+    {
+        tmpnext = tmp->next;
+        tmpold->next = tmpnext;
+        free(tmp);
+        tintin_puts("#Tab word deleted.", NULL);
+        prompt(NULL);
+    }
+    else
+    {
+        if (strcmp(c_buff, s_buff) == 0)
+        {	/* for the last node to delete */
+            tmpold->next = NULL;
+            free(tmp);
+            tintin_puts("#Tab word deleted.", NULL);
+            prompt(NULL);
+            return;
+        }
+        tintin_puts("Word not found in list.", NULL);
+        prompt(NULL);
+    }
 }
 
-void display_info(ses)
-     struct session *ses;
+void display_info(struct session *ses)
 {
-  char buf[BUFFER_SIZE];
-  int actions = 0;
-  int aliases = 0;
-  int vars = 0;
-  int subs = 0;
-  int antisubs = 0;
-  int highs = 0;
-  int ignore;
+    int actions   = 0;
+    int practions = 0;
+    int aliases   = 0;
+    int vars      = 0;
+    int subs      = 0;
+    int antisubs  = 0;
+    int highs     = 0;
+    int locs      = 0;
+    int routes    = 0;
+    int binds     = 0;
 
-  actions = count_list((ses) ? ses->actions : common_actions);
-  aliases = count_list((ses) ? ses->aliases : common_aliases);
-  subs = count_list((ses) ? ses->subs : common_subs);
-  antisubs = count_list((ses) ? ses->antisubs : common_antisubs);
-  vars = count_list((ses) ? ses->myvars : common_myvars);
-  highs = count_list((ses) ? ses->highs : common_highs);
-  if (ses)
-    ignore = ses->ignore;
-  else
-    ignore = 0;
-
-  tintin_puts2("You have defined the following:", ses);
-  sprintf(buf, "Actions : %d", actions);
-  tintin_puts2(buf, ses);
-  sprintf(buf, "Aliases : %d", aliases);
-  tintin_puts2(buf, ses);
-  sprintf(buf, "Substitutes : %d", subs);
-  tintin_puts2(buf, ses);
-  sprintf(buf, "Antisubstitutes : %d", antisubs);
-  tintin_puts2(buf, ses);
-  sprintf(buf, "Variables : %d", vars);
-  tintin_puts2(buf, ses);
-  sprintf(buf, "Highlights : %d", highs);
-  tintin_puts2(buf, ses);
-  sprintf(buf, "Echo : %d (1 - on, 0 - off)    Speedwalking : %d     Blank : %d", Echo, speedwalk, blank);
-  tintin_puts2(buf, ses);
-  sprintf(buf, "Toggle Subs: %d   Ignore Actions : %d   PreSub-ing: %d  MUD ~n~ colors: %d", togglesubs, ignore, presub,mudcolors);
-  tintin_puts2(buf, ses);
-
-
-  prompt(ses);
+    actions   = count_list(ses->actions);
+    practions = count_list(ses->prompts);
+    aliases   = count_list(ses->aliases);
+    subs      = count_list(ses->subs);
+    antisubs  = count_list(ses->antisubs);
+    vars      = count_list(ses->myvars);
+    highs     = count_list(ses->highs);
+    binds     = count_list(ses->binds);
+    {
+        int i;
+        for (i=0;i<MAX_LOCATIONS;i++)
+            if (ses->locations[i])
+                locs++;
+    }
+    routes=count_routes(ses);
+    tintin_printf(ses,"You have defined the following:");
+    tintin_printf(ses, "Actions : %d  Promptactions: %d", actions,practions);
+    tintin_printf(ses, "Aliases : %d", aliases);
+    tintin_printf(ses, "Substitutes : %d  Antisubstitutes : %d", subs,antisubs);
+    tintin_printf(ses, "Variables : %d", vars);
+    tintin_printf(ses, "Highlights : %d", highs);
+    tintin_printf(ses, "Routes : %d between %d locations",routes,locs);
+    tintin_printf(ses, "Binds : %d",binds);
+    tintin_printf(ses, "Echo : %d (1 - on, 0 - off)    Speedwalking : %d     Blank : %d", echo, speedwalk, blank);
+    tintin_printf(ses, "Toggle Subs: %d  Ignore Actions : %d  PreSub-ing: %d", togglesubs, ses->ignore, presub);
+    tintin_printf(ses, "Terminal size: %dx%d", COLS,LINES);
+    prompt(ses);
 }
 
-int isnotblank(char *line)
+int isnotblank(char *line,int flag)
 {
-	if (!strcmp(line,"."))
-		return 0;
-	if (!blank)
-		return 1;
-	if (!line)
-		return 0;
-	while (*line=='~')
-		if (!strncmp(line,"~-1~",4))
-			line+=4;
-		else
-		if ((*(line+1)>='0')&&(*(line+1)<='9')
-		    &&(*(line+2)=='~'))
-			line+=3;
-		else
-		if ((*(line+1)=='1')
-		    &&(*(line+2)>='0')&&(*(line+2)<='9')
-		    &&(*(line+3)=='~'))
-			line+=4;
-		else
-		if (*line==' ')
-			line++;
-		else
-			return(0);
-	return(*line);
+    int c;
+
+    if (!strcmp(line,EMPTY_LINE))
+        return 0;
+    if (flag)
+        return 1;
+    if (!*line)
+        return 0;
+    while (*line)
+        if (*line=='~')
+            if (!getcolor(&line,&c,1))
+                return 1;
+            else
+                line++;
+        else
+            if (isspace(*line))
+                line++;
+            else
+               return 1;
+    return 0;
+}
+
+int iscompleteprompt(char *line)
+{
+    int c=7;
+    char ch=' ';
+    
+    for (;*line;line++)
+        if (*line=='~')
+        {
+            if (!getcolor(&line,&c,0))
+                ch='~';
+        }
+        else
+            if (!isspace(*line))
+                ch=*line;
+    return (strchr("?:>.*$#]&",ch) && !(c&0x70));
+}
+
+/******************************/
+/* the #dosubstitutes command */
+/******************************/
+void dosubstitutes_command(char *arg,struct session *ses)
+{
+    char left[BUFFER_SIZE], right[BUFFER_SIZE], temp[BUFFER_SIZE];
+
+    arg = get_arg_in_braces(arg, left, 0);
+    arg = get_arg_in_braces(arg, right, 1);
+    substitute_vars(left, temp);
+    substitute_myvars(temp, left, ses);
+    substitute_vars(right, temp);
+    substitute_myvars(temp, right, ses);
+    if (!*left || !*right)
+        tintin_printf(ses,"#Syntax: #dosubstitutes <var> <text>");
+    else
+    {
+        do_all_sub(right, ses);
+        set_variable(left,right,ses);
+    }
+}
+
+/*****************************/
+/* the #dohighlights command */
+/*****************************/
+void dohighlights_command(char *arg,struct session *ses)
+{
+    char left[BUFFER_SIZE], right[BUFFER_SIZE], temp[BUFFER_SIZE];
+
+    arg = get_arg_in_braces(arg, left, 0);
+    arg = get_arg_in_braces(arg, right, 1);
+    substitute_vars(left, temp);
+    substitute_myvars(temp, left, ses);
+    substitute_vars(right, temp);
+    substitute_myvars(temp, right, ses);
+    if (!*left || !*right)
+        tintin_printf(ses,"#Syntax: #dohighlights <var> <text>");
+    else
+    {
+        do_all_high(right, ses);
+        set_variable(left,right,ses);
+    }
+}
+
+/***************************/
+/* the #decolorize command */
+/***************************/
+void decolorize_command(char *arg,struct session *ses)
+{
+    char left[BUFFER_SIZE], right[BUFFER_SIZE], temp[BUFFER_SIZE], *a, *b;
+    int c;
+
+    arg = get_arg_in_braces(arg, left, 0);
+    arg = get_arg_in_braces(arg, right, 1);
+    substitute_vars(left, temp);
+    substitute_myvars(temp, left, ses);
+    substitute_vars(right, temp);
+    substitute_myvars(temp, right, ses);
+    if (!*left || !*right)
+        tintin_printf(ses,"#Syntax: #decolorize <var> <text>");
+    else
+    {
+        b=right;
+        for (a=right;*a;a++)
+            if (*a=='~')
+            {
+                if (!getcolor(&a,&c,1))
+                    *b++='~';
+            }
+            else
+                *b++=*a;
+        *b=0;
+        set_variable(left,right,ses);
+    }
+}
+
+/*********************/
+/* the #atoi command */
+/*********************/
+void atoi_command(char *arg,struct session *ses)
+{
+    char left[BUFFER_SIZE], right[BUFFER_SIZE], temp[BUFFER_SIZE], *a;
+    int c;
+
+    arg = get_arg_in_braces(arg, left, 0);
+    arg = get_arg_in_braces(arg, right, 1);
+    substitute_vars(left, temp);
+    substitute_myvars(temp, left, ses);
+    substitute_vars(right, temp);
+    substitute_myvars(temp, right, ses);
+    if (!*left || !*right)
+        tintin_printf(ses,"#Syntax: #atoi <var> <text>");
+    else
+    {
+        if (*(a=right)=='-')
+            a++;
+        for (;isdigit(*a);a++);
+        *a=0;
+        if ((a==right+1) && (*right=='-'))
+            *right=0;
+        set_variable(left,right,ses);
+    }
 }

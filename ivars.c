@@ -1,418 +1,482 @@
-// pmap
+/* $Id: ivars.c,v 2.2 1998/11/25 17:14:00 jku Exp $ */
+/* Autoconf patching by David Hedbor, neotron@lysator.liu.se */
+#include "config.h"
+#include "tintin.h"
+#include <ctype.h>
+int stacks[100][3];
 
-// TODO:
-//
-// + nazwa/snprintf do fmapstat
-
-
-#include "fmap_e.h"
-
-#include <linux/config.h>
-#include <linux/module.h>
-
-#include <linux/errno.h>
-#include <linux/fs.h>
-#include <linux/major.h>
-#include <linux/kernel.h>
-#include <linux/signal.h>
-#include <linux/sched.h>
-#include <linux/mm.h>
-#include <linux/proc_fs.h>
-
-#include <asm/uaccess.h>
-#include <asm/pgtable.h>
-
-
-
-#ifndef AZT_KERNEL_PRIOR_2_1 
-#define  memcpy_fromfs copy_from_user
-#define  memcpy_tofs   copy_to_user
+#ifdef HAVE_UNISTD_H
+#include <stdlib.h>
+#include <unistd.h>
 #endif
 
-
-extern void* vmalloc ();
-extern void* vfree ();
-
-extern int printk (const char* fmt, ...);
-
-
-#define STATE__CLOSED 0
-#define STATE__OPENED 1
-#define STATE__SIZE_SET 2
-#define STATE__OFFSET_SET 3
-#define STATE__READY 4
-
-
-#define COPY_TO_USER 0
-#define COPY_FROM_USER 1
-#define INC_COUNT 2
-
-
-typedef struct {
-    int state;
-    unsigned long offset;
-    int size;
-    struct mm_struct *mm;
-    pid_t owner;
-    int bytes_read, bytes_written;
-} devinfo;
+extern char *get_arg_in_braces(char *s,char *arg,int flag);
+extern char *space_out(char *s);
+extern char *get_inline(char *s,char *dest);
+extern struct listnode *searchnode_list(struct listnode *listhead, char *cptr);
+extern int conv_to_ints(char *arg,struct session *ses);
+extern int do_one_inside(int begin, int end);
+extern int eval_expression(char *arg,struct session *ses);
+extern int finditem_inline(char *arg,struct session *ses);
+extern int is_abrev(char *s1, char *s2);
+extern int isatom_inline(char *arg,struct session *ses);
+extern int listlength_inline(char *arg,struct session *ses);
+extern int match(char *regex, char *string);
+extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
+extern int random_inline(char *arg, struct session *ses);
+extern void set_variable(char *left,char *right,struct session *ses);
+extern int strlen_inline(char *arg, struct session *ses);
+extern void substitute_myvars(char *arg,char *result,struct session *ses);
+extern void substitute_vars(char *arg, char *result);
+extern void tintin_printf(struct session *ses,char *format,...);
 
 
-void *phonybuf;
+extern char tintin_char;
+extern int mesvar[5];
 
-#define DEVS 256
-devinfo devs[DEVS];
-
-
-#define D_MAJOR 123
-
-
-static size_t hw_action (int direct, char* buf, struct mm_struct *mm, unsigned long addr, int count)
+/*********************/
+/* the #math command */
+/*********************/
+void math_command(char *line, struct session *ses)
 {
-	int to_copy, passed = 0;
+    /* char left[BUFFER_SIZE], right[BUFFER_SIZE], arg2[BUFFER_SIZE], */
+    char left[BUFFER_SIZE], right[BUFFER_SIZE], temp[BUFFER_SIZE], result[BUFFER_SIZE];
+    struct listnode *my_vars;
+    int i;
 
-	unsigned long page;
-	int mapnr;
-	pgd_t *pgdir;
-	pmd_t *pgmiddle;
-	pte_t *pgtable;
-
-	while (passed < count) {
-
-	    if (direct == INC_COUNT)	// force physical memory allocation
-		copy_from_user (phonybuf, (void *)addr, 4);
-
-	    pgdir = pgd_offset (mm, addr);
-	    if (pgd_none(*pgdir)) {
-		printk ("fmap: ERROR -- page directory missing.\n");
-		return passed;
-	    }
-	    if (pgd_bad(*pgdir)) {
-		printk ("fmap: ERROR -- bad page directory.\n");
-		return passed;
-	    }
-	    pgmiddle = pmd_offset(pgdir, addr);
-	    if (pmd_none(*pgmiddle)) {
-		printk ("fmap: ERROR -- middle page missing.\n");
-		return passed;
-	    }
-	    if (pmd_bad(*pgmiddle)) {
-		printk ("fmap: ERROR -- bad middle page.\n");
-		return passed;
-	    }
-	    pgtable = pte_offset(pgmiddle, addr);
-	    if (!pte_present(*pgtable)) {
-		printk ("fmap: ERROR -- page not present.\n");
-		return passed;
-	    }
-
-	    page = pte_page(*pgtable);
-
-	    to_copy = PAGE_SIZE - (addr & ~PAGE_MASK);
-	    if (to_copy > count - passed)
-		to_copy = count - passed;
-
-	    if (direct == COPY_TO_USER) {		// to user
-		copy_to_user (buf, (void *)(page + (addr & ~PAGE_MASK)), to_copy);
-		buf += to_copy;
-	    }
-	    else if (direct == COPY_FROM_USER) {	// from user
-		copy_from_user ((void *)(page + (addr & ~PAGE_MASK)), buf, to_copy);
-		buf += to_copy;
-	    }
-	    else if (direct == INC_COUNT) {
-		mapnr = MAP_NR(page);
-		if (mapnr<max_mapnr) {
-		    atomic_inc (&mem_map[mapnr].count);
-		    atomic_inc (&mem_map[mapnr].count);
-		}
-	    }
-
-	    passed += to_copy;
-	    addr += to_copy;
-
-	}
-
-	return passed;
+    my_vars = ses->myvars;
+    line = get_arg_in_braces(line, left, 0);
+    line = get_arg_in_braces(line, right, 1);
+    if (!*left||!*right)
+    {
+        tintin_printf(ses,"#Syntax: #math <variable> <expression>");
+        return;
+    };
+    substitute_vars(right, result);
+    substitute_myvars(result, right, ses);
+    i = eval_expression(right,ses);
+    sprintf(temp, "%d", i);
+    set_variable(left, temp, ses);
 }
 
-
-static ssize_t hw_write (struct file *file, const char *buf, size_t count, loff_t *filep)
+/*******************/
+/* the #if command */
+/*******************/
+void if_command(char *line, struct session *ses)
 {
-	int min = MINOR(file->f_dentry->d_inode->i_rdev), left, howmuch;
-	size_t passed;
+    /* char left[BUFFER_SIZE], right[BUFFER_SIZE], arg2[BUFFER_SIZE],  */
+    char left[BUFFER_SIZE], right[BUFFER_SIZE], temp[BUFFER_SIZE];
 
-//printk ("fmap: write\n");
+    /* int i; */
+    line = get_arg_in_braces(line, left, 0);
+    line = get_arg_in_braces(line, right, 1);
+    substitute_vars(left, temp);
+    substitute_myvars(temp, left, ses);
+    
+    if (!*left || !*right)
+    {
+        tintin_printf(ses,"#if <condition> <command> [#elif <condition> <command>] [...] [#else <command>]");
+        return;
+    }
+    
+    if (eval_expression(left,ses))
+        parse_input(right,1,ses);
+    else
+    {
+        line = get_arg_in_braces(line, left, 0);
+        if (*left == tintin_char)
+        {
 
-	if (devs[min].state != STATE__READY)
-	    return -E_SETUP;
-
-	left = devs[min].size - file->f_pos, howmuch = 0;
-	if (left < 0)
-	    left = 0;
-
-	if ((howmuch = count > left ? left : count)) {
-	    passed = hw_action (COPY_FROM_USER, (char *)buf, devs[min].mm, devs[min].offset + file->f_pos, howmuch);
-	    file->f_pos += passed;
-	    devs[min].bytes_written += passed;
-	    return passed;
-	}
-
-	return 0;
+            if (is_abrev(left + 1, "else"))
+            {
+                line = get_arg_in_braces(line, right, 1);
+                parse_input(right,1,ses);
+            }
+            if (is_abrev(left + 1, "elif"))
+                if_command(line, ses);
+        }
+    }
 }
 
 
-static ssize_t hw_read (struct file *file, char *buf, size_t count, loff_t *filep)
-{	
-	int min = MINOR(file->f_dentry->d_inode->i_rdev), left, howmuch;
-	size_t passed;
-
-//printk ("fmap: read\n");
-
-	if (devs[min].state != STATE__READY)
-	    return -E_SETUP;
-
-	left = devs[min].size - file->f_pos, howmuch = 0;
-	if (left < 0)
-	    left = 0;
-
-	if ((howmuch = count > left ? left : count)) {
-	    passed = hw_action (COPY_TO_USER, buf, devs[min].mm, devs[min].offset + file->f_pos, howmuch);
-	    file->f_pos += passed;
-	    devs[min].bytes_read += passed;
-	    return passed;
-	}
-
-	return 0;
-}
-
-
-static loff_t hw_lseek (struct file *file, loff_t offset, int orig)
+int do_inline(char *line,int *res,struct session *ses)
 {
-	int min = MINOR(file->f_dentry->d_inode->i_rdev);
+    char command[BUFFER_SIZE],*ptr;
 
-//printk ("fmap: seek\n");
+    ptr=command;
+    while (*line&&(*line!=' '))
+        *ptr++=*line++;
+    *ptr=0;
+    line=space_out(line);
+    /*
+  	    tintin_printf(ses,"#executing inline command [%c%s] with [%s]",tintin_char,command,line);
+    */	
+    if (is_abrev(command,"finditem"))
+        *res=finditem_inline(line,ses);
+    else if (is_abrev(command,"isatom"))
+        *res=isatom_inline(line,ses);
+    else if (is_abrev(command,"listlength"))
+        *res=listlength_inline(line,ses);
+    else if (is_abrev(command,"strlen"))
+        *res=strlen_inline(line,ses);
+    else if (is_abrev(command,"random"))
+        *res=random_inline(line,ses);
+    else
+    {
+        tintin_printf(ses,"#Unknown inline command [%c%s]!",tintin_char,command);
+        return 0;
+    };
 
-	if (devs[min].state != STATE__READY)
-	    return -E_SETUP;
-
-	switch (orig) {
-	    case 0: // set
-		if (offset>devs[min].size)
-		    return -E_EXPORTRANGE;
-		file->f_pos = offset;
-		break;
-	    case 1: // current
-		if (file->f_pos+offset>devs[min].size)
-		    return -E_EXPORTRANGE;
-		file->f_pos += offset;
-		break;
-	    case 2: // end
-		if (offset>devs[min].size)
-		    return -E_EXPORTRANGE;
-		file->f_pos = devs[min].size - offset;
-		break;
-	}
-
-	return file->f_pos;
+    return 1;
 }
 
 
-static int outofrange (int min, unsigned long endofs)
+int eval_expression(char *arg,struct session *ses)
 {
-	struct vm_area_struct *vma = find_vma (devs[min].mm, (endofs));
+    /* int i, begin, end, flag, prev, ptr; */
+    int i, begin, end, flag, prev;
 
-	if (vma == NULL)
-	    return 1;
-	if (endofs < vma->vm_start || endofs >= vma->vm_end)
-	    return 1;
-
-	return 0;
+    i = conv_to_ints(arg,ses);
+    if (i)
+    {
+        while (1)
+        {
+            i = 0;
+            flag = 1;
+            begin = -1;
+            end = -1;
+            prev = -1;
+            while (stacks[i][0] && flag)
+            {
+                if (stacks[i][1] == 0)
+                {
+                    begin = i;
+                }
+                else if (stacks[i][1] == 1)
+                {
+                    end = i;
+                    flag = 0;
+                }
+                prev = i;
+                i = stacks[i][0];
+            }
+            if ((flag && (begin != -1)) || (!flag && (begin == -1)))
+            {
+                tintin_printf(ses,"#Unmatched parentheses error in {%s}.",arg);
+                return 0;
+            }
+            if (flag)
+            {
+                if (prev == -1)
+                    return (stacks[0][2]);
+                begin = -1;
+                end = i;
+            }
+            i = do_one_inside(begin, end);
+            if (!i)
+            {
+                tintin_printf(ses, "#Invalid expression to evaluate in {%s}", arg);
+                return 0;
+            }
+        }
+    }
+    else
+        return 0;
 }
 
-
-static int hw_ioctl (struct inode* ino, struct file *filep, unsigned int req, unsigned long val)
+int conv_to_ints(char *arg,struct session *ses)
 {
-	int min = MINOR(ino->i_rdev);
+    int i, flag, result;
+    int m; /* =0 should match, =1 should differ */
+    int regex; /* =0 strncmp, =1 regex match */
+    char *ptr, *tptr;
+    char temp[BUFFER_SIZE];
+    char left[BUFFER_SIZE], right[BUFFER_SIZE];
 
-//printk ("fmap: ioctl\n");
+    regex=0; /* die lint die */
+    i = 0;
+    ptr = arg;
+    while (*ptr)
+    {
+        if (*ptr == ' ') ;
+        else if (*ptr == tintin_char)
+            /* inline commands */
+        {
+            ptr=get_inline(ptr+1,temp)-1;
+            if (!do_inline(temp,&(stacks[i][2]),ses))
+                return 0;
+            stacks[i][1]=15;
+        }
+        /* jku: comparing strings with = and != */
+        else if (*ptr == '[')
+        {
+            ptr++;
+            tptr=left;
+            while((*ptr) && (*ptr != ']') && (*ptr != '=') && (*ptr != '!')) {
+                *tptr = *ptr;
+                ptr++;
+                tptr++;
+            }
+            *tptr='\0';
+            if(!*ptr)
+                return 0; /* error */
+            if(*ptr == ']')
+                tintin_printf(ses, "#Compare %s to what ? (only one var between [ ])", left);
+            /* fprintf(stderr, "Left argument = '%s'\n", left); */
+            switch(*ptr)
+            {
+            case '!' :
+                ptr++;
+                m=1;
+                switch(*ptr)
+                {
+                case '=' : regex=0; ptr++; break;
+                case '~' : regex=1; ptr++; break;
+                default : return 0;
+                }
+                break;
+            case '=' :
+                ptr++;
+                m=0;
+                switch(*ptr)
+                {
+                case '=' : regex=0; ptr++; break;
+                case '~' : regex=1; ptr++; break;
+                default : break;
+                }
+                break;
+            default : return 0;
+            }
 
-	if (devs[min].owner != current->pid)
-	    return -E_NOEXPORT;
+            /* fprintf(stderr, "%c - %s match\n", (m) ? '=' : '!', (regex) ? "regex" : "string"); */
 
-	if (devs[min].state == STATE__READY)
-	    return -E_ALREADYSET;
-
-	if (req == SIZE) {
-//printk ("fmap: ioctl/SIZE\n");
-	    if (devs[min].state == STATE__SIZE_SET)
-		return -E_ALREADYSET;
-	    else if (devs[min].state == STATE__OFFSET_SET) {
-		if (outofrange (min, val+devs[min].offset))
-		    return -E_RANGE;
-	    }
-	    devs[min].size = (int)val;
-	    devs[min].state = (devs[min].state == STATE__OPENED ? STATE__SIZE_SET : STATE__READY);
-	}
-	else if (req == OFFSET) {
-//printk ("fmap: ioctl/OFFSET\n");
-	    if (devs[min].state == STATE__OFFSET_SET)
-		return -E_ALREADYSET;
-	    else if (devs[min].state == STATE__SIZE_SET) {
-		if (outofrange (min, val+devs[min].size))
-		    return -E_RANGE;
-	    }
-	    devs[min].offset = val;
-	    devs[min].state = (devs[min].state == STATE__OPENED ? STATE__OFFSET_SET : STATE__READY);
-	}
-
-	if (devs[min].state == STATE__READY) {
-	    hw_action (INC_COUNT, NULL, devs[min].mm, devs[min].offset, devs[min].size);
-	    devs[min].bytes_read = 0;
-	    devs[min].bytes_written = 0;
-	}
-
-	return 0;
+            tptr=right;
+            while((*ptr) && (*ptr != ']'))
+            {
+                *tptr = *ptr;
+                ptr++;
+                tptr++;
+            }
+            *tptr='\0';
+            /* fprintf(stderr, "Right argument = '%s'\n", right); */
+            if(!*ptr)
+                return 0;
+            if(regex)
+                result = match(right, left) ? 0 : 1;
+            else
+                result = strcmp(left, right);
+            if((result == 0 && m == 0) || (result != 0 && m != 0))
+            { /* success */
+                stacks[i][1] = 15;
+                stacks[i][2] = 1;
+                /* fprintf(stderr, "Expr TRUE\n"); */
+            }
+            else
+            {
+                stacks[i][1] = 15;
+                stacks[i][2] = 0;
+                /* fprintf(stderr, "Expr FALSE\n"); */
+            }
+        }
+        /* jku: end of comparing strings */
+        /* jku: undefined variables are now assigned value 0 (false) */
+        else if (*ptr == '$')
+        {
+            if (mesvar[5])
+                tintin_printf(ses, "#Undefined variable in {%s}.", arg);
+            stacks[i][1] = 15;
+            stacks[i][2] = 0;
+            while (isalpha(*(ptr + 1)))
+                ptr++;
+        }
+        /* jku: end of changes */
+        else if (*ptr == '(') {
+            stacks[i][1] = 0;
+        } else if (*ptr == ')') {
+            stacks[i][1] = 1;
+        } else if (*ptr == '!') {
+            if (*(ptr + 1) == '=') {
+                stacks[i][1] = 12;
+                ptr++;
+            } else
+                stacks[i][1] = 2;
+        } else if (*ptr == '*') {
+            stacks[i][1] = 3;
+        } else if (*ptr == '/') {
+            stacks[i][1] = 4;
+        } else if (*ptr == '+') {
+            stacks[i][1] = 5;
+        } else if (*ptr == '-') {
+            flag = -1;
+            if (i > 0)
+                flag = stacks[i - 1][1];
+            if (flag == 15)
+                stacks[i][1] = 6;
+            else {
+                tptr = ptr;
+                ptr++;
+                while (isdigit(*ptr))
+                    ptr++;
+                sscanf(tptr, "%d", &stacks[i][2]);
+                stacks[i][1] = 15;
+                ptr--;
+            }
+        } else if (*ptr == '>') {
+            if (*(ptr + 1) == '=') {
+                stacks[i][1] = 8;
+                ptr++;
+            } else
+                stacks[i][1] = 7;
+        } else if (*ptr == '<') {
+            if (*(ptr + 1) == '=') {
+                ptr++;
+                stacks[i][1] = 10;
+            } else
+                stacks[i][1] = 9;
+        } else if (*ptr == '=') {
+            stacks[i][1] = 11;
+            if (*(ptr + 1) == '=')
+                ptr++;
+        } else if (*ptr == '&') {
+            stacks[i][1] = 13;
+            if (*(ptr + 1) == '&')
+                ptr++;
+        } else if (*ptr == '|') {
+            stacks[i][1] = 14;
+            if (*(ptr + 1) == '|')
+                ptr++;
+        } else if (isdigit(*ptr)) {
+            stacks[i][1] = 15;
+            tptr = ptr;
+            while (isdigit(*ptr))
+                ptr++;
+            sscanf(tptr, "%d", &stacks[i][2]);
+            ptr--;
+        } else if (*ptr == 'T') {
+            stacks[i][1] = 15;
+            stacks[i][2] = 1;
+        } else if (*ptr == 'F') {
+            stacks[i][1] = 15;
+            stacks[i][2] = 0;
+        } else {
+            tintin_printf(ses,"#Error. Invalid expression in #if or #math in {%s}.",arg);
+            return 0;
+        }
+        if (*ptr != ' ') {
+            stacks[i][0] = i + 1;
+            i++;
+        }
+        ptr++;
+    }
+    if (i > 0)
+        stacks[i][0] = 0;
+    return 1;
 }
 
-
-static int hw_open (struct inode *ino, struct file *filep)
+int do_one_inside(int begin, int end)
 {
-	int min = MINOR(ino->i_rdev);
+    /* int prev, ptr, highest, loc, ploc, next, nval, flag; */
+    int prev, ptr, highest, loc, ploc, next;
 
-//printk ("fmap: open\n");
-
-	if ((filep->f_flags & O_INIT) == O_INIT) {
-//printk ("fmap: O_INIT open.\n");
-	    if (devs[min].state == STATE__CLOSED) {
-		MOD_INC_USE_COUNT;
-		devs[min].state = STATE__OPENED;
-		devs[min].owner = current->pid;
-		devs[min].mm = current->mm;
-		return 0;
-	    }
-	    else 
-		return -E_INIT;
-	}
-	else if (filep->f_flags == 0) {
-//printk ("fmap: plain open.\n");
-	    if (devs[min].state == STATE__READY) {
-		return 0;
-	    }
-	    else
-		return -E_SETUP;
-	}
-
-	return 0;
+    while (1)
+    {
+        ptr = 0;
+        if (begin > -1)
+            ptr = stacks[begin][0];
+        highest = 16;
+        loc = -1;
+        ploc = -1;
+        prev = -1;
+        while (ptr < end)
+        {
+            if (stacks[ptr][1] < highest)
+            {
+                highest = stacks[ptr][1];
+                loc = ptr;
+                ploc = prev;
+            }
+            prev = ptr;
+            ptr = stacks[ptr][0];
+        }
+        if (highest == 15) {
+            if (begin > -1) {
+                stacks[begin][1] = 15;
+                stacks[begin][2] = stacks[loc][2];
+                stacks[begin][0] = stacks[end][0];
+                return 1;
+            } else {
+                stacks[0][0] = stacks[end][0];
+                stacks[0][1] = 15;
+                stacks[0][2] = stacks[loc][2];
+                return 1;
+            }
+        } else if (highest == 2) {
+            next = stacks[loc][0];
+            if (stacks[next][1] != 15 || stacks[next][0] == 0) {
+                return 0;
+            }
+            stacks[loc][0] = stacks[next][0];
+            stacks[loc][1] = 15;
+            stacks[loc][2] = !stacks[next][2];
+        } else {
+            next = stacks[loc][0];
+            if (ploc == -1 || stacks[next][0] == 0 || stacks[next][1] != 15)
+                return 0;
+            if (stacks[ploc][1] != 15)
+                return 0;
+            switch (highest) {
+            case 3:			/* highest priority is * */
+                stacks[ploc][0] = stacks[next][0];
+                stacks[ploc][2] *= stacks[next][2];
+                break;
+            case 4:			/* highest priority is / */
+                stacks[ploc][0] = stacks[next][0];
+                stacks[ploc][2] /= stacks[next][2];
+                break;
+            case 5:			/* highest priority is + */
+                stacks[ploc][0] = stacks[next][0];
+                stacks[ploc][2] += stacks[next][2];
+                break;
+            case 6:			/* highest priority is - */
+                stacks[ploc][0] = stacks[next][0];
+                stacks[ploc][2] -= stacks[next][2];
+                break;
+            case 7:			/* highest priority is > */
+                stacks[ploc][0] = stacks[next][0];
+                stacks[ploc][2] = (stacks[ploc][2] > stacks[next][2]);
+                break;
+            case 8:			/* highest priority is >= */
+                stacks[ploc][0] = stacks[next][0];
+                stacks[ploc][2] = (stacks[ploc][2] >= stacks[next][2]);
+                break;
+            case 9:			/* highest priority is < */
+                stacks[ploc][0] = stacks[next][0];
+                stacks[ploc][2] = (stacks[ploc][2] < stacks[next][2]);
+                break;
+            case 10:			/* highest priority is <= */
+                stacks[ploc][0] = stacks[next][0];
+                stacks[ploc][2] = (stacks[ploc][2] <= stacks[next][2]);
+                break;
+            case 11:			/* highest priority is == */
+                stacks[ploc][0] = stacks[next][0];
+                stacks[ploc][2] = (stacks[ploc][2] == stacks[next][2]);
+                break;
+            case 12:			/* highest priority is != */
+                stacks[ploc][0] = stacks[next][0];
+                stacks[ploc][2] = (stacks[ploc][2] != stacks[next][2]);
+                break;
+            case 13:			/* highest priority is && */
+                stacks[ploc][0] = stacks[next][0];
+                stacks[ploc][2] = (stacks[ploc][2] && stacks[next][2]);
+                break;
+            case 14:			/* highest priority is || */
+                stacks[ploc][0] = stacks[next][0];
+                stacks[ploc][2] = (stacks[ploc][2] || stacks[next][2]);
+                break;
+            default:
+                tintin_printf(0,"#Programming error *slap Bill*");
+                return 0;
+            }
+        }
+    }
 }
-
-
-static int hw_close (struct inode *ino, struct file *filep)
-{
-	int min = MINOR(ino->i_rdev);
-
-//printk ("fmap: close\n");
-
-	if (devs[min].state == STATE__CLOSED)
-	    return -1;
-
-	if (devs[min].owner != current->pid)
-	    return 0;
-
-	devs[min].state = STATE__CLOSED;
-	MOD_DEC_USE_COUNT;
-
-	return 0;
-
-}
-
-
-static struct file_operations fops = {
-	hw_lseek,
-	hw_read,
-	hw_write,
-	NULL,		/* hw_readdir */
-	NULL,		/* hw_select */
-	hw_ioctl,	/* hw_ioctl */
-	NULL,
-        hw_open, 
-        NULL,
-	hw_close,
-	NULL		/* fsync */
-};
-
-
-int procfile_read (char *buf, char **bufloc, off_t offset, int bufsize, int zero)
-{
-	int i, of = 0;
-
-	if (offset>0)
-	    return 0;
-
-	for (i=0;i<DEVS;i++)
-	    if (devs[i].state == STATE__READY)
-		of += sprintf (&buf[of], "?name? minor=%d pid=%d offset=%ld size=%d bytes_read=%d bytes_written=%d\n", i, devs[i].owner, devs[i].offset, devs[i].size, devs[i].bytes_read, devs[i].bytes_written);
-
-	return of;
-}
-
-
-static struct proc_dir_entry proc_file = {
-	0,
-	8,
-	"fmapstat",
-	S_IFREG | S_IRUGO,
-	1,
-	0, 0,
-	0,
-	NULL,
-	procfile_read,
-	NULL
-};
-
-
-// MODUL ---------------------------------------------------------------------
-
-
-int init_module (void)
-{
-	int i;
-
-	printk ("fmap: init_module.\n");
-
-	if (proc_register (&proc_root, &proc_file)) {
-	    printk ("fmap: proc_register failed.\n");
-	    return -EIO;
-	}
-
-	if (!(phonybuf = vmalloc (4))) {
-	    printk ("fmap: not enough kernel memory. (?)\n");
-	    return -ENOMEM;
-	}
-
-	if (register_chrdev (D_MAJOR, "hw", &fops)) {
-	    printk ("fmap: register_chrdev failed.\n");
-	    return -EIO;
-	}
-
-	for (i=0;i<DEVS;i++)
-	    devs[i].state = STATE__CLOSED;
-
-	printk ("fmap: init_module succeeded.\n");
-	return 0;
-}
-
-
-void cleanup_module (void)
-{
-	printk ("fmap: cleanup_module.\n");
-
-	if (phonybuf)
-	    vfree (phonybuf);
-
-	if (unregister_chrdev (D_MAJOR, "hw") != 0 || proc_unregister (&proc_root, proc_file.low_ino) != 0)
-	    printk ("fmap: cleanup_module failed.\n");
-	else
-	    printk ("fmap: cleanup_module succeeded.\n");
-}
-

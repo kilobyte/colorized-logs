@@ -23,14 +23,13 @@
 #include <unistd.h>
 #endif
 
-void syserr();
+extern void user_done(void);
+void syserr(char *msg);
 
 /*********************************************/
 /* return: TRUE if s1 is an abrevation of s2 */
 /*********************************************/
-int is_abrev(s1, s2)
-     char *s1;
-     char *s2;
+int is_abrev(char *s1, char *s2)
 {
   return (!strncmp(s2, s1, strlen(s1)));
 }
@@ -39,8 +38,7 @@ int is_abrev(s1, s2)
 /* strdup - duplicates a string */
 /* return: address of duplicate */
 /********************************/
-char *mystrdup(s)
-     char *s;
+char *mystrdup(char *s)
 {
   char *dup;
 
@@ -54,8 +52,7 @@ char *mystrdup(s)
 /*************************************************/
 /* print system call error message and terminate */
 /*************************************************/
-void syserr(msg)
-     char *msg;
+void syserr(char *msg)
 {
   user_done();
   fprintf(stderr, "ERROR:  %s\n",msg);

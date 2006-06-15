@@ -1,101 +1,173 @@
-0.2.3:
-* highlights fixed!
-* multiple hightlights per line are now allowed
-* highlights ignore inline color codes: "ab~5~cd" matches "abcd"
+0.2.4:
+* boolean toggles: can be set/reset in addition to toggle (#blank 1 and so on)
+  Boolean values: 1/0, TRUE/FALSE, ON/OFF, YES/NO
+* more things allowed before starting a session
+* #route <from> <to> <path> [<distance>] and #goto <from> <to> commands added
+* #goto <from> <to> can be abbreviated as from>to
 
-0.2.0:
-NEW:
-* consistent system of colors (~0~..~15~)
-* #mudcolors toggles ~n~ color codes (so actions, substitutes etc can now
-  depend on colors)
+0.2.4a:
+* #remark does the same as #nop. I found myself writing #rem in my config
+  files way too often *yawn*.
+* conditional routes: #route <from> <to> <length> <condition>
 
-0.1.1:
-NEW:
-* #run {ses_name} {command} is a new command, similar to #session except
-  that it executes a local program
-* status bar. Usage: #status {line of text}
-CHANGED:
-* all matching actions are now executed, instead of first one found
+0.2.4.0:
+* Jakub Narebski (jnareb@jester.ds2.uw.edu.pl) joins KBtin development team
 
-0.1.0:
-NEW:
-* ncurses-based user interface (major change). Includes a big scrollback
-  buffer, added editing keys (Home, End, <-, ->)
-REMOVED:
-* obsolete functions like #split or #redraw removed
-TODO:
-* fix delaying incomplete lines
+0.2.4.1:
+* Added help from Tintin ver. 1.5 with little changes; ALL COMMANDS are listed
+  there, some of them to be added to help, news and NEWS soon. This help is
+  in file .tt_help.txt. Putting compressed file (.tt_help.txt.Z) in home
+  directory will allow to use #help command
+* help from Tintin 3.0 to be added; KBtin changes to be added.
 
-KBtin:
-* name change from TinTin++ to KBtin to mark an independent version
+0.2.4.2:
+* added code from Happy Tintin++ by Sverre Normann (sverreno@stud.ntnu.no)
+  x 'simulation' of secstotick variable: $secstotick will return number
+    of seconds to tick (from tt's internal counter) provided no variable
+    named 'secstotick' already exists
+  - ${<string>} format to allow use of non-alpha characters in variable
+    name
+  - #listlength {destination variable} {list} command added
+  - #getitem {destination variable} {item number} {list} command added;
+    an item is either a word, or grouped words in {} braces;
+    FORTRAN type indices (first element has index '1' not '0')
+  - #reverse {destination variable} {string} command added 
+  - #postpad {destination variable} {length} {text} command added, 
+    truncates text to lenght and pads with spaces at the end if necessary
+  - #prepad {destination variable} {length} {text} command added
+* #isatom {destination variable} {list} command added; to be substituted
+  by #if test
+* #splitlist {head destination variable} {tail destination variable} 
+  {list} [{number of elements head will have}] command added, with default
+  head size = 1
 
-2.1.9:
-NEW:
-* #index <variable> <index> <string> will assign to <variable> the character
-  pointed by <index> in <string>, or an empty value if index is outside string.
-  It behaves in a C-fashion, which means that index starts from 0.
-  
-2.1.8:
-CHANGED: configure.in, should recognize -lsocket -lnsl properly
+0.2.5:
+* #time and #ctime can be used also to give the representation of an
+  arbitrary point of time: #[c]time <dest. variable> <time>
+  Time can be given as a number of seconds, or in format '5y 3d 10h 6m 42s'.
+* characters with codes 128-255 no longer display as weird blinking reversed
+  things. Note that their usage should be strongly discouraged as these
+  codes can have different meaning in different OSes/fonts, but some people
+  seem to cannot type 'Baruk-Khazad Dum' instead of 'Barûk-Khazâd Dûm'.
+* new editing keys:
+  - Tab allows you to temporarily suspend typing a longer command-line until
+    next use of Tab.
+  - Esc clears the current input line.
+* #finditem {dest. variable} {item} {list} command gives the index of 'item'
+  in the 'list'. Result of 0 means that 'item' was not found.
+* inline commands: #finditem and #listlength can be used inside expressions.
+  Example: #if {#find $1 $enemies} {kill $1}
 
-2.1.7:
-NEW:
-* #select <pattern> <string> <expression> #elif {} {} ... #else {}
-  from variables matching "pattern" select one which name is a match for
-  "string" and execute "expression". Variable $0 will contain value of
-  selected variable.  If match fails, execute the elif/else statement.
-  
-2.1.6:
-NEW:
-* #ctime [<variable>]  - assign current time (as returned by ctime()) to
-  variable, without arguments display current time on screen
-* #foreach <pattern> <expression>  - foreach variable matching pattern
-  execute expression, substituting $0 with value of this variable.
+0.2.6:
+* several bugfixes
+* #deleteitem <dest. variable> <list> <item> command
 
-2.1.5:
-NEW:
-* new operators: !~ and =~ for comparing strings using regular expressions
-  #if {[ $variable =~ $pattern ]} {what to do if match}
-  #if {[ $variable !~ $pattern ]} {what to do if dont match}
+0.2.7:                                           Sun May 07 02:20:36 CET 2000
+* low-level text display completely rewritten, now uses ANSI codes instead
+  of ncurses library
 
-2.1.4:
-NEW:
-* comparing strings in #if command, example:
-  #if {[ $name == Someone ] && {$spammer} {say Show yourself, immortal fool!}
-  #if {[ $$0 != $me ] && [ $class == C ]} {addcler $name}
-  Please notice square brackets around expressions we want to be treated as
-  strings, also notice the spaces around variables
-* #unlink <filename> - remove(delete) file
-  this command cannot be abbreviated
-* #news - what's new
+0.2.8:                                           Mon Jul 10 19:54:26 CET 2000
+* #writesession now properly writes all changes (everything that differs
+  from aliases/actions/ect. loaded before starting current session)
+* multi-color highlights (#high 6/4 asshole)
+* try appending .gz to the log name and see what happens :)
 
-2.1.3:
-NEW:
-* local tickcounters for every session
-* #delay <time> <command>   - delay execution of command for a certain
-  amount of time (in seconds)
-TODO:
-* canceling events (#delay)
-* proper cleanup of session (free events ...)
-* function keys (I start to play with termcap lib)
+0.2.9:                                           Mon Jan  1 21:01:00 CET 2001
+* #margin <left> <right> to help writing mails, etc
+* actions, delays and binds ignore #verbatim mode now
+* #bind <key> <function> allows you to assign function keys
 
-2.1.0:
-NEW:
-* all undefined variables used in expressions, are treated as
-  value 0/false/empty string. Sometimes usefull.
-* it is possible to use variables when giving boundaries in loop command
-  (same in random - see new commands).
-* New commands:
- * if/elif/else - the syntax is as following:
-   #if {conditional} {command} #elif {conditional} {command} #else {command}
-   Amount of #elif statements is not limited.
- * firstupper - this command is similar to already existing toupper/tolower.
-   Whole text is converted to lower case and first letter is converted to
-   upper case. Usefull in more complicated targetters/autoattackers.
-   #firstupper {variable} {text to be assigned to variable}
- * random - generate random number
-   #random {variable} {lower_bound, higher_bound}
- * deathlog - place given line of text in file (guess what was the
-   first use of this command :).
-   #deathlog {filename} {text}
-* few fixes here and there
+0.3.0:                                           Wed Jan 24 19:55:00 CET 2001
+* actions, substitutes and highlights are now guaranteed to fire
+* number of color codes extended from 16 to 256 (backgrounds and blink)
+
+0.3.1:                                           Mon Feb  5 23:13:00 CET 2001
+* new system of background color codes. The color code syntax is: ~n~,
+  n=0..255, or ~[a][:[b][:[c]]]~, a=0..15, b=0..7, c=0..1.
+  Examples:
+    14          yellow letters on black
+    15:4        white letters on red background
+    13:         pink letters, still red background
+    14:0:1      blinking yellow letters on black
+    ::0         yellow letters on black, no longer blinking
+* #promptaction, actions which work for uncompleted lines
+
+0.3.2:                                           Tue Mar 20 20:17:00 CET 2001
+* #index now uses 1-based indices - for consitency with other commands
+* #foreach {list} <command>
+  Examples:
+     #foreach {Omm Consola Murre Aethia} rescue
+
+     #alias cc {#var message {$$0};#foreach {$clan} __cc}
+     #alias __cc {tell $0 [clancomm] $message}
+
+0.3.3:                                           Mon Mar 26 23:00:00 CEST 2001
+* pseudovariables $COLS and $LINES can be used to query the size of terminal
+  window.  Note: size given is the raw window size (like 80x25), without
+  subtracting one line for the input box and another for the status line.
+* #strlen <var> <text> gives you the length of text.  It's an inline, too.
+* #explode <var> <delimiter> <text> converts a text to a list
+     {a,b,c d,e}      ---","--->    {a b {c d} e}
+* #implode <var> <delimiter> <text> 
+     {a b {c d} e}    ---","--->    {a,b,c d,e}
+* #substr <var> <l>[,<r>] <text> instead of #index
+* digits and underscores are now allowed in variable names
+* $PATH pseudovariable queries the current path
+* documentation - #help <command>
+
+0.3.4:                                           Wed Mar 28 13:34:00 CEST 2001
+* #var, #math, #tolower, etc. work instantly now, instead of taking effect
+  with the beginning of the next alias
+* #foreach can now support more complex argument substitution.  Example:
+     #foreach {{a 1} {b 2} {c 3}} {#var $1 $2}
+* You can now split long lines in files read by #read:
+  #alias abc {
+                 a;
+                 b;
+                 c
+             }
+
+0.3.5:                                           Thu Apr  5 15:21:42 CEST 2001
+* "#var a {$b}" instead of "#var a {$$b}".  Quite a lot of commands required
+  double dollar marks instead of one... Now only #alias, #action and the like
+  show that behavior (because of quite obvious reasons).
+* events can be now removed (#unevent)
+
+0.3.6:                                           Wed Apr 11 12:59:35 CEST 2001
+* loads of bugfixes
+* #dosubstitutes <var> <text> applies all substitutes to a line of text
+* #dohighlights <var> <text> does the same with highlights
+
+0.3.7:                                           Fri Apr 20 23:59:33 CEST 2001
+* #sortlist <var> <list>
+* #match <action-like pattern> <text> <command> [#else <command if no match>]
+* #decolorize <var> <text> removes all the color codes from <text>
+
+0.3.8:                                           Mon Jul  9 13:14:49 CEST 2001
+* error messages are now more verbose, to make debugging scripts easier
+* #shell <command> works as #system, allowing using full-screen programs
+  Examples:
+     #sys {echo '#var kills' `cat kills|wc -l` >tmp}
+     #shell {mc}
+
+0.3.9:                                           Fri Aug 31 22:01:31 CEST 2001
+* you can give multiple config files to #read on the command line
+  Example:
+     KBtin main pal bashes gags
+     --will act as #read main;#read pal;#read bashes;#read gags
+* #substitute changes only the matched part of line.
+  Example:
+     #sub A B
+     before: xxxAyyy -> B
+     now:    xxxAyyy -> xxxByyy
+  To get the old behavior, use %# pattern, like #sub {%0A%0} B
+* substitutes can trigger multiple times per line:
+  #sub A B will result in xAxAxAxA -> xBxBxBxB
+
+0.4.0:
+* TELNET protocol support.  KBtin can negotiate about terminal type, window
+  size and echoing.
+* "make install" should work.  At least it does so on my Debian Linux.
+
+0.4.1:
+fixme... user.c "RESTORE"

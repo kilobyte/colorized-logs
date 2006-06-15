@@ -4,9 +4,18 @@
  * match -- returns 1 if `string' satisfised `regex' and 0 otherwise
  * stolen from Spencer Sun: only recognizes * and \ as special characters
  */
-int match(regex, string)
-     char *regex;
-     char *string;
+ 
+#include "config.h"
+#ifdef HAVE_STRING_H
+#include <string.h>
+#else
+#ifdef HAVE_STRINGS_H
+#include <strings.h>
+#endif
+#endif
+#include <stdlib.h>
+ 
+int match(char *regex, char *string)
 {
   char *rp = regex, *sp = string, ch, *save;
 
@@ -49,10 +58,10 @@ int match(regex, string)
   return ('\0' == *sp);
 }
 
-int find(const char *text,char *pat,int *from,int *to)
+int find(char *text,char *pat,int *from,int *to)
 {
-	char *a,*b,*c,*txt,*m1,*m2;
-	int i,n;
+	char *a,*b,*txt,*m1,*m2;
+	int i;
 	txt=text;
 	if (*pat=='^')
 	{

@@ -1,0 +1,11 @@
+*	pattern-matching routines are SLOOOW (inherited from TinTin++)
+
+*	window resizing on SunOS screws up
+
+*	documentation is crappy
+
+*	spawned pseudoterminal (on #run) is not checked for echo on/off
+
+*	undocumented feature: ~-1~ -- document it? remove at all? change?
+
+*	--More-- kludge -- do it in a non-kludgy way
