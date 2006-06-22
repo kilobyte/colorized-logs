@@ -605,7 +605,7 @@ at_times_file=$at_suite_dir/at-times
 # List of the tested programs.
 at_tested='KBtin'
 # List of the all the test groups.
-at_groups_all=' 1 2 3 4 5 6 7 8 9 10 11 12'
+at_groups_all=' 1 2 3 4 5 6 7 8 9 10 11 12 13'
 # As many question marks as there are digits in the last test group number.
 # Used to normalize the test group numbers so that `ls' lists them in
 # numerical order.
@@ -623,6 +623,7 @@ at_help_all='1;version.at:1;#version;;
 10;tests.at:146;#shell;;
 11;tests.at:154;#run 1;;
 12;tests.at:164;#run 2;;
+13;tests.at:174;#goto;;
 '
 
 at_prev=
@@ -1997,6 +1998,103 @@ case $at_status in
    77) echo 77 > "$at_status_file"; exit 77;;
    0) ;;
    *) echo "$at_srcdir/tests.at:171: exit code was $at_status, expected 0"
+      at_failed=:;;
+esac
+if $at_failed; then
+
+
+  echo 1 > "$at_status_file"
+  exit 1
+fi
+
+$at_traceon
+
+      $at_traceoff
+      $at_times_p && times >"$at_times_file"
+    ) 5>&1 2>&1 | eval $at_tee_pipe
+    at_status=`cat "$at_status_file"`
+    ;;
+
+  13 ) # 13. tests.at:174: #goto
+    at_setup_line='tests.at:174'
+    at_desc='#goto'
+    $at_quiet $ECHO_N " 13: #goto                                        $ECHO_C"
+    at_xfail=no
+    echo "#                             -*- compilation -*-" >> "$at_group_log"
+    (
+      echo "13. tests.at:174: testing ..."
+      $at_traceon
+
+cat >testin <<'_ATEOF'
+#route a b {#showme A>B}
+#route b c {#showme B>C}
+#goto A B;#showme -=-
+#goto a b;#showme -=-
+#goto a c;#showme -=-
+#route a c {#showme A>C} 5
+#goto a c;#showme -=-
+#route a c {#showme A>C} 21
+#goto a c;#showme -=-
+#goto a {};#showme -=-
+#goto {} b;#showme -=-
+#goto {} {};#showme -=-
+a>b;#showme -=-
+>c;#showme -=-
+#showme ($loc)
+_ATEOF
+
+cat >expout <<'_ATEOF'
+#Location not found: [A]
+-=-
+A>B
+-=-
+A>B
+B>C
+-=-
+A>C
+-=-
+A>B
+B>C
+-=-
+#SYNTAX: #goto <from> <to>
+-=-
+#SYNTAX: #goto <from> <to>
+-=-
+#SYNTAX: #goto <from> <to>
+-=-
+A>B
+-=-
+B>C
+-=-
+(c)
+_ATEOF
+
+$at_traceoff
+echo "$at_srcdir/tests.at:215: runtest.sh"
+echo tests.at:215 >"$at_check_line_file"
+
+at_trace_this=
+if test -n "$at_traceon"; then
+    at_trace_this=yes
+fi
+
+if test -n "$at_trace_this"; then
+    ( $at_traceon; runtest.sh ) >"$at_stdout" 2>"$at_stder1"
+    at_status=$?
+    grep '^ *+' "$at_stder1" >&2
+    grep -v '^ *+' "$at_stder1" >"$at_stderr"
+else
+    ( :; runtest.sh ) >"$at_stdout" 2>"$at_stderr"
+    at_status=$?
+fi
+
+at_failed=false
+$at_diff "$at_devnull" "$at_stderr" || at_failed=:
+$at_diff expout "$at_stdout" || at_failed=:
+case $at_status in
+   77) echo 77 > "$at_status_file"; exit 77;;
+   0) ;;
+   *) echo "$at_srcdir/tests.at:215: exit code was $at_status, expected 0"
       at_failed=:;;
 esac
 if $at_failed; then

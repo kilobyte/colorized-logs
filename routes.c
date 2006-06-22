@@ -332,7 +332,7 @@ void goto_command(char *arg,struct session *ses)
 	arg=get_arg(arg,A,0,ses);
 	arg=get_arg(arg,B,1,ses);
 	
-	if ((!A)||(!B))
+	if ((!*A)||(!*B))
 	{
 		tintin_eprintf(ses,"#SYNTAX: #goto <from> <to>");
 		return;

@@ -52,7 +52,7 @@ void hooks_command(char *arg, struct session *ses)
     {
     	flag=1;
         for(t=0;t<NHOOKS;t++)
-            if (ses->hooks[t] && (!left || is_abrev(left, hook_names[t])))
+            if (ses->hooks[t] && (!*left || is_abrev(left, hook_names[t])))
             {
                 if (flag && !*left)
                     tintin_printf(ses, "#Defined hooks:"), flag=0;

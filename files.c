@@ -240,12 +240,7 @@ void deathlog_command(char *arg, struct session *ses)
         substitute_myvars(temp, text, ses);
         if ((fh = fopen(lfname, "a")))
         {
-            if (text)
-            {
-                /*	fwrite(text, strlen(text), 1, fh);
-                	fputc('\n', fh); */
-                cfprintf(fh, "%s\n", text);
-            }
+            cfprintf(fh, "%s\n", text);
             fclose(fh);
         }
         else

@@ -159,3 +159,46 @@ FIN
 abcąęśćdef
 FIN
 ===
+
+### #goto
+<<<
+#route a b {#showme A>B}
+#route b c {#showme B>C}
+#goto A B;#showme -=-
+#goto a b;#showme -=-
+#goto a c;#showme -=-
+#route a c {#showme A>C} 5
+#goto a c;#showme -=-
+#route a c {#showme A>C} 21
+#goto a c;#showme -=-
+#goto a {};#showme -=-
+#goto {} b;#showme -=-
+#goto {} {};#showme -=-
+a>b;#showme -=-
+>c;#showme -=-
+#showme ($loc)
+>>>
+#Location not found: [A]
+-=-
+A>B
+-=-
+A>B
+B>C
+-=-
+A>C
+-=-
+A>B
+B>C
+-=-
+#SYNTAX: #goto <from> <to>
+-=-
+#SYNTAX: #goto <from> <to>
+-=-
+#SYNTAX: #goto <from> <to>
+-=-
+A>B
+-=-
+B>C
+-=-
+(c)
+===
