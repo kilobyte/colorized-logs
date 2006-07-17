@@ -814,10 +814,25 @@ void read_mud(struct session *ses)
     {
         if (ses->logtype)
         {
-            count = 0;
+            count=0;
+        
+            if (ses->halfcr_log)
+            {
+                ses->halfcr_log=0;
+                if (buffer[0]!='\n')
+                    temp[count++]='\r';
+            }
+        
             for (n = 0; n < didget; n++)
                 if (buffer[n] != '\r')
                     temp[count++] = buffer[n];
+                else
+                {
+                    if (n+1==didget)
+                        ses->halfcr_log=1;
+                    else if (buffer[n+1]!='\n')
+                        temp[count++]='\r';
+                }
             temp[count]=0;	/* didget<BUFFER_SIZE, so no overflow */
             write_log(ses, temp, count);
         }
@@ -832,6 +847,11 @@ void read_mud(struct session *ses)
     strcpy(linebuffer, ses->last_line);
     cpdest = strchr(linebuffer,'\0');
 
+    if (ses->halfcr_in)
+    {
+        ses->halfcr_in=0;
+        goto halfcr;
+    }
     while (*cpsource)
     {		/*cut out each of the lines and process */
         if (*cpsource == '\n')
@@ -840,13 +860,26 @@ void read_mud(struct session *ses)
             do_one_line(linebuffer,1,ses);
 
             cpsource++;
-            *(cpdest = linebuffer)=0;
+            cpdest=linebuffer;
+        }
+        else if (*cpsource=='\r')
+        {
+            cpsource++;
+        halfcr:
+            if (*cpsource=='\n')
+                continue;
+            if (!*cpsource)
+            {
+                ses->halfcr_in=1;
+                break;
+            }
+            *cpdest=0;
+            if (cpdest!=linebuffer)
+                do_one_line(linebuffer,0,ses);
+            cpdest=linebuffer;
         }
         else
-            if (*cpsource=='\r')
-                cpsource++;
-            else
-                *cpdest++ = *cpsource++;
+            *cpdest++ = *cpsource++;
     }
     if (cpdest-linebuffer>INPUT_CHUNK) /* let's split too long lines */
     {

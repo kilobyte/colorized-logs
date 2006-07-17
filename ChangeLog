@@ -1,5 +1,7 @@
 1.0.8:
-*	"assphrase:" will trigger password protection as well.
+*	in the dumb mode, "assphrase:" will trigger password protection as well
+*	bare \r will turn the line into a draft, and thus cause it to be
+        cleared when some new text appears
 
 1.0.7:
 *	end-of-file ends KBtin when in non-fullscreen UI and no sessions are

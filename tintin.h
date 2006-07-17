@@ -283,6 +283,7 @@ struct session
   char *hooks[NHOOKS];
   int closing;
   int nagle;
+  int halfcr_in, halfcr_log; /* \r at the end of a packet */
 #ifdef UTF8
   char *charset, *logcharset;
   struct charset_conv c_io,c_log;

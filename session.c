@@ -334,6 +334,8 @@ struct session *new_session(char *name,char *address,int sock,int issocket,struc
     newsession->verbatim = ses->verbatim;
     newsession->sessionstart=newsession->idle_since=time(0);
     newsession->nagle=0;
+    newsession->halfcr_in=0;
+    newsession->halfcr_log=0;
     newsession->debuglogfile=0;
     newsession->debuglogname=0;
     memcpy(newsession->mesvar, ses->mesvar, sizeof(int)*(MAX_MESVAR+1));
