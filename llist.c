@@ -17,7 +17,6 @@
 
 #include "tintin.h"
 #include <stdlib.h>
-#include <ctype.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -173,22 +172,37 @@ struct listnode* copy_list(struct listnode *sourcelist,int mode)
 /******************************************************************/
 static int prioritycmp(char *a, char *b)
 {
-    char *oa=a;
-
-    while(*a && *b && *a==*b)
+    int res;
+    
+not_numeric:
+    while(*a && *a==*b && !isadigit(*a))
     {
         a++;
         b++;
     }
     if (!a && !b)
         return 0;
-    if(isdigit(*a)||isdigit(*b))
+    if(!isadigit(*a) || !isadigit(*b))
+        return (*a<*b)? -1 : (*a>*b)? 1 : 0;
+    while(*a=='0')
+        a++;
+    while(*b=='0')
+        b++;
+    res=0;
+    while(isadigit(*a))
     {
-        if ((a>oa && isdigit(*(a-1)) && a-- && b--)
-            ||(isdigit(*a)&&isdigit(*b)))
-            return (strtoul(a,0,10)<strtoul(b,0,10))? -1:1;
+        if (!isadigit(*b))
+            return 1;
+        if (*a!=*b && !res)
+            res=(*a<*b)? -1 : 1;
+        a++;
+        b++;
     }
-    return (*a<*b)? -1:1;
+    if (isadigit(*b))
+        return -1;
+    if (res)
+        return res;
+    goto not_numeric;
 }
 
 /*****************************************************************/

@@ -159,3 +159,6 @@ profile
 charset
 logcharset
 #endif
+
+doactions
+dopromptactions

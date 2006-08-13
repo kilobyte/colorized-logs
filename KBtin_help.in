@@ -13,7 +13,7 @@ Aliases:
    alias       unalias
 Triggers:
    action      unaction    ignore      promptaction    unpromptaction
-   hook        unhook
+   hook        unhook      doactions   dopromptactions
 Substitutions:
    substitute unsubstitute antisubstitute          unantisubstitute
    highlight  unhighlight  gag         ungag       togglesub   presub
@@ -521,6 +521,16 @@ Examples:
 
 #unhook <event>
 Removes the hook from <event>.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~doactions
+
+#doactions <line>
+Performs all actions on <line> as if it had been received from the MUD.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~dopromptactions
+
+#dopromptactions <line>
+Performs all prompt actions on <line> as if it had been received from the MUD.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~alias
 

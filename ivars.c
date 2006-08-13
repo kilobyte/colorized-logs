@@ -302,7 +302,7 @@ int conv_to_ints(char *arg,struct session *ses)
             }
             else
             {
-                while (isalpha(*ptr) || *ptr=='_' || isdigit(*ptr))
+                while (isalpha(*ptr) || *ptr=='_' || isadigit(*ptr))
                     ptr++;
             }
             ptr--;

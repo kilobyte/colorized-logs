@@ -698,3 +698,25 @@ int check_a_action(char *line, char *action, int inside, struct session *ses)
     else
         return TRUE;
 }
+
+
+void doactions_command(char *arg, struct session *ses)
+{
+    char line[BUFFER_SIZE];
+    
+    get_arg(arg, line, 1, ses);
+    /* the line provided may be empty */
+    
+    check_all_actions(line, ses);
+}
+
+
+void dopromptactions_command(char *arg, struct session *ses)
+{
+    char line[BUFFER_SIZE];
+    
+    get_arg(arg, line, 1, ses);
+    /* the line provided may be empty */
+    
+    check_all_promptactions(line, ses);
+}

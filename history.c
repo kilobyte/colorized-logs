@@ -7,7 +7,6 @@
 /*                     coded by peter unold 1992                     */
 /*********************************************************************/
 #include "config.h"
-#include <ctype.h>
 #ifdef HAVE_STRING_H
 #include <string.h>
 #else
@@ -64,7 +63,7 @@ void do_history(char *buffer, struct session *ses)
                     strcpy(buffer, result);
                 }
             }
-            else if (isdigit(*(cptr + 1)))
+            else if (isadigit(*(cptr + 1)))
             {
                 int i = atoi(cptr + 1);
 
@@ -117,7 +116,7 @@ struct session* parse_history(char *command, char *arg, struct session *ses)
     if ((*(command + 1) == '!' || !*(command + 1)) && history[0])
         return parse_input(history[0],1,ses); /* we're already not in verbatim */
 
-    else if (isdigit(*(command + 1)))
+    else if (isadigit(*(command + 1)))
     {
         int i = atoi(command + 1);
 

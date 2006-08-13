@@ -151,7 +151,7 @@ AT_DATA([expout], [abc
 AT_CHECK([runtest.sh],,[expout])
 AT_CLEANUP
 
-AT_SETUP([#run 1])
+AT_SETUP([#run])
 AT_DATA([testin], [#hook close {#showme FIN;#end}
 #run a echo blah
 ])
@@ -161,11 +161,11 @@ FIN
 AT_CHECK([runtest.sh],,[expout])
 AT_CLEANUP
 
-AT_SETUP([#run 2])
+AT_SETUP([#run and 16bit Unicode])
 AT_DATA([testin], [#hook close {#showme FIN;#end}
-#run a echo abcąęśćdef
+#run a echo abcąęśćdefабцдефгхийאבגדァアィイ
 ])
-AT_DATA([expout], [abcąęśćdef
+AT_DATA([expout], [abcąęśćdefабцдефгхийאבגדァアィイ
 FIN
 ])
 AT_CHECK([runtest.sh],,[expout])
@@ -215,19 +215,61 @@ B>C
 AT_CHECK([runtest.sh],,[expout])
 AT_CLEANUP
 
-AT_SETUP([#end 1])
+AT_SETUP([#end w/o sessions])
 AT_DATA([testin], [#end
 ])
 AT_DATA([expout], [])
 AT_CHECK([runtest.sh],,[expout])
 AT_CLEANUP
 
-AT_SETUP([#end 2])
+AT_SETUP([#end with a session])
 AT_DATA([testin], [#run a cat
 #end
 ])
 AT_DATA([expout], [
 #SESSION 'a' DIED.
+])
+AT_CHECK([runtest.sh],,[expout])
+AT_CLEANUP
+
+AT_SETUP([action priorities])
+AT_DATA([testin], [#act {aaa%0} {#showme act: a} {a}
+#act {aaa%1} {#showme act: 0} {0}
+#act {aaa%2} {#showme act: 0.09} {0.09}
+#act {aaa%3} {#showme act: 0.1} {0.1}
+#act {aaa%4} {#showme act: 0.10} {0.10}
+#act {aaa%5} {#showme act: 0.19} {0.19}
+#act {aaa%6} {#showme act: 0a.1} {0a.1}
+#act {aaa%7} {#showme act: a06z} {a06z}
+#act {aaa%8} {#showme act: a6x} {a6x}
+#act {aaa%9} {#showme act: 0.2} {0.2}
+#doact aaa
+])
+AT_DATA([expout], [act: 0
+act: 0.1
+act: 0.2
+act: 0.09
+act: 0.10
+act: 0.19
+act: 0a.1
+act: a
+act: a6x
+act: a06z
+])
+AT_CHECK([runtest.sh],,[expout])
+AT_CLEANUP
+
+AT_SETUP([actions, promptactions])
+AT_DATA([testin], [#hook close {#showme FIN;#end}
+#act {foo} {#showme <foo>}
+#promptact {fo} {#showme <fo...>}
+#run a {sh -c "echo -n 'fo';sleep 2;echo 'o'"}
+])
+AT_DATA([expout], [<fo...>
+<fo...>
+<foo>
+foo
+FIN
 ])
 AT_CHECK([runtest.sh],,[expout])
 AT_CLEANUP

@@ -142,7 +142,7 @@ abc
 abc
 ===
 
-### #run 1
+### #run
 <<<
 #hook close {#showme FIN;#end}
 #run a echo blah
@@ -151,12 +151,12 @@ blah
 FIN
 ===
 
-### #run 2
+### #run and 16bit Unicode
 <<<
 #hook close {#showme FIN;#end}
-#run a echo abcąęśćdef
+#run a echo abcąęśćdefабцдефгхийאבגדァアィイ
 >>>
-abcąęśćdef
+abcąęśćdefабцдефгхийאבגדァアィイ
 FIN
 ===
 
@@ -203,17 +203,57 @@ B>C
 (c)
 ===
 
-### #end 1
+### #end w/o sessions
 <<<
 #end
 >>>
 ===
 
-### #end 2
+### #end with a session
 <<<
 #run a cat
 #end
 >>>
 
 #SESSION 'a' DIED.
+===
+
+### action priorities
+<<<
+#act {aaa%0} {#showme act: a} {a}
+#act {aaa%1} {#showme act: 0} {0}
+#act {aaa%2} {#showme act: 0.09} {0.09}
+#act {aaa%3} {#showme act: 0.1} {0.1}
+#act {aaa%4} {#showme act: 0.10} {0.10}
+#act {aaa%5} {#showme act: 0.19} {0.19}
+#act {aaa%6} {#showme act: 0a.1} {0a.1}
+#act {aaa%7} {#showme act: a06z} {a06z}
+#act {aaa%8} {#showme act: a6x} {a6x}
+#act {aaa%9} {#showme act: 0.2} {0.2}
+#doact aaa
+>>>
+act: 0
+act: 0.1
+act: 0.2
+act: 0.09
+act: 0.10
+act: 0.19
+act: 0a.1
+act: a
+act: a6x
+act: a06z
+===
+
+### actions, promptactions
+<<<
+#hook close {#showme FIN;#end}
+#act {foo} {#showme <foo>}
+#promptact {fo} {#showme <fo...>}
+#run a {sh -c "echo -n 'fo';sleep 2;echo 'o'"}
+>>>
+<fo...>
+<fo...>
+<foo>
+foo
+FIN
 ===

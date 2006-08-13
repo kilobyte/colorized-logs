@@ -332,3 +332,6 @@ struct ttyrec_header
 #define logcs_charset(x) (((x)==LOGCS_LOCAL)?user_charset_name:	\
                           ((x)==LOGCS_REMOTE)?ses->charset:	\
                            (x))
+
+/* Chinese rod numerals are _not_ digits for our purposes. */
+#define isadigit(x) ((x)>='0' && (x)<='9')
