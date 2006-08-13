@@ -214,3 +214,20 @@ B>C
 ])
 AT_CHECK([runtest.sh],,[expout])
 AT_CLEANUP
+
+AT_SETUP([#end 1])
+AT_DATA([testin], [#end
+])
+AT_DATA([expout], [])
+AT_CHECK([runtest.sh],,[expout])
+AT_CLEANUP
+
+AT_SETUP([#end 2])
+AT_DATA([testin], [#run a cat
+#end
+])
+AT_DATA([expout], [
+#SESSION 'a' DIED.
+])
+AT_CHECK([runtest.sh],,[expout])
+AT_CLEANUP

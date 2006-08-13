@@ -228,8 +228,8 @@ IFS=$as_save_IFS
 
 
       for as_shell in $as_candidate_shells $SHELL; do
-	 # Try only shells which exist, to save several forks.
-	 if test -f "$as_shell" &&
+	 # Try only shells that exist, to save several forks.
+	 if { test -f "$as_shell" || test -f "$as_shell.exe"; } &&
 		{ ("$as_shell") 2> /dev/null <<\_ASEOF
 # Be Bourne compatible
 if test -n "${ZSH_VERSION+set}" && (emulate sh) >/dev/null 2>&1; then
@@ -605,7 +605,7 @@ at_times_file=$at_suite_dir/at-times
 # List of the tested programs.
 at_tested='KBtin'
 # List of the all the test groups.
-at_groups_all=' 1 2 3 4 5 6 7 8 9 10 11 12 13'
+at_groups_all=' 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15'
 # As many question marks as there are digits in the last test group number.
 # Used to normalize the test group numbers so that `ls' lists them in
 # numerical order.
@@ -624,6 +624,8 @@ at_help_all='1;version.at:1;#version;;
 11;tests.at:154;#run 1;;
 12;tests.at:164;#run 2;;
 13;tests.at:174;#goto;;
+14;tests.at:218;#end 1;;
+15;tests.at:225;#end 2;;
 '
 
 at_prev=
@@ -2095,6 +2097,129 @@ case $at_status in
    77) echo 77 > "$at_status_file"; exit 77;;
    0) ;;
    *) echo "$at_srcdir/tests.at:215: exit code was $at_status, expected 0"
+      at_failed=:;;
+esac
+if $at_failed; then
+
+
+  echo 1 > "$at_status_file"
+  exit 1
+fi
+
+$at_traceon
+
+      $at_traceoff
+      $at_times_p && times >"$at_times_file"
+    ) 5>&1 2>&1 | eval $at_tee_pipe
+    at_status=`cat "$at_status_file"`
+    ;;
+
+  14 ) # 14. tests.at:218: #end 1
+    at_setup_line='tests.at:218'
+    at_desc='#end 1'
+    $at_quiet $ECHO_N " 14: #end 1                                       $ECHO_C"
+    at_xfail=no
+    echo "#                             -*- compilation -*-" >> "$at_group_log"
+    (
+      echo "14. tests.at:218: testing ..."
+      $at_traceon
+
+cat >testin <<'_ATEOF'
+#end
+_ATEOF
+
+cat >expout <<'_ATEOF'
+_ATEOF
+
+$at_traceoff
+echo "$at_srcdir/tests.at:222: runtest.sh"
+echo tests.at:222 >"$at_check_line_file"
+
+at_trace_this=
+if test -n "$at_traceon"; then
+    at_trace_this=yes
+fi
+
+if test -n "$at_trace_this"; then
+    ( $at_traceon; runtest.sh ) >"$at_stdout" 2>"$at_stder1"
+    at_status=$?
+    grep '^ *+' "$at_stder1" >&2
+    grep -v '^ *+' "$at_stder1" >"$at_stderr"
+else
+    ( :; runtest.sh ) >"$at_stdout" 2>"$at_stderr"
+    at_status=$?
+fi
+
+at_failed=false
+$at_diff "$at_devnull" "$at_stderr" || at_failed=:
+$at_diff expout "$at_stdout" || at_failed=:
+case $at_status in
+   77) echo 77 > "$at_status_file"; exit 77;;
+   0) ;;
+   *) echo "$at_srcdir/tests.at:222: exit code was $at_status, expected 0"
+      at_failed=:;;
+esac
+if $at_failed; then
+
+
+  echo 1 > "$at_status_file"
+  exit 1
+fi
+
+$at_traceon
+
+      $at_traceoff
+      $at_times_p && times >"$at_times_file"
+    ) 5>&1 2>&1 | eval $at_tee_pipe
+    at_status=`cat "$at_status_file"`
+    ;;
+
+  15 ) # 15. tests.at:225: #end 2
+    at_setup_line='tests.at:225'
+    at_desc='#end 2'
+    $at_quiet $ECHO_N " 15: #end 2                                       $ECHO_C"
+    at_xfail=no
+    echo "#                             -*- compilation -*-" >> "$at_group_log"
+    (
+      echo "15. tests.at:225: testing ..."
+      $at_traceon
+
+cat >testin <<'_ATEOF'
+#run a cat
+#end
+_ATEOF
+
+cat >expout <<'_ATEOF'
+
+#SESSION 'a' DIED.
+_ATEOF
+
+$at_traceoff
+echo "$at_srcdir/tests.at:232: runtest.sh"
+echo tests.at:232 >"$at_check_line_file"
+
+at_trace_this=
+if test -n "$at_traceon"; then
+    at_trace_this=yes
+fi
+
+if test -n "$at_trace_this"; then
+    ( $at_traceon; runtest.sh ) >"$at_stdout" 2>"$at_stder1"
+    at_status=$?
+    grep '^ *+' "$at_stder1" >&2
+    grep -v '^ *+' "$at_stder1" >"$at_stderr"
+else
+    ( :; runtest.sh ) >"$at_stdout" 2>"$at_stderr"
+    at_status=$?
+fi
+
+at_failed=false
+$at_diff "$at_devnull" "$at_stderr" || at_failed=:
+$at_diff expout "$at_stdout" || at_failed=:
+case $at_status in
+   77) echo 77 > "$at_status_file"; exit 77;;
+   0) ;;
+   *) echo "$at_srcdir/tests.at:232: exit code was $at_status, expected 0"
       at_failed=:;;
 esac
 if $at_failed; then

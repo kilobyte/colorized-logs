@@ -286,10 +286,7 @@ void end_command(char *arg, struct session *ses)
     activesession = NULL;
     if (ui_own_output)
     {
-        /* a message from DIKUs... we can leave it though */
-        tintin_printf(0,"TINTIN suffers from bloodlack, and the lack of a beating heart...");
-        tintin_printf(0,"TINTIN is dead! R.I.P.");
-        tintin_printf(0,"Your blood freezes as you hear TINTIN's death cry.");
+        tintin_printf(0,"Goodbye!");
         user_done();
     }
     exit(0);

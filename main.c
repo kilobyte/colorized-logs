@@ -103,7 +103,7 @@ extern char done_input[BUFFER_SIZE];
 extern int ticker_interrupted, time0;
 extern int tick_size, sec_to_tick;
 
-static void myquitsig(void);
+static void myquitsig(int);
 extern struct session *newactive_session(void);
 extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
 extern struct completenode *complete_head;
@@ -707,7 +707,7 @@ void tintin(void)
             PROFPUSH("user interface");
             result=read(0, kbdbuf+inbuf, BUFFER_SIZE-inbuf);
             if (result==-1)
-                myquitsig();
+                myquitsig(0);
             if (result==0 && !isatty(0))
                 eofinput=1;
             inbuf+=result;
@@ -1126,9 +1126,10 @@ void echo_input(char *txt)
 /**********************************************************/
 /* Here's where we go when we wanna quit TINTIN FAAAAAAST */
 /**********************************************************/
-static void myquitsig(void)
+static void myquitsig(int sig)
 {
     struct session *sesptr, *t;
+    int err=errno;
 
     for (sesptr = sessionlist; sesptr; sesptr = t)
     {
@@ -1148,9 +1149,20 @@ static void myquitsig(void)
     if (ui_own_output)
     {
         user_textout("~7~\n");
-        user_textout("Your fireball hits TINTIN with full force, causing an immediate death.\n");
-        user_textout("TINTIN is dead! R.I.P.\n");
-        user_textout("Your blood freezes as you hear TINTINs death cry.\n");
+        switch(sig)
+        {
+        case SIGTERM:
+            user_textout("Terminated\n");
+            break;
+        case SIGQUIT:
+            user_textout("Quit\n");
+            break;
+        case SIGINT:
+        default:
+            break;
+        case 0:
+            user_textout(strerror(err));
+        }
         user_done();
     }
     else
