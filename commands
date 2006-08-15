@@ -162,3 +162,6 @@ logcharset
 
 doactions
 dopromptactions
+chr
+ord
+hexord

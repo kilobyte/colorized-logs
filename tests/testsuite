@@ -605,29 +605,33 @@ at_times_file=$at_suite_dir/at-times
 # List of the tested programs.
 at_tested='KBtin'
 # List of the all the test groups.
-at_groups_all=' 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17'
+at_groups_all=' 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21'
 # As many question marks as there are digits in the last test group number.
 # Used to normalize the test group numbers so that `ls' lists them in
 # numerical order.
 at_format='??'
 # Description of all the test groups.
 at_help_all='1;version.at:1;#version;;
-2;tests.at:1;#showme;;
-3;tests.at:17;no profiling;;
-4;tests.at:27;#reverse;;
-5;tests.at:38;#postpad;;
-6;tests.at:57;#prepad;;
-7;tests.at:76;#substr;;
-8;tests.at:90;late var substitution;;
-9;tests.at:135;#system;;
-10;tests.at:146;#shell;;
-11;tests.at:154;#run;;
-12;tests.at:164;#run and 16bit Unicode;;
-13;tests.at:174;#goto;;
-14;tests.at:218;#end w/o sessions;;
-15;tests.at:225;#end with a session;;
-16;tests.at:235;action priorities;;
-17;tests.at:262;actions, promptactions;;
+2;tests.at:1;no profiling;;
+3;tests.at:11;#showme;;
+4;tests.at:25;#showme with non-ASCII chars;;
+5;tests.at:39;#reverse;;
+6;tests.at:50;#postpad;;
+7;tests.at:69;#prepad;;
+8;tests.at:88;#substr;;
+9;tests.at:102;late var substitution;;
+10;tests.at:147;#system;;
+11;tests.at:158;#shell;;
+12;tests.at:166;#run;;
+13;tests.at:176;#run and 16bit Unicode;;
+14;tests.at:186;#run and non-BMP Unicode;;
+15;tests.at:196;#goto;;
+16;tests.at:240;#end w/o sessions;;
+17;tests.at:247;#end with a session;;
+18;tests.at:257;action priorities;;
+19;tests.at:284;actions, promptactions;;
+20;tests.at:299;#chr, #ord, #hexord (7-bit ASCII);;
+21;tests.at:315;UTF-8 transformation;;
 '
 
 at_prev=
@@ -851,7 +855,7 @@ fi
 # List of tests.
 if $at_list_p; then
   cat <<_ATEOF
-KBtin 1.0.7.a test suite test groups:
+KBtin 1.0.7.b test suite test groups:
 
  NUM: FILE-NAME:LINE     TEST-GROUP-NAME
       KEYWORDS
@@ -875,7 +879,7 @@ _ATEOF
   exit 0
 fi
 if $at_version_p; then
-  echo "$as_me (KBtin 1.0.7.a)"
+  echo "$as_me (KBtin 1.0.7.b)"
   cat <<\_ACEOF
 
 Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006 Free Software
@@ -959,13 +963,13 @@ exec 5>>"$at_suite_log"
 # Banners and logs.
 cat <<\_ASBOX
 ## ------------------------- ##
-## KBtin 1.0.7.a test suite. ##
+## KBtin 1.0.7.b test suite. ##
 ## ------------------------- ##
 _ASBOX
 {
   cat <<\_ASBOX
 ## ------------------------- ##
-## KBtin 1.0.7.a test suite. ##
+## KBtin 1.0.7.b test suite. ##
 ## ------------------------- ##
 _ASBOX
   echo
@@ -1219,7 +1223,7 @@ cat >testin <<'_ATEOF'
 _ATEOF
 
 cat >expout <<'_ATEOF'
-#You are using KBtin 1.0.7.a
+#You are using KBtin 1.0.7.b
 _ATEOF
 
 $at_traceoff
@@ -1266,82 +1270,14 @@ $at_traceon
     at_status=`cat "$at_status_file"`
     ;;
 
-  2 ) # 2. tests.at:1: #showme
+  2 ) # 2. tests.at:1: no profiling
     at_setup_line='tests.at:1'
-    at_desc='#showme'
-    $at_quiet $ECHO_N "  2: #showme                                      $ECHO_C"
+    at_desc='no profiling'
+    $at_quiet $ECHO_N "  2: no profiling                                 $ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
       echo "2. tests.at:1: testing ..."
-      $at_traceon
-
-cat >testin <<'_ATEOF'
-#showme abc def ghi
-#showme { blah}
-#showme ąęść
-#var x foo
-#showme $x
-_ATEOF
-
-cat >expout <<'_ATEOF'
-abc def ghi
- blah
-ąęść
-foo
-_ATEOF
-
-$at_traceoff
-echo "$at_srcdir/tests.at:13: runtest.sh"
-echo tests.at:13 >"$at_check_line_file"
-
-at_trace_this=
-if test -n "$at_traceon"; then
-    at_trace_this=yes
-fi
-
-if test -n "$at_trace_this"; then
-    ( $at_traceon; runtest.sh ) >"$at_stdout" 2>"$at_stder1"
-    at_status=$?
-    grep '^ *+' "$at_stder1" >&2
-    grep -v '^ *+' "$at_stder1" >"$at_stderr"
-else
-    ( :; runtest.sh ) >"$at_stdout" 2>"$at_stderr"
-    at_status=$?
-fi
-
-at_failed=false
-$at_diff "$at_devnull" "$at_stderr" || at_failed=:
-$at_diff expout "$at_stdout" || at_failed=:
-case $at_status in
-   77) echo 77 > "$at_status_file"; exit 77;;
-   0) ;;
-   *) echo "$at_srcdir/tests.at:13: exit code was $at_status, expected 0"
-      at_failed=:;;
-esac
-if $at_failed; then
-
-
-  echo 1 > "$at_status_file"
-  exit 1
-fi
-
-$at_traceon
-
-      $at_traceoff
-      $at_times_p && times >"$at_times_file"
-    ) 5>&1 2>&1 | eval $at_tee_pipe
-    at_status=`cat "$at_status_file"`
-    ;;
-
-  3 ) # 3. tests.at:17: no profiling
-    at_setup_line='tests.at:17'
-    at_desc='no profiling'
-    $at_quiet $ECHO_N "  3: no profiling                                 $ECHO_C"
-    at_xfail=no
-    echo "#                             -*- compilation -*-" >> "$at_group_log"
-    (
-      echo "3. tests.at:17: testing ..."
       $at_traceon
 
 cat >testin <<'_ATEOF'
@@ -1354,8 +1290,8 @@ cat >expout <<'_ATEOF'
 _ATEOF
 
 $at_traceoff
-echo "$at_srcdir/tests.at:23: runtest.sh"
-echo tests.at:23 >"$at_check_line_file"
+echo "$at_srcdir/tests.at:7: runtest.sh"
+echo tests.at:7 >"$at_check_line_file"
 
 at_trace_this=
 if test -n "$at_traceon"; then
@@ -1378,7 +1314,7 @@ $at_diff expout "$at_stdout" || at_failed=:
 case $at_status in
    77) echo 77 > "$at_status_file"; exit 77;;
    0) ;;
-   *) echo "$at_srcdir/tests.at:23: exit code was $at_status, expected 0"
+   *) echo "$at_srcdir/tests.at:7: exit code was $at_status, expected 0"
       at_failed=:;;
 esac
 if $at_failed; then
@@ -1396,24 +1332,92 @@ $at_traceon
     at_status=`cat "$at_status_file"`
     ;;
 
-  4 ) # 4. tests.at:27: #reverse
-    at_setup_line='tests.at:27'
-    at_desc='#reverse'
-    $at_quiet $ECHO_N "  4: #reverse                                     $ECHO_C"
+  3 ) # 3. tests.at:11: #showme
+    at_setup_line='tests.at:11'
+    at_desc='#showme'
+    $at_quiet $ECHO_N "  3: #showme                                      $ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
-      echo "4. tests.at:27: testing ..."
+      echo "3. tests.at:11: testing ..."
       $at_traceon
 
 cat >testin <<'_ATEOF'
-#var x blahąęśćabc
-#reverse x $x
+#showme abc def ghi
+#showme { blah}
+#var x foo
 #showme $x
 _ATEOF
 
 cat >expout <<'_ATEOF'
-cbaćśęąhalb
+abc def ghi
+ blah
+foo
+_ATEOF
+
+$at_traceoff
+echo "$at_srcdir/tests.at:21: runtest.sh"
+echo tests.at:21 >"$at_check_line_file"
+
+at_trace_this=
+if test -n "$at_traceon"; then
+    at_trace_this=yes
+fi
+
+if test -n "$at_trace_this"; then
+    ( $at_traceon; runtest.sh ) >"$at_stdout" 2>"$at_stder1"
+    at_status=$?
+    grep '^ *+' "$at_stder1" >&2
+    grep -v '^ *+' "$at_stder1" >"$at_stderr"
+else
+    ( :; runtest.sh ) >"$at_stdout" 2>"$at_stderr"
+    at_status=$?
+fi
+
+at_failed=false
+$at_diff "$at_devnull" "$at_stderr" || at_failed=:
+$at_diff expout "$at_stdout" || at_failed=:
+case $at_status in
+   77) echo 77 > "$at_status_file"; exit 77;;
+   0) ;;
+   *) echo "$at_srcdir/tests.at:21: exit code was $at_status, expected 0"
+      at_failed=:;;
+esac
+if $at_failed; then
+
+
+  echo 1 > "$at_status_file"
+  exit 1
+fi
+
+$at_traceon
+
+      $at_traceoff
+      $at_times_p && times >"$at_times_file"
+    ) 5>&1 2>&1 | eval $at_tee_pipe
+    at_status=`cat "$at_status_file"`
+    ;;
+
+  4 ) # 4. tests.at:25: #showme with non-ASCII chars
+    at_setup_line='tests.at:25'
+    at_desc='#showme with non-ASCII chars'
+    $at_quiet $ECHO_N "  4: #showme with non-ASCII chars                 $ECHO_C"
+    at_xfail=no
+    echo "#                             -*- compilation -*-" >> "$at_group_log"
+    (
+      echo "4. tests.at:25: testing ..."
+      $at_traceon
+
+cat >testin <<'_ATEOF'
+#showme ąęść
+#showme abcąęśćdefабцдефгхийאבגדァアィイ
+#showme abc𠀧𠀀𠀁𠀂
+_ATEOF
+
+cat >expout <<'_ATEOF'
+ąęść
+abcąęśćdefабцдефгхийאבגדァアィイ
+abc𠀧𠀀𠀁𠀂
 _ATEOF
 
 $at_traceoff
@@ -1459,14 +1463,77 @@ $at_traceon
     at_status=`cat "$at_status_file"`
     ;;
 
-  5 ) # 5. tests.at:38: #postpad
-    at_setup_line='tests.at:38'
-    at_desc='#postpad'
-    $at_quiet $ECHO_N "  5: #postpad                                     $ECHO_C"
+  5 ) # 5. tests.at:39: #reverse
+    at_setup_line='tests.at:39'
+    at_desc='#reverse'
+    $at_quiet $ECHO_N "  5: #reverse                                     $ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
-      echo "5. tests.at:38: testing ..."
+      echo "5. tests.at:39: testing ..."
+      $at_traceon
+
+cat >testin <<'_ATEOF'
+#var x blahąęśćabc
+#reverse x $x
+#showme $x
+_ATEOF
+
+cat >expout <<'_ATEOF'
+cbaćśęąhalb
+_ATEOF
+
+$at_traceoff
+echo "$at_srcdir/tests.at:46: runtest.sh"
+echo tests.at:46 >"$at_check_line_file"
+
+at_trace_this=
+if test -n "$at_traceon"; then
+    at_trace_this=yes
+fi
+
+if test -n "$at_trace_this"; then
+    ( $at_traceon; runtest.sh ) >"$at_stdout" 2>"$at_stder1"
+    at_status=$?
+    grep '^ *+' "$at_stder1" >&2
+    grep -v '^ *+' "$at_stder1" >"$at_stderr"
+else
+    ( :; runtest.sh ) >"$at_stdout" 2>"$at_stderr"
+    at_status=$?
+fi
+
+at_failed=false
+$at_diff "$at_devnull" "$at_stderr" || at_failed=:
+$at_diff expout "$at_stdout" || at_failed=:
+case $at_status in
+   77) echo 77 > "$at_status_file"; exit 77;;
+   0) ;;
+   *) echo "$at_srcdir/tests.at:46: exit code was $at_status, expected 0"
+      at_failed=:;;
+esac
+if $at_failed; then
+
+
+  echo 1 > "$at_status_file"
+  exit 1
+fi
+
+$at_traceon
+
+      $at_traceoff
+      $at_times_p && times >"$at_times_file"
+    ) 5>&1 2>&1 | eval $at_tee_pipe
+    at_status=`cat "$at_status_file"`
+    ;;
+
+  6 ) # 6. tests.at:50: #postpad
+    at_setup_line='tests.at:50'
+    at_desc='#postpad'
+    $at_quiet $ECHO_N "  6: #postpad                                     $ECHO_C"
+    at_xfail=no
+    echo "#                             -*- compilation -*-" >> "$at_group_log"
+    (
+      echo "6. tests.at:50: testing ..."
       $at_traceon
 
 cat >testin <<'_ATEOF'
@@ -1489,8 +1556,8 @@ a ć  |
 _ATEOF
 
 $at_traceoff
-echo "$at_srcdir/tests.at:54: runtest.sh"
-echo tests.at:54 >"$at_check_line_file"
+echo "$at_srcdir/tests.at:66: runtest.sh"
+echo tests.at:66 >"$at_check_line_file"
 
 at_trace_this=
 if test -n "$at_traceon"; then
@@ -1513,7 +1580,7 @@ $at_diff expout "$at_stdout" || at_failed=:
 case $at_status in
    77) echo 77 > "$at_status_file"; exit 77;;
    0) ;;
-   *) echo "$at_srcdir/tests.at:54: exit code was $at_status, expected 0"
+   *) echo "$at_srcdir/tests.at:66: exit code was $at_status, expected 0"
       at_failed=:;;
 esac
 if $at_failed; then
@@ -1531,14 +1598,14 @@ $at_traceon
     at_status=`cat "$at_status_file"`
     ;;
 
-  6 ) # 6. tests.at:57: #prepad
-    at_setup_line='tests.at:57'
+  7 ) # 7. tests.at:69: #prepad
+    at_setup_line='tests.at:69'
     at_desc='#prepad'
-    $at_quiet $ECHO_N "  6: #prepad                                      $ECHO_C"
+    $at_quiet $ECHO_N "  7: #prepad                                      $ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
-      echo "6. tests.at:57: testing ..."
+      echo "7. tests.at:69: testing ..."
       $at_traceon
 
 cat >testin <<'_ATEOF'
@@ -1561,8 +1628,8 @@ dęfgh|
 _ATEOF
 
 $at_traceoff
-echo "$at_srcdir/tests.at:73: runtest.sh"
-echo tests.at:73 >"$at_check_line_file"
+echo "$at_srcdir/tests.at:85: runtest.sh"
+echo tests.at:85 >"$at_check_line_file"
 
 at_trace_this=
 if test -n "$at_traceon"; then
@@ -1585,7 +1652,7 @@ $at_diff expout "$at_stdout" || at_failed=:
 case $at_status in
    77) echo 77 > "$at_status_file"; exit 77;;
    0) ;;
-   *) echo "$at_srcdir/tests.at:73: exit code was $at_status, expected 0"
+   *) echo "$at_srcdir/tests.at:85: exit code was $at_status, expected 0"
       at_failed=:;;
 esac
 if $at_failed; then
@@ -1603,14 +1670,14 @@ $at_traceon
     at_status=`cat "$at_status_file"`
     ;;
 
-  7 ) # 7. tests.at:76: #substr
-    at_setup_line='tests.at:76'
+  8 ) # 8. tests.at:88: #substr
+    at_setup_line='tests.at:88'
     at_desc='#substr'
-    $at_quiet $ECHO_N "  7: #substr                                      $ECHO_C"
+    $at_quiet $ECHO_N "  8: #substr                                      $ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
-      echo "7. tests.at:76: testing ..."
+      echo "8. tests.at:88: testing ..."
       $at_traceon
 
 cat >testin <<'_ATEOF'
@@ -1628,8 +1695,8 @@ bćd
 _ATEOF
 
 $at_traceoff
-echo "$at_srcdir/tests.at:87: runtest.sh"
-echo tests.at:87 >"$at_check_line_file"
+echo "$at_srcdir/tests.at:99: runtest.sh"
+echo tests.at:99 >"$at_check_line_file"
 
 at_trace_this=
 if test -n "$at_traceon"; then
@@ -1652,7 +1719,7 @@ $at_diff expout "$at_stdout" || at_failed=:
 case $at_status in
    77) echo 77 > "$at_status_file"; exit 77;;
    0) ;;
-   *) echo "$at_srcdir/tests.at:87: exit code was $at_status, expected 0"
+   *) echo "$at_srcdir/tests.at:99: exit code was $at_status, expected 0"
       at_failed=:;;
 esac
 if $at_failed; then
@@ -1670,14 +1737,14 @@ $at_traceon
     at_status=`cat "$at_status_file"`
     ;;
 
-  8 ) # 8. tests.at:90: late var substitution
-    at_setup_line='tests.at:90'
+  9 ) # 9. tests.at:102: late var substitution
+    at_setup_line='tests.at:102'
     at_desc='late var substitution'
-    $at_quiet $ECHO_N "  8: late var substitution                        $ECHO_C"
+    $at_quiet $ECHO_N "  9: late var substitution                        $ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
-      echo "8. tests.at:90: testing ..."
+      echo "9. tests.at:102: testing ..."
       $at_traceon
 
 cat >testin <<'_ATEOF'
@@ -1726,8 +1793,8 @@ A3
 _ATEOF
 
 $at_traceoff
-echo "$at_srcdir/tests.at:132: runtest.sh"
-echo tests.at:132 >"$at_check_line_file"
+echo "$at_srcdir/tests.at:144: runtest.sh"
+echo tests.at:144 >"$at_check_line_file"
 
 at_trace_this=
 if test -n "$at_traceon"; then
@@ -1750,7 +1817,7 @@ $at_diff expout "$at_stdout" || at_failed=:
 case $at_status in
    77) echo 77 > "$at_status_file"; exit 77;;
    0) ;;
-   *) echo "$at_srcdir/tests.at:132: exit code was $at_status, expected 0"
+   *) echo "$at_srcdir/tests.at:144: exit code was $at_status, expected 0"
       at_failed=:;;
 esac
 if $at_failed; then
@@ -1768,14 +1835,14 @@ $at_traceon
     at_status=`cat "$at_status_file"`
     ;;
 
-  9 ) # 9. tests.at:135: #system
-    at_setup_line='tests.at:135'
+  10 ) # 10. tests.at:147: #system
+    at_setup_line='tests.at:147'
     at_desc='#system'
-    $at_quiet $ECHO_N "  9: #system                                      $ECHO_C"
+    $at_quiet $ECHO_N " 10: #system                                      $ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
-      echo "9. tests.at:135: testing ..."
+      echo "10. tests.at:147: testing ..."
       $at_traceon
 
 cat >testin <<'_ATEOF'
@@ -1790,8 +1857,8 @@ abc
 _ATEOF
 
 $at_traceoff
-echo "$at_srcdir/tests.at:143: runtest.sh"
-echo tests.at:143 >"$at_check_line_file"
+echo "$at_srcdir/tests.at:155: runtest.sh"
+echo tests.at:155 >"$at_check_line_file"
 
 at_trace_this=
 if test -n "$at_traceon"; then
@@ -1814,7 +1881,7 @@ $at_diff expout "$at_stdout" || at_failed=:
 case $at_status in
    77) echo 77 > "$at_status_file"; exit 77;;
    0) ;;
-   *) echo "$at_srcdir/tests.at:143: exit code was $at_status, expected 0"
+   *) echo "$at_srcdir/tests.at:155: exit code was $at_status, expected 0"
       at_failed=:;;
 esac
 if $at_failed; then
@@ -1832,14 +1899,14 @@ $at_traceon
     at_status=`cat "$at_status_file"`
     ;;
 
-  10 ) # 10. tests.at:146: #shell
-    at_setup_line='tests.at:146'
+  11 ) # 11. tests.at:158: #shell
+    at_setup_line='tests.at:158'
     at_desc='#shell'
-    $at_quiet $ECHO_N " 10: #shell                                       $ECHO_C"
+    $at_quiet $ECHO_N " 11: #shell                                       $ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
-      echo "10. tests.at:146: testing ..."
+      echo "11. tests.at:158: testing ..."
       $at_traceon
 
 cat >testin <<'_ATEOF'
@@ -1851,8 +1918,8 @@ abc
 _ATEOF
 
 $at_traceoff
-echo "$at_srcdir/tests.at:151: runtest.sh"
-echo tests.at:151 >"$at_check_line_file"
+echo "$at_srcdir/tests.at:163: runtest.sh"
+echo tests.at:163 >"$at_check_line_file"
 
 at_trace_this=
 if test -n "$at_traceon"; then
@@ -1875,7 +1942,7 @@ $at_diff expout "$at_stdout" || at_failed=:
 case $at_status in
    77) echo 77 > "$at_status_file"; exit 77;;
    0) ;;
-   *) echo "$at_srcdir/tests.at:151: exit code was $at_status, expected 0"
+   *) echo "$at_srcdir/tests.at:163: exit code was $at_status, expected 0"
       at_failed=:;;
 esac
 if $at_failed; then
@@ -1893,14 +1960,14 @@ $at_traceon
     at_status=`cat "$at_status_file"`
     ;;
 
-  11 ) # 11. tests.at:154: #run
-    at_setup_line='tests.at:154'
+  12 ) # 12. tests.at:166: #run
+    at_setup_line='tests.at:166'
     at_desc='#run'
-    $at_quiet $ECHO_N " 11: #run                                         $ECHO_C"
+    $at_quiet $ECHO_N " 12: #run                                         $ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
-      echo "11. tests.at:154: testing ..."
+      echo "12. tests.at:166: testing ..."
       $at_traceon
 
 cat >testin <<'_ATEOF'
@@ -1914,8 +1981,8 @@ FIN
 _ATEOF
 
 $at_traceoff
-echo "$at_srcdir/tests.at:161: runtest.sh"
-echo tests.at:161 >"$at_check_line_file"
+echo "$at_srcdir/tests.at:173: runtest.sh"
+echo tests.at:173 >"$at_check_line_file"
 
 at_trace_this=
 if test -n "$at_traceon"; then
@@ -1938,7 +2005,7 @@ $at_diff expout "$at_stdout" || at_failed=:
 case $at_status in
    77) echo 77 > "$at_status_file"; exit 77;;
    0) ;;
-   *) echo "$at_srcdir/tests.at:161: exit code was $at_status, expected 0"
+   *) echo "$at_srcdir/tests.at:173: exit code was $at_status, expected 0"
       at_failed=:;;
 esac
 if $at_failed; then
@@ -1956,14 +2023,14 @@ $at_traceon
     at_status=`cat "$at_status_file"`
     ;;
 
-  12 ) # 12. tests.at:164: #run and 16bit Unicode
-    at_setup_line='tests.at:164'
+  13 ) # 13. tests.at:176: #run and 16bit Unicode
+    at_setup_line='tests.at:176'
     at_desc='#run and 16bit Unicode'
-    $at_quiet $ECHO_N " 12: #run and 16bit Unicode                       $ECHO_C"
+    $at_quiet $ECHO_N " 13: #run and 16bit Unicode                       $ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
-      echo "12. tests.at:164: testing ..."
+      echo "13. tests.at:176: testing ..."
       $at_traceon
 
 cat >testin <<'_ATEOF'
@@ -1977,8 +2044,8 @@ FIN
 _ATEOF
 
 $at_traceoff
-echo "$at_srcdir/tests.at:171: runtest.sh"
-echo tests.at:171 >"$at_check_line_file"
+echo "$at_srcdir/tests.at:183: runtest.sh"
+echo tests.at:183 >"$at_check_line_file"
 
 at_trace_this=
 if test -n "$at_traceon"; then
@@ -2001,7 +2068,7 @@ $at_diff expout "$at_stdout" || at_failed=:
 case $at_status in
    77) echo 77 > "$at_status_file"; exit 77;;
    0) ;;
-   *) echo "$at_srcdir/tests.at:171: exit code was $at_status, expected 0"
+   *) echo "$at_srcdir/tests.at:183: exit code was $at_status, expected 0"
       at_failed=:;;
 esac
 if $at_failed; then
@@ -2019,14 +2086,77 @@ $at_traceon
     at_status=`cat "$at_status_file"`
     ;;
 
-  13 ) # 13. tests.at:174: #goto
-    at_setup_line='tests.at:174'
-    at_desc='#goto'
-    $at_quiet $ECHO_N " 13: #goto                                        $ECHO_C"
+  14 ) # 14. tests.at:186: #run and non-BMP Unicode
+    at_setup_line='tests.at:186'
+    at_desc='#run and non-BMP Unicode'
+    $at_quiet $ECHO_N " 14: #run and non-BMP Unicode                     $ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
-      echo "13. tests.at:174: testing ..."
+      echo "14. tests.at:186: testing ..."
+      $at_traceon
+
+cat >testin <<'_ATEOF'
+#hook close {#showme FIN;#end}
+#run a echo abc𠀧𠀀𠀁𠀂
+_ATEOF
+
+cat >expout <<'_ATEOF'
+abc𠀧𠀀𠀁𠀂
+FIN
+_ATEOF
+
+$at_traceoff
+echo "$at_srcdir/tests.at:193: runtest.sh"
+echo tests.at:193 >"$at_check_line_file"
+
+at_trace_this=
+if test -n "$at_traceon"; then
+    at_trace_this=yes
+fi
+
+if test -n "$at_trace_this"; then
+    ( $at_traceon; runtest.sh ) >"$at_stdout" 2>"$at_stder1"
+    at_status=$?
+    grep '^ *+' "$at_stder1" >&2
+    grep -v '^ *+' "$at_stder1" >"$at_stderr"
+else
+    ( :; runtest.sh ) >"$at_stdout" 2>"$at_stderr"
+    at_status=$?
+fi
+
+at_failed=false
+$at_diff "$at_devnull" "$at_stderr" || at_failed=:
+$at_diff expout "$at_stdout" || at_failed=:
+case $at_status in
+   77) echo 77 > "$at_status_file"; exit 77;;
+   0) ;;
+   *) echo "$at_srcdir/tests.at:193: exit code was $at_status, expected 0"
+      at_failed=:;;
+esac
+if $at_failed; then
+
+
+  echo 1 > "$at_status_file"
+  exit 1
+fi
+
+$at_traceon
+
+      $at_traceoff
+      $at_times_p && times >"$at_times_file"
+    ) 5>&1 2>&1 | eval $at_tee_pipe
+    at_status=`cat "$at_status_file"`
+    ;;
+
+  15 ) # 15. tests.at:196: #goto
+    at_setup_line='tests.at:196'
+    at_desc='#goto'
+    $at_quiet $ECHO_N " 15: #goto                                        $ECHO_C"
+    at_xfail=no
+    echo "#                             -*- compilation -*-" >> "$at_group_log"
+    (
+      echo "15. tests.at:196: testing ..."
       $at_traceon
 
 cat >testin <<'_ATEOF'
@@ -2074,8 +2204,8 @@ B>C
 _ATEOF
 
 $at_traceoff
-echo "$at_srcdir/tests.at:215: runtest.sh"
-echo tests.at:215 >"$at_check_line_file"
+echo "$at_srcdir/tests.at:237: runtest.sh"
+echo tests.at:237 >"$at_check_line_file"
 
 at_trace_this=
 if test -n "$at_traceon"; then
@@ -2098,7 +2228,7 @@ $at_diff expout "$at_stdout" || at_failed=:
 case $at_status in
    77) echo 77 > "$at_status_file"; exit 77;;
    0) ;;
-   *) echo "$at_srcdir/tests.at:215: exit code was $at_status, expected 0"
+   *) echo "$at_srcdir/tests.at:237: exit code was $at_status, expected 0"
       at_failed=:;;
 esac
 if $at_failed; then
@@ -2116,14 +2246,14 @@ $at_traceon
     at_status=`cat "$at_status_file"`
     ;;
 
-  14 ) # 14. tests.at:218: #end w/o sessions
-    at_setup_line='tests.at:218'
+  16 ) # 16. tests.at:240: #end w/o sessions
+    at_setup_line='tests.at:240'
     at_desc='#end w/o sessions'
-    $at_quiet $ECHO_N " 14: #end w/o sessions                            $ECHO_C"
+    $at_quiet $ECHO_N " 16: #end w/o sessions                            $ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
-      echo "14. tests.at:218: testing ..."
+      echo "16. tests.at:240: testing ..."
       $at_traceon
 
 cat >testin <<'_ATEOF'
@@ -2134,8 +2264,8 @@ cat >expout <<'_ATEOF'
 _ATEOF
 
 $at_traceoff
-echo "$at_srcdir/tests.at:222: runtest.sh"
-echo tests.at:222 >"$at_check_line_file"
+echo "$at_srcdir/tests.at:244: runtest.sh"
+echo tests.at:244 >"$at_check_line_file"
 
 at_trace_this=
 if test -n "$at_traceon"; then
@@ -2158,7 +2288,7 @@ $at_diff expout "$at_stdout" || at_failed=:
 case $at_status in
    77) echo 77 > "$at_status_file"; exit 77;;
    0) ;;
-   *) echo "$at_srcdir/tests.at:222: exit code was $at_status, expected 0"
+   *) echo "$at_srcdir/tests.at:244: exit code was $at_status, expected 0"
       at_failed=:;;
 esac
 if $at_failed; then
@@ -2176,14 +2306,14 @@ $at_traceon
     at_status=`cat "$at_status_file"`
     ;;
 
-  15 ) # 15. tests.at:225: #end with a session
-    at_setup_line='tests.at:225'
+  17 ) # 17. tests.at:247: #end with a session
+    at_setup_line='tests.at:247'
     at_desc='#end with a session'
-    $at_quiet $ECHO_N " 15: #end with a session                          $ECHO_C"
+    $at_quiet $ECHO_N " 17: #end with a session                          $ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
-      echo "15. tests.at:225: testing ..."
+      echo "17. tests.at:247: testing ..."
       $at_traceon
 
 cat >testin <<'_ATEOF'
@@ -2197,8 +2327,8 @@ cat >expout <<'_ATEOF'
 _ATEOF
 
 $at_traceoff
-echo "$at_srcdir/tests.at:232: runtest.sh"
-echo tests.at:232 >"$at_check_line_file"
+echo "$at_srcdir/tests.at:254: runtest.sh"
+echo tests.at:254 >"$at_check_line_file"
 
 at_trace_this=
 if test -n "$at_traceon"; then
@@ -2221,7 +2351,7 @@ $at_diff expout "$at_stdout" || at_failed=:
 case $at_status in
    77) echo 77 > "$at_status_file"; exit 77;;
    0) ;;
-   *) echo "$at_srcdir/tests.at:232: exit code was $at_status, expected 0"
+   *) echo "$at_srcdir/tests.at:254: exit code was $at_status, expected 0"
       at_failed=:;;
 esac
 if $at_failed; then
@@ -2239,14 +2369,14 @@ $at_traceon
     at_status=`cat "$at_status_file"`
     ;;
 
-  16 ) # 16. tests.at:235: action priorities
-    at_setup_line='tests.at:235'
+  18 ) # 18. tests.at:257: action priorities
+    at_setup_line='tests.at:257'
     at_desc='action priorities'
-    $at_quiet $ECHO_N " 16: action priorities                            $ECHO_C"
+    $at_quiet $ECHO_N " 18: action priorities                            $ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
-      echo "16. tests.at:235: testing ..."
+      echo "18. tests.at:257: testing ..."
       $at_traceon
 
 cat >testin <<'_ATEOF'
@@ -2277,8 +2407,8 @@ act: a06z
 _ATEOF
 
 $at_traceoff
-echo "$at_srcdir/tests.at:259: runtest.sh"
-echo tests.at:259 >"$at_check_line_file"
+echo "$at_srcdir/tests.at:281: runtest.sh"
+echo tests.at:281 >"$at_check_line_file"
 
 at_trace_this=
 if test -n "$at_traceon"; then
@@ -2301,7 +2431,7 @@ $at_diff expout "$at_stdout" || at_failed=:
 case $at_status in
    77) echo 77 > "$at_status_file"; exit 77;;
    0) ;;
-   *) echo "$at_srcdir/tests.at:259: exit code was $at_status, expected 0"
+   *) echo "$at_srcdir/tests.at:281: exit code was $at_status, expected 0"
       at_failed=:;;
 esac
 if $at_failed; then
@@ -2319,14 +2449,14 @@ $at_traceon
     at_status=`cat "$at_status_file"`
     ;;
 
-  17 ) # 17. tests.at:262: actions, promptactions
-    at_setup_line='tests.at:262'
+  19 ) # 19. tests.at:284: actions, promptactions
+    at_setup_line='tests.at:284'
     at_desc='actions, promptactions'
-    $at_quiet $ECHO_N " 17: actions, promptactions                       $ECHO_C"
+    $at_quiet $ECHO_N " 19: actions, promptactions                       $ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
-      echo "17. tests.at:262: testing ..."
+      echo "19. tests.at:284: testing ..."
       $at_traceon
 
 cat >testin <<'_ATEOF'
@@ -2345,8 +2475,8 @@ FIN
 _ATEOF
 
 $at_traceoff
-echo "$at_srcdir/tests.at:274: runtest.sh"
-echo tests.at:274 >"$at_check_line_file"
+echo "$at_srcdir/tests.at:296: runtest.sh"
+echo tests.at:296 >"$at_check_line_file"
 
 at_trace_this=
 if test -n "$at_traceon"; then
@@ -2369,7 +2499,164 @@ $at_diff expout "$at_stdout" || at_failed=:
 case $at_status in
    77) echo 77 > "$at_status_file"; exit 77;;
    0) ;;
-   *) echo "$at_srcdir/tests.at:274: exit code was $at_status, expected 0"
+   *) echo "$at_srcdir/tests.at:296: exit code was $at_status, expected 0"
+      at_failed=:;;
+esac
+if $at_failed; then
+
+
+  echo 1 > "$at_status_file"
+  exit 1
+fi
+
+$at_traceon
+
+      $at_traceoff
+      $at_times_p && times >"$at_times_file"
+    ) 5>&1 2>&1 | eval $at_tee_pipe
+    at_status=`cat "$at_status_file"`
+    ;;
+
+  20 ) # 20. tests.at:299: #chr, #ord, #hexord (7-bit ASCII)
+    at_setup_line='tests.at:299'
+    at_desc='#chr, #ord, #hexord (7-bit ASCII)'
+    $at_quiet $ECHO_N " 20: #chr, #ord, #hexord (7-bit ASCII)            $ECHO_C"
+    at_xfail=no
+    echo "#                             -*- compilation -*-" >> "$at_group_log"
+    (
+      echo "20. tests.at:299: testing ..."
+      $at_traceon
+
+cat >testin <<'_ATEOF'
+#chr x {98 108 97 104};#showme {$x}
+#chr x U+0062 U+006C U+0061 U+0068;#showme {$x}
+#chr x 98 0x6c 97 U+0068;#showme {$x}
+#ord x blah;#showme {$x}
+#hexord x blah;#showme {$x}
+_ATEOF
+
+cat >expout <<'_ATEOF'
+blah
+blah
+blah
+98 108 97 104
+U+0062 U+006C U+0061 U+0068
+_ATEOF
+
+$at_traceoff
+echo "$at_srcdir/tests.at:312: runtest.sh"
+echo tests.at:312 >"$at_check_line_file"
+
+at_trace_this=
+if test -n "$at_traceon"; then
+    at_trace_this=yes
+fi
+
+if test -n "$at_trace_this"; then
+    ( $at_traceon; runtest.sh ) >"$at_stdout" 2>"$at_stder1"
+    at_status=$?
+    grep '^ *+' "$at_stder1" >&2
+    grep -v '^ *+' "$at_stder1" >"$at_stderr"
+else
+    ( :; runtest.sh ) >"$at_stdout" 2>"$at_stderr"
+    at_status=$?
+fi
+
+at_failed=false
+$at_diff "$at_devnull" "$at_stderr" || at_failed=:
+$at_diff expout "$at_stdout" || at_failed=:
+case $at_status in
+   77) echo 77 > "$at_status_file"; exit 77;;
+   0) ;;
+   *) echo "$at_srcdir/tests.at:312: exit code was $at_status, expected 0"
+      at_failed=:;;
+esac
+if $at_failed; then
+
+
+  echo 1 > "$at_status_file"
+  exit 1
+fi
+
+$at_traceon
+
+      $at_traceoff
+      $at_times_p && times >"$at_times_file"
+    ) 5>&1 2>&1 | eval $at_tee_pipe
+    at_status=`cat "$at_status_file"`
+    ;;
+
+  21 ) # 21. tests.at:315: UTF-8 transformation
+    at_setup_line='tests.at:315'
+    at_desc='UTF-8 transformation'
+    $at_quiet $ECHO_N " 21: UTF-8 transformation                         $ECHO_C"
+    at_xfail=no
+    echo "#                             -*- compilation -*-" >> "$at_group_log"
+    (
+      echo "21. tests.at:315: testing ..."
+      $at_traceon
+
+cat >testin <<'_ATEOF'
+#hexord x abcąęśćdefабцдефгхийאבגדァアィイ;#showme {$x}
+#chr x U+20027 U+20000 U+20001 U+20002;#hexord x $x;#showme {$x}
+#var i 1;#loop 1,20 {#math i $i*2;#math l $i-1;#math r $i+1;#chr x $l $i $r;#hexord x {$x};#show $x}
+#show last test
+#chr x U+10ffff;#hexord x $x;#showme {$x}
+_ATEOF
+
+cat >expout <<'_ATEOF'
+U+0061 U+0062 U+0063 U+0105 U+0119 U+015B U+0107 U+0064 U+0065 U+0066 U+0430 U+0431 U+0446 U+0434 U+0435 U+0444 U+0433 U+0445 U+0438 U+0439 U+05D0 U+05D1 U+05D2 U+05D3 U+30A1 U+30A2 U+30A3 U+30A4
+U+20027 U+20000 U+20001 U+20002
+U+0001 U+0002 U+0003
+U+0003 U+0004 U+0005
+U+0007 U+0008 U+0009
+U+000F U+0010 U+0011
+U+001F U+0020 U+0021
+U+003F U+0040 U+0041
+U+007F U+FFFD U+FFFD
+U+00FF U+0100 U+0101
+U+01FF U+0200 U+0201
+U+03FF U+0400 U+0401
+U+07FF U+0800 U+0801
+U+0FFF U+1000 U+1001
+U+1FFF U+2000 U+2001
+U+3FFF U+4000 U+4001
+U+7FFF U+8000 U+8001
+U+FFFF U+10000 U+10001
+U+1FFFF U+20000 U+20001
+U+3FFFF U+40000 U+40001
+U+7FFFF U+80000 U+80001
+U+FFFFF U+100000 U+100001
+last test
+U+10FFFF
+_ATEOF
+
+$at_traceoff
+echo "$at_srcdir/tests.at:347: runtest.sh"
+echo tests.at:347 >"$at_check_line_file"
+
+at_trace_this=
+if test -n "$at_traceon"; then
+    at_trace_this=yes
+fi
+
+if test -n "$at_trace_this"; then
+    ( $at_traceon; runtest.sh ) >"$at_stdout" 2>"$at_stder1"
+    at_status=$?
+    grep '^ *+' "$at_stder1" >&2
+    grep -v '^ *+' "$at_stder1" >"$at_stderr"
+else
+    ( :; runtest.sh ) >"$at_stdout" 2>"$at_stderr"
+    at_status=$?
+fi
+
+at_failed=false
+$at_diff "$at_devnull" "$at_stderr" || at_failed=:
+$at_diff expout "$at_stdout" || at_failed=:
+case $at_status in
+   77) echo 77 > "$at_status_file"; exit 77;;
+   0) ;;
+   *) echo "$at_srcdir/tests.at:347: exit code was $at_status, expected 0"
       at_failed=:;;
 esac
 if $at_failed; then
@@ -2677,7 +2964,7 @@ _ASBOX
   echo "Please send \`${at_testdir+${at_testdir}/}$as_me.log' and all information you think might help:"
   echo
   echo "   To: <castamir@users.sf.net>"
-  echo "   Subject: [KBtin 1.0.7.a] $as_me:$at_fail_list${at_fail_list:+ failed${at_xpass_list:+,}}$at_xpass_list${at_xpass_list:+ passed unexpectedly}"
+  echo "   Subject: [KBtin 1.0.7.b] $as_me:$at_fail_list${at_fail_list:+ failed${at_xpass_list:+,}}$at_xpass_list${at_xpass_list:+ passed unexpectedly}"
   echo
   if test $at_debug_p = false; then
     echo

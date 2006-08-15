@@ -1,19 +1,3 @@
-AT_SETUP([#showme])
-AT_DATA([testin], [#showme abc def ghi
-#showme { blah}
-#showme ąęść
-#var x foo
-#showme $x
-])
-AT_DATA([expout], [abc def ghi
- blah
-ąęść
-foo
-])
-AT_CHECK([runtest.sh],,[expout])
-AT_CLEANUP
-
-
 AT_SETUP([no profiling])
 AT_DATA([testin], [#rem Profiling should be disabled in release versions.
 #profile
@@ -22,6 +6,34 @@ AT_DATA([expout], [#UNKNOWN TINTIN-COMMAND: [#profile]
 ])
 AT_CHECK([runtest.sh],,[expout])
 AT_CLEANUP
+
+
+AT_SETUP([#showme])
+AT_DATA([testin], [#showme abc def ghi
+#showme { blah}
+#var x foo
+#showme $x
+])
+AT_DATA([expout], [abc def ghi
+ blah
+foo
+])
+AT_CHECK([runtest.sh],,[expout])
+AT_CLEANUP
+
+
+AT_SETUP([#showme with non-ASCII chars])
+AT_DATA([testin], [#showme ąęść
+#showme abcąęśćdefабцдефгхийאבגדァアィイ
+#showme abc𠀧𠀀𠀁𠀂
+])
+AT_DATA([expout], [ąęść
+abcąęśćdefабцдефгхийאבגדァアィイ
+abc𠀧𠀀𠀁𠀂
+])
+AT_CHECK([runtest.sh],,[expout])
+AT_CLEANUP
+
 
 
 AT_SETUP([#reverse])
@@ -171,6 +183,16 @@ FIN
 AT_CHECK([runtest.sh],,[expout])
 AT_CLEANUP
 
+AT_SETUP([#run and non-BMP Unicode])
+AT_DATA([testin], [#hook close {#showme FIN;#end}
+#run a echo abc𠀧𠀀𠀁𠀂
+])
+AT_DATA([expout], [abc𠀧𠀀𠀁𠀂
+FIN
+])
+AT_CHECK([runtest.sh],,[expout])
+AT_CLEANUP
+
 AT_SETUP([#goto])
 AT_DATA([testin], [#route a b {#showme A>B}
 #route b c {#showme B>C}
@@ -270,6 +292,57 @@ AT_DATA([expout], [<fo...>
 <foo>
 foo
 FIN
+])
+AT_CHECK([runtest.sh],,[expout])
+AT_CLEANUP
+
+AT_SETUP([#chr, #ord, #hexord (7-bit ASCII)])
+AT_DATA([testin], [#chr x {98 108 97 104};#showme {$x}
+#chr x U+0062 U+006C U+0061 U+0068;#showme {$x}
+#chr x 98 0x6c 97 U+0068;#showme {$x}
+#ord x blah;#showme {$x}
+#hexord x blah;#showme {$x}
+])
+AT_DATA([expout], [blah
+blah
+blah
+98 108 97 104
+U+0062 U+006C U+0061 U+0068
+])
+AT_CHECK([runtest.sh],,[expout])
+AT_CLEANUP
+
+AT_SETUP([UTF-8 transformation])
+AT_DATA([testin], [#hexord x abcąęśćdefабцдефгхийאבגדァアィイ;#showme {$x}
+#chr x U+20027 U+20000 U+20001 U+20002;#hexord x $x;#showme {$x}
+#var i 1;#loop 1,20 {#math i $i*2;#math l $i-1;#math r $i+1;#chr x $l $i $r;#hexord x {$x};#show $x}
+#show last test
+#chr x U+10ffff;#hexord x $x;#showme {$x}
+])
+AT_DATA([expout], [U+0061 U+0062 U+0063 U+0105 U+0119 U+015B U+0107 U+0064 U+0065 U+0066 U+0430 U+0431 U+0446 U+0434 U+0435 U+0444 U+0433 U+0445 U+0438 U+0439 U+05D0 U+05D1 U+05D2 U+05D3 U+30A1 U+30A2 U+30A3 U+30A4
+U+20027 U+20000 U+20001 U+20002
+U+0001 U+0002 U+0003
+U+0003 U+0004 U+0005
+U+0007 U+0008 U+0009
+U+000F U+0010 U+0011
+U+001F U+0020 U+0021
+U+003F U+0040 U+0041
+U+007F U+FFFD U+FFFD
+U+00FF U+0100 U+0101
+U+01FF U+0200 U+0201
+U+03FF U+0400 U+0401
+U+07FF U+0800 U+0801
+U+0FFF U+1000 U+1001
+U+1FFF U+2000 U+2001
+U+3FFF U+4000 U+4001
+U+7FFF U+8000 U+8001
+U+FFFF U+10000 U+10001
+U+1FFFF U+20000 U+20001
+U+3FFFF U+40000 U+40001
+U+7FFFF U+80000 U+80001
+U+FFFFF U+100000 U+100001
+last test
+U+10FFFF
 ])
 AT_CHECK([runtest.sh],,[expout])
 AT_CLEANUP

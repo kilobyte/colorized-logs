@@ -34,7 +34,7 @@ Variables:
    math        random      variable    unvariable
 Text variables:
    firstupper  tolower     toupper     substring   prepad      postpad
-   reverse     strlen      decolorize  atoi
+   reverse     strlen      decolorize  atoi    chr    ord      hexord
 Time:
    ctime       time
 Lists:
@@ -1200,6 +1200,36 @@ Converts the initial part of <text> to a number, ignoring the rest.
 Examples:
 #atoi res {42a}    -> res = "42"
 #atoi res {blah}   -> res = ""
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~chr
+
+#chr <dest.var> <codes>
+Converts one or more Unicode <codes> into the equivalent string.  The codes
+can be given in the following formats:
+* 100
+* 0x64
+* U+0064
+Certain control codes (13 = line feed, 8 = backspace, 27 = escape) can confuse
+KBtin and/or produce visual artifacts; they are allowed nevertheless.
+
+Example:
+#chr res 98 0x6c 97 U+0068    -> res = "blah"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~ord
+
+#ord <dest.var> <string>
+Converts a given <string> into the equivalent array of decimal Unicode codes.
+
+Example:
+#ord res blah      -> res = "98 108 97 104"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~hexord
+
+#hexord <dest.var> <string>
+Converts a given <string> into the equivalent array of hex Unicode codes.
+
+Example:
+#hexord res blah      -> res = "U+0062 U+006C U+0061 U+0068"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~help
 

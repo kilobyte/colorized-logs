@@ -73,6 +73,10 @@ extern void local_to_utf8(char *d, char *s, int maxb, mbstate_t *cs);
 extern int new_conv(struct charset_conv *conv, char *name, int dir);
 extern void cleanup_conv(struct charset_conv *conv);
 extern char* mystrdup(char *s);
+extern int wc_to_utf8(char *d, const wchar_t *s, int n, int maxb);
+extern char *space_out(char *s);
+extern int utf8_to_wc(wchar_t *d, char *s, int n);
+
 
 int yes_no(char *txt)
 {
@@ -1242,3 +1246,168 @@ void charset_command(char *arg, struct session *ses)
     tintin_printf(ses, "#Charset set to %s", arg);
 }
 #endif
+
+
+void chr_command(char *arg, struct session *ses)
+{
+    char destvar[BUFFER_SIZE], left[BUFFER_SIZE], *lp;
+    char res[BUFFER_SIZE], *r;
+#ifdef UTF8
+    WC v;
+#else
+    unsigned int v;
+#endif
+    
+    arg=get_arg(arg, destvar, 0, ses);
+    if (!*destvar)
+    {
+        tintin_eprintf(ses, "#Syntax: #chr <var> <char> [...]");
+        return;
+    }
+    r=res;
+    while(*arg)
+    {
+        arg=get_arg(arg, left, 0, ses);
+        lp=left;
+        while(*lp)
+        {
+            v=0;
+            if (*lp=='u' || *lp=='U')
+            {
+                lp++;
+                if (*lp=='+')
+                    lp++;
+            hex:
+                switch(*lp)
+                {
+                case '0': case '1': case '2': case '3': case '4':
+                case '5': case '6': case '7': case '8': case '9':
+                    v=v*16 + *lp++-'0';
+                    goto hex;
+                case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+                    v=v*16 + *lp+++10-'a';
+                    goto hex;
+                case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
+                    v=v*16 + *lp+++10-'A';
+                    goto hex;
+                case 0: case ' ': case '\t':
+                    break;
+                default:
+                    tintin_eprintf(ses, "#chr: not a valid hex number in {%s}", left);
+                    return;
+                }
+            }
+            else if (lp[0]=='0' && lp[1]=='x')
+            {
+                lp+=2;
+                goto hex;
+            }
+            else
+            {
+                while(isadigit(*lp))
+                    v=v*10 + *lp++-'0';
+                if (*lp!=0 && *lp!=' ' && *lp!='\t')
+                {
+                    tintin_eprintf(ses, "#chr: not a valid number in {%s}", left);
+                    return;
+                }
+            }
+            if (!v)
+            {
+                tintin_eprintf(ses, "#chr: can't represent 0 in {%s}", left);
+                return;
+            }
+#ifdef UTF8
+            if (v>0x10ffff)
+            {
+                tintin_eprintf(ses, "#chr: not an Unicode value -- got %d=0x%x in {%s}",
+                    v, v, left);
+                return;
+            }
+            r+=wc_to_utf8(r, &v, 1, res-r+BUFFER_SIZE);
+#else
+            if (v>255)
+            {
+                tintin_eprintf(ses, "#chr: only 8-bit values allowed -- got %d=0x%x in {%s}",
+                    v, v, left);
+                return;
+            }
+            if (r-res<BUFFER_SIZE-1)
+                *r++=v;
+#endif
+            lp=space_out(lp);
+        }
+    }
+    *r=0;
+    set_variable(destvar, res, ses);
+}
+
+
+void ord_command(char *arg, struct session *ses)
+{
+    char destvar[BUFFER_SIZE], left[BUFFER_SIZE], res[BUFFER_SIZE], *r;
+    WC right[BUFFER_SIZE], *cptr;
+    
+    arg=get_arg(arg, destvar, 0, ses);
+    if (!*destvar)
+    {
+        tintin_eprintf(ses, "#Syntax: #ord <var> <string>");
+        return;
+    }
+    r=res;
+    get_arg(arg, left, 1, ses);
+    utf8_to_wc(right, left, BUFFER_SIZE-1);
+    for(cptr=right; *cptr; cptr++)
+    {
+        if (r-res<BUFFER_SIZE-9)
+            r+=sprintf(r, " %u", *cptr);
+        else
+        {
+            tintin_eprintf(ses, "#ord: result too long");
+            goto end;
+        }
+    }
+end:
+    if (r==res)
+    {
+        set_variable(destvar, "", ses);
+        return;
+    }
+    *r=0;
+    set_variable(destvar, res+1, ses);
+}
+
+
+void hexord_command(char *arg, struct session *ses)
+{
+    char destvar[BUFFER_SIZE], left[BUFFER_SIZE], res[BUFFER_SIZE], *r;
+    WC right[BUFFER_SIZE], *cptr;
+    
+    arg=get_arg(arg, destvar, 0, ses);
+    if (!*destvar)
+    {
+        tintin_eprintf(ses, "#Syntax: #hexord <var> <string>");
+        return;
+    }
+    r=res;
+    get_arg(arg, left, 1, ses);
+    utf8_to_wc(right, left, BUFFER_SIZE-1);
+    for(cptr=right; *cptr; cptr++)
+    {
+        if (r-res<BUFFER_SIZE-9)
+            r+=sprintf(r, " U+%04X", *cptr);
+        else
+        {
+            tintin_eprintf(ses, "#hexord: result too long");
+            goto end;
+        }
+    }
+end:
+    if (r==res)
+    {
+        set_variable(destvar, "", ses);
+        return;
+    }
+    *r=0;
+    set_variable(destvar, res+1, ses);
+}

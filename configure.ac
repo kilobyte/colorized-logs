@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([KBtin], [1.0.7.a], [castamir@users.sf.net])
+AC_INIT([KBtin], [1.0.7.b], [castamir@users.sf.net])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([action.c])
 AM_CONFIG_HEADER(config.h)

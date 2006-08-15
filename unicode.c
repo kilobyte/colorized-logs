@@ -6,6 +6,7 @@
 #include <wchar.h>
 #include <stdlib.h>
 #include <errno.h>
+#include "config.h"
 #include "tintin.h"
 #include "translit.h"
 
@@ -66,11 +67,23 @@ char* utf8_seek(char *s, int n)
 }
 
 /* copy up to n (no check for 0, -1 = inf) wide chars, return n of bytes consumed */
+/* d must be able to hold at least n+1 WChars */
 int utf8_to_wc(wchar_t *d, char *s, int n)
 {
     char *s0;
     unsigned char ic;
     int tc,c,cnt,surrogate;
+    
+    
+#define OUTC(x,y) \
+        {		\
+            *d++=(x);	\
+            if (!--n)	\
+            {		\
+                y;	\
+                break;	\
+            }		\
+        }
 
     s0=s;
     cnt=surrogate=tc=0;
@@ -117,7 +130,7 @@ int utf8_to_wc(wchar_t *d, char *s, int n)
             else
             {
                 if (cnt>0)
-                    *d++=0xFFFD; /* previous sequence was incomplete */
+                    OUTC(0xFFFD,); /* previous sequence was incomplete */
                 if ((ic&0xe0)==0xc0)
                     cnt=1, tc=ic&0x1f;
                 else if ((ic&0xf0)==0xe0)
@@ -129,29 +142,26 @@ int utf8_to_wc(wchar_t *d, char *s, int n)
                 else if ((ic&0xfe)==0xfc)
                     cnt=5, tc=ic&0x01;
                 else
+                {
+                    OUTC(0xFFFD,);
                     cnt=0;
-                if (!tc)
-                    cnt=0;  /* overlong character */
+                }
                 continue;
             }
         else
         {
             if (cnt>0)
-                *d++=0xFFFD; /* previous sequence was incomplete */
+                OUTC(0xFFFD,); /* previous sequence was incomplete */
             cnt=0, c=ic;
         }
-        *d++=c;
-        if (!--n)
-        {
-            s++;
-            break;
-        }
+        OUTC(c, s++);
     }
-    if (cnt)
+    if (cnt && n)
         *d++=0xFFFD;
     *d=0;
     return s-s0;
 }
+#undef OUTC
 
 /* returns # of bytes stored (not counting \0) */
 int wc_to_utf8(char *d, const wchar_t *s, int n, int maxb)
@@ -162,7 +172,7 @@ int wc_to_utf8(char *d, const wchar_t *s, int n, int maxb)
     maxd=d+maxb-8;
 #define uv ((unsigned int)(*s))
 #define vb d
-    for(;*s && n-- && d<maxd;s++)
+    for(;n-- && *s && d<maxd;s++)
     {
         if (uv<0x80)
         {
@@ -183,25 +193,8 @@ int wc_to_utf8(char *d, const wchar_t *s, int n, int maxb)
 #ifdef WCHAR_IS_UCS4
             continue;
         }
-        if (uv < 0x200000) {
+        if (uv < 0x110000) {
             *vb++ = ( uv >> 18)         | 0xf0;
-            *vb++ = ((uv >> 12) & 0x3f) | 0x80;
-            *vb++ = ((uv >>  6) & 0x3f) | 0x80;
-            *vb++ = ( uv        & 0x3f) | 0x80;
-            continue;
-        }
-        if (uv < 0x4000000) {
-            *vb++ = ( uv >> 24)         | 0xf8;
-            *vb++ = ((uv >> 18) & 0x3f) | 0x80;
-            *vb++ = ((uv >> 12) & 0x3f) | 0x80;
-            *vb++ = ((uv >>  6) & 0x3f) | 0x80;
-            *vb++ = ( uv        & 0x3f) | 0x80;
-            continue;
-        }
-        if (uv < 0x80000000) {
-            *vb++ = ( uv >> 30)         | 0xfc;
-            *vb++ = ((uv >> 24) & 0x3f) | 0x80;
-            *vb++ = ((uv >> 18) & 0x3f) | 0x80;
             *vb++ = ((uv >> 12) & 0x3f) | 0x80;
             *vb++ = ((uv >>  6) & 0x3f) | 0x80;
             *vb++ = ( uv        & 0x3f) | 0x80;
