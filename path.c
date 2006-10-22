@@ -295,7 +295,8 @@ void unmap_command(char *arg, struct session *ses)
             while (ln->next)
                 (ln = ln->next);
             deletenode_list(ses->path, ln);
-            tintin_puts("#Ok.  Forgot that move.", ses);
+            if (ses->mesvar[10])
+                tintin_puts("#Ok.  Forgot that move.", ses);
         }
         else
             tintin_puts("#No move to forget!", ses);
