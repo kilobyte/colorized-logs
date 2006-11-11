@@ -326,3 +326,43 @@ U+FFFFF U+100000 U+100001
 last test
 U+10FFFF
 ===
+
+### #textin
+<<<
+#sys {rm -rf testtmp}
+#ali x #deathlog testtmp
+x abc
+x
+x def
+x
+x ghi
+x
+x
+x jkl
+x
+x {#abc;#bde}
+x ąęść
+x abc𠀧𠀀𠀁𠀂
+x
+#delay 1 #end
+#run a cat
+#text testtmp
+#unlink testtmp
+>>>
+#File read - Success.
+abc
+
+def
+
+ghi
+
+
+jkl
+
+#abc;#bde
+ąęść
+abc𠀧𠀀𠀁𠀂
+
+
+#SESSION 'a' DIED.
+===

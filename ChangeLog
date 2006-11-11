@@ -6,6 +6,7 @@
 *	bugfix: pathologic action priorities were ordered wrong
 *	#doactions, #dopromptactions
 *	#chr, #ord, #hexord, bugfixes in UTF-8 parsing
+*	bugfix: #textin with an empty line
 
 1.0.7:
 *	end-of-file ends KBtin when in non-fullscreen UI and no sessions are

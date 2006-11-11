@@ -1177,7 +1177,6 @@ void textin_command(char *arg, struct session *ses)
     fclose(myfile);
     tintin_printf(ses,"#File read - Success.");
     prompt(ses);
-
 }
 
 char *logtypes[]=

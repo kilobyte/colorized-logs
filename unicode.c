@@ -290,7 +290,6 @@ void local_to_utf8(char *d, char *s, int maxb, mbstate_t *cs)
         case -2: /* truncated last character */
             *d++=BAD_CHAR;
         case 0:
-            *d=0;
             goto out;
         case -1:
             *d++=BAD_CHAR;
@@ -306,6 +305,7 @@ void local_to_utf8(char *d, char *s, int maxb, mbstate_t *cs)
         }
     }
 out:
+    *d=0;
     PROFPOP;
 }
 

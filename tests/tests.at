@@ -346,3 +346,44 @@ U+10FFFF
 ])
 AT_CHECK([runtest.sh],,[expout])
 AT_CLEANUP
+
+AT_SETUP([#textin])
+AT_DATA([testin], [#sys {rm -rf testtmp}
+#ali x #deathlog testtmp
+x abc
+x
+x def
+x
+x ghi
+x
+x
+x jkl
+x
+x {#abc;#bde}
+x ąęść
+x abc𠀧𠀀𠀁𠀂
+x
+#delay 1 #end
+#run a cat
+#text testtmp
+#unlink testtmp
+])
+AT_DATA([expout], [#File read - Success.
+abc
+
+def
+
+ghi
+
+
+jkl
+
+#abc;#bde
+ąęść
+abc𠀧𠀀𠀁𠀂
+
+
+#SESSION 'a' DIED.
+])
+AT_CHECK([runtest.sh],,[expout])
+AT_CLEANUP

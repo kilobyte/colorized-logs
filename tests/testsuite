@@ -605,7 +605,7 @@ at_times_file=$at_suite_dir/at-times
 # List of the tested programs.
 at_tested='KBtin'
 # List of the all the test groups.
-at_groups_all=' 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21'
+at_groups_all=' 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22'
 # As many question marks as there are digits in the last test group number.
 # Used to normalize the test group numbers so that `ls' lists them in
 # numerical order.
@@ -632,6 +632,7 @@ at_help_all='1;version.at:1;#version;;
 19;tests.at:284;actions, promptactions;;
 20;tests.at:299;#chr, #ord, #hexord (7-bit ASCII);;
 21;tests.at:315;UTF-8 transformation;;
+22;tests.at:350;#textin;;
 '
 
 at_prev=
@@ -847,7 +848,7 @@ Execution tuning:
 _ATEOF
 cat <<_ATEOF
 
-Report bugs to <castamir@users.sf.net>.
+Report bugs to <kilobyte@angband.pl>.
 _ATEOF
   exit 0
 fi
@@ -855,7 +856,7 @@ fi
 # List of tests.
 if $at_list_p; then
   cat <<_ATEOF
-KBtin 1.0.7.b test suite test groups:
+KBtin 1.0.8 test suite test groups:
 
  NUM: FILE-NAME:LINE     TEST-GROUP-NAME
       KEYWORDS
@@ -879,7 +880,7 @@ _ATEOF
   exit 0
 fi
 if $at_version_p; then
-  echo "$as_me (KBtin 1.0.7.b)"
+  echo "$as_me (KBtin 1.0.8)"
   cat <<\_ACEOF
 
 Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006 Free Software
@@ -962,15 +963,15 @@ exec 5>>"$at_suite_log"
 
 # Banners and logs.
 cat <<\_ASBOX
-## ------------------------- ##
-## KBtin 1.0.7.b test suite. ##
-## ------------------------- ##
+## ----------------------- ##
+## KBtin 1.0.8 test suite. ##
+## ----------------------- ##
 _ASBOX
 {
   cat <<\_ASBOX
-## ------------------------- ##
-## KBtin 1.0.7.b test suite. ##
-## ------------------------- ##
+## ----------------------- ##
+## KBtin 1.0.8 test suite. ##
+## ----------------------- ##
 _ASBOX
   echo
 
@@ -1223,7 +1224,7 @@ cat >testin <<'_ATEOF'
 _ATEOF
 
 cat >expout <<'_ATEOF'
-#You are using KBtin 1.0.7.b
+#You are using KBtin 1.0.8
 _ATEOF
 
 $at_traceoff
@@ -2674,6 +2675,100 @@ $at_traceon
     at_status=`cat "$at_status_file"`
     ;;
 
+  22 ) # 22. tests.at:350: #textin
+    at_setup_line='tests.at:350'
+    at_desc='#textin'
+    $at_quiet $ECHO_N " 22: #textin                                      $ECHO_C"
+    at_xfail=no
+    echo "#                             -*- compilation -*-" >> "$at_group_log"
+    (
+      echo "22. tests.at:350: testing ..."
+      $at_traceon
+
+cat >testin <<'_ATEOF'
+#sys {rm -rf testtmp}
+#ali x #deathlog testtmp
+x abc
+x
+x def
+x
+x ghi
+x
+x
+x jkl
+x
+x {#abc;#bde}
+x ąęść
+x abc𠀧𠀀𠀁𠀂
+x
+#delay 1 #end
+#run a cat
+#text testtmp
+#unlink testtmp
+_ATEOF
+
+cat >expout <<'_ATEOF'
+#File read - Success.
+abc
+
+def
+
+ghi
+
+
+jkl
+
+#abc;#bde
+ąęść
+abc𠀧𠀀𠀁𠀂
+
+
+#SESSION 'a' DIED.
+_ATEOF
+
+$at_traceoff
+echo "$at_srcdir/tests.at:388: runtest.sh"
+echo tests.at:388 >"$at_check_line_file"
+
+at_trace_this=
+if test -n "$at_traceon"; then
+    at_trace_this=yes
+fi
+
+if test -n "$at_trace_this"; then
+    ( $at_traceon; runtest.sh ) >"$at_stdout" 2>"$at_stder1"
+    at_status=$?
+    grep '^ *+' "$at_stder1" >&2
+    grep -v '^ *+' "$at_stder1" >"$at_stderr"
+else
+    ( :; runtest.sh ) >"$at_stdout" 2>"$at_stderr"
+    at_status=$?
+fi
+
+at_failed=false
+$at_diff "$at_devnull" "$at_stderr" || at_failed=:
+$at_diff expout "$at_stdout" || at_failed=:
+case $at_status in
+   77) echo 77 > "$at_status_file"; exit 77;;
+   0) ;;
+   *) echo "$at_srcdir/tests.at:388: exit code was $at_status, expected 0"
+      at_failed=:;;
+esac
+if $at_failed; then
+
+
+  echo 1 > "$at_status_file"
+  exit 1
+fi
+
+$at_traceon
+
+      $at_traceoff
+      $at_times_p && times >"$at_times_file"
+    ) 5>&1 2>&1 | eval $at_tee_pipe
+    at_status=`cat "$at_status_file"`
+    ;;
+
 
   * )
     echo "$as_me: no such test group: $at_group" >&2
@@ -2692,7 +2787,7 @@ $at_traceon
 	sed "s/^ */$as_me: warning: /" <<_ATEOF
 	A failure happened in a test group before any test could be
 	run. This means that test suite is improperly designed.  Please
-	report this failure to <castamir@users.sf.net>.
+	report this failure to <kilobyte@angband.pl>.
 _ATEOF
 	echo "$at_setup_line" >"$at_check_line_file"
       fi
@@ -2963,8 +3058,8 @@ _ASBOX
   echo
   echo "Please send \`${at_testdir+${at_testdir}/}$as_me.log' and all information you think might help:"
   echo
-  echo "   To: <castamir@users.sf.net>"
-  echo "   Subject: [KBtin 1.0.7.b] $as_me:$at_fail_list${at_fail_list:+ failed${at_xpass_list:+,}}$at_xpass_list${at_xpass_list:+ passed unexpectedly}"
+  echo "   To: <kilobyte@angband.pl>"
+  echo "   Subject: [KBtin 1.0.8] $as_me:$at_fail_list${at_fail_list:+ failed${at_xpass_list:+,}}$at_xpass_list${at_xpass_list:+ passed unexpectedly}"
   echo
   if test $at_debug_p = false; then
     echo
