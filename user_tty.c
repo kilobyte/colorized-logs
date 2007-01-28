@@ -644,6 +644,14 @@ static int usertty_process_kbd(struct session *ses, WC ch)
         state=0;
         switch(ch)
         {
+        case 'A':
+            goto prev_history;
+        case 'B':
+            goto next_history;
+        case 'C':
+            goto key_cursor_right;
+        case 'D':
+            goto key_cursor_left;
         case 'H':
             goto key_home;
         case 'F':
