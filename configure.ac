@@ -33,6 +33,7 @@ AC_FUNC_VPRINTF
 AC_CHECK_LIB(iconv, iconv_open)
 AC_CHECK_LIB(iconv, libiconv_open)
 AC_CHECK_FUNCS([iconv_open memcpy getpt ptsname snprintf vsnprintf _getpty grantpt forkpty regcomp getaddrinfo])
+AC_CHECK_LIB(z, gzread)
 
 AC_PTYRANGES
 AC_LBL_LIBRARY_NET

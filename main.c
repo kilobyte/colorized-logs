@@ -77,6 +77,7 @@ char *tintin_exec;
 struct session *lastdraft;
 int aborting=0;
 int eofinput=0;
+int any_closed=0;
 extern int recursion;
 char *_; /* incoming line being processed */
 extern int o_lastcolor;
@@ -153,6 +154,7 @@ extern void user_setdriver(int dr);
 extern void local_to_utf8(char *d, char *s, int maxb, mbstate_t *cs);
 extern void nullify_conv(struct charset_conv *conv);
 extern void convert(struct charset_conv *conv, char *outbuf, char *inbuf, int dir);
+extern struct session **is_alive(struct session *ses);
 
 static void tstphandler(int sig)
 {
@@ -547,6 +549,11 @@ ever wants to read -- that is what docs are for.
     nullsession->socket = 0;
     nullsession->issocket = 0;
     nullsession->naws = 0;
+#ifdef HAVE_LIBZ
+    nullsession->can_mccp = 0;
+    nullsession->mccp = 0;
+    nullsession->mccp_more = 0;
+#endif
     nullsession->last_term_type=0;
     nullsession->server_echo = 0;
     nullsession->nagle = 0;
@@ -766,15 +773,28 @@ void tintin(void)
             PROFEND(kbd_lag,kbd_cnt);
             PROFPOP;
         }
-        for (sesptr = sessionlist; sesptr; sesptr = t)
+        for (sesptr = sessionlist; sesptr; sesptr = sesptr->next)
         {
-            t = sesptr->next;
             if (sesptr->socket && FD_ISSET(sesptr->socket,&readfdmask))
             {
                 aborting=0;
-                read_mud(sesptr);
+                do
+                {
+                    read_mud(sesptr);
+                    if (any_closed)
+                    {
+                        any_closed=0;
+                        goto after_read;
+                        /* The remaining sessions will be done after select() */
+                    }
+#ifdef HAVE_LIBZ
+                } while (sesptr->mccp_more);
+#else
+                } while (0);
+#endif
             }
         }
+    after_read:
         if (activesession->server_echo
             && (2-activesession->server_echo != gotpassword))
         {

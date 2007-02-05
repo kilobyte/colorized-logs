@@ -5,7 +5,7 @@
 #define UTF8                /* UTF8 support */
 
 #ifndef NDEBUG
-#undef TELNET_DEBUG        /* uncomment to show TELNET negotiations */
+#undef TELNET_DEBUG        /* define to show TELNET negotiations */
 #undef USER_DEBUG          /* debugging of the user interface */
 #undef TERM_DEBUG          /* debugging pseudo-tty stuff */
 #define PROFILING          /* profiling */
@@ -200,6 +200,9 @@
 #include <stdio.h>
 #include "_stdint.h"
 #include <iconv.h>
+#ifdef HAVE_LIBZ
+#include <zlib.h>
+#endif
 
 struct listnode {
   struct listnode *next;
@@ -287,6 +290,12 @@ struct session
 #ifdef UTF8
   char *charset, *logcharset;
   struct charset_conv c_io,c_log;
+#endif
+#ifdef HAVE_LIBZ
+  int can_mccp;
+  z_stream *mccp;
+  int mccp_more;
+  char mccp_buf[INPUT_CHUNK];
 #endif
 };
 

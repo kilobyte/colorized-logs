@@ -74,6 +74,9 @@ extern void convert(struct charset_conv *conv, char *outbuf, char *inbuf, int di
 #ifdef PROFILING
 extern char *prof_area;
 #endif
+#ifdef HAVE_LIBZ
+int init_mccp(struct session *ses, int cplen, char *cpsrc);
+#endif
 
 #ifndef SOL_IP
 int SOL_IP;
@@ -333,14 +336,52 @@ int read_buffer_mud(char *buffer, struct session *ses)
         buffer[didget]=0;
         return didget;
     }
-    
-    didget = read(ses->socket, tmpbuf+len, INPUT_CHUNK-len);
 
-    if (didget < 0)
-        return -1;
-
-    else if (didget == 0)
-        return -1;
+#ifdef HAVE_LIBZ    
+    if (ses->mccp)
+    {
+        if (!ses->mccp_more)
+        {
+            didget = read(ses->socket, ses->mccp_buf, INPUT_CHUNK);
+            if (didget<=0)
+            {
+                ses->mccp_more=0;
+                return -1;
+            }
+            ses->mccp->next_in = ses->mccp_buf;
+            ses->mccp->avail_in = didget;
+        }
+        ses->mccp->next_out = tmpbuf+len;
+        ses->mccp->avail_out = INPUT_CHUNK-len;
+        switch(inflate(ses->mccp, Z_SYNC_FLUSH))
+        {
+        case Z_OK:
+            didget=INPUT_CHUNK-len-ses->mccp->avail_out;
+            break;
+        case Z_STREAM_END:
+            tintin_printf(ses, "#COMPRESSION END, DISABLING MCCP.");
+            didget=INPUT_CHUNK-len-ses->mccp->avail_out;
+            inflateEnd(ses->mccp);
+            free(ses->mccp);
+            ses->mccp=0;
+            break;
+        default:
+            ses->mccp_more=0;
+            return -1;
+        }
+        ses->mccp_more = !ses->mccp->avail_out;
+    }
+    else
+#endif
+    {
+        didget = read(ses->socket, tmpbuf+len, INPUT_CHUNK-len);
+        
+        if (didget < 0)
+            return -1;
+        
+        else if (didget == 0)
+            return -1;
+    }
 
     *(tmpbuf+len+didget)=0;
 #if 0
@@ -389,6 +430,17 @@ int read_buffer_mud(char *buffer, struct session *ses)
                 *cpdest++=255;
                 cpsource+=2;
                 break;
+#ifdef HAVE_LIBZ
+            case -4:
+                didget-=i;
+                i-=5;
+                cpsource+=5;
+                if (init_mccp(ses, i, cpsource)<0)
+                    return -1;
+                *cpdest = 0;
+                return didget;
+                break;
+#endif
             default:
                 i -= b;
                 didget-=b;
@@ -414,3 +466,36 @@ void init_net()
     SOL_TCP = (pent != NULL) ? pent->p_proto : 0;
 #endif
 }
+
+#ifdef HAVE_LIBZ
+int init_mccp(struct session *ses, int cplen, char *cpsrc)
+{
+    if (ses->mccp)
+        return 0;
+
+    ses->mccp = malloc(sizeof(z_stream));
+
+    ses->mccp->data_type = Z_ASCII;
+    ses->mccp->zalloc    = 0;
+    ses->mccp->zfree     = 0;
+    ses->mccp->opaque    = NULL;
+
+    if (inflateInit(ses->mccp) != Z_OK)
+    {
+        tintin_eprintf(ses, "#FAILED TO INITIALIZE MCCP2.");
+        /* Unrecoverable */
+        free(ses->mccp);
+        ses->mccp = NULL;
+        return -1;
+    }
+#ifdef TELNET_DEBUG
+    else
+        tintin_printf(ses, "#MCCP2 INITIALIZED.");
+#endif
+    memcpy(ses->mccp_buf, cpsrc, cplen);
+    ses->mccp->next_in = ses->mccp_buf;
+    ses->mccp->avail_in = cplen;
+    ses->mccp_more = cplen;
+    return 1;
+}
+#endif

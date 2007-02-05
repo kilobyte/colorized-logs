@@ -35,6 +35,8 @@ extern void syserr(char *msg, ...);
 #define TERMINAL_TYPE       24
 #define END_OF_RECORD       25
 #define NAWS                31
+#define COMPRESS1           85
+#define COMPRESS2           86
 
 #define IS      0
 #define SEND    1
@@ -86,6 +88,22 @@ char *option_names[]=
         "Authentication Option",
         "Encryption Option",
         "New Environment Option",
+        "TN3270E",
+        "XAUTH",
+        "CHARSET",
+        "Telnet Remote Serial Port (RSP)",
+        "Com Port Control Option",
+        "Telnet Suppress Local Echo",
+        "Telnet Start TLS",
+        "KERMIT",
+        "SEND-URL",
+        "FORWARD_X",
+        "?"/*50*/,"?","?","?","?","?","?","?","?","?",
+        "?"/*60*/,"?","?","?","?","?","?","?","?","?",
+        "?"/*70*/,"?","?","?","?","?","?","?","?","?",
+        "?"/*80*/,"?","?","?","?",
+        "COMPRESS",
+        "COMPRESS2",
     };
 #endif
 
@@ -187,7 +205,9 @@ int do_telnet_protocol(unsigned char *data,int nb,struct session *ses)
         wt=*(cp++);
 #ifdef TELNET_DEBUG
         tintin_printf(ses, "~8~[telnet] received: IAC %s <%u> (%s)~-1~",
-                      will_names[wt-251], *cp, option_names[*cp]);
+                      will_names[wt-251], *cp,
+                      (*cp<sizeof(option_names)/sizeof(char*))?
+                          option_names[*cp]:"?");
 #endif
         answer[0]=IAC;
         answer[2]=*cp;
@@ -229,6 +249,17 @@ int do_telnet_protocol(unsigned char *data,int nb,struct session *ses)
             case DONT:  answer[1]=WONT; break;
             };
             break;
+#ifdef HAVE_LIBZ
+        case COMPRESS2:
+            switch(wt)
+            {
+            case WILL:  answer[1]=DO;   ses->can_mccp=time()-ses->sessionstart<60; break;
+            case DO:    answer[1]=WONT; break;
+            case WONT:  answer[1]=DONT; ses->can_mccp=0; break;
+            case DONT:  answer[1]=WONT; break;
+            };
+            break;
+#endif
         default:
             switch(wt)
             {
@@ -241,7 +272,9 @@ int do_telnet_protocol(unsigned char *data,int nb,struct session *ses)
         write(ses->socket, answer, 3);
 #ifdef TELNET_DEBUG
         tintin_printf(ses, "~8~[telnet] sent: IAC %s <%u> (%s)~-1~",
-                      will_names[answer[1]-251], *cp, option_names[*cp]);
+                      will_names[answer[1]-251], *cp,
+                      (*cp<sizeof(option_names)/sizeof(char*))?
+                          option_names[*cp]:"?");
 #endif
         if (*cp==NAWS)
             telnet_send_naws(ses);
@@ -289,6 +322,9 @@ sbloop:
                     ++np;
                 }
                 break;
+            case COMPRESS2:
+                b+=sprintf(b, "COMPRESS2 ");
+                np++;
             }
             while (np-nego<neb)
                 b+=sprintf(b, "<%u> ", *np++);
@@ -302,6 +338,11 @@ sbloop:
             if (*(np+1)==SEND)
                 telnet_send_ttype(ses);
             break;
+#ifdef HAVE_LIBZ
+        case COMPRESS2:
+            if (ses->can_mccp)
+                return -4; /* compressed data immediately follows, we need to return */
+#endif
         }
         return nb+1;
     case GA:

@@ -1,5 +1,6 @@
 1.0.9:
 *	#ord as inline
+*	MCCP compression
 
 1.0.8:
 *	in the dumb terminal mode, "assphrase:" will trigger password

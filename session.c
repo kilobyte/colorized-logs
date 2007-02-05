@@ -64,6 +64,7 @@ extern void log_off(struct session *ses);
 extern struct session *sessionlist, *activesession, *nullsession;
 extern char *history[HISTORY_SIZE];
 extern char *user_charset_name;
+extern int any_closed;
 
 
 int session_exists(char *name)
@@ -314,6 +315,11 @@ struct session *new_session(char *name,char *address,int sock,int issocket,struc
     newsession->binds = copy_hash(ses->binds);
     newsession->issocket = issocket;
     newsession->naws = !issocket;
+#ifdef HAVE_LIBZ
+    newsession->can_mccp = 0;
+    newsession->mccp = 0;
+    newsession->mccp_more = 0;
+#endif
     newsession->ga = 0;
     newsession->gas = 0;
     newsession->server_echo = 0;
@@ -366,6 +372,21 @@ struct session *new_session(char *name,char *address,int sock,int issocket,struc
     return do_hook(newsession, HOOK_OPEN, 0, 0);
 }
 
+/***************************************************************************************/
+/* look for the session on the list.  If it's there, return a pointer to its reference */
+/***************************************************************************************/
+struct session **is_alive(struct session *ses)
+{
+    struct session *sesptr;
+    
+    if (ses==sessionlist)
+        return &sessionlist;
+    for(sesptr = sessionlist; sesptr && sesptr->next!=ses; sesptr=sesptr->next) ;
+    if (sesptr)
+        return &sesptr->next;
+    return 0;
+}
+
 /*****************************************************************************/
 /* cleanup after session died. if session=activesession, try find new active */
 /*****************************************************************************/
@@ -373,23 +394,21 @@ void cleanup_session(struct session *ses)
 {
     int i;
     char buf[BUFFER_SIZE];
-    struct session *sesptr, *act;
+    struct session **sesptr, *act;
     
     if (ses->closing)
     	return;
+    any_closed=1;
     ses->closing=2;
     do_hook(act=ses, HOOK_CLOSE, 0, 1);
 
     kill_all(ses, END);
-    if (ses == sessionlist)
-        sessionlist = ses->next;
-    else
-    {
-        for (sesptr = sessionlist; sesptr->next != ses; sesptr = sesptr->next) ;
-        sesptr->next = ses->next;
-    }
+    sesptr=is_alive(ses);
+    if (sesptr)	/* !sesptr can't happen */
+        (*sesptr)=ses->next;
     if (ses==activesession)
     {
+        activesession=nullsession;
         user_textout_draft(0, 0);
         sprintf(buf,"%s\n",ses->last_line);
 #ifdef UTF8
@@ -418,6 +437,13 @@ void cleanup_session(struct session *ses)
     free(ses->charset);
     if (!logcs_is_special(ses->logcharset))
         free(ses->logcharset);
+#endif
+#ifdef HAVE_LIBZ
+    if (ses->mccp)
+    {
+        inflateEnd(ses->mccp);
+        free(ses->mccp);
+    }
 #endif
     
     free(ses);

@@ -79,3 +79,6 @@
 * Just a minor bugfix release.
 * #doactions, #dopromptactions for simulating actions.
 * #chr, #ord, #hexord for working with ASCII codes.
+
+1.0.9:
+* MCCP compression.
