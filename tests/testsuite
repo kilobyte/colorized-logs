@@ -8,7 +8,8 @@
 ## M4sh Initialization.  ##
 ## --------------------- ##
 
-# Be Bourne compatible
+# Be more Bourne compatible
+DUALCASE=1; export DUALCASE # for MKS sh
 if test -n "${ZSH_VERSION+set}" && (emulate sh) >/dev/null 2>&1; then
   emulate sh
   NULLCMD=:
@@ -17,10 +18,13 @@ if test -n "${ZSH_VERSION+set}" && (emulate sh) >/dev/null 2>&1; then
   alias -g '${1+"$@"}'='"$@"'
   setopt NO_GLOB_SUBST
 else
-  case `(set -o) 2>/dev/null` in *posix*) set -o posix;; esac
+  case `(set -o) 2>/dev/null` in
+  *posix*) set -o posix ;;
+esac
+
 fi
-BIN_SH=xpg4; export BIN_SH # for Tru64
-DUALCASE=1; export DUALCASE # for MKS sh
+
+
 
 
 # PATH needs CR
@@ -213,7 +217,7 @@ test \$exitcode = 0) || { (exit 1); exit 1; }
 else
   as_candidate_shells=
     as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in /usr/bin/posix$PATH_SEPARATOR/bin$PATH_SEPARATOR/usr/bin$PATH_SEPARATOR$PATH
+for as_dir in /bin$PATH_SEPARATOR/usr/bin$PATH_SEPARATOR$PATH
 do
   IFS=$as_save_IFS
   test -z "$as_dir" && as_dir=.
@@ -231,7 +235,6 @@ IFS=$as_save_IFS
 	 # Try only shells that exist, to save several forks.
 	 if { test -f "$as_shell" || test -f "$as_shell.exe"; } &&
 		{ ("$as_shell") 2> /dev/null <<\_ASEOF
-# Be Bourne compatible
 if test -n "${ZSH_VERSION+set}" && (emulate sh) >/dev/null 2>&1; then
   emulate sh
   NULLCMD=:
@@ -240,10 +243,12 @@ if test -n "${ZSH_VERSION+set}" && (emulate sh) >/dev/null 2>&1; then
   alias -g '${1+"$@"}'='"$@"'
   setopt NO_GLOB_SUBST
 else
-  case `(set -o) 2>/dev/null` in *posix*) set -o posix;; esac
+  case `(set -o) 2>/dev/null` in
+  *posix*) set -o posix ;;
+esac
+
 fi
-BIN_SH=xpg4; export BIN_SH # for Tru64
-DUALCASE=1; export DUALCASE # for MKS sh
+
 
 :
 _ASEOF
@@ -251,7 +256,6 @@ _ASEOF
   CONFIG_SHELL=$as_shell
 	       as_have_required=yes
 	       if { "$as_shell" 2> /dev/null <<\_ASEOF
-# Be Bourne compatible
 if test -n "${ZSH_VERSION+set}" && (emulate sh) >/dev/null 2>&1; then
   emulate sh
   NULLCMD=:
@@ -260,10 +264,12 @@ if test -n "${ZSH_VERSION+set}" && (emulate sh) >/dev/null 2>&1; then
   alias -g '${1+"$@"}'='"$@"'
   setopt NO_GLOB_SUBST
 else
-  case `(set -o) 2>/dev/null` in *posix*) set -o posix;; esac
+  case `(set -o) 2>/dev/null` in
+  *posix*) set -o posix ;;
+esac
+
 fi
-BIN_SH=xpg4; export BIN_SH # for Tru64
-DUALCASE=1; export DUALCASE # for MKS sh
+
 
 :
 (as_func_return () {
@@ -510,19 +516,28 @@ else
   as_mkdir_p=false
 fi
 
-# Find out whether ``test -x'' works.  Don't use a zero-byte file, as
-# systems may use methods other than mode bits to determine executability.
-cat >conf$$.file <<_ASEOF
-#! /bin/sh
-exit 0
-_ASEOF
-chmod +x conf$$.file
-if test -x conf$$.file >/dev/null 2>&1; then
-  as_executable_p="test -x"
+if test -x / >/dev/null 2>&1; then
+  as_test_x='test -x'
 else
-  as_executable_p=:
+  if ls -dL / >/dev/null 2>&1; then
+    as_ls_L_option=L
+  else
+    as_ls_L_option=
+  fi
+  as_test_x='
+    eval sh -c '\''
+      if test -d "$1"; then
+        test -d "$1/.";
+      else
+	case $1 in
+        -*)set "./$1";;
+	esac;
+	case `ls -ld'$as_ls_L_option' "$1" 2>/dev/null` in
+	???[sx]*):;;*)false;;esac;fi
+    '\'' sh
+  '
 fi
-rm -f conf$$.file
+as_executable_p=$as_test_x
 
 # Sed expression to map a string onto a valid CPP name.
 as_tr_cpp="eval sed 'y%*$as_cr_letters%P$as_cr_LETTERS%;s%[^_$as_cr_alnum]%_%g'"
@@ -605,13 +620,13 @@ at_times_file=$at_suite_dir/at-times
 # List of the tested programs.
 at_tested='KBtin'
 # List of the all the test groups.
-at_groups_all=' 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22'
+at_groups_all=' 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23'
 # As many question marks as there are digits in the last test group number.
 # Used to normalize the test group numbers so that `ls' lists them in
 # numerical order.
 at_format='??'
 # Description of all the test groups.
-at_help_all='1;version.at:1;#version;;
+at_help_all="1;version.at:1;#version;;
 2;tests.at:1;no profiling;;
 3;tests.at:11;#showme;;
 4;tests.at:25;#showme with non-ASCII chars;;
@@ -632,8 +647,9 @@ at_help_all='1;version.at:1;#version;;
 19;tests.at:284;actions, promptactions;;
 20;tests.at:299;#chr, #ord, #hexord (7-bit ASCII);;
 21;tests.at:315;UTF-8 transformation;;
-22;tests.at:350;#textin;;
-'
+22;tests.at:350;#ord as inline;;
+23;tests.at:363;#textin;;
+"
 
 at_prev=
 for at_option
@@ -1210,8 +1226,8 @@ echo "$as_me: error: cannot create directory $as_dir" >&2;}
   case $at_group in
   1 ) # 1. version.at:1: #version
     at_setup_line='version.at:1'
-    at_desc='#version'
-    $at_quiet $ECHO_N "  1: #version                                     $ECHO_C"
+    at_desc="#version"
+    $at_quiet $ECHO_N "  1: #version                                       []$ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
@@ -1273,8 +1289,8 @@ $at_traceon
 
   2 ) # 2. tests.at:1: no profiling
     at_setup_line='tests.at:1'
-    at_desc='no profiling'
-    $at_quiet $ECHO_N "  2: no profiling                                 $ECHO_C"
+    at_desc="no profiling"
+    $at_quiet $ECHO_N "  2: no profiling                                   $ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
@@ -1335,8 +1351,8 @@ $at_traceon
 
   3 ) # 3. tests.at:11: #showme
     at_setup_line='tests.at:11'
-    at_desc='#showme'
-    $at_quiet $ECHO_N "  3: #showme                                      $ECHO_C"
+    at_desc="#showme"
+    $at_quiet $ECHO_N "  3: #showme                                        []$ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
@@ -1401,8 +1417,8 @@ $at_traceon
 
   4 ) # 4. tests.at:25: #showme with non-ASCII chars
     at_setup_line='tests.at:25'
-    at_desc='#showme with non-ASCII chars'
-    $at_quiet $ECHO_N "  4: #showme with non-ASCII chars                 $ECHO_C"
+    at_desc="#showme with non-ASCII chars"
+    $at_quiet $ECHO_N "  4: #showme with non-ASCII chars                   []$ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
@@ -1466,8 +1482,8 @@ $at_traceon
 
   5 ) # 5. tests.at:39: #reverse
     at_setup_line='tests.at:39'
-    at_desc='#reverse'
-    $at_quiet $ECHO_N "  5: #reverse                                     $ECHO_C"
+    at_desc="#reverse"
+    $at_quiet $ECHO_N "  5: #reverse                                       []$ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
@@ -1529,8 +1545,8 @@ $at_traceon
 
   6 ) # 6. tests.at:50: #postpad
     at_setup_line='tests.at:50'
-    at_desc='#postpad'
-    $at_quiet $ECHO_N "  6: #postpad                                     $ECHO_C"
+    at_desc="#postpad"
+    $at_quiet $ECHO_N "  6: #postpad                                       []$ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
@@ -1601,8 +1617,8 @@ $at_traceon
 
   7 ) # 7. tests.at:69: #prepad
     at_setup_line='tests.at:69'
-    at_desc='#prepad'
-    $at_quiet $ECHO_N "  7: #prepad                                      $ECHO_C"
+    at_desc="#prepad"
+    $at_quiet $ECHO_N "  7: #prepad                                        []$ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
@@ -1673,8 +1689,8 @@ $at_traceon
 
   8 ) # 8. tests.at:88: #substr
     at_setup_line='tests.at:88'
-    at_desc='#substr'
-    $at_quiet $ECHO_N "  8: #substr                                      $ECHO_C"
+    at_desc="#substr"
+    $at_quiet $ECHO_N "  8: #substr                                        []$ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
@@ -1740,8 +1756,8 @@ $at_traceon
 
   9 ) # 9. tests.at:102: late var substitution
     at_setup_line='tests.at:102'
-    at_desc='late var substitution'
-    $at_quiet $ECHO_N "  9: late var substitution                        $ECHO_C"
+    at_desc="late var substitution"
+    $at_quiet $ECHO_N "  9: late var substitution                          $ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
@@ -1838,8 +1854,8 @@ $at_traceon
 
   10 ) # 10. tests.at:147: #system
     at_setup_line='tests.at:147'
-    at_desc='#system'
-    $at_quiet $ECHO_N " 10: #system                                      $ECHO_C"
+    at_desc="#system"
+    $at_quiet $ECHO_N " 10: #system                                        []$ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
@@ -1902,8 +1918,8 @@ $at_traceon
 
   11 ) # 11. tests.at:158: #shell
     at_setup_line='tests.at:158'
-    at_desc='#shell'
-    $at_quiet $ECHO_N " 11: #shell                                       $ECHO_C"
+    at_desc="#shell"
+    $at_quiet $ECHO_N " 11: #shell                                         []$ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
@@ -1963,8 +1979,8 @@ $at_traceon
 
   12 ) # 12. tests.at:166: #run
     at_setup_line='tests.at:166'
-    at_desc='#run'
-    $at_quiet $ECHO_N " 12: #run                                         $ECHO_C"
+    at_desc="#run"
+    $at_quiet $ECHO_N " 12: #run                                           []$ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
@@ -2026,8 +2042,8 @@ $at_traceon
 
   13 ) # 13. tests.at:176: #run and 16bit Unicode
     at_setup_line='tests.at:176'
-    at_desc='#run and 16bit Unicode'
-    $at_quiet $ECHO_N " 13: #run and 16bit Unicode                       $ECHO_C"
+    at_desc="#run and 16bit Unicode"
+    $at_quiet $ECHO_N " 13: #run and 16bit Unicode                         []$ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
@@ -2089,8 +2105,8 @@ $at_traceon
 
   14 ) # 14. tests.at:186: #run and non-BMP Unicode
     at_setup_line='tests.at:186'
-    at_desc='#run and non-BMP Unicode'
-    $at_quiet $ECHO_N " 14: #run and non-BMP Unicode                     $ECHO_C"
+    at_desc="#run and non-BMP Unicode"
+    $at_quiet $ECHO_N " 14: #run and non-BMP Unicode                       []$ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
@@ -2152,8 +2168,8 @@ $at_traceon
 
   15 ) # 15. tests.at:196: #goto
     at_setup_line='tests.at:196'
-    at_desc='#goto'
-    $at_quiet $ECHO_N " 15: #goto                                        $ECHO_C"
+    at_desc="#goto"
+    $at_quiet $ECHO_N " 15: #goto                                          []$ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
@@ -2249,8 +2265,8 @@ $at_traceon
 
   16 ) # 16. tests.at:240: #end w/o sessions
     at_setup_line='tests.at:240'
-    at_desc='#end w/o sessions'
-    $at_quiet $ECHO_N " 16: #end w/o sessions                            $ECHO_C"
+    at_desc="#end w/o sessions"
+    $at_quiet $ECHO_N " 16: #end w/o sessions                              []$ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
@@ -2309,8 +2325,8 @@ $at_traceon
 
   17 ) # 17. tests.at:247: #end with a session
     at_setup_line='tests.at:247'
-    at_desc='#end with a session'
-    $at_quiet $ECHO_N " 17: #end with a session                          $ECHO_C"
+    at_desc="#end with a session"
+    $at_quiet $ECHO_N " 17: #end with a session                            []$ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
@@ -2372,8 +2388,8 @@ $at_traceon
 
   18 ) # 18. tests.at:257: action priorities
     at_setup_line='tests.at:257'
-    at_desc='action priorities'
-    $at_quiet $ECHO_N " 18: action priorities                            $ECHO_C"
+    at_desc="action priorities"
+    $at_quiet $ECHO_N " 18: action priorities                              $ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
@@ -2452,8 +2468,8 @@ $at_traceon
 
   19 ) # 19. tests.at:284: actions, promptactions
     at_setup_line='tests.at:284'
-    at_desc='actions, promptactions'
-    $at_quiet $ECHO_N " 19: actions, promptactions                       $ECHO_C"
+    at_desc="actions, promptactions"
+    $at_quiet $ECHO_N " 19: actions, promptactions                         $ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
@@ -2520,8 +2536,8 @@ $at_traceon
 
   20 ) # 20. tests.at:299: #chr, #ord, #hexord (7-bit ASCII)
     at_setup_line='tests.at:299'
-    at_desc='#chr, #ord, #hexord (7-bit ASCII)'
-    $at_quiet $ECHO_N " 20: #chr, #ord, #hexord (7-bit ASCII)            $ECHO_C"
+    at_desc="#chr, #ord, #hexord (7-bit ASCII)"
+    $at_quiet $ECHO_N " 20: #chr, #ord, #hexord (7-bit ASCII)              []$ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
@@ -2589,8 +2605,8 @@ $at_traceon
 
   21 ) # 21. tests.at:315: UTF-8 transformation
     at_setup_line='tests.at:315'
-    at_desc='UTF-8 transformation'
-    $at_quiet $ECHO_N " 21: UTF-8 transformation                         $ECHO_C"
+    at_desc="UTF-8 transformation"
+    $at_quiet $ECHO_N " 21: UTF-8 transformation                           $ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
@@ -2675,14 +2691,80 @@ $at_traceon
     at_status=`cat "$at_status_file"`
     ;;
 
-  22 ) # 22. tests.at:350: #textin
+  22 ) # 22. tests.at:350: #ord as inline
     at_setup_line='tests.at:350'
-    at_desc='#textin'
-    $at_quiet $ECHO_N " 22: #textin                                      $ECHO_C"
+    at_desc="#ord as inline"
+    $at_quiet $ECHO_N " 22: #ord as inline                                 []$ECHO_C"
     at_xfail=no
     echo "#                             -*- compilation -*-" >> "$at_group_log"
     (
       echo "22. tests.at:350: testing ..."
+      $at_traceon
+
+cat >testin <<'_ATEOF'
+#if {65==#ord A} {#show 1} #else {#show 0}
+#if {64==#ord A} {#show 1} #else {#show 0}
+#if {65=#ord} {#show 1} #else {#show 0}
+_ATEOF
+
+cat >expout <<'_ATEOF'
+1
+0
+#ord: no argument
+0
+_ATEOF
+
+$at_traceoff
+echo "$at_srcdir/tests.at:360: runtest.sh"
+echo tests.at:360 >"$at_check_line_file"
+
+at_trace_this=
+if test -n "$at_traceon"; then
+    at_trace_this=yes
+fi
+
+if test -n "$at_trace_this"; then
+    ( $at_traceon; runtest.sh ) >"$at_stdout" 2>"$at_stder1"
+    at_status=$?
+    grep '^ *+' "$at_stder1" >&2
+    grep -v '^ *+' "$at_stder1" >"$at_stderr"
+else
+    ( :; runtest.sh ) >"$at_stdout" 2>"$at_stderr"
+    at_status=$?
+fi
+
+at_failed=false
+$at_diff "$at_devnull" "$at_stderr" || at_failed=:
+$at_diff expout "$at_stdout" || at_failed=:
+case $at_status in
+   77) echo 77 > "$at_status_file"; exit 77;;
+   0) ;;
+   *) echo "$at_srcdir/tests.at:360: exit code was $at_status, expected 0"
+      at_failed=:;;
+esac
+if $at_failed; then
+
+
+  echo 1 > "$at_status_file"
+  exit 1
+fi
+
+$at_traceon
+
+      $at_traceoff
+      $at_times_p && times >"$at_times_file"
+    ) 5>&1 2>&1 | eval $at_tee_pipe
+    at_status=`cat "$at_status_file"`
+    ;;
+
+  23 ) # 23. tests.at:363: #textin
+    at_setup_line='tests.at:363'
+    at_desc="#textin"
+    $at_quiet $ECHO_N " 23: #textin                                        []$ECHO_C"
+    at_xfail=no
+    echo "#                             -*- compilation -*-" >> "$at_group_log"
+    (
+      echo "23. tests.at:363: testing ..."
       $at_traceon
 
 cat >testin <<'_ATEOF'
@@ -2727,8 +2809,8 @@ abc𠀧𠀀𠀁𠀂
 _ATEOF
 
 $at_traceoff
-echo "$at_srcdir/tests.at:388: runtest.sh"
-echo tests.at:388 >"$at_check_line_file"
+echo "$at_srcdir/tests.at:401: runtest.sh"
+echo tests.at:401 >"$at_check_line_file"
 
 at_trace_this=
 if test -n "$at_traceon"; then
@@ -2751,7 +2833,7 @@ $at_diff expout "$at_stdout" || at_failed=:
 case $at_status in
    77) echo 77 > "$at_status_file"; exit 77;;
    0) ;;
-   *) echo "$at_srcdir/tests.at:388: exit code was $at_status, expected 0"
+   *) echo "$at_srcdir/tests.at:401: exit code was $at_status, expected 0"
       at_failed=:;;
 esac
 if $at_failed; then

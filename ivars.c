@@ -35,6 +35,7 @@ extern int strlen_inline(char *arg, struct session *ses);
 extern int grep_inline(char *arg, struct session *ses);
 extern int strcmp_inline(char *arg, struct session *ses);
 extern int match_inline(char *arg, struct session *ses);
+extern int ord_inline(char *arg, struct session *ses);
 extern void substitute_myvars(char *arg,char *result,struct session *ses);
 extern void substitute_vars(char *arg, char *result);
 extern void tintin_printf(struct session *ses,char *format,...);
@@ -131,6 +132,8 @@ int do_inline(char *line,int *res,struct session *ses)
         *res=strcmp_inline(line,ses);
     else if (is_abrev(command,"match"))
         *res=match_inline(line,ses);
+    else if (is_abrev(command,"ord"))
+        *res=ord_inline(line,ses);
     else
     {
         tintin_eprintf(ses,"#Unknown inline command [%c%s]!",tintin_char,command);

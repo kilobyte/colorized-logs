@@ -327,6 +327,18 @@ last test
 U+10FFFF
 ===
 
+### #ord as inline
+<<<
+#if {65==#ord A} {#show 1} #else {#show 0}
+#if {64==#ord A} {#show 1} #else {#show 0}
+#if {65=#ord} {#show 1} #else {#show 0}
+>>>
+1
+0
+#ord: no argument
+0
+===
+
 ### #textin
 <<<
 #sys {rm -rf testtmp}

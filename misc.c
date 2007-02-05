@@ -1248,6 +1248,9 @@ void charset_command(char *arg, struct session *ses)
 #endif
 
 
+/********************/
+/* the #chr command */
+/********************/
 void chr_command(char *arg, struct session *ses)
 {
     char destvar[BUFFER_SIZE], left[BUFFER_SIZE], *lp;
@@ -1343,6 +1346,9 @@ void chr_command(char *arg, struct session *ses)
 }
 
 
+/********************/
+/* the #ord command */
+/********************/
 void ord_command(char *arg, struct session *ses)
 {
     char destvar[BUFFER_SIZE], left[BUFFER_SIZE], res[BUFFER_SIZE], *r;
@@ -1378,6 +1384,9 @@ end:
 }
 
 
+/***********************/
+/* the #hexord command */
+/***********************/
 void hexord_command(char *arg, struct session *ses)
 {
     char destvar[BUFFER_SIZE], left[BUFFER_SIZE], res[BUFFER_SIZE], *r;
@@ -1410,4 +1419,22 @@ end:
     }
     *r=0;
     set_variable(destvar, res+1, ses);
+}
+
+/*******************/
+/* the #ord inline */
+/*******************/
+int ord_inline(char *arg,struct session *ses)
+{
+    char left[BUFFER_SIZE];
+    WC ch[2];
+
+    get_arg(arg, left, 0, ses);
+    if (!*left)
+    {
+        tintin_eprintf(ses, "#ord: no argument");
+        return 0;
+    }
+    utf8_to_wc(ch, left, 1);
+    return ch[0];
 }

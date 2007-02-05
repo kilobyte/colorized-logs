@@ -347,6 +347,19 @@ U+10FFFF
 AT_CHECK([runtest.sh],,[expout])
 AT_CLEANUP
 
+AT_SETUP([#ord as inline])
+AT_DATA([testin], [#if {65==#ord A} {#show 1} #else {#show 0}
+#if {64==#ord A} {#show 1} #else {#show 0}
+#if {65=#ord} {#show 1} #else {#show 0}
+])
+AT_DATA([expout], [1
+0
+#ord: no argument
+0
+])
+AT_CHECK([runtest.sh],,[expout])
+AT_CLEANUP
+
 AT_SETUP([#textin])
 AT_DATA([testin], [#sys {rm -rf testtmp}
 #ali x #deathlog testtmp
