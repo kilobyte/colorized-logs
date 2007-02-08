@@ -253,7 +253,7 @@ int do_telnet_protocol(unsigned char *data,int nb,struct session *ses)
         case COMPRESS2:
             switch(wt)
             {
-            case WILL:  answer[1]=DO;   ses->can_mccp=time()-ses->sessionstart<60; break;
+            case WILL:  answer[1]=DO;   ses->can_mccp=time(0)-ses->sessionstart<60; break;
             case DO:    answer[1]=WONT; break;
             case WONT:  answer[1]=DONT; ses->can_mccp=0; break;
             case DONT:  answer[1]=WONT; break;
