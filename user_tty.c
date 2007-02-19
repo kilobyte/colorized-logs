@@ -1371,9 +1371,9 @@ static void usertty_drawscreen(void)
 static void usertty_keypad(int k)
 {
     if (k)
-        tbuf+=sprintf(tbuf,"\033=");
+        tbuf+=sprintf(tbuf,"\033=\033[?1051l\033[?1052l\033[?1060l\e[?1061h");
     else
-        tbuf+=sprintf(tbuf,"\033>");
+        tbuf+=sprintf(tbuf,"\033>\033[?1051l\033[?1052l\033[?1060l\e[?1061l");
     term_commit();
 }
 

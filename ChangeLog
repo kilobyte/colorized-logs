@@ -1,6 +1,7 @@
 1.0.9:
 *	#ord as inline
 *	MCCP compression
+*	workaround for a gnome-terminal bug
 
 1.0.8:
 *	in the dumb terminal mode, "assphrase:" will trigger password
