@@ -353,7 +353,7 @@ int read_buffer_mud(char *buffer, struct session *ses)
         }
         ses->mccp->next_out = tmpbuf+len;
         ses->mccp->avail_out = INPUT_CHUNK-len;
-        switch(inflate(ses->mccp, Z_SYNC_FLUSH))
+        switch(i=inflate(ses->mccp, Z_SYNC_FLUSH))
         {
         case Z_OK:
             didget=INPUT_CHUNK-len-ses->mccp->avail_out;
@@ -365,7 +365,14 @@ int read_buffer_mud(char *buffer, struct session *ses)
             free(ses->mccp);
             ses->mccp=0;
             break;
+        case Z_BUF_ERROR:
+            didget=0;
+            ses->mccp_more=0;
+            break;
         default:
+            if (ses->debuglogfile)
+                debuglog(ses, "COMPRESSION ERROR: %d", i);
+            tintin_eprintf(ses, "#COMPRESSION ERROR");
             ses->mccp_more=0;
             return -1;
         }
