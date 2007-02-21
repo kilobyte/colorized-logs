@@ -1370,6 +1370,10 @@ static void usertty_drawscreen(void)
 
 static void usertty_keypad(int k)
 {
+    /*
+    Force gnome-terminal to its vt220 mode, as it will ignore the keypad mode
+    otherwise.  It seems to not hurt any other terminal I checked.
+    */
     if (k)
         tbuf+=sprintf(tbuf,"\033=\033[?1051l\033[?1052l\033[?1060l\e[?1061h");
     else

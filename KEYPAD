@@ -15,7 +15,7 @@ Terminals I checked:
     works just fine
 
 * rxvt:
-    never versions work fine, older ones have a bug that causes the
+    newer versions work fine, older ones have a bug that causes the
     down arrow to be misreported as the diagonal up-left one.  This
     bug is hard-coded in rxvt -- so the only option that doesn't
     involve patching the source is upgrading to a never version.
@@ -44,15 +44,19 @@ Terminals I checked:
     works just fine
 
 * gnome-terminal:
-    doesn't work, and I'm not aware of a workaround
+    in recent versions, the keypad is available in gnome-terminal's vt220
+    mode.  Thus, KBtin will attempt to switch to it.  Too bad, a few of
+    the key codes are wrong -- KpadDivide is reported as KpadMinus, and
+    KpadMinus as ESCOm.
 
 * konsole:
     doesn't work, and I'm not aware of a workaround
 
 * xterm:
-    requires some tinkering with xmodmap.  It seems that feeding the following
-    to xmodmap will make #keypad work (making the NumLock key stuck as a side
-    effect, though).
+    in many cases, it can be switched to an appropiate mode, with same
+    problems as with gnome-terminal.  Otherwise, it requires some tinkering
+    with xmodmap.  It seems that feeding the following to xmodmap will make
+    #keypad work (making the NumLock key stuck as a side effect, though).
 
 keycode  79 = KP_7
 keycode  80 = KP_8
