@@ -10,7 +10,7 @@ A: Not oficially.  While KBtin is known to work on CygWin, that's not
    #system, #shell and .gz logging.
 
 
-Q: Will MCCP, MXP or <insert proprietary protocol here> be implemented?
+Q: Will MXP or <insert proprietary protocol here> be implemented?
 A: No.
    While these protocols can be used for interesting stuff, they suffer
    from several design flaws that make it possible on MUDs which don't

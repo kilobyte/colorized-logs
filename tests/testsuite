@@ -620,7 +620,7 @@ at_times_file=$at_suite_dir/at-times
 # List of the tested programs.
 at_tested='KBtin'
 # List of the all the test groups.
-at_groups_all=' 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23'
+at_groups_all=' 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24'
 # As many question marks as there are digits in the last test group number.
 # Used to normalize the test group numbers so that `ls' lists them in
 # numerical order.
@@ -649,6 +649,7 @@ at_help_all="1;version.at:1;#version;;
 21;tests.at:315;UTF-8 transformation;;
 22;tests.at:350;#ord as inline;;
 23;tests.at:363;#textin;;
+24;tests.at:404;session cleanup notification;;
 "
 
 at_prev=
@@ -2834,6 +2835,76 @@ case $at_status in
    77) echo 77 > "$at_status_file"; exit 77;;
    0) ;;
    *) echo "$at_srcdir/tests.at:401: exit code was $at_status, expected 0"
+      at_failed=:;;
+esac
+if $at_failed; then
+
+
+  echo 1 > "$at_status_file"
+  exit 1
+fi
+
+$at_traceon
+
+      $at_traceoff
+      $at_times_p && times >"$at_times_file"
+    ) 5>&1 2>&1 | eval $at_tee_pipe
+    at_status=`cat "$at_status_file"`
+    ;;
+
+  24 ) # 24. tests.at:404: session cleanup notification
+    at_setup_line='tests.at:404'
+    at_desc="session cleanup notification"
+    $at_quiet $ECHO_N " 24: session cleanup notification                   $ECHO_C"
+    at_xfail=no
+    echo "#                             -*- compilation -*-" >> "$at_group_log"
+    (
+      echo "24. tests.at:404: testing ..."
+      $at_traceon
+
+cat >testin <<'_ATEOF'
+#ali down {#ali down #delay 1 #zap}
+#hook close #main down
+#run a sh -c 'sleep 2'
+#run b sh -c 'echo foo'
+_ATEOF
+
+cat >expout <<'_ATEOF'
+foo
+
+#SESSION 'b' DIED.
+#SESSION 'a' ACTIVATED.
+
+#SESSION 'a' DIED.
+#THERE'S NO ACTIVE SESSION NOW.
+_ATEOF
+
+$at_traceoff
+echo "$at_srcdir/tests.at:418: runtest.sh"
+echo tests.at:418 >"$at_check_line_file"
+
+at_trace_this=
+if test -n "$at_traceon"; then
+    at_trace_this=yes
+fi
+
+if test -n "$at_trace_this"; then
+    ( $at_traceon; runtest.sh ) >"$at_stdout" 2>"$at_stder1"
+    at_status=$?
+    grep '^ *+' "$at_stder1" >&2
+    grep -v '^ *+' "$at_stder1" >"$at_stderr"
+else
+    ( :; runtest.sh ) >"$at_stdout" 2>"$at_stderr"
+    at_status=$?
+fi
+
+at_failed=false
+$at_diff "$at_devnull" "$at_stderr" || at_failed=:
+$at_diff expout "$at_stdout" || at_failed=:
+case $at_status in
+   77) echo 77 > "$at_status_file"; exit 77;;
+   0) ;;
+   *) echo "$at_srcdir/tests.at:418: exit code was $at_status, expected 0"
       at_failed=:;;
 esac
 if $at_failed; then

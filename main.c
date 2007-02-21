@@ -154,7 +154,6 @@ extern void user_setdriver(int dr);
 extern void local_to_utf8(char *d, char *s, int maxb, mbstate_t *cs);
 extern void nullify_conv(struct charset_conv *conv);
 extern void convert(struct charset_conv *conv, char *outbuf, char *inbuf, int dir);
-extern struct session **is_alive(struct session *ses);
 
 static void tstphandler(int sig)
 {
@@ -778,6 +777,7 @@ void tintin(void)
             if (sesptr->socket && FD_ISSET(sesptr->socket,&readfdmask))
             {
                 aborting=0;
+                any_closed=0;
                 do
                 {
                     read_mud(sesptr);

@@ -400,3 +400,20 @@ abc𠀧𠀀𠀁𠀂
 ])
 AT_CHECK([runtest.sh],,[expout])
 AT_CLEANUP
+
+AT_SETUP([session cleanup notification])
+AT_DATA([testin], [#ali down {#ali down #delay 1 #zap}
+#hook close #main down
+#run a sh -c 'sleep 2'
+#run b sh -c 'echo foo'
+])
+AT_DATA([expout], [foo
+
+#SESSION 'b' DIED.
+#SESSION 'a' ACTIVATED.
+
+#SESSION 'a' DIED.
+#THERE'S NO ACTIVE SESSION NOW.
+])
+AT_CHECK([runtest.sh],,[expout])
+AT_CLEANUP

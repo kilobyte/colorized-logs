@@ -378,3 +378,19 @@ abc𠀧𠀀𠀁𠀂
 
 #SESSION 'a' DIED.
 ===
+
+### session cleanup notification
+<<<
+#ali down {#ali down #delay 1 #zap}
+#hook close #main down
+#run a sh -c 'sleep 2'
+#run b sh -c 'echo foo'
+>>>
+foo
+
+#SESSION 'b' DIED.
+#SESSION 'a' ACTIVATED.
+
+#SESSION 'a' DIED.
+#THERE'S NO ACTIVE SESSION NOW.
+===

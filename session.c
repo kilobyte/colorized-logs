@@ -394,7 +394,7 @@ void cleanup_session(struct session *ses)
 {
     int i;
     char buf[BUFFER_SIZE];
-    struct session **sesptr, *act;
+    struct session *sesptr, *act;
     
     if (ses->closing)
     	return;
@@ -403,12 +403,15 @@ void cleanup_session(struct session *ses)
     do_hook(act=ses, HOOK_CLOSE, 0, 1);
 
     kill_all(ses, END);
-    sesptr=is_alive(ses);
-    if (sesptr)	/* !sesptr can't happen */
-        (*sesptr)=ses->next;
+    if (ses == sessionlist)
+        sessionlist = ses->next;
+    else
+    {
+        for (sesptr = sessionlist; sesptr->next != ses; sesptr = sesptr->next) ;
+        sesptr->next = ses->next;
+    }
     if (ses==activesession)
     {
-        activesession=nullsession;
         user_textout_draft(0, 0);
         sprintf(buf,"%s\n",ses->last_line);
 #ifdef UTF8
