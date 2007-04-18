@@ -13,9 +13,13 @@ Installation
 * as ordinary user
 	+ Untar the archive (as above)
 	+ ./configure
+	Then either:
+	+ make bin
+		to install to ~/bin
 	+ make
 	+ Copy both the KBtin binary and KBtin_help.gz to a directory
 	  of your choice.
+		to install to another place
 
 Cross-compiling notes
 =====================

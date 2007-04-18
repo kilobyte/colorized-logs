@@ -2,6 +2,7 @@
 *	#ord as inline
 *	MCCP compression
 *	workaround for a gnome-terminal bug
+*	'make bin' target
 
 1.0.8:
 *	in the dumb terminal mode, "assphrase:" will trigger password

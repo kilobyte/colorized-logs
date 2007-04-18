@@ -90,3 +90,10 @@ mac: clean
 	cp -p ../../../../{manual.html,KEYPAD,FAQ,AUTHORS} .	&& \
 	cd ../../..						&& \
 	mkdmg -s . -i ../kbtin-$(VERSION).dmg -zlib
+
+bin: $(bin_PROGRAMS) $(help_DATA)
+	mkdir -p ~/bin
+	cp -p $(bin_PROGRAMS) $(help_DATA) ~/bin
+
+unbin: 
+	cd ~/bin && rm -rf $(bin_PROGRAMS) $(help_DATA)
