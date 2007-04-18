@@ -1,5 +1,5 @@
-#include "tintin.h"
 #include "config.h"
+#include "tintin.h"
 #include <stdlib.h>
 #include <ctype.h>
 #ifdef HAVE_STRING_H

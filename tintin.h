@@ -199,7 +199,15 @@
 /************************ structures *********************/
 #include <stdio.h>
 #include "_stdint.h"
-#include <iconv.h>
+#ifdef HAVE_ICONV_H
+# include <iconv.h>
+#else
+# ifdef HAVE_SYS_ICONV_H
+#  include <sys/iconv.h>
+# else
+#  error No iconv -- no fun.  Grab it and install!
+# endif
+#endif
 #ifdef HAVE_LIBZ
 #include <zlib.h>
 #endif

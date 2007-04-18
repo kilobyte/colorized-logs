@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include <stdio.h>
+#include "config.h"
 #include "tintin.h"
 
 int main()
