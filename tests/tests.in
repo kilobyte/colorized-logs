@@ -394,3 +394,20 @@ foo
 #SESSION 'a' DIED.
 #THERE'S NO ACTIVE SESSION NOW.
 ===
+
+### FormFeed
+<<<
+#chr ff 12
+#showme bare${ff}fin
+#sys {echo -e 'bare\014fin'}
+#sys {echo -e 'cls0\033[0Jfin'}
+#sys {echo -e 'cls1\033[1Jfin'}
+#sys {echo -e 'cls2\033[2Jfin'}
+#rem ]]] (dumb m4)
+>>>
+barefin
+barefin
+cls0fin
+cls1fin
+cls2fin
+===

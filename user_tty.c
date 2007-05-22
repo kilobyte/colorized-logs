@@ -403,6 +403,18 @@ static inline void print_char(const WC ch)
     ++o_pos;
 }
 
+static void form_feed()
+{
+    int i;
+    
+    for(i=(isstatus?2:1);i<LINES;i++)
+    {
+        tbuf+=sprintf(tbuf,"\033[0;37;40m\r\n\033[2K");
+        b_addline();
+    }
+    tbuf+=sprintf(tbuf,"\033[f");
+}
+
 static void b_textout(char *txt)
 {
 #ifdef UTF8
@@ -433,6 +445,9 @@ static void b_textout(char *txt)
         case 9:
             if (o_pos<COLS) /* tabs on the right side of screen are ignored */
                 do print_char(' '); while (o_pos&7);
+            break;
+        case 12:
+            form_feed();
             break;
         case '~':
             if (getcolor(&txt,&o_color,1))

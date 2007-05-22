@@ -1,3 +1,7 @@
+1.0.10:
+*	more transliterations, mostly for line-drawing characters
+*	support for Form Feed and ANSI CLS
+
 1.0.9:
 *	#ord as inline
 *	MCCP compression

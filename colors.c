@@ -101,14 +101,13 @@ void do_in_MUD_colors(char *txt,int quotetype)
 {
     static int ccolor=7;
     /* worst case: buffer full of FormFeeds, with color=1023 */
+    /* TODO: not anymore, it's much shorter now */
     char OUT[BUFFER_SIZE*20],*out,*back,*TXT=txt;
     int tok[MAXTOK],nt,i;
 
     for (out=OUT;*txt;txt++)
         switch(*txt)
         {
-        case 12:
-            out+=sprintf(out,"~112~<FormFeed>~%d~",ccolor);
         case 27:
             if (*(txt+1)=='[')
             {
@@ -201,9 +200,12 @@ again:
                     break;
                 case 'D': /* this interpretation is badly invalid... */
                 case 'K':
-                case 'J':
                     out=OUT;
                     out+=setcolor(out,ccolor);
+                    break;
+                case 'J':
+                    if (tok[0])
+                        *out++=12; /* Form Feed */
                     break;
                 default:
 error:

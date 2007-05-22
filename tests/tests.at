@@ -417,3 +417,21 @@ AT_DATA([expout], [foo
 ])
 AT_CHECK([runtest.sh],,[expout])
 AT_CLEANUP
+
+AT_SETUP([FormFeed])
+AT_DATA([testin], [#chr ff 12
+#showme bare${ff}fin
+#sys {echo -e 'bare\014fin'}
+#sys {echo -e 'cls0\033[0Jfin'}
+#sys {echo -e 'cls1\033[1Jfin'}
+#sys {echo -e 'cls2\033[2Jfin'}
+#rem ]]] (dumb m4)
+])
+AT_DATA([expout], [barefin
+barefin
+cls0fin
+cls1fin
+cls2fin
+])
+AT_CHECK([runtest.sh],,[expout])
+AT_CLEANUP
