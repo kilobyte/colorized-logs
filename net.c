@@ -77,6 +77,7 @@ extern char *prof_area;
 #ifdef HAVE_LIBZ
 int init_mccp(struct session *ses, int cplen, char *cpsrc);
 #endif
+extern void debuglog(struct session *ses, const char *format, ...);
 
 #ifndef SOL_IP
 int SOL_IP;
@@ -348,10 +349,10 @@ int read_buffer_mud(char *buffer, struct session *ses)
                 ses->mccp_more=0;
                 return -1;
             }
-            ses->mccp->next_in = ses->mccp_buf;
+            ses->mccp->next_in = (Bytef*)ses->mccp_buf;
             ses->mccp->avail_in = didget;
         }
-        ses->mccp->next_out = tmpbuf+len;
+        ses->mccp->next_out = (Bytef*)(tmpbuf+len);
         ses->mccp->avail_out = INPUT_CHUNK-len;
         switch(i=inflate(ses->mccp, Z_SYNC_FLUSH))
         {
@@ -500,7 +501,7 @@ int init_mccp(struct session *ses, int cplen, char *cpsrc)
         tintin_printf(ses, "#MCCP2 INITIALIZED.");
 #endif
     memcpy(ses->mccp_buf, cpsrc, cplen);
-    ses->mccp->next_in = ses->mccp_buf;
+    ses->mccp->next_in = (Bytef*)ses->mccp_buf;
     ses->mccp->avail_in = cplen;
     ses->mccp_more = cplen;
     return 1;

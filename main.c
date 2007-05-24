@@ -641,7 +641,7 @@ int check_events(void)
 void tintin(void)
 {
     int i, result, maxfd;
-    struct session *sesptr, *t;
+    struct session *sesptr;
     struct timeval tv;
     fd_set readfdmask;
 #ifdef XTERM_TITLE

@@ -478,47 +478,6 @@ static void b_textout(char *txt)
     o_prevcolor=o_color;
 }
 
-/************************ debugging function ******/
-static void b_textout_test(char *txt)
-{
-    char bb[BUFFER_SIZE],*b,*t;
-
-    for (b=bb;*txt;txt++)
-        switch(*txt)
-        {
-        case 001:
-            b+=sprintf(b,"~6~");
-            break;
-        case 002:
-            b+=sprintf(b,"~7~");
-            break;
-        case '\n':
-            b+=sprintf(b,"~2~\\n~7~");
-            break;
-        case '~':         /* broken... */
-            t=txt+1;
-            if (!iswdigit(*t))
-                goto nope;
-            while (iswdigit(*t))
-                t++;
-            if (*t=='~')
-            {
-                b+=sprintf(b,"~5~`~5~");
-                for(txt++;txt<t;txt++)
-                    *b++=*txt;
-                b+=sprintf(b,"~5~`~7~");
-                break;
-            };
-nope:
-        default:
-            *b++=*txt;
-        };
-    b[0]='\n';
-    b[1]=0;
-
-    b_textout(bb);
-}
-
 static void b_canceldraft(void)
 {
     if (b_bottom==b_screenb)
