@@ -20,7 +20,6 @@
 #define WRAP_WC(d,s) strcpy(d,s)
 #define OUT_WC(d,s,n) (memcpy(d,s,n),n)
 #define FLATlen strlen
-#define iswdigit(x) isdigit(x)
 #define iswalnum(x) isalnum(x)
 #define iswupper(x) isupper(x)
 #define towupper(x) toupper(x)

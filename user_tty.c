@@ -649,7 +649,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
         break;
     case 2:			/* ESC [ */
         state=0;
-        if (iswdigit(ch))
+        if (isadigit(ch))
         {
             val=val*10+(ch-'0');
             state=2;
