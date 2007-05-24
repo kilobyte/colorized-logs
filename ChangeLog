@@ -1,6 +1,8 @@
 1.0.10:
 *	more transliterations, mostly for line-drawing characters
 *	support for Form Feed and ANSI CLS
+*	support for CJK double-width chars (TTY driver)
+TODO:	CJK in prepad/postpad, CJK elsewhere?
 
 1.0.9:
 *	#ord as inline
