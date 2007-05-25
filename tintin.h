@@ -4,12 +4,10 @@
 #define NDEBUG
 #define UTF8                /* UTF8 support */
 
-#ifndef NDEBUG
-#undef TELNET_DEBUG        /* define to show TELNET negotiations */
-#undef USER_DEBUG          /* debugging of the user interface */
-#undef TERM_DEBUG          /* debugging pseudo-tty stuff */
-#define PROFILING          /* profiling */
-#endif
+#undef TELNET_DEBUG	/* define to show TELNET negotiations */
+#undef USER_DEBUG	/* debugging of the user interface */
+#undef TERM_DEBUG	/* debugging pseudo-tty stuff */
+#undef PROFILING	/* profiling */
 
 /************************/
 /* The meaning of life: */
