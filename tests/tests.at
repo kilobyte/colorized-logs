@@ -435,3 +435,70 @@ cls2fin
 ])
 AT_CHECK([runtest.sh],,[expout])
 AT_CLEANUP
+
+AT_SETUP([#strlen and CJK/combining chars])
+AT_DATA([testin], [#strlen tmp {sanity check};#showme $tmp
+#strlen tmp {};#showme $tmp
+#strlen tmp {abcąęśćdefабцдефгхийאבגדァアィイ};#showme $tmp
+#math tmp {#strlen {ィ}};#showme $tmp
+#chr tmp {97 U+0300 97 U+0301 97 U+0302};#strlen tmp {$tmp};#showme $tmp
+])
+AT_DATA([expout], [12
+0
+32
+2
+3
+])
+AT_CHECK([runtest.sh],,[expout])
+AT_CLEANUP
+
+AT_SETUP([#substr and CJK/combining chars])
+AT_DATA([testin], [#showme NORMAL
+#substr tmp 2,3 blah;#showme A($tmp)
+#substr tmp 2,4 blah;#showme B($tmp)
+#substr tmp 2,5 blah;#showme C($tmp)
+#substr tmp 4,4 blah;#showme D($tmp)
+#showme NORMAL + COMBINING
+#substr tmp 2,3 b́ĺáh́;#showme A($tmp)
+#substr tmp 2,4 b́ĺáh́;#showme B($tmp)
+#substr tmp 2,5 b́ĺáh́;#showme C($tmp)
+#substr tmp 4,4 b́ĺáh́;#showme D($tmp)
+#showme CJK
+#substr tmp 3,4 ァアィイ;#showme A($tmp)
+#substr tmp 2,5 ァアィイ;#showme B($tmp)
+#substr tmp 3,3 ァアィイ;#showme C($tmp)
+#substr tmp 8,9 ァアィイ;#showme D($tmp)
+#substr tmp 7,8 ァアィイ;#showme E($tmp)
+#showme CJK + COMBINING
+#substr tmp 3,4 ァ́ア́ィ́イ́;#showme A($tmp)
+#substr tmp 2,5 ァ́ア́ィ́イ́;#showme B($tmp)
+#substr tmp 3,3 ァ́ア́ィ́イ́;#showme C($tmp)
+#substr tmp 8,9 ァ́ア́ィ́イ́;#showme D($tmp)
+#substr tmp 7,8 ァ́ア́ィ́イ́;#showme E($tmp)
+])
+AT_DATA([expout], [NORMAL
+A(la)
+B(lah)
+C(lah)
+D(h)
+NORMAL + COMBINING
+A(ĺá)
+B(ĺáh́)
+C(ĺáh́)
+D(h́)
+CJK
+A(ア)
+B( ア )
+C( )
+D( )
+E(イ)
+CJK + COMBINING
+A(ア́)
+B( ア́ )
+C( )
+D( )
+E(イ́)
+])
+AT_CHECK([runtest.sh],,[expout])
+AT_CLEANUP
+

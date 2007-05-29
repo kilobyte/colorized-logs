@@ -69,6 +69,7 @@ extern int utf8_len(char *s);
 extern int utf8_ncpy(char *d, char *s, int n, int maxb);
 extern char* utf8_seek(char *s, int n);
 extern int utf8_to_wc(wchar_t *d, char *s, int n);
+extern int utf8_width(char *s);
 
 extern int varnum;
 extern pvars_t *pvars;
@@ -1564,7 +1565,8 @@ void time_command(char *arg,struct session *ses)
 void substring_command(char *arg,struct session *ses)
 {
     char left[BUFFER_SIZE], mid[BUFFER_SIZE], right[BUFFER_SIZE], *p;
-    int l,r,s;
+    WC buf[BUFFER_SIZE],*lptr,*rptr;
+    int l,r,s,w;
 
     arg = get_arg(arg, left, 0, ses);
     arg = get_arg(arg, mid, 0, ses);
@@ -1582,11 +1584,39 @@ void substring_command(char *arg,struct session *ses)
     else
     {
 #ifdef UTF8
-        s=utf8_len(right);
-        if ((l<=s)&&(l<=r))
-            utf8_ncpy(mid, utf8_seek(right,l-1), r+1-l, BUFFER_SIZE);
-        else
-            *mid=0;
+        p=mid;
+        TO_WC(buf, right);
+        lptr=buf;
+        s=1;
+        while(*lptr)
+        {
+            w=wcwidth(*lptr);
+            if (w<0)
+                w=0;
+            if (w && s>=l)
+                break;	/* skip incomplete CJK chars with all modifiers */
+            lptr++;
+            s+=w;
+        }
+        if (s>l)
+            *p++=' ';	/* the left edge is cut in half */
+        rptr=lptr;
+        while(w=wcwidth(*rptr), *rptr)
+        {
+            if (w<0)
+                w=0;
+            if (w && s+w>r+1)
+                break;	/* skip incomplete CJK chars with all modifiers */
+            rptr++;
+            s+=w;
+        }
+        if (rptr>lptr)
+            p+=wc_to_utf8(p, lptr, rptr-lptr, BUFFER_SIZE-3);
+        if (s==r && w==2)
+            *p++=' ';	/* the right edge is cut */
+        *p=0;
+
+
 #else
         s=strlen(right);
         if ((l<=s)&&(l<=r))

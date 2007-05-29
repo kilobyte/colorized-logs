@@ -15,6 +15,7 @@
 extern char *prof_area;
 #endif
 extern void syserr(char *msg, ...);
+extern int wcswidth(const wchar_t *pwcs, size_t n);
 
 int user_charset;
 char *user_charset_name;
@@ -308,6 +309,13 @@ out:
     PROFPOP;
 }
 
+int utf8_width(char *s)
+{
+    wchar_t buf[BUFFER_SIZE];
+    
+    utf8_to_wc(buf, s, BUFFER_SIZE-1);
+    return wcswidth(buf, BUFFER_SIZE-1);
+}
 
 
 void init_locale()
