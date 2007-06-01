@@ -9,6 +9,7 @@
 *	use glib's g_slice instead of malloc if it's installed, it's
 	insanely faster
 *	allow "weeks" in #time
+*	re-written from scratch ansi2html, using CSS instead of tables
 
 1.0.9:
 *	#ord as inline

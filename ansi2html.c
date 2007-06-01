@@ -1,214 +1,271 @@
-/*
-Note: <i> is used instead of <blink> because of brain-deadness of Internet
-      Exploder.  Since not everyone has a decent browser, we have to support
-      deficiencies of Micro$loth products.
-*/
 #include <stdio.h>
 
-#define BUFFER_SIZE 2048
+#define BOLD         0x010000
+#define DIM          0x020000
+#define ITALIC       0x040000
+#define UNDERLINE    0x080000
+#define BLINK        0x100000
+#define INVERSE      0x200000
 
-char cnames[2][8][8]=
-   {{"#000000","#AA0000","#00AA00","#AAAA00","#0000AA","#AA00AA","#00AAAA","#AAAAAA"},
-    {"#555555","#FF5555","#55FF55","#FFFF55","#5555FF","#FF55FF","#55FFFF","#FFFFFF"}};
-char bnames[8][8]=
-    {"#000000","#AA0000","#00AA00","#AAAA00","#0000AA","#AA00AA","#00AAAA","#AAAAAA"};
+int fg,bg,fl,b,cl;
 
-int hasbg(char *ch)
+char *cols[]={"BLK","RED","GRN","YEL","BLU","MAG","CYN","WHI",
+              "HIK","HIR","HIG","HIY","HIB","HIM","HIC","HIW"};
+
+int ntok, tok[10];
+int ch;
+
+void class()
 {
-    int bg=0;
-    ch--;
-normal:
-    switch(*++ch)
+    if (!cl)
+        printf(" class=\"");
+    else
+        printf(" ");
+    cl=1;
+}
+
+void span()
+{
+    int tmp, _fg=fg, _bg=bg;
+    
+    if (fg==-1 && bg==-1 && !fl)
+        return;
+    printf("<b");
+    cl=0;
+    if (fl&INVERSE)
     {
-    case 0:
-    case '\n':
-        return 0;
-    case 27:
-        goto esc;
+        if (_fg==-1)
+            _fg=7;
+        if (_bg==-1)
+            _bg=0;
+        tmp=_fg; _fg=_bg; _bg=tmp;
     }
-    goto normal;
-esc:
-    switch(*++ch)
+    if (fl&DIM)
+        fg=8;
+    if (_fg!=-1)
     {
-    case '\n':
-    case 0:
-        return 0;
-    case '[':
-        goto esc;
-    case '3':
-        if (!*++ch || *ch=='\n')
-            return 0;
-    case '0':
-    case '1':
-    case '2':
-    case '5':
-    case '7':
-        break;
-    case '4':
-        if (*++ch!='0')
-            bg=1;
-        if (!*ch || *ch=='\n')
-            return 0;
-    };
-    switch(*++ch)
-    {
-    case '0':
-    case '\n':
-        return 0;
-    case 'm':
-        if (bg)
-            return 1;
-        goto normal;
-    case ';':
-        goto esc;
-    default:
-        bg=0;
-    };
-    goto normal;
+        if (fl&BOLD)
+            _fg|=8;
+        class();printf("%s", cols[_fg]);
+    }
+    else if (fl&BOLD)
+        class(),printf("BOLD");
+    
+    if (_bg!=-1)
+        class(),printf("B%s", cols[_bg]);
+    
+    if (fl&ITALIC)
+        class(),printf("ITA");
+    if (fl&UNDERLINE)
+        class(),printf((fl&BLINK)?"UNDBLI":"UND");
+    else if (fl&BLINK)
+        class(),printf("BLI");
+    
+    if (cl)
+        printf("\"");
+    printf(">");
+    b=1;
+}
+
+
+void unspan()
+{
+    if (b)
+        printf("</b>");
+    b=0;
 }
 
 
 int main()
 {
-    char line[BUFFER_SIZE],*ch;
-    int table;
-    int oldbl=0, bl=0;
-    int oldbg=-1, bg=0;
-    int oldbr=0, br=0;
-    int oldcolor=7, color=7;
-    int tmp;
-
-    printf("<html>\n<body bgcolor=%s text=%s>\n<pre><tt>",bnames[0],cnames[0][7]);
-    while (fgets(line,BUFFER_SIZE,stdin))
-    {
-        table=hasbg(line);
-        if (table)
-            printf("<table cellpadding=0 cellspacing=0 border=0><tr>");
-        oldbl=0;
-        oldbg=(table? -1 : 0);
-        oldbr=0;
-        oldcolor=7;
-        ch=line-1;
+    int i;
+    
+    printf(
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\n"
+"	\"http://www.w3.org/TR/html4/strict.dtd\">\n"
+"<html>\n"
+"<head>\n"
+"<!--<title></title>-->\n"
+"<style type=\"text/css\">\n"
+"body {background-color: black;}\n"
+"pre {\n"
+"	font-weight: normal;\n"
+"	color: #aaa;\n"
+"	white-space: -moz-pre-wrap;\n"
+"	white-space: -o-pre-wrap;\n"
+"	white-space: -pre-wrap;\n"
+"	white-space: pre-wrap;\n"
+"	word-wrap: break-word;\n"
+"}\n"
+"b {font-weight: normal}\n"
+"b.BLK {color: #000}\n"
+"b.BLU {color: #00a}\n"
+"b.GRN {color: #0a0}\n"
+"b.CYN {color: #0aa}\n"
+"b.RED {color: #a00}\n"
+"b.MAG {color: #a0a}\n"
+"b.YEL {color: #aa0}\n"
+"b.HIK {color: #555}\n"
+"b.HIB {color: #55f}\n"
+"b.HIG {color: #5f5}\n"
+"b.HIC {color: #5ff}\n"
+"b.HIR {color: #f55}\n"
+"b.HIM {color: #f5f}\n"
+"b.HIY {color: #ff5}\n"
+"b.HIW {color: #fff}\n"
+"b.BOLD {color: #fff}\n"
+"b.BBLK {background-color: #000}\n"
+"b.BBLU {background-color: #00a}\n"
+"b.BGRN {background-color: #0a0}\n"
+"b.BCYN {background-color: #0aa}\n"
+"b.BRED {background-color: #a00}\n"
+"b.BMAG {background-color: #a0a}\n"
+"b.BYEL {background-color: #aa0}\n"
+"b.BWHI {background-color: #aaa}\n"
+"b.ITA {font-style: italic}\n"
+"b.UND {text-decoration: underline}\n"
+"b.BLI {text-decoration: blink}\n"
+"b.UNDBLI {text-decoration: underline blink}\n"
+"</style>\n"
+"</head>\n"
+"<body>\n"
+"<pre>");
+    fg=bg=-1;
+    fl=0;
+    b=0;
+    ch=getchar();
 normal:
-        ch++;
-        if (!*ch || *ch=='\n')
-            goto end;
-        if (*ch==27)
-            goto esc;
-        if ((bg!=oldbg)||(color!=oldcolor)||(br!=oldbr)||(bl!=oldbl))
-        {
-            if (oldbl)
-                printf("</i>");
-            if (oldbr)
-                printf("</b>");
-            if (oldcolor!=7)
-                printf("</font>");
-            if ((bg!=oldbg))
-            {
-                if (oldbg!=-1)
-                    printf("</tt></td>");
-                if (bg)
-                    printf("<td bgcolor=%s><tt>",bnames[bg]);
-                else
-                    printf("<td><tt>");
-            }
-            oldcolor=color;
-            oldbr=br;
-            oldbg=bg;
-            oldbl=bl;
-            if (color!=7)
-                printf("<font color=%s>",cnames[br][color]);
-            if (br)
-                printf("<b>");
-            if (bl)
-                printf("<i>");
-        }
-        switch(*ch)
-        {
-        case '<':
-            printf("&lt;");
-            break;
-        case '>':
-            printf("&gt;");
-            break;
-        case ' ':
-            if (table)
-            {
-                printf("&nbsp;");
-                break;
-            }
-        default:
-            putchar(*ch);
-        }
+    switch(ch)
+    {
+    case EOF:
+        unspan();
+        printf("</pre>\n</body>\n</html>\n");
+        return 0;
+    case 0:  case 1:  case 2:  case 3:  case 4:  case 5:  case 6:
+    case 8:                    case 11:                   case 14: case 15:
+    case 16: case 17: case 18: case 19: case 20: case 21: case 22: case 23:
+    case 24: case 25: case 26:          case 28: case 29: case 30: case 31:
+        ch=getchar();
         goto normal;
+    case 7:
+        printf("&iexcl;");	/* bell */
+        ch=getchar();
+        goto normal;
+    case 12:			/* form feed */
+    formfeed:
+        ch=getchar();
+        unspan();
+        printf("\n<hr>\n");
+        goto normal;
+    case 27:			/* ESC */
+        ch=getchar();
+        goto esc;
+    case '<':
+        printf("&lt;");
+        ch=getchar();
+        goto normal;
+    case '>':
+        printf("&gt;");
+        ch=getchar();
+        goto normal;
+    case '&':
+        printf("&amp;");
+        ch=getchar();
+        goto normal;
+    default:
+        putchar(ch);
+        ch=getchar();
+        goto normal;
+    }
+/****************************************************************************/
 esc:
-        switch(*++ch)
-        {
-        case 0:
-        case '\n':
-            goto end;
-        case '[':
-            goto esc;
-        case '0':
-            color=7;
-            bg=0;
-            bl=0;
-            br=0;
-            break;
-        case '1':
-            br=1;
-            break;
-        case '2':
-            br=0;
-            break;
-        case '3':
-            if (!*++ch || *ch=='\n')
-                goto end;
-            color=*ch-'0';
-            break;
-        case '4':
-            if (!*++ch || *ch=='\n')
-                goto end;
-            bg=*ch-'0';
-            break;
-        case '5':
-            bl=1;
-            break;
-        case '7':
-            tmp=color, color=bg, bg=tmp;
-        };
-        goto igs;
-igs:
-        switch(*++ch)
-        {
-        case 'm':
-            goto normal;
-        case 0:
-        case '\n':
-            goto end;
-        case ';':
-            goto esc;
-        default:
-            goto igs;
-        };
-end:
-        if (oldbl)
-            printf("</i>");
-        if (oldbr)
-            printf("</b>");
-        if (oldcolor!=7)
-            printf("</font>");
-        if (table)
-        {
-            if (oldbg!=-1)
-                printf("</tt></td>");
-            else
-                printf("<td>&nbsp;</td>"); /* empty line */
-            printf("</tr></table>");
-        }
-        else
-            printf("\n");
-    };
-    printf("</tt></pre>\n</body>\n</html>\n");
-    return(0);
+    if (ch!='[')
+        goto normal;
+    ch=getchar();
+    ntok=0;
+    tok[0]=0;
+/****************************************************************************/
+csi:
+    switch(ch)
+    {
+    case ';':
+        if (++ntok>=10)
+            goto normal;	/* too many tokens, something is fishy */
+        tok[ntok]=0;
+        ch=getchar();
+        goto csi;
+    case '0': case '1': case '2': case '3': case '4':
+    case '5': case '6': case '7': case '8': case '9':
+        tok[ntok]=tok[ntok]*10+ch-'0';
+        ch=getchar();
+        goto csi;
+    case 'm':
+        for(i=0;i<=ntok;i++)
+            switch(tok[i])
+            {
+            case 0:
+                fg=bg=-1;
+                fl=0;
+                break;
+            case 1:
+                fl|=BOLD;
+                fl&=~DIM;
+                break;
+            case 2:
+                fl|=DIM;
+                fl&=~BOLD;
+                break;
+            case 3:
+                fl|=ITALIC;
+                break;
+            case 4:
+                fl|=UNDERLINE;
+                break;
+            case 5:
+                fl|=BLINK;
+                break;
+            case 7:
+                fl|=INVERSE;
+                break;
+            case 21:
+                fl&=~(BOLD|DIM);
+                break;
+            case 22:
+                fl&=~(BOLD|DIM);
+                break;
+            case 23:
+                fl&=~ITALIC;
+                break;
+            case 24:
+                fl&=~UNDERLINE;
+                break;
+            case 25:
+                fl&=~BLINK;
+                break;
+            case 27:
+                fl&=~INVERSE;
+                break;
+            case 30: case 31: case 32: case 33:
+            case 34: case 35: case 36: case 37:
+                fg=tok[i]-30;
+                break;
+            case 39:
+                fg=-1;
+                break;
+            case 40: case 41: case 42: case 43:
+            case 44: case 45: case 46: case 47:
+                bg=tok[i]-40;
+                break;
+            case 49:
+                bg=-1;
+            }
+        unspan();
+        span();
+        ch=getchar();
+        goto normal;
+    case 'J':
+        goto formfeed;
+    default:
+        goto normal;
+    }
 }
