@@ -341,7 +341,8 @@ static int b_shorten()
 {
     if (b_first>b_bottom)
         return(FALSE);
-    SFREE(b_output[b_first++%B_LENGTH]);
+    SFREE(b_output[b_first%B_LENGTH]);
+    b_first++;
     return(TRUE);
 }
 
