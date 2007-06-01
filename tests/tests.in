@@ -533,3 +533,16 @@ CJK + COMBINING
 A( ァ́)
 B( ァ́ア́ィ́イ́)
 ===
+
+### #time
+<<<
+#time tmp 345;#showme $tmp
+#time tmp 1y 245d 15h 30m 4s;#showme $tmp
+#time tmp 11 hours, 59 minutes and 45 seconds;#showme $tmp
+#time tmp 2 weeks 1 d;#showme $tmp
+>>>
+345
+52759804
+43185
+1296000
+===

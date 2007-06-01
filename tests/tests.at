@@ -561,3 +561,17 @@ B( ァ́ア́ィ́イ́)
 ])
 AT_CHECK([runtest.sh],,[expout])
 AT_CLEANUP
+
+AT_SETUP([#time])
+AT_DATA([testin], [#time tmp 345;#showme $tmp
+#time tmp 1y 245d 15h 30m 4s;#showme $tmp
+#time tmp 11 hours, 59 minutes and 45 seconds;#showme $tmp
+#time tmp 2 weeks 1 d;#showme $tmp
+])
+AT_DATA([expout], [345
+52759804
+43185
+1296000
+])
+AT_CHECK([runtest.sh],,[expout])
+AT_CLEANUP

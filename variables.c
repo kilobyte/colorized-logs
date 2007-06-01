@@ -1482,7 +1482,7 @@ int time2secs(char *tt,struct session *ses)
     if (!*tt)
     {
 bad:
-        tintin_eprintf(ses,"#time format should be: <#y[ears][,] #d #h #m [and] #[s]> or just <#> of seconds.");
+        tintin_eprintf(ses,"#time format should be: <#y[ears][,] #w #d #h #m [and] #[s]> or just <#> of seconds.");
         tintin_eprintf(ses,"#got: {%s}.",tt);
         return INVALID_TIME;
     };
@@ -1496,8 +1496,12 @@ bad:
             tt++;
         switch (tolower(*tt))
         {
+        case 'w':
+            w*=7;
+            goto day;
         case 'y':
             w*=365;
+        day:
         case 'd':
             w*=24;
         case 'h':
