@@ -1346,6 +1346,30 @@ int random_inline(char *arg, struct session *ses)
     return 0;
 }
 
+#ifdef UTF8
+/************************************************************************************/
+/* cut a string to width len, putting the cut point into *rstr and return the width */
+/************************************************************************************/
+int cutws(WC *str, int len, WC **rstr)
+{
+    int w,s;
+    
+    s=0;
+    while(*str)
+    {
+        w=wcwidth(*str);
+        if (w<0)
+            w=0;
+        if (w && s+w>len)
+            break;
+        str++;
+        s+=w;
+    }
+    *rstr=str;
+    return s;
+}
+#endif
+
 /*****************************************************/
 /* Syntax: #postpad {dest var} {length} {text}       */
 /*****************************************************/
@@ -1355,9 +1379,9 @@ int random_inline(char *arg, struct session *ses)
 /*****************************************************/
 void postpad_command(char *arg,struct session *ses)
 {
-    char destvar[BUFFER_SIZE], lengthstr[BUFFER_SIZE], astr[BUFFER_SIZE];
-    char bstr[BUFFER_SIZE];
-    int  i, len, length;
+    char destvar[BUFFER_SIZE], lengthstr[BUFFER_SIZE], astr[BUFFER_SIZE], *aptr;
+    WC bstr[BUFFER_SIZE], *bptr;
+    int len, length;
 
     arg = get_arg(arg, destvar, 0, ses);
     arg = get_arg(arg, lengthstr, 0, ses);
@@ -1372,24 +1396,23 @@ void postpad_command(char *arg,struct session *ses)
         else
         {
 #ifdef UTF8
-            len=utf8_ncpy(bstr, astr, length, BUFFER_SIZE-1);
-            if (len<length)
-            {
-                i=strlen(bstr);
-                while(len++<length && i<BUFFER_SIZE-1)
-                    bstr[i++]=' ';
-                bstr[i]=0;
-            }
+            TO_WC(bstr, astr);
+            len=cutws(bstr, length, &bptr);
+            aptr=astr+wc_to_utf8(astr, bstr, bptr-bstr, BUFFER_SIZE-3);
+            while(len<length)
+                len++, *aptr++=' ';
+            *aptr=0;
+            set_variable(destvar, astr, ses);
 #else
             strncpy(bstr, astr, length);
             bstr[length] = '\0';
             if ((len = strlen(astr)) < length)
             {
-                for(i = len; i < length; i++)
-                    bstr[i] = ' ';
+                for(; len < length; len++)
+                    bstr[len] = ' ';
             }
-#endif
             set_variable(destvar, bstr, ses);
+#endif
         }
     }
 }
@@ -1406,9 +1429,9 @@ void postpad_command(char *arg,struct session *ses)
 /*****************************************************/
 void prepad_command(char *arg,struct session *ses)
 {
-    char destvar[BUFFER_SIZE], astr[BUFFER_SIZE], lengthstr[BUFFER_SIZE];
-    char bstr[BUFFER_SIZE], *bptr;
-    int len_diff, length;
+    char destvar[BUFFER_SIZE], astr[BUFFER_SIZE], lengthstr[BUFFER_SIZE], *aptr;
+    WC bstr[BUFFER_SIZE], *bptr;
+    int len, length;
 
     arg = get_arg(arg, destvar, 0, ses);
     arg = get_arg(arg, lengthstr, 0, ses);
@@ -1423,16 +1446,16 @@ void prepad_command(char *arg,struct session *ses)
         else
         {
 #ifdef UTF8
-            len_diff = utf8_len(astr)-length;
-            bptr=bstr;
-            while(len_diff<0)
-            {
-                *bptr++=' ';
-                len_diff++;
-            }
-            utf8_ncpy(bptr, utf8_seek(astr,len_diff), length, bstr-bptr+BUFFER_SIZE-1);
+            TO_WC(bstr, astr);
+            len=cutws(bstr, length, &bptr);
+            aptr=astr;
+            while(len<length)
+                len++, *aptr++=' ';
+            aptr+=wc_to_utf8(aptr, bstr, bptr-bstr, BUFFER_SIZE-3);
+            *aptr=0;
+            set_variable(destvar, astr, ses);
 #else
-            int i;
+            int i, len_diff;
             len_diff = length - strlen(astr);
 
             for(i = 0; i < len_diff; i++)
@@ -1440,8 +1463,8 @@ void prepad_command(char *arg,struct session *ses)
 
             strncpy(bstr + len_diff, astr, length);
             bstr[length] = 0;
-#endif
             set_variable(destvar, bstr, ses);
+#endif
         }
     }
 }

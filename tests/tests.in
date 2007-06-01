@@ -71,8 +71,8 @@ a ć  |
 #prepad tmp 5 {a$x};#showme {$tmp|}
 #prepad tmp 5 a ć;#showme {$tmp|}
 >>>
-defgh|
-dęfgh|
+abcde|
+abćdę|
    ab|
    ać|
  afoo|
@@ -476,5 +476,60 @@ D( )
 E(イ́)
 ===
 
-;;;   firstupper  tolower     toupper     substring   prepad      postpad
-;;;   reverse     strlen      decolorize  atoi    chr    ord      hexord
+### #postpad and CJK/combining chars
+<<<
+#showme NORMAL
+#postpad tmp 3 blah;#showme A($tmp)
+#postpad tmp 5 blah;#showme B($tmp)
+#showme NORMAL + COMBINING
+#postpad tmp 3 b́ĺáh́;#showme A($tmp)
+#postpad tmp 5 b́ĺáh́;#showme B($tmp)
+#showme CJK
+#postpad tmp 3 ァアィイ;#showme A($tmp)
+#postpad tmp 9 ァアィイ;#showme B($tmp)
+#showme CJK + COMBINING
+#postpad tmp 3 ァ́ア́ィ́イ́;#showme A($tmp)
+#postpad tmp 9 ァ́ア́ィ́イ́;#showme B($tmp)
+>>>
+NORMAL
+A(bla)
+B(blah )
+NORMAL + COMBINING
+A(b́ĺá)
+B(b́ĺáh́ )
+CJK
+A(ァ )
+B(ァアィイ )
+CJK + COMBINING
+A(ァ́ )
+B(ァ́ア́ィ́イ́ )
+===
+
+### #prepad and CJK/combining chars
+<<<
+#showme NORMAL
+#prepad tmp 3 blah;#showme A($tmp)
+#prepad tmp 5 blah;#showme B($tmp)
+#showme NORMAL + COMBINING
+#prepad tmp 3 b́ĺáh́;#showme A($tmp)
+#prepad tmp 5 b́ĺáh́;#showme B($tmp)
+#showme CJK
+#prepad tmp 3 ァアィイ;#showme A($tmp)
+#prepad tmp 9 ァアィイ;#showme B($tmp)
+#showme CJK + COMBINING
+#prepad tmp 3 ァ́ア́ィ́イ́;#showme A($tmp)
+#prepad tmp 9 ァ́ア́ィ́イ́;#showme B($tmp)
+>>>
+NORMAL
+A(bla)
+B( blah)
+NORMAL + COMBINING
+A(b́ĺá)
+B( b́ĺáh́)
+CJK
+A( ァ)
+B( ァアィイ)
+CJK + COMBINING
+A( ァ́)
+B( ァ́ア́ィ́イ́)
+===

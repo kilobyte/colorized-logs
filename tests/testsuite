@@ -620,7 +620,7 @@ at_times_file=$at_suite_dir/at-times
 # List of the tested programs.
 at_tested='KBtin'
 # List of the all the test groups.
-at_groups_all=' 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27'
+at_groups_all=' 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29'
 # As many question marks as there are digits in the last test group number.
 # Used to normalize the test group numbers so that `ls' lists them in
 # numerical order.
@@ -653,6 +653,8 @@ at_help_all="1;version.at:1;#version;;
 25;tests.at:421;FormFeed;;
 26;tests.at:439;#strlen and CJK/combining chars;;
 27;tests.at:455;#substr and CJK/combining chars;;
+28;tests.at:505;#postpad and CJK/combining chars;;
+29;tests.at:535;#prepad and CJK/combining chars;;
 "
 
 at_prev=
@@ -1640,8 +1642,8 @@ cat >testin <<'_ATEOF'
 _ATEOF
 
 cat >expout <<'_ATEOF'
-defgh|
-dęfgh|
+abcde|
+abćdę|
    ab|
    ać|
  afoo|
@@ -3151,6 +3153,172 @@ case $at_status in
    77) echo 77 > "$at_status_file"; exit 77;;
    0) ;;
    *) echo "$at_srcdir/tests.at:502: exit code was $at_status, expected 0"
+      at_failed=:;;
+esac
+if $at_failed; then
+
+
+  echo 1 > "$at_status_file"
+  exit 1
+fi
+
+$at_traceon
+
+      $at_traceoff
+      $at_times_p && times >"$at_times_file"
+    ) 5>&1 2>&1 | eval $at_tee_pipe
+    at_status=`cat "$at_status_file"`
+    ;;
+
+  28 ) # 28. tests.at:505: #postpad and CJK/combining chars
+    at_setup_line='tests.at:505'
+    at_desc="#postpad and CJK/combining chars"
+    $at_quiet $ECHO_N " 28: #postpad and CJK/combining chars               []$ECHO_C"
+    at_xfail=no
+    echo "#                             -*- compilation -*-" >> "$at_group_log"
+    (
+      echo "28. tests.at:505: testing ..."
+      $at_traceon
+
+cat >testin <<'_ATEOF'
+#showme NORMAL
+#postpad tmp 3 blah;#showme A($tmp)
+#postpad tmp 5 blah;#showme B($tmp)
+#showme NORMAL + COMBINING
+#postpad tmp 3 b́ĺáh́;#showme A($tmp)
+#postpad tmp 5 b́ĺáh́;#showme B($tmp)
+#showme CJK
+#postpad tmp 3 ァアィイ;#showme A($tmp)
+#postpad tmp 9 ァアィイ;#showme B($tmp)
+#showme CJK + COMBINING
+#postpad tmp 3 ァ́ア́ィ́イ́;#showme A($tmp)
+#postpad tmp 9 ァ́ア́ィ́イ́;#showme B($tmp)
+_ATEOF
+
+cat >expout <<'_ATEOF'
+NORMAL
+A(bla)
+B(blah )
+NORMAL + COMBINING
+A(b́ĺá)
+B(b́ĺáh́ )
+CJK
+A(ァ )
+B(ァアィイ )
+CJK + COMBINING
+A(ァ́ )
+B(ァ́ア́ィ́イ́ )
+_ATEOF
+
+$at_traceoff
+echo "$at_srcdir/tests.at:532: runtest.sh"
+echo tests.at:532 >"$at_check_line_file"
+
+at_trace_this=
+if test -n "$at_traceon"; then
+    at_trace_this=yes
+fi
+
+if test -n "$at_trace_this"; then
+    ( $at_traceon; runtest.sh ) >"$at_stdout" 2>"$at_stder1"
+    at_status=$?
+    grep '^ *+' "$at_stder1" >&2
+    grep -v '^ *+' "$at_stder1" >"$at_stderr"
+else
+    ( :; runtest.sh ) >"$at_stdout" 2>"$at_stderr"
+    at_status=$?
+fi
+
+at_failed=false
+$at_diff "$at_devnull" "$at_stderr" || at_failed=:
+$at_diff expout "$at_stdout" || at_failed=:
+case $at_status in
+   77) echo 77 > "$at_status_file"; exit 77;;
+   0) ;;
+   *) echo "$at_srcdir/tests.at:532: exit code was $at_status, expected 0"
+      at_failed=:;;
+esac
+if $at_failed; then
+
+
+  echo 1 > "$at_status_file"
+  exit 1
+fi
+
+$at_traceon
+
+      $at_traceoff
+      $at_times_p && times >"$at_times_file"
+    ) 5>&1 2>&1 | eval $at_tee_pipe
+    at_status=`cat "$at_status_file"`
+    ;;
+
+  29 ) # 29. tests.at:535: #prepad and CJK/combining chars
+    at_setup_line='tests.at:535'
+    at_desc="#prepad and CJK/combining chars"
+    $at_quiet $ECHO_N " 29: #prepad and CJK/combining chars                []$ECHO_C"
+    at_xfail=no
+    echo "#                             -*- compilation -*-" >> "$at_group_log"
+    (
+      echo "29. tests.at:535: testing ..."
+      $at_traceon
+
+cat >testin <<'_ATEOF'
+#showme NORMAL
+#prepad tmp 3 blah;#showme A($tmp)
+#prepad tmp 5 blah;#showme B($tmp)
+#showme NORMAL + COMBINING
+#prepad tmp 3 b́ĺáh́;#showme A($tmp)
+#prepad tmp 5 b́ĺáh́;#showme B($tmp)
+#showme CJK
+#prepad tmp 3 ァアィイ;#showme A($tmp)
+#prepad tmp 9 ァアィイ;#showme B($tmp)
+#showme CJK + COMBINING
+#prepad tmp 3 ァ́ア́ィ́イ́;#showme A($tmp)
+#prepad tmp 9 ァ́ア́ィ́イ́;#showme B($tmp)
+_ATEOF
+
+cat >expout <<'_ATEOF'
+NORMAL
+A(bla)
+B( blah)
+NORMAL + COMBINING
+A(b́ĺá)
+B( b́ĺáh́)
+CJK
+A( ァ)
+B( ァアィイ)
+CJK + COMBINING
+A( ァ́)
+B( ァ́ア́ィ́イ́)
+_ATEOF
+
+$at_traceoff
+echo "$at_srcdir/tests.at:562: runtest.sh"
+echo tests.at:562 >"$at_check_line_file"
+
+at_trace_this=
+if test -n "$at_traceon"; then
+    at_trace_this=yes
+fi
+
+if test -n "$at_trace_this"; then
+    ( $at_traceon; runtest.sh ) >"$at_stdout" 2>"$at_stder1"
+    at_status=$?
+    grep '^ *+' "$at_stder1" >&2
+    grep -v '^ *+' "$at_stder1" >"$at_stderr"
+else
+    ( :; runtest.sh ) >"$at_stdout" 2>"$at_stderr"
+    at_status=$?
+fi
+
+at_failed=false
+$at_diff "$at_devnull" "$at_stderr" || at_failed=:
+$at_diff expout "$at_stdout" || at_failed=:
+case $at_status in
+   77) echo 77 > "$at_status_file"; exit 77;;
+   0) ;;
+   *) echo "$at_srcdir/tests.at:562: exit code was $at_status, expected 0"
       at_failed=:;;
 esac
 if $at_failed; then
