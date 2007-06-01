@@ -16,3 +16,7 @@
 
 *	tintin's messages should use ~7~, not the previous colour,
         while still preserving whatever the colour was
+
+*	Unicode combining chars are not supported by the TTY driver
+
+*	no bidi support

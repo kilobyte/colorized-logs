@@ -450,9 +450,11 @@ static inline void print_char(const WC ch)
         return;
 #endif
     /* wrap prematurely if the double-width char won't fit */
-    dw=!!isw2width(ch);
+    dw=wcwidth(ch);
+    if (dw<0)
+        dw=0;
     
-    if (o_pos+dw>=COLS)
+    if (o_pos+dw-1>=COLS)
     {
         tbuf+=sprintf(tbuf,"\033[0;37;40m\r\n\033[2K");
         b_addline();
@@ -478,7 +480,7 @@ static inline void print_char(const WC ch)
     *tbuf++=ch;
     out_line[o_len++]=ch;
 #endif
-    o_pos+=1+dw;
+    o_pos+=dw;
 }
 
 static void form_feed()

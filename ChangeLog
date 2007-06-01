@@ -1,7 +1,8 @@
 1.0.10:
 *	more transliterations, mostly for line-drawing characters
 *	support for Form Feed and ANSI CLS
-*	support for CJK double-width chars (TTY driver), no combining chars
+*	support for CJK double-width chars (TTY driver)
+*	TTY driver: combining chars on output, still buggy on input
 *	CJK and combining chars in #substr, #postpad and #prepad
 *	bugfix: #prepad took the end not start of the string, as opposed to
 	what the documentation said
