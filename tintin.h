@@ -116,6 +116,7 @@
 #define DEFAULT_PATH_MESS TRUE
 #define DEFAULT_ERROR_MESS TRUE
 #define DEFAULT_HOOK_MESS TRUE
+#define DEFAULT_LOG_MESS TRUE
 #define DEFAULT_PRETICK 10
 #define DEFAULT_CHARSET "ISO-8859-1"	/* the MUD-side charset */
 #define DEFAULT_LOGCHARSET LOGCS_LOCAL
@@ -184,7 +185,8 @@
 #define MSG_PATH        10
 #define MSG_ERROR       11
 #define MSG_HOOK        12
-#define MAX_MESVAR      13
+#define MSG_LOG         13
+#define MAX_MESVAR      14
 #define HOOK_OPEN       0
 #define HOOK_CLOSE      1
 #define HOOK_ZAP        2

@@ -10,6 +10,8 @@
 	insanely faster
 *	allow "weeks" in #time
 *	re-written from scratch ansi2html, using CSS instead of tables
+*	bugfix: input and #logcomment were mangled in ttyrec logs
+*	new #mess type: logging
 
 1.0.9:
 *	#ord as inline

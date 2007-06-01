@@ -489,6 +489,7 @@ char *msNAME[]=
         "paths",
         "errors",
         "hooks",
+        "logging",
         "all"
     };
 

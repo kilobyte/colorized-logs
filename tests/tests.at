@@ -575,3 +575,16 @@ AT_DATA([expout], [345
 ])
 AT_CHECK([runtest.sh],,[expout])
 AT_CLEANUP
+
+AT_SETUP(["#logtype ttyrec" and ttyrec2ansi])
+AT_DATA([testin], [#hook open {#log testlog.ttyrec;#logcomment abc}
+#hook close {#log;#system {ttyrec2ansi <testlog.ttyrec};#unlink testlog.ttyrec;#end}
+#logtype ttyrec
+#run a {echo def}
+])
+AT_DATA([expout], [def
+abc
+def
+])
+AT_CHECK([runtest.sh],,[expout])
+AT_CLEANUP

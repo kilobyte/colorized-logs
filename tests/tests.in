@@ -546,3 +546,15 @@ B( ァ́ア́ィ́イ́)
 43185
 1296000
 ===
+
+### "#logtype ttyrec" and ttyrec2ansi
+<<<
+#hook open {#log testlog.ttyrec;#logcomment abc}
+#hook close {#log;#system {ttyrec2ansi <testlog.ttyrec};#unlink testlog.ttyrec;#end}
+#logtype ttyrec
+#run a {echo def}
+>>>
+def
+abc
+def
+===
