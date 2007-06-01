@@ -321,7 +321,7 @@ null_codes:
     mudcolors=1;
     for (nc=0;nc<16;nc++)
     {
-        free(MUDcolors[nc]);
+        SFREE(MUDcolors[nc]);
         MUDcolors[nc]=mystrdup(cc[nc]);
     };
     tintin_printf(ses,"#outgoing color codes table initialized");

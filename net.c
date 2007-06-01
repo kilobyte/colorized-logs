@@ -363,7 +363,7 @@ int read_buffer_mud(char *buffer, struct session *ses)
             tintin_printf(ses, "#COMPRESSION END, DISABLING MCCP.");
             didget=INPUT_CHUNK-len-ses->mccp->avail_out;
             inflateEnd(ses->mccp);
-            free(ses->mccp);
+            TFREE(ses->mccp, z_stream);
             ses->mccp=0;
             break;
         case Z_BUF_ERROR:
@@ -481,7 +481,7 @@ int init_mccp(struct session *ses, int cplen, char *cpsrc)
     if (ses->mccp)
         return 0;
 
-    ses->mccp = malloc(sizeof(z_stream));
+    ses->mccp = TALLOC(z_stream);
 
     ses->mccp->data_type = Z_ASCII;
     ses->mccp->zalloc    = 0;
@@ -492,7 +492,7 @@ int init_mccp(struct session *ses, int cplen, char *cpsrc)
     {
         tintin_eprintf(ses, "#FAILED TO INITIALIZE MCCP2.");
         /* Unrecoverable */
-        free(ses->mccp);
+        TFREE(ses->mccp, z_stream);
         ses->mccp = NULL;
         return -1;
     }

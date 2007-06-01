@@ -193,7 +193,7 @@ int check_event(int time, struct session *ses)
     {
         ses->events=ev->next;
         execute_event(ev, ses);
-        free(ev);
+        TFREE(ev, struct eventnode);
     }
     et = (ses->events) ? ses->events->time : 0;
 

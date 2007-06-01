@@ -5,6 +5,8 @@
 *	CJK and combining chars in #substr, #postpad and #prepad
 *	bugfix: #prepad took the end not start of the string, as opposed to
 	what the documentation said
+*	use glib's g_slice instead of malloc if it's installed, it's
+	insanely faster
 
 1.0.9:
 *	#ord as inline

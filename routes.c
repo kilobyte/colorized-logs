@@ -39,15 +39,15 @@ void addroute(struct session *ses,int a,int b,char *way,int dist,char *cond)
 		r=r->next;
 	if (r)
 	{
-		free(r->path);
+		SFREE(r->path);
 		r->path=mystrdup(way);
 		r->distance=dist;
-		free(r->cond);
+		SFREE(r->cond);
 		r->cond=mystrdup(cond);
 	}
 	else
 	{
-		r=(struct routenode *)malloc(sizeof(struct routenode));
+		r=TALLOC(struct routenode);
 		r->dest=b;
 		r->path=mystrdup(way);
 		r->distance=dist;
@@ -74,7 +74,7 @@ void copyroutes(struct session *ses1,struct session *ses2)
 		ses2->routes[i]=0;
 		for (r=ses1->routes[i];r;r=r->next)
 		{
-			p=(struct routenode *)malloc(sizeof(struct routenode));
+			p=TALLOC(struct routenode);
 			p->dest=r->dest;
 			p->path=mystrdup(r->path);
 			p->distance=r->distance;
@@ -92,16 +92,16 @@ void kill_routes(struct session *ses)
 	
 	for (i=0;i<MAX_LOCATIONS;i++)
 	{
-		free(ses->locations[i]);
+		SFREE(ses->locations[i]);
 		ses->locations[i]=0;
 		r=ses->routes[i];
 		while (r)
 		{
 			p=r;
 			r=r->next;
-			free(p->path);
-			free(p->cond);
-			free(p);
+			SFREE(p->path);
+			SFREE(p->cond);
+			TFREE(p, struct routenode);
 		};
 		ses->routes[i]=0;
 	}
@@ -137,7 +137,7 @@ void kill_unused_locations(struct session *ses)
 	for (i=0;i<MAX_LOCATIONS;i++)
 		if (ses->locations[i]&&!us[i])
 		{
-			free(ses->locations[i]);
+			SFREE(ses->locations[i]);
 			ses->locations[i]=0;
 		}
 }
@@ -302,9 +302,9 @@ void unroute_command(char *arg,struct session *ses)
 					};
 					found=1;
 					*r=(*r)->next;
-					free(p->path);
-					free(p->cond);
-					free(p);
+					SFREE(p->path);
+					SFREE(p->cond);
+					TFREE(p, struct routenode);
 				}
 				else
 					r=&((*r)->next);
@@ -415,9 +415,9 @@ void goto_command(char *arg,struct session *ses)
 		parse_input(path[i],1,ses);
 	}
 	for (i=j;i>=0;i--)
-	    free(locs[i]);
+	    SFREE(locs[i]);
 	for (i=j;i>0;i--)
-	    free(path[i]);
+	    SFREE(path[i]);
 	set_variable("loc",B,ses);
 }
 

@@ -341,7 +341,7 @@ static int b_shorten()
 {
     if (b_first>b_bottom)
         return(FALSE);
-    free(b_output[b_first++%B_LENGTH]);
+    SFREE(b_output[b_first++%B_LENGTH]);
     return(TRUE);
 }
 
@@ -413,7 +413,7 @@ static void b_scroll(int b_to)
 static void b_addline(void)
 {
     char *new;
-    while (!(new=(char*)malloc(o_len+1)))
+    while (!(new=MALLOC(o_len+1)))
         if (!b_shorten())
             syserr("Out of memory");
     out_line[o_len]=0;

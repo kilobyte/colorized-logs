@@ -24,6 +24,7 @@ extern struct session *nullsession;
 extern void substitute_myvars(char *arg,char *result,struct session *ses);
 extern void substitute_vars(char *arg, char *result);
 extern int recursion;
+extern char* mystrdup(char *s);
 
 void execute_event(struct eventnode *ev, struct session *ses)
 {
@@ -108,11 +109,10 @@ void delay_command(char *arg, struct session *ses)
         return;
     }
 
-    ev = (struct eventnode *)malloc(sizeof(struct eventnode));
+    ev = TALLOC(struct eventnode);
     ev->time = time(NULL) + delay;
     ev->next = NULL;
-    ev->event = (char *)malloc(strlen(right)+1);
-    strcpy(ev->event, right);
+    ev->event = mystrdup(right);
 
     if(ses->events == NULL)
         ses->events = ev;
@@ -151,8 +151,8 @@ void remove_event(struct eventnode **ev)
     if(*ev)
     {
         tmp = (*ev)->next;
-        free((*ev)->event);
-        free(*ev);
+        SFREE((*ev)->event);
+        TFREE(*ev, struct eventnode);
         *ev=tmp;
     }
 }

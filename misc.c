@@ -1236,7 +1236,7 @@ void charset_command(char *arg, struct session *ses)
         tintin_eprintf(ses, "#No such charset: {%s}", arg);
         return;
     }
-    free(ses->charset);
+    SFREE(ses->charset);
     ses->charset=mystrdup(arg);
     if (ses!=nullsession)
     {

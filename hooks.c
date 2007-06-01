@@ -68,7 +68,7 @@ void hooks_command(char *arg, struct session *ses)
     for(t=0;t<NHOOKS;t++)
         if (is_abrev(left, hook_names[t]))
         {
-            free(ses->hooks[t]);
+            SFREE(ses->hooks[t]);
             ses->hooks[t]=mystrdup(right);
             if(ses->mesvar[MSG_HOOK])
                 tintin_printf(ses, "#Ok, will do {%s} on %s.", right, hook_names[t]);
@@ -108,7 +108,7 @@ void unhook_command(char *arg, struct session *ses)
             if(ses->mesvar[MSG_HOOK])
                 tintin_printf(ses, ses->hooks[t]?"#Removing hook on {%s}":
                     "#There was no hook on {%s} anyway", hook_names[t]);
-            free(ses->hooks[t]);
+            SFREE(ses->hooks[t]);
             ses->hooks[t]=0;
             return;
         }
@@ -158,6 +158,6 @@ void set_magic_hook(struct session *ses)
 
     sprintf(temp,"%cif {1==%clistlength {$SESSIONS}} %cend",
         tintin_char,tintin_char,tintin_char);
-    free(ses->hooks[1]);
+    SFREE(ses->hooks[1]);
     ses->hooks[1]=mystrdup(temp);
 }

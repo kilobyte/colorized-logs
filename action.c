@@ -60,8 +60,8 @@ int kill_action(struct listnode *head,struct listnode *nptr)
     {
         if (!strcmp(nptr->left,K_ACTION_MAGIC))
             return 0;
-        free(nptr->left);
-        nptr->left=(char*)malloc(strlen(K_ACTION_MAGIC)+1);
+        SFREE(nptr->left);
+        nptr->left=MALLOC(strlen(K_ACTION_MAGIC)+1);
         strcpy(nptr->left,K_ACTION_MAGIC);
         deletedActions++;
     }
@@ -82,10 +82,10 @@ void zap_actions(struct session *ses)
         {
             l=ln;
             ol->next=ln=ln->next;
-            free(l->left);
-            free(l->right);
-            free(l->pr);
-            free(l);
+            SFREE(l->left);
+            SFREE(l->right);
+            SFREE(l->pr);
+            LFREE(l);
         }
     ln =(ol=ses->prompts)->next;
     while (ln)
@@ -95,10 +95,10 @@ void zap_actions(struct session *ses)
         {
             l=ln;
             ol->next=ln=ln->next;
-            free(l->left);
-            free(l->right);
-            free(l->pr);
-            free(l);
+            SFREE(l->left);
+            SFREE(l->right);
+            SFREE(l->pr);
+            LFREE(l);
         }
     deletedActions=0;
 }
@@ -219,10 +219,10 @@ void unaction_command(char *arg, struct session *ses)
             flag=1;
             if (ses->mesvar[1])
                 tintin_printf(ses,"#Ok. {%s} is no longer an action.", ln->left);
-            free(ln->left);
+            SFREE(ln->left);
             if (inActions)
             {
-                ln->left=(char*)malloc(strlen(K_ACTION_MAGIC)+1);
+                ln->left=MALLOC(strlen(K_ACTION_MAGIC)+1);
                 strcpy(ln->left,K_ACTION_MAGIC);
                 deletedActions++;
                 ptr=&(*ptr)->next;
@@ -230,9 +230,9 @@ void unaction_command(char *arg, struct session *ses)
             else
             {
                 *ptr=ln->next;
-                free(ln->right);
-                free(ln->pr);
-                free(ln);
+                SFREE(ln->right);
+                SFREE(ln->pr);
+                LFREE(ln);
             }
         }
         else
@@ -267,10 +267,10 @@ void unpromptaction_command(char *arg, struct session *ses)
             flag=1;
             if (ses->mesvar[1])
                 tintin_printf(ses,"#Ok. {%s} is no longer a promptaction.", ln->left);
-            free(ln->left);
+            SFREE(ln->left);
             if (inActions)
             {
-                ln->left=(char*)malloc(strlen(K_ACTION_MAGIC)+1);
+                ln->left=MALLOC(strlen(K_ACTION_MAGIC)+1);
                 strcpy(ln->left,K_ACTION_MAGIC);
                 deletedActions++;
                 ptr=&(*ptr)->next;
@@ -278,9 +278,9 @@ void unpromptaction_command(char *arg, struct session *ses)
             else
             {
                 *ptr=ln->next;
-                free(ln->right);
-                free(ln->pr);
-                free(ln);
+                SFREE(ln->right);
+                SFREE(ln->pr);
+                LFREE(ln);
             }
         }
         else

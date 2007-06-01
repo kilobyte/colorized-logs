@@ -41,7 +41,7 @@ struct listnode* init_list(void)
 {
     struct listnode *listhead;
 
-    if ((listhead = (struct listnode *)(malloc(sizeof(struct listnode)))) == NULL)
+    if ((listhead = TALLOC(struct listnode)) == NULL)
         syserr("couldn't alloc listhead");
     listhead->next = NULL;
     return (listhead);
@@ -57,15 +57,15 @@ void kill_list(struct listnode *nptr)
     if (nptr == NULL)
         syserr("NULL PTR");
     nexttodel = nptr->next;
-    free(nptr);
+    LFREE(nptr);
 
     for (nptr = nexttodel; nptr; nptr = nexttodel)
     {
         nexttodel = nptr->next;
-        free(nptr->left);
-        free(nptr->right);
-        free(nptr->pr);
-        free(nptr);
+        SFREE(nptr->left);
+        SFREE(nptr->right);
+        SFREE(nptr->pr);
+        LFREE(nptr);
     }
 }
 
@@ -80,12 +80,12 @@ void zap_list(struct listnode *nptr)
     if (nptr == NULL)
         syserr("NULL PTR");
     nexttodel = nptr->next;
-    free(nptr);
+    LFREE(nptr);
 
     for (nptr = nexttodel; nptr; nptr = nexttodel)
     {
         nexttodel = nptr->next;
-        free(nptr);
+        LFREE(nptr);
     }
 }
 
@@ -215,11 +215,11 @@ void insertnode_list(struct listnode *listhead, char *ltext, char *rtext, char *
     struct listnode *nptr, *nptrlast, *newnode;
     int lo,ln;
 
-    if ((newnode = (struct listnode *)(malloc(sizeof(struct listnode)))) == NULL)
+    if ((newnode = (TALLOC(struct listnode))) == NULL)
         syserr("couldn't malloc listhead");
-    newnode->left = (char *)malloc(strlen(ltext) + 1);
-    newnode->right = (char *)malloc(strlen(rtext) + 1);
-    newnode->pr = prtext? (char *)malloc(strlen(prtext) + 1) : 0;
+    newnode->left = (char *)MALLOC(strlen(ltext) + 1);
+    newnode->right = (char *)MALLOC(strlen(rtext) + 1);
+    newnode->pr = prtext? (char *)MALLOC(strlen(prtext) + 1) : 0;
     strcpy(newnode->left, ltext);
     strcpy(newnode->right, rtext);
     if (prtext)
@@ -328,10 +328,10 @@ void deletenode_list(struct listnode *listhead, struct listnode *nptr)
         if (listhead == nptr)
         {
             lastnode->next = listhead->next;
-            free(listhead->left);
-            free(listhead->right);
-            free(listhead->pr);
-            free(listhead);
+            SFREE(listhead->left);
+            SFREE(listhead->right);
+            SFREE(listhead->pr);
+            LFREE(listhead);
             return;
         }
         lastnode = listhead;
@@ -452,7 +452,7 @@ void addnode_list(struct listnode *listhead, char *ltext, char *rtext, char *prt
 {
     struct listnode *newnode;
 
-    if ((newnode = (struct listnode *)malloc(sizeof(struct listnode))) == NULL)
+    if ((newnode = TALLOC(struct listnode)) == NULL)
         syserr("couldn't malloc listhead");
     newnode->left = mystrdup(ltext);
     if (rtext)

@@ -290,7 +290,7 @@ struct session *new_session(char *name,char *address,int sock,int issocket,struc
     struct session *newsession;
     int i;
 
-    newsession = (struct session *)malloc(sizeof(struct session));
+    newsession = TALLOC(struct session);
 
     newsession->name = mystrdup(name);
     newsession->address = mystrdup(address);
@@ -432,24 +432,24 @@ void cleanup_session(struct session *ses)
     if (ses->debuglogfile)
         fclose(ses->debuglogfile);
     for(i=0;i<NHOOKS;i++)
-    	free(ses->hooks[i]);
-    free(ses->name);
-    free(ses->address);
+    	SFREE(ses->hooks[i]);
+    SFREE(ses->name);
+    SFREE(ses->address);
 #ifdef UTF8
     cleanup_conv(&ses->c_io);
-    free(ses->charset);
+    SFREE(ses->charset);
     if (!logcs_is_special(ses->logcharset))
-        free(ses->logcharset);
+        SFREE(ses->logcharset);
 #endif
 #ifdef HAVE_LIBZ
     if (ses->mccp)
     {
         inflateEnd(ses->mccp);
-        free(ses->mccp);
+        TFREE(ses->mccp, z_stream);
     }
 #endif
     
-    free(ses);
+    TFREE(ses, struct session);
 }
 
 void seslist(char *result)

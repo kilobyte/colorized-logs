@@ -519,7 +519,7 @@ ever wants to read -- that is what docs are for.
     setup_ulimit();
     time0 = time(NULL);
 
-    nullsession=(struct session *)malloc(sizeof(struct session));
+    nullsession=TALLOC(struct session);
     nullsession->name=mystrdup("main");
     nullsession->address=0;
     nullsession->tickstatus = FALSE;

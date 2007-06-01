@@ -99,7 +99,7 @@ void insert_history(char *buffer, struct session *ses)
     int i;
 
     if (history[HISTORY_SIZE - 1])
-        free(history[HISTORY_SIZE - 1]);
+        SFREE(history[HISTORY_SIZE - 1]);
 
     for (i = HISTORY_SIZE - 1; i > 0; i--)
         history[i] = history[i - 1];

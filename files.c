@@ -254,7 +254,7 @@ void log_off(struct session *ses)
 {
     fclose(ses->logfile);
     ses->logfile = NULL;
-    free(ses->logname);
+    SFREE(ses->logname);
     ses->logname = NULL;
     cleanup_conv(&ses->c_log);
 }
@@ -498,7 +498,7 @@ void debuglog_command(char *arg, struct session *ses)
             fclose(ses->debuglogfile);
             tintin_printf(ses, "#OK. DEBUGLOG TURNED OFF.");
             ses->debuglogfile = NULL;
-            free(ses->debuglogname);
+            SFREE(ses->debuglogname);
             ses->debuglogname = NULL;
         }
         get_arg_in_braces(arg, temp, 1);
@@ -515,7 +515,7 @@ void debuglog_command(char *arg, struct session *ses)
     {
         fclose(ses->debuglogfile);
         ses->debuglogfile = NULL;
-        free(ses->debuglogname);
+        SFREE(ses->debuglogname);
         ses->debuglogname = NULL;
         tintin_printf(ses, "#OK. DEBUGLOG TURNED OFF.");
     }
@@ -1235,7 +1235,7 @@ void logcharset_command(char *arg, struct session *ses)
         return;
     }
     if (!logcs_is_special(ses->logcharset))
-        free(ses->logcharset);
+        SFREE(ses->logcharset);
     ses->logcharset=logcs_is_special(arg) ? arg : mystrdup(arg);
     if (ses!=nullsession && ses->logfile)
     {

@@ -43,7 +43,7 @@ char* mystrdup(char *s)
 {
     char *dup;
 
-    if ((dup = (char *)malloc(strlen(s) + 1)) == NULL)
+    if ((dup = MALLOC(strlen(s) + 1)) == NULL)
         syserr("Not enough memory for strdup.");
     strcpy(dup, s);
     return dup;

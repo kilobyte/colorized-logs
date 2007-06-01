@@ -18,6 +18,9 @@
 /* Define to 1 if you have the `getpt' function. */
 #undef HAVE_GETPT
 
+/* Define if glib 2.10+ is available. */
+#undef HAVE_GLIB
+
 /* Define to 1 if you have the `grantpt' function. */
 #undef HAVE_GRANTPT
 

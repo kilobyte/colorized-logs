@@ -21,11 +21,11 @@ extern int match(char *regex, char *string);
 /**********************************/
 struct hashtable* init_hash()
 {
-    struct hashtable *h=malloc(sizeof(struct hashtable));
+    struct hashtable *h=TALLOC(struct hashtable);
     h->size=8;
     h->nent=0;
     h->nval=0;
-    h->tab=calloc(8, sizeof(struct hashentry));
+    h->tab=CALLOC(8, struct hashentry);
     return h;
 }
 
@@ -42,12 +42,12 @@ void kill_hash(struct hashtable* h)
         {
             if (h->tab[i].left && (h->tab[i].left!=DELETED_HASHENTRY))
             {
-                free(h->tab[i].left);
-                free(h->tab[i].right);
+                SFREE(h->tab[i].left);
+                SFREE(h->tab[i].right);
             }
         };
-    free(h->tab);
-    free(h);
+    CFREE(h->tab, h->size, struct hashentry);
+    TFREE(h, struct hashtable);
 }
 
 
@@ -74,7 +74,7 @@ static inline void rehash(struct hashtable *h, int s)
     
     gt=h->tab;
     gs=h->size;
-    h->tab=calloc(s, sizeof(struct hashentry));
+    h->tab=CALLOC(s, struct hashentry);
     h->nent=h->nval;
     h->size=s;
     for(i=0;i<gs;i++)
@@ -82,7 +82,7 @@ static inline void rehash(struct hashtable *h, int s)
         if (gt[i].left && gt[i].left!=DELETED_HASHENTRY)
             add_hash_value(h, gt[i].left, gt[i].right);
     }
-    free(gt);
+    CFREE(gt, gs, struct hashentry);
 }
 
 
@@ -105,7 +105,7 @@ void set_hash(struct hashtable *h, char *key, char *value)
                 j=i;
         if (!strcmp(h->tab[i].left, key))
         {
-            free(h->tab[i].right);
+            SFREE(h->tab[i].right);
             h->tab[i].right=mystrdup(value);
             return;
         }
@@ -191,8 +191,8 @@ int delete_hash(struct hashtable *h, char *key)
     {
         if (h->tab[i].left!=DELETED_HASHENTRY&&(!strcmp(h->tab[i].left, key)))
         {
-            free(h->tab[i].left);
-            free(h->tab[i].right);
+            SFREE(h->tab[i].left);
+            SFREE(h->tab[i].right);
             h->tab[i].left=DELETED_HASHENTRY;
             h->nval--;
             if (h->nval*5<h->size)
@@ -269,7 +269,7 @@ struct listnode* hash2list(struct hashtable *h, char *pat)
         if (h->tab[i].left && (h->tab[i].left!=DELETED_HASHENTRY)
             && match(pat, h->tab[i].left))
         {
-            if (!(l=(struct listnode *)malloc(sizeof(struct listnode))))
+            if (!(l=TALLOC(struct listnode)))
                 syserr("couldn't malloc listhead");
             l->left = h->tab[i].left;
             l->right= h->tab[i].right;
@@ -298,9 +298,9 @@ struct hashtable* copy_hash(struct hashtable *h)
 {
     int i;
     struct hashtable *g=init_hash();
-    free(g->tab);
+    CFREE(g->tab, g->size, struct hashentry);
     g->size=(h->nval>4) ? (h->nval*2) : 8;
-    g->tab=calloc(g->size, sizeof(struct hashentry));
+    g->tab=CALLOC(g->size, struct hashentry);
     
     for(i=0; i<h->size; i++)
         if (h->tab[i].left && h->tab[i].left!=DELETED_HASHENTRY)

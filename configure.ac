@@ -34,6 +34,7 @@ AC_CHECK_LIB(iconv, iconv_open)
 AC_CHECK_LIB(iconv, libiconv_open)
 AC_CHECK_FUNCS([iconv_open memcpy getpt ptsname snprintf vsnprintf _getpty grantpt forkpty regcomp getaddrinfo])
 AC_CHECK_LIB(z, gzread)
+AM_PATH_GLIB_2_0([2.10.0], [AC_DEFINE([HAVE_GLIB], [1], [Define if glib 2.10+ is available.])])
 
 AC_PTYRANGES
 AC_LBL_LIBRARY_NET

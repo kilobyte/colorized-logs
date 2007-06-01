@@ -209,6 +209,7 @@
 #ifdef HAVE_LIBZ
 #include <zlib.h>
 #endif
+#include "malloc.h"
 
 struct listnode {
   struct listnode *next;
