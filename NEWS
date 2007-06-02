@@ -83,3 +83,10 @@
 1.0.9:
 * MCCP compression.
 * #keypad on gnome-terminal and some xterms
+
+1.0.10:
+* support for CJK
+* "clear screen" ANSI codes, some MUDs apparently use them
+* if glib is available, it's used for a speed increase
+* brand new ansi2html, using CSS instead of ugly and buggy table hacks
+* other minor changes and bugfixes
