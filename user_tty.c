@@ -1428,7 +1428,7 @@ key_alt_tab:
                     if (in_getpassword)
                     {
                         *tbuf++='*';
-                        if (dw)
+                        if (dw==2)
                             *tbuf++='*';
                     }
                     else
