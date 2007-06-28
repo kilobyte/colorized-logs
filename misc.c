@@ -1369,7 +1369,7 @@ void ord_command(char *arg, struct session *ses)
     for(cptr=right; *cptr; cptr++)
     {
         if (r-res<BUFFER_SIZE-9)
-            r+=sprintf(r, " %u", *cptr);
+            r+=sprintf(r, " %u", (unsigned int)*cptr);
         else
         {
             tintin_eprintf(ses, "#ord: result too long");
@@ -1407,7 +1407,7 @@ void hexord_command(char *arg, struct session *ses)
     for(cptr=right; *cptr; cptr++)
     {
         if (r-res<BUFFER_SIZE-9)
-            r+=sprintf(r, " U+%04X", *cptr);
+            r+=sprintf(r, " U+%04X", (unsigned int)*cptr);
         else
         {
             tintin_eprintf(ses, "#hexord: result too long");

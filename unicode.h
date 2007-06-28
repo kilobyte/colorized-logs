@@ -1,6 +1,7 @@
 #ifdef UTF8
 #define WC wchar_t
 #define WCL sizeof(WC)
+#define WCI wint_t
 #define WCC "%lc"
 #define WClen wcslen
 #define WCcpy wcscpy
@@ -14,6 +15,7 @@ int wcswidth(const WC *pwcs, size_t n);
 #else
 #define WC char
 #define WCL 1
+#define WCI int
 #define WCC "%c"
 #define WClen strlen
 #define WCcpy strcpy

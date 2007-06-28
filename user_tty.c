@@ -751,7 +751,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
         if (b_bottom!=b_screenb)
             b_scroll(b_bottom);
         {
-            sprintf(txt, "ESCO"WCC, ch);
+            sprintf(txt, "ESCO"WCC, (WCI)ch);
             find_bind(txt,1,ses);
         };
         break;
@@ -760,7 +760,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
         if (b_bottom!=b_screenb)
             b_scroll(b_bottom);
         {
-            sprintf(txt, "ESC[["WCC, ch);
+            sprintf(txt, "ESC[["WCC, (WCI)ch);
             find_bind(txt,1,ses);
         };
         break;
@@ -862,7 +862,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
                     if (b_bottom!=b_screenb)
                         b_scroll(b_bottom);
                     {
-                        sprintf(txt, "ESC["WCC, ch);
+                        sprintf(txt, "ESC["WCC, (WCI)ch);
                         find_bind(txt,1,ses);
                         break;
                     };
@@ -966,7 +966,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
         if (ch==127)
             sprintf(txt,"Alt-Backspace");
         else if ((unsigned char)ch>32)
-            sprintf(txt,"Alt-"WCC,ch);
+            sprintf(txt,"Alt-"WCC,(WCI)ch);
         else if (ch==32)
             sprintf(txt,"Alt-Space");
         else if (ch==27)
@@ -976,7 +976,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
         else if (ch==9)
             sprintf(txt,"Alt-Tab");
         else
-            sprintf(txt,"Alt-^"WCC,ch+64);
+            sprintf(txt,"Alt-^"WCC,(WCI)(ch+64));
         if (find_bind(txt,0,ses))
             break;
         switch(ch)
@@ -1400,7 +1400,7 @@ key_alt_tab:
                 b_scroll(b_bottom);
             if ((ch>0)&&(ch<32))
             {
-                sprintf(txt,"^"WCC,ch+64);
+                sprintf(txt,"^"WCC,(WCI)(ch+64));
                 find_bind(txt,1,ses);
                 break;
             };
