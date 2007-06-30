@@ -213,9 +213,10 @@
 #endif
 #include "malloc.h"
 
-struct listnode {
-  struct listnode *next;
-  char *left, *right, *pr;
+struct listnode
+{
+    struct listnode *next;
+    char *left, *right, *pr;
 };
 
 struct hashentry
@@ -234,24 +235,24 @@ struct hashtable
 
 struct completenode
 {
-  struct completenode *next;
-  char *strng;
+    struct completenode *next;
+    char *strng;
 };
 
 struct eventnode
 {
-  struct eventnode *next;
-  char *event;
-  int time; /* time_t */
+    struct eventnode *next;
+    char *event;
+    int time; /* time_t */
 };
 
 struct routenode
 {
-	struct routenode *next;
-	int dest;
-	char *path;
-	int distance;
-	char *cond;
+    struct routenode *next;
+    int dest;
+    char *path;
+    int distance;
+    char *cond;
 };
 
 struct charset_conv
@@ -264,47 +265,47 @@ struct charset_conv
 
 struct session
 {
-  struct session *next;
-  char *name;
-  char *address;
-  int tickstatus;
-  int time0;      /* time of last tick (adjusted every tick) */
-  int time10;
-  int tick_size,pretick;
-  int snoopstatus;
-  FILE *logfile,*debuglogfile;
-  char *logname,*debuglogname;
-  int logtype;
-  int ignore;
-  struct listnode *actions, *prompts, *subs, *highs, *antisubs;
-  struct hashtable *aliases, *myvars, *pathdirs, *binds;
-  struct listnode *path;
-  struct routenode *routes[MAX_LOCATIONS];
-  char *locations[MAX_LOCATIONS];
-  struct eventnode *events;
-  int path_length, no_return;
-  int socket, issocket, naws, ga, gas, last_term_type;
-  int server_echo; /* 0=not negotiated, 1=we shouldn't echo, 2=we can echo */
-  int more_coming;
-  char last_line[BUFFER_SIZE],telnet_buf[BUFFER_SIZE];
-  int telnet_buflen;
-  int verbose,blank,echo,speedwalk,togglesubs,presub,verbatim;
-  int mesvar[MAX_MESVAR+1];
-  int idle_since;
-  int sessionstart;
-  char *hooks[NHOOKS];
-  int closing;
-  int nagle;
-  int halfcr_in, halfcr_log; /* \r at the end of a packet */
+    struct session *next;
+    char *name;
+    char *address;
+    int tickstatus;
+    int time0;      /* time of last tick (adjusted every tick) */
+    int time10;
+    int tick_size,pretick;
+    int snoopstatus;
+    FILE *logfile,*debuglogfile;
+    char *logname,*debuglogname;
+    int logtype;
+    int ignore;
+    struct listnode *actions, *prompts, *subs, *highs, *antisubs;
+    struct hashtable *aliases, *myvars, *pathdirs, *binds;
+    struct listnode *path;
+    struct routenode *routes[MAX_LOCATIONS];
+    char *locations[MAX_LOCATIONS];
+    struct eventnode *events;
+    int path_length, no_return;
+    int socket, issocket, naws, ga, gas, last_term_type;
+    int server_echo; /* 0=not negotiated, 1=we shouldn't echo, 2=we can echo */
+    int more_coming;
+    char last_line[BUFFER_SIZE],telnet_buf[BUFFER_SIZE];
+    int telnet_buflen;
+    int verbose,blank,echo,speedwalk,togglesubs,presub,verbatim;
+    int mesvar[MAX_MESVAR+1];
+    int idle_since;
+    int sessionstart;
+    char *hooks[NHOOKS];
+    int closing;
+    int nagle;
+    int halfcr_in, halfcr_log; /* \r at the end of a packet */
 #ifdef UTF8
-  char *charset, *logcharset;
-  struct charset_conv c_io,c_log;
+    char *charset, *logcharset;
+    struct charset_conv c_io,c_log;
 #endif
 #ifdef HAVE_LIBZ
-  int can_mccp;
-  z_stream *mccp;
-  int mccp_more;
-  char mccp_buf[INPUT_CHUNK];
+    int can_mccp;
+    z_stream *mccp;
+    int mccp_more;
+    char mccp_buf[INPUT_CHUNK];
 #endif
 };
 
