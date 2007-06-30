@@ -538,6 +538,7 @@ ever wants to read -- that is what docs are for.
     nullsession->presub = DEFAULT_PRESUB;
     nullsession->verbatim = 0;
     nullsession->ignore = DEFAULT_IGNORE;
+    nullsession->partial_line_marker = mystrdup(DEFAULT_PARTIAL_LINE_MARKER);
     nullsession->aliases = init_hash();
     nullsession->actions = init_list();
     nullsession->prompts = init_list();
@@ -987,9 +988,8 @@ void do_one_line(char *line,int nl,struct session *ses)
                 if (ui_drafts)
                 {
                     isnb = ses->gas ? ses->ga : iscompleteprompt(line);
-#ifdef PARTIAL_LINE_MARKER
-                    sprintf(strchr(line,0),PARTIAL_LINE_MARKER);
-#endif
+                    if (ses->partial_line_marker)
+                        sprintf(strchr(line,0), "%s", ses->partial_line_marker);
                     user_textout_draft(line, isnb);
                 }
                 lastdraft=ses;

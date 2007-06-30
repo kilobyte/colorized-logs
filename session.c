@@ -344,6 +344,7 @@ struct session *new_session(char *name,char *address,int sock,int issocket,struc
     newsession->halfcr_log=0;
     newsession->debuglogfile=0;
     newsession->debuglogname=0;
+    newsession->partial_line_marker = mystrdup(ses->partial_line_marker);
     memcpy(newsession->mesvar, ses->mesvar, sizeof(int)*(MAX_MESVAR+1));
     for (i=0;i<MAX_LOCATIONS;i++)
     {
@@ -435,6 +436,7 @@ void cleanup_session(struct session *ses)
     	SFREE(ses->hooks[i]);
     SFREE(ses->name);
     SFREE(ses->address);
+    SFREE(ses->partial_line_marker);
 #ifdef UTF8
     cleanup_conv(&ses->c_io);
     SFREE(ses->charset);

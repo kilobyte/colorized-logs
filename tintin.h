@@ -120,7 +120,7 @@
 #define DEFAULT_PRETICK 10
 #define DEFAULT_CHARSET "ISO-8859-1"	/* the MUD-side charset */
 #define DEFAULT_LOGCHARSET LOGCS_LOCAL
-/*#define PARTIAL_LINE_MARKER "\376"*/       /* comment out to disable */
+#define DEFAULT_PARTIAL_LINE_MARKER 0
 #define BAD_CHAR '?'	        /* marker for chars illegal for a charset */
 #define CHAR_VERBATIM '\\'
 #define CHAR_QUOTE '"'
@@ -290,6 +290,7 @@ struct session
     char last_line[BUFFER_SIZE],telnet_buf[BUFFER_SIZE];
     int telnet_buflen;
     int verbose,blank,echo,speedwalk,togglesubs,presub,verbatim;
+    char *partial_line_marker;
     int mesvar[MAX_MESVAR+1];
     int idle_since;
     int sessionstart;
