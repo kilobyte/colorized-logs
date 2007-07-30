@@ -9,6 +9,6 @@ export LC_ALL
 export LC_CTYPE
 
 #$PATH has the local binary first.
-KBtin -p -q _be_quiet_ <testin
+KBtin -p -q _be_quiet_ $* <testin
 
 rm -rf _be_quiet_

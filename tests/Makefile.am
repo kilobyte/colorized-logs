@@ -31,7 +31,7 @@ $(TESTSUITE): package.m4 testsuite.at $(TESTSUITE_AT)
 	$(AUTOTEST) -I $(srcdir) $@.at -o $@.tmp
 	mv $@.tmp $@
 
-TESTSUITE_AT = version.at tests.at
+TESTSUITE_AT = version.at tests.at run.at
 
 tests.at: tests.in make_tests
 	$(srcdir)/make_tests "$(srcdir)/tests.in"

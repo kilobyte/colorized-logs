@@ -147,7 +147,7 @@ MAINTAINERCLEANFILES = Makefile.in $(TESTSUITE) package.m4
 #
 TESTSUITE = $(srcdir)/testsuite
 AUTOTEST = $(AUTOM4TE) --language=autotest
-TESTSUITE_AT = version.at tests.at
+TESTSUITE_AT = version.at tests.at run.at
 all: all-am
 
 .SUFFIXES:

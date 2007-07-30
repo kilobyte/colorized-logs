@@ -113,7 +113,7 @@ noname:
         } while (j);
         if (!session_exists(t))
         {
-            strcpy(str, t+1);
+            strcpy(str, t);
             return;
         }
     }
