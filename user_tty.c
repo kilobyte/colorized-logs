@@ -503,6 +503,7 @@ static void b_textout(char *txt)
 
     /* warning! terminal output can get discarded! */
     tbuf+=sprintf(tbuf,"\0338");
+    tbuf+=sprintf(tbuf,COLORCODE(o_color));
     for (;*txt;txt++)
         switch(*txt)
         {
