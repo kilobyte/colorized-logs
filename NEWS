@@ -90,3 +90,8 @@
 * if glib is available, it's used for a speed increase
 * brand new ansi2html, using CSS instead of ugly and buggy table hacks
 * other minor changes and bugfixes
+
+1.0.11:
+* bugfixes
+* a workaround for some issues with gnome-terminal, before they're fixed
+  on their side
