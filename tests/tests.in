@@ -558,3 +558,12 @@ def
 abc
 def
 ===
+
+### #localtime, #gmtime
+<<<
+#localtime foo 1189969300;#showme $foo
+#gmtime foo 1189969300;#showme $foo
+>>>
+40 1 21  16 8 2007  0 258 1
+40 1 19  16 8 2007  0 258 0
+===

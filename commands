@@ -165,3 +165,5 @@ dopromptactions
 chr
 ord
 hexord
+localtime
+gmtime

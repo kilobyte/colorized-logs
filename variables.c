@@ -1585,6 +1585,68 @@ void time_command(char *arg,struct session *ses)
         set_variable(left,ct,ses);
 }
 
+/**************************/
+/* the #localtime command */
+/**************************/
+void localtime_command(char *arg,struct session *ses)
+{
+    char left[BUFFER_SIZE], ct[BUFFER_SIZE];
+    time_t t;
+    struct tm ts;
+
+    arg = get_arg(arg, left, 0, ses);
+    arg = get_arg(arg, ct, 1, ses);
+    if (*ct)
+    {
+        t=time2secs(ct,ses);
+        if (t==INVALID_TIME)
+            return;
+        sprintf(ct,"%d",t);
+    }
+    else
+        t=time(0);
+    localtime_r(&t, &ts);
+    sprintf(ct, "%d %d %d  %d %d %d  %d %d %d",
+                    ts.tm_sec, ts.tm_min, ts.tm_hour,
+                    ts.tm_mday, ts.tm_mon, ts.tm_year+1900,
+                    ts.tm_wday, ts.tm_yday, ts.tm_isdst);
+    if (!*left)
+        tintin_printf(ses, "#%s.", ct);
+    else
+        set_variable(left,ct,ses);
+}
+
+/***********************/
+/* the #gmtime command */
+/***********************/
+void gmtime_command(char *arg,struct session *ses)
+{
+    char left[BUFFER_SIZE], ct[BUFFER_SIZE];
+    time_t t;
+    struct tm ts;
+
+    arg = get_arg(arg, left, 0, ses);
+    arg = get_arg(arg, ct, 1, ses);
+    if (*ct)
+    {
+        t=time2secs(ct,ses);
+        if (t==INVALID_TIME)
+            return;
+        sprintf(ct,"%d",t);
+    }
+    else
+        t=time(0);
+    gmtime_r(&t, &ts);
+    sprintf(ct, "%d %d %d  %d %d %d  %d %d %d",
+                    ts.tm_sec, ts.tm_min, ts.tm_hour,
+                    ts.tm_mday, ts.tm_mon, ts.tm_year+1900,
+                    ts.tm_wday, ts.tm_yday, ts.tm_isdst);
+    if (!*left)
+        tintin_printf(ses, "#%s.", ct);
+    else
+        set_variable(left,ct,ses);
+}
+
 
 /**************************/
 /* the #substring command */

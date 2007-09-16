@@ -1,3 +1,6 @@
+1.0.12:
+*	#localtime, #gmtime
+
 1.0.11:
 *	bugfix: don't double the asterisks when typing in a password
 *	turn PARTIAL_LINE_MARKER into a variable (not settable yet)

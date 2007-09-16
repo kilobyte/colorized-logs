@@ -36,7 +36,7 @@ Text variables:
    firstupper  tolower     toupper     substring   prepad      postpad
    reverse     strlen      decolorize  atoi    chr    ord      hexord
 Time:
-   ctime       time
+   ctime       time        localtime   gmtime
 Lists:
    finditem    deleteitems foreach     finditem    getitem     isatom
    listlength  splitlist   implode     explode     sortlist    collate
@@ -958,6 +958,30 @@ Examples:
 		#math tmp {$armreset-$now-1800};
 		#delay $tmp {#showme Armoury reset in 30 minutes!}
 	}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~localtime
+
+#localtime
+Prints the current time as an array, in order:
+  second, minute, hour,
+  day, month, year,
+  day-of-week, day-of-year, DST
+The order is cumbersome, but it's the same as C's and Perl's version.  The
+year is specified in full, though, instead of being 100+something.
+
+#localtime <dest.var>
+Stores the above into a variable.
+
+#ctime <dest.var> <time>
+Converts <time> as in #time into parsable form as in the above.
+
+Example:
+#localtime NOW               -> NOW = "54 58 20  16 8 2007  0 258 1"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~gmtime
+
+See #localtime.  The difference between the two is left to guess to the
+reader as an exercise.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~timecommand
 

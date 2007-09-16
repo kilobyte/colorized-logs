@@ -588,3 +588,13 @@ def
 ])
 AT_CHECK([runtest.sh],,[expout])
 AT_CLEANUP
+
+AT_SETUP([#localtime, #gmtime])
+AT_DATA([testin], [#localtime foo 1189969300;#showme $foo
+#gmtime foo 1189969300;#showme $foo
+])
+AT_DATA([expout], [40 1 21  16 8 2007  0 258 1
+40 1 19  16 8 2007  0 258 0
+])
+AT_CHECK([runtest.sh],,[expout])
+AT_CLEANUP
