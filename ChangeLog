@@ -1,5 +1,6 @@
 1.0.12:
 *	#localtime, #gmtime
+*	bugfix: segfault on MCCP end (not exploitable)
 
 1.0.11:
 *	bugfix: don't double the asterisks when typing in a password

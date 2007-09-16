@@ -358,6 +358,7 @@ int read_buffer_mud(char *buffer, struct session *ses)
         {
         case Z_OK:
             didget=INPUT_CHUNK-len-ses->mccp->avail_out;
+            ses->mccp_more = !ses->mccp->avail_out;
             break;
         case Z_STREAM_END:
             tintin_printf(ses, "#COMPRESSION END, DISABLING MCCP.");
@@ -377,7 +378,6 @@ int read_buffer_mud(char *buffer, struct session *ses)
             ses->mccp_more=0;
             return -1;
         }
-        ses->mccp_more = !ses->mccp->avail_out;
     }
     else
 #endif
