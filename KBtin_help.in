@@ -976,7 +976,7 @@ Stores the above into a variable.
 Converts <time> as in #time into parsable form as in the above.
 
 Example:
-#localtime NOW               -> NOW = "54 58 20  16 8 2007  0 258 1"
+#localtime NOW               -> NOW = "54 58 20  16 08 2007  0 258 1"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~gmtime
 

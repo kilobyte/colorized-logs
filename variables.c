@@ -1606,7 +1606,7 @@ void localtime_command(char *arg,struct session *ses)
     else
         t=time(0);
     localtime_r(&t, &ts);
-    sprintf(ct, "%d %d %d  %d %d %d  %d %d %d",
+    sprintf(ct, "%02d %02d %02d  %02d %02d %04d  %d %d %d",
                     ts.tm_sec, ts.tm_min, ts.tm_hour,
                     ts.tm_mday, ts.tm_mon, ts.tm_year+1900,
                     ts.tm_wday, ts.tm_yday, ts.tm_isdst);
@@ -1637,7 +1637,7 @@ void gmtime_command(char *arg,struct session *ses)
     else
         t=time(0);
     gmtime_r(&t, &ts);
-    sprintf(ct, "%d %d %d  %d %d %d  %d %d %d",
+    sprintf(ct, "%02d %02d %02d  %02d %02d %04d  %d %d %d",
                     ts.tm_sec, ts.tm_min, ts.tm_hour,
                     ts.tm_mday, ts.tm_mon, ts.tm_year+1900,
                     ts.tm_wday, ts.tm_yday, ts.tm_isdst);
