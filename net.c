@@ -361,7 +361,9 @@ int read_buffer_mud(char *buffer, struct session *ses)
             ses->mccp_more = !ses->mccp->avail_out;
             break;
         case Z_STREAM_END:
+#ifdef TELNET_DEBUG
             tintin_printf(ses, "#COMPRESSION END, DISABLING MCCP.");
+#endif
             didget=INPUT_CHUNK-len-ses->mccp->avail_out;
             inflateEnd(ses->mccp);
             TFREE(ses->mccp, z_stream);
