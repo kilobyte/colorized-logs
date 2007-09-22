@@ -243,7 +243,7 @@ struct eventnode
 {
     struct eventnode *next;
     char *event;
-    int time; /* time_t */
+    time_t time;
 };
 
 struct routenode
@@ -269,8 +269,8 @@ struct session
     char *name;
     char *address;
     int tickstatus;
-    int time0;      /* time of last tick (adjusted every tick) */
-    int time10;
+    time_t time0;      /* time of last tick (adjusted every tick) */
+    time_t time10;
     int tick_size,pretick;
     int snoopstatus;
     FILE *logfile,*debuglogfile;
@@ -292,7 +292,7 @@ struct session
     int verbose,blank,echo,speedwalk,togglesubs,presub,verbatim;
     char *partial_line_marker;
     int mesvar[MAX_MESVAR+1];
-    int idle_since;
+    time_t idle_since;
     int sessionstart;
     char *hooks[NHOOKS];
     int closing;

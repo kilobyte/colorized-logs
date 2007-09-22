@@ -38,7 +38,7 @@ void execute_event(struct eventnode *ev, struct session *ses)
 void list_events(char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE];
-    int ct; /* current time */
+    time_t ct; /* current time */
     int flag;
     struct eventnode *ev;
 
@@ -82,7 +82,7 @@ void list_events(char *arg, struct session *ses)
 void delay_command(char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE], temp[BUFFER_SIZE], *cptr;
-    int delay;
+    time_t delay;
     struct eventnode *ev, *ptr, *ptrlast;
 
     if (!ses)
@@ -187,7 +187,7 @@ void undelay_command(char *arg, struct session *ses)
         {
             flag=1;
             if (ses==activesession && ses->mesvar[3])
-                tintin_printf(ses, "#Ok. Event {%s} at %d won't be executed.",
+                tintin_printf(ses, "#Ok. Event {%s} at %ld won't be executed.",
                     (*ev)->event, (*ev)->time-time(0));
             remove_event(ev);
         }

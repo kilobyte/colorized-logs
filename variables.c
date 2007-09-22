@@ -1601,7 +1601,7 @@ void localtime_command(char *arg,struct session *ses)
         t=time2secs(ct,ses);
         if (t==INVALID_TIME)
             return;
-        sprintf(ct,"%d",t);
+        sprintf(ct, "%ld", (long)t);
     }
     else
         t=time(0);
@@ -1632,7 +1632,7 @@ void gmtime_command(char *arg,struct session *ses)
         t=time2secs(ct,ses);
         if (t==INVALID_TIME)
             return;
-        sprintf(ct,"%d",t);
+        sprintf(ct, "%ld", (long)t);
     }
     else
         t=time(0);
