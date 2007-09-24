@@ -759,7 +759,7 @@ void splitlist_command(char *arg,struct session *ses)
 
     if (!*headvar && !*tailvar)
     {
-        tintin_eprintf(ses,"#Error - Syntax: #splitlist {head variable} {tail variable}"
+        tintin_eprintf(ses,"#Error - Syntax: #splitlist {head variable} {tail variable} "
                      "{list} [{head size}]");
         return; /* on ERROR */
     }
