@@ -1,6 +1,8 @@
 1.0.12:
 *	#localtime, #gmtime
 *	bugfix: segfault on MCCP end (not exploitable)
+*	bugfix: active session changes inside of compound commands didn't
+	propagate properly
 
 1.0.11:
 *	bugfix: don't double the asterisks when typing in a password
