@@ -18,7 +18,7 @@ extern char *get_arg(char *s,char *arg,int flag,struct session *ses);
 void substitute_vars(char *arg, char *result);
 extern void substitute_myvars(char *arg,char *result,struct session *ses);
 extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
-extern void if_command(char *arg, struct session *ses);
+extern struct session *if_command(char *arg, struct session *ses);
 extern void tintin_eprintf(struct session *ses,char *format,...);
 extern int is_abrev(char *s1, char *s2);
 

@@ -63,7 +63,7 @@ extern struct listnode* hash2list(struct hashtable *h, char *pat);
 extern void show_hashlist(struct session *ses, struct hashtable *h, char *pat, const char *msg_all, const char *msg_none);
 extern void delete_hashlist(struct session *ses, struct hashtable *h, char *pat, const char *msg_ok, const char *msg_none);
 extern int is_abrev(char *s1, char *s2);
-extern void if_command(char *line, struct session *ses);
+extern struct session *if_command(char *line, struct session *ses);
 extern int wc_to_utf8(char *d, const wchar_t *s, int n, int maxb);
 extern int utf8_len(char *s);
 extern int utf8_ncpy(char *d, char *s, int n, int maxb);
@@ -842,7 +842,7 @@ void deleteitems_command(char *arg,struct session *ses)
 /**************************/
 /* the #foreach command   */
 /**************************/
-void foreach_command(char *arg,struct session *ses)
+struct session *foreach_command(char *arg,struct session *ses)
 {
     char *list, temp[BUFFER_SIZE], left[BUFFER_SIZE], right[BUFFER_SIZE], *p;
     pvars_t vars,*lastvars;
@@ -853,7 +853,7 @@ void foreach_command(char *arg,struct session *ses)
     if (!*right)
     {
         tintin_eprintf(ses,"#SYNTAX: foreach {list} command");
-        return;
+        return ses;
     }
     lastvars=pvars;
     pvars=&vars;
@@ -865,9 +865,10 @@ void foreach_command(char *arg,struct session *ses)
         for (i=1;i<10;i++)
             p=get_arg_in_braces(p, vars[i], 0);
         in_alias=1;
-        parse_input(right,1,ses);
+        ses=parse_input(right,1,ses);
     }
     pvars=lastvars;
+    return ses;
 }
 
 int compar(const void *a,const void *b)
@@ -1720,7 +1721,7 @@ void substring_command(char *arg,struct session *ses)
 /***********************/
 /* the #strcmp command */
 /***********************/
-void strcmp_command(char *line, struct session *ses)
+struct session *strcmp_command(char *line, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE], cmd[BUFFER_SIZE];
 
@@ -1731,12 +1732,12 @@ void strcmp_command(char *line, struct session *ses)
     if (!*cmd)
     {
         tintin_eprintf(ses, "#Syntax: #strcmp <a> <b> <command> [#else <command>]");
-        return;
+        return ses;
     }
 
     if (!strcmp(left,right))
     {
-        parse_input(cmd,1,ses);
+        ses=parse_input(cmd,1,ses);
     }
     else
     {
@@ -1747,12 +1748,13 @@ void strcmp_command(char *line, struct session *ses)
             if (is_abrev(left + 1, "else"))
             {
                 line = get_arg_in_braces(line, right, 1);
-                parse_input(right,1,ses);
+                ses=parse_input(right,1,ses);
             }
             if (is_abrev(left + 1, "elif"))
-                if_command(line, ses);
+                ses=if_command(line, ses);
         }
     }
+    return ses;
 }
 
 /**********************/
@@ -1773,15 +1775,15 @@ int strcmp_inline(char *line, struct session *ses)
 /***************************************/
 /* (mainstream tintin++ compatibility) */
 /***************************************/
-void ifstrequal_command(char *line, struct session *ses)
+struct session *ifstrequal_command(char *line, struct session *ses)
 {
-    strcmp_command(line,ses);
+    return strcmp_command(line,ses);
 }
 
 /*************************/
 /* the #ifexists command */
 /*************************/
-void ifexists_command(char *line, struct session *ses)
+struct session *ifexists_command(char *line, struct session *ses)
 {
     char left[BUFFER_SIZE],cmd[BUFFER_SIZE];
 
@@ -1791,11 +1793,11 @@ void ifexists_command(char *line, struct session *ses)
     if (!*cmd)
     {
         tintin_eprintf(ses, "#Syntax: #ifexists <varname> <command> [#else <command>]");
-        return;
+        return ses;
     }
 
     if (get_hash(ses->myvars,left))
-        parse_input(cmd,1,ses);
+        ses=parse_input(cmd,1,ses);
     else
     {
         line = get_arg_in_braces(line, left, 0);
@@ -1805,10 +1807,11 @@ void ifexists_command(char *line, struct session *ses)
             if (is_abrev(left + 1, "else"))
             {
                 line = get_arg_in_braces(line, cmd, 1);
-                parse_input(cmd,1,ses);
+                ses=parse_input(cmd,1,ses);
             }
             if (is_abrev(left + 1, "elif"))
-                if_command(line, ses);
+                ses=if_command(line, ses);
         }
     }
+    return ses;
 }

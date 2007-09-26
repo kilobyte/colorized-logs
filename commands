@@ -32,12 +32,12 @@ deleteitems
 deathlog
 echo
 explode
-foreach
+*foreach
 firstupper
 help
 highlight
 history
-if
+*if
 else
 elif
 finditem
@@ -121,7 +121,7 @@ dosubstitutes
 dohighlights
 decolorize
 atoi
-strcmp
+*strcmp
 verbose
 dogoto
 changeto
@@ -135,8 +135,8 @@ grep
 #endif
 
 retain
-ifexists
-ifstrequal
+*ifexists
+*ifstrequal
 
 #ifdef TERM_DEBUG
 termdebug

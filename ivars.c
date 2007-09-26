@@ -69,7 +69,7 @@ void math_command(char *line, struct session *ses)
 /*******************/
 /* the #if command */
 /*******************/
-void if_command(char *line, struct session *ses)
+struct session *if_command(char *line, struct session *ses)
 {
     /* char left[BUFFER_SIZE], right[BUFFER_SIZE], arg2[BUFFER_SIZE],  */
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
@@ -81,11 +81,11 @@ void if_command(char *line, struct session *ses)
     if (!*left || !*right)
     {
         tintin_eprintf(ses,"#ERROR: valid syntax is: if <condition> <command> [#elif <condition> <command>] [...] [#else <command>]");
-        return;
+        return ses;
     }
 
     if (eval_expression(left,ses))
-        parse_input(right,1,ses);
+        ses=parse_input(right,1,ses);
     else
     {
         line = get_arg_in_braces(line, left, 0);
@@ -95,12 +95,13 @@ void if_command(char *line, struct session *ses)
             if (is_abrev(left + 1, "else"))
             {
                 line = get_arg_in_braces(line, right, 1);
-                parse_input(right,1,ses);
+                ses=parse_input(right,1,ses);
             }
             if (is_abrev(left + 1, "elif"))
-                if_command(line, ses);
+                ses=if_command(line, ses);
         }
     }
+    return ses;
 }
 
 

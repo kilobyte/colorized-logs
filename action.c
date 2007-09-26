@@ -38,7 +38,7 @@ int check_one_action(char *line, char *action, pvars_t *vars, int inside, struct
 int check_a_action(char *line, char *action, int inside, struct session *ses);
 extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
 extern int is_abrev(char *s1, char *s2);
-extern void if_command(char *arg, struct session *ses);
+extern struct session *if_command(char *arg, struct session *ses);
 extern void tintin_printf(struct session *ses,char *format,...);
 extern void tintin_eprintf(struct session *ses,char *format,...);
 extern int in_alias;

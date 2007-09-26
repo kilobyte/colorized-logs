@@ -27,7 +27,7 @@ extern void tintin_eprintf(struct session *ses,char *format,...);
 extern void set_variable(char *left,char *right,struct session *ses);
 extern char tintin_char;
 extern int is_abrev(char *s1, char *s2);
-extern void if_command(char *arg, struct session *ses);
+extern struct session *if_command(char *arg, struct session *ses);
 
 
 void addroute(struct session *ses,int a,int b,char *way,int dist,char *cond)

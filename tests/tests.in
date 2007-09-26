@@ -567,3 +567,45 @@ def
 40 01 21  16 08 2007  0 258 1
 40 01 19  16 08 2007  0 258 0
 ===
+
+### changing session inside compound commands
+<<<
+#var dummy 0
+#alias s {#a rep $0;#b rep $0}
+#run a cat
+#ali rep #showme $0: This is a.
+#run b cat
+#ali rep #showme $0: This is b.
+s Initial
+#b
+#foreach 1 {#nop;#a}
+s After #foreach
+#b
+#if 1 {#a}
+s After #if
+#b
+#if 0 {#showme BAD} #else {#a}
+s After #if #else
+#b
+#strcmp a a {#a}
+s After #strcmp
+#b
+#ifexists dummy {#a}
+s After #ifexists
+#b
+#ifexists dummy1 {#showme BAD} #else {#a}
+s After #ifexists #else
+#end
+>>>
+Initial: This is b.
+#SESSION 'b' ACTIVATED.
+After #foreach: This is a.
+After #if: This is a.
+After #if #else: This is a.
+After #strcmp: This is a.
+After #ifexists: This is a.
+After #ifexists #else: This is a.
+#SESSION 'b' DIED.
+
+#SESSION 'a' DIED.
+===
