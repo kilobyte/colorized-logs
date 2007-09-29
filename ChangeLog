@@ -3,6 +3,7 @@
 *	bugfix: segfault on MCCP end (not exploitable)
 *	bugfix: active session changes inside of compound commands didn't
 	propagate properly
+*	another stab at gnome-terminal and blue lines...
 
 1.0.11:
 *	bugfix: don't double the asterisks when typing in a password
