@@ -1666,23 +1666,15 @@ static void usertty_passwd(int x)
 static void usertty_title(char *fmt,...)
 {
     va_list ap;
-#ifdef HAVE_VSNPRINTF
     char buf[BUFFER_SIZE];
-#else
-    char buf[BUFFER_SIZE*4]; /* let's hope this will never overflow... */
-#endif
 #ifndef XTERM_TITLE
     if (!xterm)
 #endif
         return;
 
     va_start(ap, fmt);
-#ifdef HAVE_VSNPRINTF
     if (vsnprintf(buf, BUFFER_SIZE-1, fmt, ap)>BUFFER_SIZE-2)
         buf[BUFFER_SIZE-3]='>';
-#else
-    vsprintf(buf, fmt, ap);
-#endif
     va_end(ap);
 
 #ifdef UTF8

@@ -84,3 +84,10 @@ void syserr(char *msg, ...)
     va_end(ap);
 }
 #endif
+
+#ifndef HAVE_VSNPRINTF
+/* not for protos.h */ int vsnprintf(char *str, int len, char *fmt, va_list ap);
+{
+    vsprintf(str, fmt, ap);
+}
+#endif

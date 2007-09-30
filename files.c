@@ -550,11 +550,7 @@ void debuglog_command(char *arg, struct session *ses)
 void debuglog(struct session *ses, const char *format, ...)
 {
     va_list ap;
-#ifdef HAVE_VSNPRINTF
     char buf[BUFFER_SIZE];
-#else
-    char buf[BUFFER_SIZE*4]; /* let's hope this will never overflow... */
-#endif
     struct timeval tv;
 
     if (!ses->debuglogfile)
@@ -562,12 +558,8 @@ void debuglog(struct session *ses, const char *format, ...)
     
     gettimeofday(&tv, 0);
     va_start(ap, format);
-#ifdef HAVE_VSNPRINTF
     if (vsnprintf(buf, BUFFER_SIZE-1, format, ap)>BUFFER_SIZE-2)
         buf[BUFFER_SIZE-3]='>';
-#else
-    vsprintf(buf, format, ap);
-#endif
     va_end(ap);
     cfprintf(ses->debuglogfile, "%4d.%06d: %s\n",
         (int)tv.tv_sec-ses->sessionstart, (int)tv.tv_usec, buf);
