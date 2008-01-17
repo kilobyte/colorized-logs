@@ -266,6 +266,8 @@ csi:
     case 'J':
         goto formfeed;
     default:
+        ch=getchar();		/* invalid/unimplemented code, ignore */
+    case EOF:
         goto normal;
     }
 }
