@@ -97,7 +97,7 @@ int get_high_num(char *hig)
         sl=strchr(hig,'/');
         if (!sl)
             sl=strchr(hig,0);
-        sprintf(tmp,"~%.*s~",sl-hig,hig);
+        sprintf(tmp, "~%.*s~", (int)(sl-hig), hig);
         sl=tmp;
         if (getcolor(&sl,&highcolor,0))
             return (highcolor);

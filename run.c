@@ -1,3 +1,4 @@
+#define _XOPEN_SOURCE
 #include "config.h"
 #include <stdio.h>
 #include <fcntl.h>
@@ -183,7 +184,7 @@ int forkpty(int *amaster,char *dummy,struct termios *termp, struct winsize *wp)
         goto close_master;
 
 # ifdef HAVE_PTSNAME
-    if (!(name=(char*)ptsname(master)))
+    if (!(name=ptsname(master)))
         goto close_master;
 # else
     if (ptsname_r(master,name,80))
