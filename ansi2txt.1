@@ -10,8 +10,9 @@ ansi2txt \- ansi to plain text converter
 .SH DESCRIPTION
 .B ansi2txt
 can be used to convert text containing ANSI color codes (such as MUD logs,
-for example) into plain ASCII text.  It works as a filter, reading from
-stdin, removing all ANSI codes and sending the output to stdout.
+text processed by syntax highlighters, colorgcc, colordiff, ccze, loco, etc) 
+into plain ASCII text.  It works as a filter, reading from stdin, removing
+all ANSI codes and sending the output to stdout.
 .SH CAVEATS
 All ANSI codes are simply ignored, including all cursor positioning ones.
 Sometimes this is what you want, sometimes it isn't.
