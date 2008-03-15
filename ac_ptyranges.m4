@@ -28,3 +28,14 @@ else
 AC_MSG_RESULT([])
 fi
 ])
+
+AC_DEFUN([AC_DEV_PTMX], [
+AC_MSG_CHECKING(for /dev/ptmx)
+if test -c /dev/ptmx
+  then
+    AC_DEFINE([HAVE_DEV_PTMX], [1], [Define if you have /dev/ptmx])
+    AC_MSG_RESULT(yes)
+  else
+    AC_MSG_RESULT(no)
+fi
+])

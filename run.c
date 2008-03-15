@@ -33,7 +33,7 @@ extern void syserr(char *msg, ...);
 
 
 #ifndef HAVE_FORKPTY
-# if !(defined(HAVE__GETPTY) || defined(HAVE_GRANTPT))  
+# if !(defined(HAVE__GETPTY) || defined(HAVE_GRANTPT) && (defined(HAVE_GETPT) || defined(HAVE_DEV_PTMX)))
 /*
  * if no PTYRANGE[01] is in the config file, we pick a default
  */
@@ -164,7 +164,7 @@ int forkpty(int *amaster,char *dummy,struct termios *termp, struct winsize *wp)
     master=filedes[0];
     slave=filedes[1];
 #else
-#ifdef HAVE_GRANTPT
+#if defined(HAVE_GRANTPT) && (defined(HAVE_GETPT) || defined(HAVE_DEV_PTMX))
 # ifdef HAVE_PTSNAME
     char *name;
 # else

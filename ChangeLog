@@ -7,6 +7,7 @@
 *	ansi2html: skip a character on unknown codes
 *	necrocomputing -- support for BSD's iconv brain damage.  Hey, guys,
         it's 2008, even _SCO_ does basic POSIX.
+*	new BSD has grantpt() but no getpt() or /dev/ptmx, handle this
 
 1.0.11:
 *	bugfix: don't double the asterisks when typing in a password
