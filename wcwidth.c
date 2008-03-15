@@ -1,3 +1,6 @@
+#include "config.h"
+#ifndef HAVE_WCWIDTH
+
 /*
  * This is an implementation of wcwidth() and wcswidth() (defined in
  * IEEE Std 1002.1-2001) for Unicode.
@@ -208,3 +211,4 @@ int wcswidth(const wchar_t *pwcs, size_t n)
 
   return width;
 }
+#endif

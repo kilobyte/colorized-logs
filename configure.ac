@@ -18,7 +18,7 @@ AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CREATE_STDINT_H
 AC_HEADER_TIOCGWINSZ
-AC_CHECK_HEADERS([strings.h string.h sys/time.h termios.h unistd.h stropts.h iconv.h sys/iconv.h])
+AC_CHECK_HEADERS([strings.h string.h sys/time.h termios.h unistd.h stropts.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -30,13 +30,12 @@ AC_C_BIGENDIAN
 AC_PROG_GCC_TRADITIONAL
 AC_TYPE_SIGNAL
 AC_FUNC_VPRINTF
-AC_CHECK_LIB(iconv, iconv_open)
-AC_CHECK_LIB(iconv, libiconv_open)
-AC_CHECK_FUNCS([iconv_open memcpy getpt ptsname snprintf vsnprintf _getpty grantpt forkpty regcomp getaddrinfo])
+AC_CHECK_FUNCS([memcpy getpt ptsname snprintf vsnprintf _getpty grantpt forkpty regcomp getaddrinfo wcwidth])
 AC_CHECK_LIB(z, gzread, [AC_DEFINE([HAVE_LIBZ], [1], [Define if zlib is available.])
 			ZLIB_LIBS=-lz])
 AC_SUBST([ZLIB_LIBS])
 AM_PATH_GLIB_2_0([2.10.0], [AC_DEFINE([HAVE_GLIB], [1], [Define if glib 2.10+ is available.])])
+AM_ICONV
 
 AC_PTYRANGES
 AC_LBL_LIBRARY_NET

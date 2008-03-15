@@ -199,13 +199,15 @@
 /************************ structures *********************/
 #include <stdio.h>
 #include "_stdint.h"
-#ifdef HAVE_ICONV_H
-# include <iconv.h>
+#include <iconv.h>
+#if TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
 #else
-# ifdef HAVE_SYS_ICONV_H
-#  include <sys/iconv.h>
+# if HAVE_SYS_TIME_H
+#  include <sys/time.h>
 # else
-#  error No iconv -- no fun.  Grab it and install!
+#  include <time.h>
 # endif
 #endif
 #ifdef HAVE_LIBZ

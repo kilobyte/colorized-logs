@@ -2,7 +2,6 @@
 #include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #ifdef HAVE_STRING_H
 #include <string.h>
 #else
