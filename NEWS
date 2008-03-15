@@ -97,4 +97,5 @@
   on their side
 
 1.0.12:
-* #localtime for easier parsing by your scripts.
+* #localtime and #gmtime for easier parsing by your scripts.
+* bugfixes/portability changes
