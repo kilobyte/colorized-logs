@@ -1,5 +1,7 @@
 #include <unistd.h>
 #include <stdio.h>
+#include <errno.h>
+#include <string.h>
 #include "config.h"
 #include "tintin.h"
 
@@ -7,7 +9,7 @@ int main()
 {
     struct ttyrec_header th;
     char buf[BUFFER_SIZE];
-    int s,n;
+    int s,n,r;
     
     while(1)
     {
@@ -17,17 +19,17 @@ int main()
         while(n>0)
         {
             s=(n>BUFFER_SIZE)?BUFFER_SIZE:n;
-            n-=s;
-            if (read(0, buf, s)!=s)
+            if ((r=read(0, buf, s))<=0)
             {
-                fprintf(stderr, "File was truncated\n");
+                fprintf(stderr, "%s\n", r?strerror(errno):"File was truncated");
                 return 1;
             }
-            if (write(1, buf, s)!=s)
+            if (write(1, buf, r)!=r)
             {
                 fprintf(stderr, "Write error\n");
                 return 1;
             }
+            n-=r;
         }
     }
     
