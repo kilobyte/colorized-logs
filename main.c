@@ -610,9 +610,13 @@ int check_events(void)
     int tick_time = 0, curr_time, tt;
 
     curr_time = time(NULL);
+restart:
+    any_closed=0;
     for (sp = sessionlist; sp; sp = sp->next)
     {
         tt = check_event(curr_time, sp);
+        if (any_closed)
+            goto restart;
         /* printf("#%s %d(%d)\n", sp->name, tt, curr_time); */
         if (tt > curr_time && (tick_time == 0 || tt < tick_time))
             tick_time = tt;
@@ -656,6 +660,10 @@ void tintin(void)
                 user_title(XTERM_TITLE, activesession->name);
         }
 #endif
+
+        tv.tv_sec = check_events();
+        tv.tv_usec = 0;
+
         maxfd=0;
         FD_ZERO(&readfdmask);
         if (!eofinput)
@@ -673,10 +681,6 @@ void tintin(void)
             if (sesptr->socket>maxfd)
                 maxfd=sesptr->socket;
         }
-
-        tv.tv_sec = check_events();
-        tv.tv_usec = 0;
-
         result = select(maxfd+1, &readfdmask, 0, 0, &tv);
 
         if (need_resize)

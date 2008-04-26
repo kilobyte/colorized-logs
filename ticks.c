@@ -25,6 +25,7 @@
 
 /* externs */
 struct session *sessionlist;
+extern int any_closed;
 
 /* extern functions */
 extern void tintin_puts(char *, struct session *);
@@ -184,6 +185,8 @@ int check_event(int time, struct session *ses)
         ses->events=ev->next;
         execute_event(ev, ses);
         TFREE(ev, struct eventnode);
+        if (any_closed)
+            return -1;
     }
     et = (ses->events) ? ses->events->time : 0;
 
@@ -194,6 +197,8 @@ int check_event(int time, struct session *ses)
     {
         if (ses->tickstatus)
             tintin_puts1("#TICK!!!",ses);
+        if (any_closed)
+            return -1;
         ses->time0 = time - (time - ses->time0) % ses->tick_size;
         tt = ses->time0 + ses->tick_size;
     }
@@ -201,6 +206,8 @@ int check_event(int time, struct session *ses)
             && ses->tick_size>ses->pretick && time!=ses->time10)
     {
         tintin_puts1("#10 SECONDS TO TICK!!!",ses);
+        if (any_closed)
+            return -1;
         ses->time10=time;
     }
 
