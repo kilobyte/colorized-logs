@@ -1,7 +1,6 @@
-/* $Id: session.c,v 2.3 1998/10/12 09:45:23 jku Exp $ */
 /* Autoconf patching by David Hedbor, neotron@lysator.liu.se */
 /*********************************************************************/
-/* file: session.c.c - funtions related to sessions                  */
+/* file: session.c - funtions related to sessions                    */
 /*                             TINTIN III                            */
 /*          (T)he K(I)cki(N) (T)ickin D(I)kumud Clie(N)t             */
 /*                     coded by peter unold 1992                     */

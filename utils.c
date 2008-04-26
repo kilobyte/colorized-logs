@@ -1,4 +1,3 @@
-/* $Id: utils.c,v 2.1 1998/10/11 18:36:36 jku Exp $ */
 /* Autoconf patching by David Hedbor, neotron@lysator.liu.se */
 /*********************************************************************/
 /* file: utils.c - some utility-functions                            */

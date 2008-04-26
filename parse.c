@@ -1,4 +1,3 @@
-/* $Id: parse.c,v 2.8 1999/01/19 08:46:22 jku Exp $ */
 /* Autoconf patching by David Hedbor, neotron@lysator.liu.se */
 /*********************************************************************/
 /* file: parse.c - some utility-functions                            */

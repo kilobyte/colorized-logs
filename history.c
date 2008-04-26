@@ -1,4 +1,3 @@
-/* $Id: history.c,v 1.2 1998/10/11 18:36:35 jku Exp $ */
 /* Autoconf patching by David Hedbor, neotron@lysator.liu.se */
 /*********************************************************************/
 /* file: history.c - functions for the history stuff                 */

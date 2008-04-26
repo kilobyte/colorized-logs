@@ -1,4 +1,3 @@
-/* $Id: help.c,v 1.4 1998/11/25 17:14:00 jku Exp $ */
 /* Autoconf patching by David Hedbor, neotron@lysator.liu.se */
 /*****************************************************************/
 /* functions for the #help command                               */

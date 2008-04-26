@@ -1,4 +1,3 @@
-/* $Id: files.c,v 1.8 1998/11/25 17:14:00 jku Exp $ */
 /* Autoconf patching by David Hedbor, neotron@lysator.liu.se */
 /*********************************************************************/
 /* file: files.c - funtions for logfile and reading/writing comfiles */

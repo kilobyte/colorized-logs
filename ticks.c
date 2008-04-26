@@ -1,4 +1,3 @@
-/* $Id: ticks.c,v 2.4 1998/11/25 17:14:01 jku Exp $ */
 /* Autoconf patching by David Hedbor, neotron@lysator.liu.se */
 /*********************************************************************/
 /* file: ticks.c - functions for the ticker stuff                    */

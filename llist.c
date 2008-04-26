@@ -1,4 +1,3 @@
-/* $Id: llist.c,v 2.3 1998/11/25 17:14:00 jku Exp $ */
 /* Autoconf patching by David Hedbor, neotron@lysator.liu.se */
 /*********************************************************************/
 /* file: llist.c - linked-list datastructure                         */
@@ -390,7 +389,6 @@ void show_list_action(struct listnode *listhead)
 
 struct listnode* search_node_with_wild(struct listnode *listhead, char *cptr)
 {
-    /* int i; */
     while ((listhead = listhead->next))
     {
         /* CHANGED to fix silly globbing behavior

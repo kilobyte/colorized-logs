@@ -1,4 +1,3 @@
-/* $Id: antisub.c,v 1.3 1998/10/11 18:36:34 jku Exp $ */
 /* Autoconf patching by David Hedbor, neotron@lysator.liu.se */
 /*********************************************************************/
 /* file: antisub.c - functions related to the substitute command     */
@@ -42,7 +41,6 @@ extern int antisubnum;
 /*******************************/
 void antisubstitute_command(char *arg, struct session *ses)
 {
-    /* char left[BUFFER_SIZE], right[BUFFER_SIZE], result[BUFFER_SIZE]; */
     char left[BUFFER_SIZE];
     struct listnode *myantisubs, *ln;
 
@@ -83,7 +81,6 @@ void unantisubstitute_command(char *arg, struct session *ses)
             tintin_printf(ses,"#Ok. Lines with {%s} will now be subbed.", ln->left);
         deletenode_list(myantisubs, ln);
         flag = TRUE;
-        /* temp=ln; */
     }
     if (!flag && ses->mesvar[2])
         tintin_printf(ses,"#THAT ANTISUBSTITUTE (%s) IS NOT DEFINED.", left);

@@ -6,9 +6,6 @@
 #include <strings.h>
 #endif
 #endif
-/* CHANGED to include <ctype.h>, since we use isdigit() etc.
- * Thanks to Brian Ebersole [Harm@GrimneMUD] for the bug report!
- */
 #include <ctype.h>
 #include "tintin.h"
 

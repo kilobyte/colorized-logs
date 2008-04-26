@@ -1,4 +1,3 @@
-/* $Id: net.c,v 2.4 1998/11/28 20:22:54 jku Exp $ */
 /* Autoconf patching by David Hedbor, neotron@lysator.liu.se */
 /*********************************************************************/
 /* file: net.c - do all the net stuff                                */
@@ -36,11 +35,6 @@
 #ifndef BADSIG
 #define BADSIG (void (*)())-1
 #endif
-
-/* NOTE!  Some systems might require a #include <net/errno.h>,
- * try adding this if you are really stuck and net.c won't compile.
- * Thanks to Brian Ebersole [Harm@GrimneMUD] for this suggestion.
- */
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>

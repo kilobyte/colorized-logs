@@ -1,4 +1,3 @@
-/* $Id: glob.c,v 1.3 1998/10/11 18:36:34 jku Exp $ */
 /* Autoconf patching by David Hedbor, neotron@lysator.liu.se */
 /*
  * match -- returns 1 if `string' satisfised `regex' and 0 otherwise

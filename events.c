@@ -1,4 +1,3 @@
-/* $Id: events.c,v 2.3 1998/11/25 17:14:00 jku Exp $ */
 #include "config.h"
 #include <stdio.h>
 #include <stdlib.h>

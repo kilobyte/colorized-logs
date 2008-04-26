@@ -1,4 +1,3 @@
-/* $Id: action.c,v 1.4 1998/10/11 18:51:51 jku Exp $ */
 /* Autoconf patching by David Hedbor, neotron@lysator.liu.se */
 /*********************************************************************/
 /* file: action.c - funtions related to the action command           */

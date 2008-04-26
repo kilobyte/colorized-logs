@@ -1,4 +1,3 @@
-/* $Id: alias.c,v 1.3 1998/10/11 18:36:33 jku Exp $ */
 /* Autoconf patching by David Hedbor, neotron@lysator.liu.se */
 /*********************************************************************/
 /* file: alias.c - funtions related the the alias command            */

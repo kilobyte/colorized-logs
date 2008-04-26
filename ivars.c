@@ -1,4 +1,3 @@
-/* $Id: ivars.c,v 2.2 1998/11/25 17:14:00 jku Exp $ */
 /* Autoconf patching by David Hedbor, neotron@lysator.liu.se */
 #include "config.h"
 #include "tintin.h"
@@ -50,7 +49,6 @@ extern char tintin_char;
 /*********************/
 void math_command(char *line, struct session *ses)
 {
-    /* char left[BUFFER_SIZE], right[BUFFER_SIZE], arg2[BUFFER_SIZE], */
     char left[BUFFER_SIZE], right[BUFFER_SIZE], temp[BUFFER_SIZE];
     int i;
 
@@ -71,7 +69,6 @@ void math_command(char *line, struct session *ses)
 /*******************/
 struct session *if_command(char *line, struct session *ses)
 {
-    /* char left[BUFFER_SIZE], right[BUFFER_SIZE], arg2[BUFFER_SIZE],  */
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
 
     /* int i; */
@@ -147,7 +144,6 @@ int do_inline(char *line,int *res,struct session *ses)
 
 int eval_expression(char *arg,struct session *ses)
 {
-    /* int i, begin, end, flag, prev, ptr; */
     int i, begin, end, flag, prev;
 
     i = conv_to_ints(arg,ses);
@@ -409,7 +405,6 @@ static int conv_to_ints(char *arg,struct session *ses)
 
 static int do_one_inside(int begin, int end)
 {
-    /* int prev, ptr, highest, loc, ploc, next, nval, flag; */
     int prev, ptr, highest, loc, ploc, next;
 
     while (1)
