@@ -25,7 +25,7 @@ extern char *mystrdup(char *s);
 extern pvars_t *pvars;  /* the %0, %1, %2,....%9 variables */
 extern int in_alias;
 
-int magic_close_hook=1;
+static int magic_close_hook=1;
 
 char *hook_names[]=
 {

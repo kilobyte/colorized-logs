@@ -28,7 +28,7 @@
 #endif
 
 void check_insert_path(char *command, struct session *ses, int force);
-int return_flag = TRUE;
+static int return_flag = TRUE;
 
 extern char *get_arg_in_braces(char *s,char *arg,int flag);
 extern void prompt(struct session *ses);

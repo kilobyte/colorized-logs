@@ -42,7 +42,7 @@ extern int getcolor(char **ptr,int *color,const int flag);
 extern int setcolor(char *txt,int c);
 extern int puts_echoing;
 
-struct colordef
+static struct colordef
 {
     int num;
     char *name;
@@ -81,11 +81,11 @@ struct colordef
         {-1,""},
     };
 
-int highpattern[64];
-int nhighpattern;
+static int highpattern[64];
+static int nhighpattern;
 
-int highcolor; /* an ugly kludge... */
-int get_high_num(char *hig)
+static int highcolor; /* an ugly kludge... */
+static int get_high_num(char *hig)
 {
     int code;
     char *sl,tmp[BUFFER_SIZE];
@@ -108,7 +108,7 @@ int get_high_num(char *hig)
     return(-1);
 }
 
-int get_high(char *hig)
+static int get_high(char *hig)
 {
     nhighpattern=0;
     if (!*hig)

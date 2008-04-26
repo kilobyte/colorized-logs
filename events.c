@@ -34,7 +34,7 @@ void execute_event(struct eventnode *ev, struct session *ses)
 }
 
 /* list active events matching regexp arg */
-void list_events(char *arg, struct session *ses)
+static void list_events(char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE];
     time_t ct; /* current time */
@@ -144,7 +144,7 @@ void event_command(char *arg, struct session *ses)
 }
 
 /* remove ev->next from list */
-void remove_event(struct eventnode **ev)
+static void remove_event(struct eventnode **ev)
 {
     struct eventnode *tmp;
     if(*ev)

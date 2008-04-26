@@ -26,9 +26,9 @@ extern void tintin_eprintf(struct session *ses,char *format,...);
 extern int bindnum;
 extern int recursion;
 
-struct hashtable *keynames;
+static struct hashtable *keynames;
 
-char *KEYNAMES[]=
+static char *KEYNAMES[]=
     {
         "ESC[[A",	"F1",
         "ESC[[B",	"F2",

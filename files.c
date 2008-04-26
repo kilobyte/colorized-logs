@@ -24,7 +24,7 @@
 #include "tintin.h"
 #include "ui.h"
 
-void prepare_for_write(char *command, char *left, char *right, char *pr, char *result);
+static void prepare_for_write(char *command, char *left, char *right, char *pr, char *result);
 
 extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
 extern struct session *nullsession;
@@ -102,7 +102,7 @@ void expand_filename(char *arg, char *result, char *lstr)
 /****************************************/
 /* convert charsets and write to a file */
 /****************************************/
-void cfputs(char *s, FILE *f)
+static void cfputs(char *s, FILE *f)
 {
     char lstr[BUFFER_SIZE*8];
     
@@ -110,7 +110,7 @@ void cfputs(char *s, FILE *f)
     fputs(lstr, f);
 }
 
-void cfprintf(FILE *f, char *fmt, ...)
+static void cfprintf(FILE *f, char *fmt, ...)
 {
     char lstr[BUFFER_SIZE*8], buf[BUFFER_SIZE*4];
     va_list ap;
@@ -339,7 +339,7 @@ void logcomment_command(char *arg, struct session *ses)
     write_logf(ses, text, "", "");
 }
 
-FILE* open_logfile(struct session *ses, char *name, const char *filemsg, const char *appendmsg, const char *pipemsg)
+static FILE* open_logfile(struct session *ses, char *name, const char *filemsg, const char *appendmsg, const char *pipemsg)
 {
     char temp[BUFFER_SIZE],fname[BUFFER_SIZE],lfname[BUFFER_SIZE];
     FILE *f;
@@ -1076,7 +1076,7 @@ void writesession_command(char *filename, struct session *ses)
 }
 
 
-void prepare_for_write(char *command, char *left, char *right, char *pr, char *result)
+static void prepare_for_write(char *command, char *left, char *right, char *pr, char *result)
 {
     /* Achtung: "result" must be long enough or we're fucked */
     *result = tintin_char;
@@ -1100,7 +1100,7 @@ void prepare_for_write(char *command, char *left, char *right, char *pr, char *r
     strcat(result, "\n");
 }
 
-void prepare_quotes(char *string)
+static void prepare_quotes(char *string)
 {
     char s[BUFFER_SIZE], *cpsource, *cpdest;
     int nest = FALSE;

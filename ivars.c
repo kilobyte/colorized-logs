@@ -20,9 +20,9 @@ int stacks[100][4];
 extern char *get_arg_in_braces(char *s,char *arg,int flag);
 extern char *space_out(char *s);
 extern char *get_inline(char *s,char *dest);
-extern int conv_to_ints(char *arg,struct session *ses);
-extern int do_one_inside(int begin, int end);
-extern int eval_expression(char *arg,struct session *ses);
+static int conv_to_ints(char *arg,struct session *ses);
+static int do_one_inside(int begin, int end);
+int eval_expression(char *arg,struct session *ses);
 extern int finditem_inline(char *arg,struct session *ses);
 extern int is_abrev(char *s1, char *s2);
 extern int isatom_inline(char *arg,struct session *ses);
@@ -198,7 +198,7 @@ int eval_expression(char *arg,struct session *ses)
         return 0;
 }
 
-int conv_to_ints(char *arg,struct session *ses)
+static int conv_to_ints(char *arg,struct session *ses)
 {
     int i, flag, result;
     int m; /* =0 should match, =1 should differ */
@@ -407,7 +407,7 @@ int conv_to_ints(char *arg,struct session *ses)
     return 1;
 }
 
-int do_one_inside(int begin, int end)
+static int do_one_inside(int begin, int end)
 {
     /* int prev, ptr, highest, loc, ploc, next, nval, flag; */
     int prev, ptr, highest, loc, ploc, next;

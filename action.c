@@ -35,7 +35,7 @@ extern void shownode_list_action(struct listnode *nptr);
 extern void insertnode_list(struct listnode *listhead, char *ltext, char *rtext, char *prtext, int mode);
 extern void substitute_myvars(char *arg,char *result,struct session *ses);
 int check_one_action(char *line, char *action, pvars_t *vars, int inside, struct session *ses);
-int check_a_action(char *line, char *action, int inside, struct session *ses);
+static int check_a_action(char *line, char *action, int inside, struct session *ses);
 extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
 extern int is_abrev(char *s1, char *s2);
 extern struct session *if_command(char *arg, struct session *ses);
@@ -568,7 +568,7 @@ int match_inline(char *arg, struct session *ses)
 }
 
 
-int match_a_string(char *line, char *mask)
+static int match_a_string(char *line, char *mask)
 {
     char *lptr, *mptr;
 
@@ -608,7 +608,7 @@ int check_one_action(char *line, char *action, pvars_t *vars, int inside, struct
 /* check if a text triggers an action and fill into the variables */
 /* return TRUE if triggered                                       */
 /******************************************************************/
-int check_a_action(char *line, char *action, int inside, struct session *ses)
+static int check_a_action(char *line, char *action, int inside, struct session *ses)
 {
     char result[BUFFER_SIZE];
     char *temp2, *tptr, *lptr, *lptr2;

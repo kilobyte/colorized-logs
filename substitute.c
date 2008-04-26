@@ -40,7 +40,7 @@ extern char *_;
 /***************************/
 /* the #substitute command */
 /***************************/
-void parse_sub(char *arg,int gag,struct session *ses)
+static void parse_sub(char *arg,int gag,struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
     struct listnode *mysubs, *ln;

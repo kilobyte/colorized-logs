@@ -54,7 +54,7 @@ static char TtyProto[] = "/dev/ttyXY";
 
 
 #ifdef TERM_DEBUG
-void print_stty(int fd)
+static void print_stty(int fd)
 {
     struct termios ta;
     struct winsize ws;
@@ -292,7 +292,7 @@ void pty_resize(int fd,int sx,int sy)
     }
 }
 
-inline void pty_makeraw(struct termios *ta)
+static void pty_makeraw(struct termios *ta)
 {
     memset(ta, 0, sizeof(*ta));
     ta->c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP

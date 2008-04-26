@@ -75,10 +75,10 @@ char **pvars;	/* the %0, %1, %2,....%9 variables */
 char tintin_char = DEFAULT_TINTIN_CHAR;
 char verbatim_char = DEFAULT_VERBATIM_CHAR;
 char prev_command[BUFFER_SIZE];
-void tintin(void);
-void read_mud(struct session *ses);
-void do_one_line(char *line,int nl,struct session *ses);
-void snoop(char *buffer, struct session *ses);
+static void tintin(void);
+static void read_mud(struct session *ses);
+static void do_one_line(char *line,int nl,struct session *ses);
+static void snoop(char *buffer, struct session *ses);
 void tintin_puts(char *cptr, struct session *ses);
 void tintin_puts1(char *cptr, struct session *ses);
 void tintin_printf(struct session *ses, const char *format, ...);
@@ -111,7 +111,7 @@ extern void init_bind(void);
 extern int isnotblank(char *line,int flag);
 extern int match(char *regex, char *string);
 extern int iscompleteprompt(char *line);
-void echo_input(char *txt);
+static void echo_input(char *txt);
 extern struct hashtable* init_hash();
 extern void init_parse();
 extern struct session *do_read(FILE *myfile, char *filename, struct session *ses);
@@ -195,7 +195,7 @@ static void sigwinch(void)
 }
 
 
-int new_news(void)
+static int new_news(void)
 {
     struct stat KBtin, news;
     
@@ -217,7 +217,7 @@ void suspend_command(char *arg, struct session *ses)
     tstphandler(SIGTSTP);
 }
 
-void setup_signals(void)
+static void setup_signals(void)
 {
     struct sigaction act;
     sigemptyset(&act.sa_mask);
@@ -263,7 +263,7 @@ void setup_signals(void)
 /****************************************/
 /* attempt to assure enough stack space */
 /****************************************/
-void setup_ulimit(void)
+static void setup_ulimit(void)
 {
     struct rlimit rlim;
 
@@ -293,7 +293,7 @@ static void opterror(char *msg, ...)
 
 static struct listnode *options;
 
-void parse_options(int argc, char **argv, char **environ)
+static void parse_options(int argc, char **argv, char **environ)
 {
     int noargs=0;
     int arg;
@@ -352,7 +352,7 @@ void parse_options(int argc, char **argv, char **environ)
         addnode_list(options, "-", 0, 0);
 }
 
-void apply_options()
+static void apply_options()
 {
     struct listnode *opt;
     char homepath[BUFFER_SIZE], temp[BUFFER_SIZE], sname[BUFFER_SIZE], *strptr;
@@ -604,7 +604,7 @@ ever wants to read -- that is what docs are for.
 /* return seconds to next tick (global, all sessions) */
 /* also display tick messages                         */
 /******************************************************/
-int check_events(void)
+static int check_events(void)
 {
     struct session *sp;
     int tick_time = 0, curr_time, tt;
@@ -630,7 +630,7 @@ restart:
 /***************************/
 /* the main loop of tintin */
 /***************************/
-void tintin(void)
+static void tintin(void)
 {
     int i, result, maxfd;
     struct session *sesptr;
@@ -803,7 +803,7 @@ void tintin(void)
 /*************************************************************/
 /* read text from mud and test for actions/snoop/substitutes */
 /*************************************************************/
-void read_mud(struct session *ses)
+static void read_mud(struct session *ses)
 {
     char buffer[BUFFER_SIZE], linebuffer[BUFFER_SIZE], *cpsource, *cpdest;
     char temp[BUFFER_SIZE];
@@ -906,10 +906,11 @@ void read_mud(struct session *ses)
             do_one_line(linebuffer,0,ses);
     PROFEND(mud_lag, mud_cnt);
 }
+
 /**********************************************************/
 /* do all of the functions to one line of buffer          */
 /**********************************************************/
-void do_one_line(char *line,int nl,struct session *ses)
+static void do_one_line(char *line,int nl,struct session *ses)
 {
     int isnb;
 #ifdef UTF8
@@ -998,7 +999,7 @@ void do_one_line(char *line,int nl,struct session *ses)
 /**********************************************************/
 /* snoop session ses - chop up lines and put'em in buffer */
 /**********************************************************/
-void snoop(char *buffer, struct session *ses)
+static void snoop(char *buffer, struct session *ses)
 {
     tintin_printf(0,"%s%% %s\n",ses->name,buffer);
 }
@@ -1086,7 +1087,7 @@ void tintin_eprintf(struct session *ses, const char *format, ...)
     }
 }
 
-void echo_input(char *txt)
+static void echo_input(char *txt)
 {
     char out[BUFFER_SIZE],*cptr,*optr;
     static int c=7;

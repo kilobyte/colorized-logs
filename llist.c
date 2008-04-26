@@ -402,7 +402,7 @@ struct listnode* search_node_with_wild(struct listnode *listhead, char *cptr)
     return NULL;
 }
 
-int check_one_node(char *text, char *action)
+static int check_one_node(char *text, char *action)
 {
     char *temp, temp2[BUFFER_SIZE], *tptr;
 

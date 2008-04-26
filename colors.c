@@ -18,8 +18,8 @@ extern void tintin_printf(struct session *ses,char *format,...);
 extern void tintin_eprintf(struct session *ses,char *format,...);
 
 const int colors[8]={0,4,2,6,1,5,3,7};
-int mudcolors=3;    /* 0=disabled, 1=on, 2=null, 3=null+warning */
-char *MUDcolors[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+static int mudcolors=3;    /* 0=disabled, 1=on, 2=null, 3=null+warning */
+static char *MUDcolors[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 int getcolor(char **ptr,int *color,const int flag)
 {

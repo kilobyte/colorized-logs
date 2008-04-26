@@ -17,7 +17,7 @@
 #include "tintin.h"
 #include <stdlib.h>
 
-void insert_history(char *buffer, struct session *ses);
+static void insert_history(char *buffer, struct session *ses);
 
 extern char *space_out(char* s);
 extern char *mystrdup(char *s);
@@ -94,7 +94,7 @@ void do_history(char *buffer, struct session *ses)
 /***********************************************/
 /* insert buffer into a session`s history list */
 /***********************************************/
-void insert_history(char *buffer, struct session *ses)
+static void insert_history(char *buffer, struct session *ses)
 {
     int i;
 

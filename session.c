@@ -22,8 +22,8 @@
 #endif
 #include "ui.h"
 
-void show_session(struct session *ses);
-struct session *new_session(char *name,char *address,int sock,int issocket,struct session *ses);
+static void show_session(struct session *ses);
+static struct session *new_session(char *name,char *address,int sock,int issocket,struct session *ses);
 
 extern char *get_arg_in_braces(char *s,char *arg,int flag);
 extern char *space_out(char *s);
@@ -116,7 +116,7 @@ noname:
     #session {a}        - print info about session a
   (opposed to #session {a} {mud.address.here 666} - starting a new session)
 */
-int list_sessions(char *arg,struct session *ses,char *left,char *right)
+static int list_sessions(char *arg,struct session *ses,char *left,char *right)
 {
     struct session *sesptr;
     arg = get_arg_in_braces(arg, left, 0);
@@ -233,7 +233,7 @@ struct session *run_command(char *arg,struct session *ses)
 /******************/
 /* show a session */
 /******************/
-void show_session(struct session *ses)
+static void show_session(struct session *ses)
 {
     char temp[BUFFER_SIZE];
 
@@ -275,7 +275,7 @@ struct session *newactive_session(void)
 /**********************/
 /* open a new session */
 /**********************/
-struct session *new_session(char *name,char *address,int sock,int issocket,struct session *ses)
+static struct session *new_session(char *name,char *address,int sock,int issocket,struct session *ses)
 {
     struct session *newsession;
     int i;
@@ -366,7 +366,7 @@ struct session *new_session(char *name,char *address,int sock,int issocket,struc
 /***************************************************************************************/
 /* look for the session on the list.  If it's there, return a pointer to its reference */
 /***************************************************************************************/
-struct session **is_alive(struct session *ses)
+static struct session **is_alive(struct session *ses)
 {
     struct session *sesptr;
     

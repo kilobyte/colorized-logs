@@ -49,7 +49,7 @@
 
 
 extern int do_telnet_protocol(char *data,int nb,struct session *ses);
-void alarm_func(int);
+static void alarm_func(int);
 
 extern struct session *sessionlist, *activesession, *nullsession;
 extern int errno;
@@ -70,8 +70,8 @@ int init_mccp(struct session *ses, int cplen, char *cpsrc);
 extern void debuglog(struct session *ses, const char *format, ...);
 
 #ifndef SOL_IP
-int SOL_IP;
-int SOL_TCP;
+static int SOL_IP;
+static int SOL_TCP;
 #endif
 
 static int abort_connect;
@@ -254,7 +254,7 @@ int connect_mud(char *host, char *port, struct session *ses)
 /*****************/
 /* alarm handler */
 /*****************/
-void alarm_func(int k)
+static void alarm_func(int k)
 {
     abort_connect=1;
 }

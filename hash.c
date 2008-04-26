@@ -211,7 +211,7 @@ int delete_hash(struct hashtable *h, char *key)
 /*****************************************************/
 /* merge two sorted llists (without heads!) into one */
 /*****************************************************/
-struct listnode* merge_lists(struct listnode* a, struct listnode* b)
+static struct listnode* merge_lists(struct listnode* a, struct listnode* b)
 {
     struct listnode* c=0, *c0;
     

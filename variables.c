@@ -326,7 +326,7 @@ int listlength_inline(char *arg,struct session *ses)
 }
 
 
-int find_item(char *item,char *list)
+static int find_item(char *item,char *list)
 {
     char temp[BUFFER_SIZE];
     int i;
@@ -529,7 +529,7 @@ int isatom_inline(char *arg,struct session *ses)
 /*        CHANGE: now it's tail-> {bounce a} to allow iterators    */
 /*******************************************************************/
 
-char zerostr[1] = ""; /* empty string */
+static char zerostr[1] = ""; /* empty string */
 
 /* FUNCTION:  get_split_pos - where to split                 */
 /* ARGUMENTS: list - list (after all substitutions done)     */
@@ -537,7 +537,7 @@ char zerostr[1] = ""; /* empty string */
 /* RESULT:    pointer to elements head_length+1...           */
 /*            or pointer to '\0' or empty string ""          */
 /*            i.e. to character after element No head_length */
-char* get_split_pos(char *list, int head_length)
+static char* get_split_pos(char *list, int head_length)
 {
     int i = 0;
     char temp[BUFFER_SIZE];
@@ -562,7 +562,7 @@ char* get_split_pos(char *list, int head_length)
 /* ARGUMENTS: s - list (after all substitutions done)      */
 /*            ses - session; used only for error handling  */
 /* RESULT:    TRUE if s is braced atom e.g. '{atom}'       */
-int is_braced_atom(char *s,struct session *ses)
+static int is_braced_atom(char *s,struct session *ses)
 {
     int nest = 0;
 
@@ -604,7 +604,7 @@ int is_braced_atom(char *s,struct session *ses)
 /* RESULT:    TRUE if list is braced atom e.g. '{atom}'               */
 /*            i.e. whole list begins with DEFAULT_OPEN end ends with  */
 /*            DEFAULT_CLOSE and whole is inside group (inside braces) */
-int is_braced_atom_2(char *beg,char *end,struct session *ses)
+static int is_braced_atom_2(char *beg,char *end,struct session *ses)
 {
     /* we define where list ends */
 #define AT_END(beg,end) (((*beg) == '\0') || (beg >= end))
@@ -661,7 +661,7 @@ int is_braced_atom_2(char *beg,char *end,struct session *ses)
 /*            If you don't like this behavior simply undefine         */
 /*            REMOVE_ONEELEM_BRACES.                                  */
 /*            see also: getitemnr_command, REMOVE_ONEELEM_BRACES      */
-void simplify_list(char **beg, char **end, int flag, struct session *ses)
+static void simplify_list(char **beg, char **end, int flag, struct session *ses)
 {
     /* remember: we do not check arguments (e.g. if they are not NULL) */
 
@@ -687,7 +687,7 @@ void simplify_list(char **beg, char **end, int flag, struct session *ses)
 /*            beg - points to first character to copy    */
 /*            end - points after last character to copy  */
 /* RESULT:    zero-ended string from beg to end          */
-char* copy_part(char *dest,char *beg,char *end)
+static char* copy_part(char *dest,char *beg,char *end)
 {
     strcpy(dest, beg);
     dest[end - beg] = '\0';
@@ -703,7 +703,7 @@ char* copy_part(char *dest,char *beg,char *end)
 /*            if head or/and tail contains only one element                */
 /*            and REMOVE_ONEELEM_BRACES is defined the element is unbraced */
 /*            if necessary                                                 */
-void split_list(char *head,char *tail,char *list,int head_length,struct session *ses)
+static void split_list(char *head,char *tail,char *list,int head_length,struct session *ses)
 {
     /* these are pointers, not strings */
     char *headbeg, *headend;
@@ -861,7 +861,7 @@ struct session *foreach_command(char *arg,struct session *ses)
     return ses;
 }
 
-int compar(const void *a,const void *b)
+static int compar(const void *a,const void *b)
 {
     return strcmp(*(char **)a,*(char **)b);
 }
@@ -1033,7 +1033,7 @@ int strlen_inline(char *arg, struct session *ses)
 /*            dest - destination string    */
 /* RESULT:    reversed string              */
 /* NOTE:      no check                     */
-WC* revstr(WC *dest, WC *src)
+static WC* revstr(WC *dest, WC *src)
 {
     int i;
     int ilast = WClen(src) - 1;
@@ -1341,7 +1341,7 @@ int random_inline(char *arg, struct session *ses)
 /************************************************************************************/
 /* cut a string to width len, putting the cut point into *rstr and return the width */
 /************************************************************************************/
-int cutws(WC *str, int len, WC **rstr)
+static int cutws(WC *str, int len, WC **rstr)
 {
     int w,s;
     
@@ -1465,7 +1465,7 @@ void prepad_command(char *arg,struct session *ses)
 /************************************************************/
 /* parse time, return # of seconds or INVALID_TIME on error */
 /************************************************************/
-int time2secs(char *tt,struct session *ses)
+static int time2secs(char *tt,struct session *ses)
 {
     char *oldtt;
     int w,t=0;

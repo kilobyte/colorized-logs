@@ -36,8 +36,7 @@ extern void tintin_eprintf(struct session *ses, char *format, ...);
 extern char *get_arg(char *s,char *arg,int flag,struct session *ses);
 
 /* local globals */
-int sec_to_tick, time0, tick_size = 75;
-int ticker_interrupted;
+int time0;
 
 /*********************/
 /* the #tick command */

@@ -30,7 +30,7 @@ extern int is_abrev(char *s1, char *s2);
 extern struct session *if_command(char *arg, struct session *ses);
 
 
-void addroute(struct session *ses,int a,int b,char *way,int dist,char *cond)
+static void addroute(struct session *ses,int a,int b,char *way,int dist,char *cond)
 {
 	struct routenode *r;
 	
@@ -119,7 +119,7 @@ int count_routes(struct session *ses)
 	return(num);
 }
 
-void kill_unused_locations(struct session *ses)
+static void kill_unused_locations(struct session *ses)
 {
 	int i;
 	int us[MAX_LOCATIONS];
@@ -142,7 +142,7 @@ void kill_unused_locations(struct session *ses)
 		}
 }
 
-void show_route(struct session *ses,int a,struct routenode *r)
+static void show_route(struct session *ses,int a,struct routenode *r)
 {
 	if (*r->cond)
 		tintin_printf(ses,"~7~{%s~7~}->{%s~7~}: {%s~7~} d=%i if {%s~7~}",

@@ -45,8 +45,8 @@ extern void syserr(char *msg, ...);
 #define MAX_SUBNEGO_LENGTH 64
 
 #ifdef TELNET_DEBUG
-char *will_names[4]={"WILL", "WONT", "DO", "DONT"};
-char *option_names[]=
+static char *will_names[4]={"WILL", "WONT", "DO", "DONT"};
+static char *option_names[]=
     {
         "Binary Transmission",
         "Echo",
@@ -107,7 +107,7 @@ char *option_names[]=
     };
 #endif
 
-void telnet_send_naws(struct session *ses)
+static void telnet_send_naws(struct session *ses)
 {
     unsigned char nego[128],*np;
 

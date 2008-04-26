@@ -91,7 +91,7 @@ int yes_no(char *txt)
     return -1;
 }
 
-void togglebool(int *b, char *arg, struct session *ses, char *msg1, char *msg2)
+static void togglebool(int *b, char *arg, struct session *ses, char *msg1, char *msg2)
 {
     char tmp[BUFFER_SIZE];
     int old=*b;
@@ -464,7 +464,7 @@ void loop_command(char *arg, struct session *ses)
     }
 }
 
-char *msNAME[]=
+static char *msNAME[]=
     {
         "aliases",
         "actions",

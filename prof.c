@@ -20,7 +20,7 @@ time_t kbd_lag, mud_lag;
 int kbd_cnt, mud_cnt;
 struct hashtable *prof_count;
 
-void sigprof(void)
+static void sigprof(void)
 {
     int c;
 
