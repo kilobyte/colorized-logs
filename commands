@@ -166,3 +166,4 @@ ord
 hexord
 localtime
 gmtime
+ctoi

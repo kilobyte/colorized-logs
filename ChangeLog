@@ -4,6 +4,7 @@
 *	bugfix: crash if a session is closed from an event or tick
 *	drop support for single byte only compilation
 *	yTin's pseudovars: _random, _time, _clock, _msec, HOME
+*	#ctoi for Chinese numbers, taken from yTin
 
 1.0.12:
 *	#localtime, #gmtime

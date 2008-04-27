@@ -628,3 +628,33 @@ xbx
 xcx
 1
 ===
+
+### #ctoi
+<<<
+#alias ctoi {#ctoi x $0;#showme $x}
+ctoi 六十
+ctoi 二十
+ctoi 二百
+ctoi 兩百
+ctoi 兩千
+ctoi 四十五
+ctoi 兩千三百六十二
+ctoi 十四
+ctoi 一萬二千
+ctoi 一百一十四
+ctoi 一千一百五十八
+ctoi 零
+>>>
+60
+20
+200
+200
+2000
+45
+2362
+14
+12000
+114
+1158
+0
+===
