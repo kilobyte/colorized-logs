@@ -16,7 +16,7 @@ ansi2html_SOURCES=ansi2html.c
 ansi2txt_SOURCES=ansi2txt.c
 
 KBtin_DOCS=BUGS OLDNEWS KEYPAD FAQ
-EXTRA_DIST=KBtin_help.in commands make_commands $(man_MANS) help2ansi fixmanual terminfo.src prof_init kbtin.ico make_protos $(KBtin_DOCS)
+EXTRA_DIST=KBtin_help.in commands make_commands $(man_MANS) help2ansi fixmanual terminfo.src prof_init kbtin.ico make_protos $(KBtin_DOCS) autogen
 CLEANFILES=commands.h load_commands.h KBtin_help.gz manual.html profinit.h
 DISTCLEANFILES=_stdint.h
 
