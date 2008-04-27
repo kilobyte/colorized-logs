@@ -16,6 +16,8 @@ extern int aborting;
 extern char *_;
 extern struct session *activesession;
 extern char tintin_char;
+extern time_t time0;
+extern int utime0;
 
 extern struct session *if_command(char *arg, struct session *ses);
 
@@ -135,6 +137,31 @@ void substitute_myvars(char *arg,char *result,struct session *ses)
                     else
                     if (strcmp(varname,"LOGFILE")==0)
                         strcpy(value,ses->logfile?ses->logname:"");
+                    else
+                    if (strcmp(varname,"_random")==0)
+                        sprintf(value,"%d", rand());
+                    else
+                    if (strcmp(varname,"_time")==0 || strcmp(varname,"time")==0)
+                        sprintf(value,"%ld", time0);
+                    else
+                    if (strcmp(varname,"_clock")==0)
+                        sprintf(value,"%ld", time(0));
+                    else
+                    if (strcmp(varname,"_msec")==0)
+                    {
+                        struct timeval tv;
+                        gettimeofday(&tv, 0);
+                        sprintf(value,"%ld", (tv.tv_sec-time0)*1000+(tv.tv_usec-utime0)/1000);
+                    }
+                    else
+                    if (strcmp(varname,"HOME")==0)
+                    {
+                        v=getenv("HOME");
+                        if (v)
+                            snprintf(value, BUFFER_SIZE, "%s", v);
+                        else
+                            *value=0;
+                    }
                     else
                         goto novar;
                     valuelen=strlen(value);

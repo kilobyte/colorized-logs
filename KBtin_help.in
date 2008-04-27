@@ -1685,6 +1685,11 @@ special properties (they can still be restored by #unvar).
 * LOGFILE          - the name of log file, or empty string if not logging
 * LINE, _          - (only in a #action or #promptaction): the current line
                      of input
+* _random          - a random non-negative number
+* _time, time      - time in seconds since KBtin started
+* _clock           - time in seconds past the Epoch (1970-01-01)
+* _msec            - milliseconds since KBtin started
+* HOME             - your Unix home dir (same as ~ in most shells)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~unvariable
 

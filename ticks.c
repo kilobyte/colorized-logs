@@ -13,7 +13,8 @@
 struct session *sessionlist;
 extern int any_closed;
 
-int time0;
+time_t time0;
+int utime0;
 
 /*********************/
 /* the #tick command */

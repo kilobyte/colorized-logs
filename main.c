@@ -69,8 +69,8 @@ char status[BUFFER_SIZE];
 /************ externs *************/
 extern char done_input[BUFFER_SIZE];
 
-extern int ticker_interrupted, time0;
-extern int tick_size, sec_to_tick;
+extern time_t time0;
+extern int utime0;
 
 static void myquitsig(int);
 extern struct completenode *complete_head;
@@ -218,6 +218,99 @@ static void setup_ulimit(void)
     else
         rlim.rlim_cur=STACK_LIMIT;
     setrlimit(RLIMIT_STACK,&rlim);
+}
+
+static void init_nullses(void)
+{
+    int i;
+    struct timeval tv;
+    
+    gettimeofday(&tv, 0);
+    time0 = tv.tv_sec;
+    utime0 = tv.tv_usec;
+
+    nullsession=TALLOC(struct session);
+    nullsession->name=mystrdup("main");
+    nullsession->address=0;
+    nullsession->tickstatus = FALSE;
+    nullsession->tick_size = DEFAULT_TICK_SIZE;
+    nullsession->pretick = DEFAULT_PRETICK;
+    nullsession->time0 = 0;
+    nullsession->snoopstatus = TRUE;
+    nullsession->logfile = 0;
+    nullsession->logname = 0;
+    nullsession->logtype = DEFAULT_LOGTYPE;
+    nullsession->blank = DEFAULT_DISPLAY_BLANK;
+    nullsession->echo = ui_sep_input?DEFAULT_ECHO_SEPINPUT
+                                    :DEFAULT_ECHO_NOSEPINPUT;
+    nullsession->speedwalk = DEFAULT_SPEEDWALK;
+    nullsession->togglesubs = DEFAULT_TOGGLESUBS;
+    nullsession->presub = DEFAULT_PRESUB;
+    nullsession->verbatim = 0;
+    nullsession->ignore = DEFAULT_IGNORE;
+    nullsession->partial_line_marker = mystrdup(DEFAULT_PARTIAL_LINE_MARKER);
+    nullsession->aliases = init_hash();
+    nullsession->actions = init_list();
+    nullsession->prompts = init_list();
+    nullsession->subs = init_list();
+    nullsession->myvars = init_hash();
+    nullsession->highs = init_list();
+    nullsession->pathdirs = init_hash();
+    nullsession->socket = 0;
+    nullsession->issocket = 0;
+    nullsession->naws = 0;
+#ifdef HAVE_LIBZ
+    nullsession->can_mccp = 0;
+    nullsession->mccp = 0;
+    nullsession->mccp_more = 0;
+#endif
+    nullsession->last_term_type=0;
+    nullsession->server_echo = 0;
+    nullsession->nagle = 0;
+    nullsession->antisubs = init_list();
+    nullsession->binds = init_hash();
+    nullsession->next = 0;
+    nullsession->sessionstart=nullsession->idle_since=time(0);
+    nullsession->debuglogfile=0;
+    nullsession->debuglogname=0;
+    for (i=0;i<HISTORY_SIZE;i++)
+        history[i]=0;
+    for (i=0;i<MAX_LOCATIONS;i++)
+    {
+        nullsession->routes[i]=0;
+        nullsession->locations[i]=0;
+    }
+    for(i=0;i<NHOOKS;i++)
+        nullsession->hooks[i]=0;
+    nullsession->path = init_list();
+    nullsession->no_return = 0;
+    nullsession->path_length = 0;
+    nullsession->last_line[0] = 0;
+    nullsession->events = NULL;
+    nullsession->verbose=0;
+    nullsession->closing=0;
+    sessionlist = nullsession;
+    activesession = nullsession;
+    pvars=0;
+
+    nullsession->mesvar[0] = DEFAULT_ALIAS_MESS;
+    nullsession->mesvar[1] = DEFAULT_ACTION_MESS;
+    nullsession->mesvar[2] = DEFAULT_SUB_MESS;
+    nullsession->mesvar[3] = DEFAULT_EVENT_MESS;
+    nullsession->mesvar[4] = DEFAULT_HIGHLIGHT_MESS;
+    nullsession->mesvar[5] = DEFAULT_VARIABLE_MESS;
+    nullsession->mesvar[6] = DEFAULT_ROUTE_MESS;
+    nullsession->mesvar[7] = DEFAULT_GOTO_MESS;
+    nullsession->mesvar[8] = DEFAULT_BIND_MESS;
+    nullsession->mesvar[9] = DEFAULT_SYSTEM_MESS;
+    nullsession->mesvar[10]= DEFAULT_PATH_MESS;
+    nullsession->mesvar[11]= DEFAULT_ERROR_MESS;
+    nullsession->mesvar[12]= DEFAULT_HOOK_MESS;
+    nullsession->charset=mystrdup(DEFAULT_CHARSET);
+    nullsession->logcharset=logcs_is_special(DEFAULT_LOGCHARSET) ?
+                              DEFAULT_LOGCHARSET : mystrdup(DEFAULT_LOGCHARSET);
+    nullify_conv(&nullsession->c_io);
+    nullify_conv(&nullsession->c_log);
 }
 
 static void opterror(char *msg, ...)
@@ -388,7 +481,7 @@ int main(int argc, char **argv, char **environ)
     user_init();
     /*  read_complete();		no tab-completion */
     ses = NULL;
-    srand((getpid()*0x10001)^time(0));
+    srand((getpid()*0x10001)^time0);
     lastdraft=0;
 
     if (ui_own_output || tty)
@@ -426,94 +519,7 @@ ever wants to read -- that is what docs are for.
 #endif
     PROF("initializing");
     setup_ulimit();
-    time0 = time(NULL);
-
-    nullsession=TALLOC(struct session);
-    nullsession->name=mystrdup("main");
-    nullsession->address=0;
-    nullsession->tickstatus = FALSE;
-    nullsession->tick_size = DEFAULT_TICK_SIZE;
-    nullsession->pretick = DEFAULT_PRETICK;
-    nullsession->time0 = 0;
-    nullsession->snoopstatus = TRUE;
-    nullsession->logfile = 0;
-    nullsession->logname = 0;
-    nullsession->logtype = DEFAULT_LOGTYPE;
-    nullsession->blank = DEFAULT_DISPLAY_BLANK;
-    nullsession->echo = ui_sep_input?DEFAULT_ECHO_SEPINPUT
-                                    :DEFAULT_ECHO_NOSEPINPUT;
-    nullsession->speedwalk = DEFAULT_SPEEDWALK;
-    nullsession->togglesubs = DEFAULT_TOGGLESUBS;
-    nullsession->presub = DEFAULT_PRESUB;
-    nullsession->verbatim = 0;
-    nullsession->ignore = DEFAULT_IGNORE;
-    nullsession->partial_line_marker = mystrdup(DEFAULT_PARTIAL_LINE_MARKER);
-    nullsession->aliases = init_hash();
-    nullsession->actions = init_list();
-    nullsession->prompts = init_list();
-    nullsession->subs = init_list();
-    nullsession->myvars = init_hash();
-    nullsession->highs = init_list();
-    nullsession->pathdirs = init_hash();
-    nullsession->socket = 0;
-    nullsession->issocket = 0;
-    nullsession->naws = 0;
-#ifdef HAVE_LIBZ
-    nullsession->can_mccp = 0;
-    nullsession->mccp = 0;
-    nullsession->mccp_more = 0;
-#endif
-    nullsession->last_term_type=0;
-    nullsession->server_echo = 0;
-    nullsession->nagle = 0;
-    nullsession->antisubs = init_list();
-    nullsession->binds = init_hash();
-    nullsession->next = 0;
-    nullsession->sessionstart=nullsession->idle_since=time(0);
-    nullsession->debuglogfile=0;
-    nullsession->debuglogname=0;
-    {
-        int i;
-        for (i=0;i<HISTORY_SIZE;i++)
-            history[i]=0;
-        for (i=0;i<MAX_LOCATIONS;i++)
-        {
-            nullsession->routes[i]=0;
-            nullsession->locations[i]=0;
-        }
-        for(i=0;i<NHOOKS;i++)
-            nullsession->hooks[i]=0;
-    };
-    nullsession->path = init_list();
-    nullsession->no_return = 0;
-    nullsession->path_length = 0;
-    nullsession->last_line[0] = 0;
-    nullsession->events = NULL;
-    nullsession->verbose=0;
-    nullsession->closing=0;
-    sessionlist = nullsession;
-    activesession = nullsession;
-    pvars=0;
-
-    nullsession->mesvar[0] = DEFAULT_ALIAS_MESS;
-    nullsession->mesvar[1] = DEFAULT_ACTION_MESS;
-    nullsession->mesvar[2] = DEFAULT_SUB_MESS;
-    nullsession->mesvar[3] = DEFAULT_EVENT_MESS;
-    nullsession->mesvar[4] = DEFAULT_HIGHLIGHT_MESS;
-    nullsession->mesvar[5] = DEFAULT_VARIABLE_MESS;
-    nullsession->mesvar[6] = DEFAULT_ROUTE_MESS;
-    nullsession->mesvar[7] = DEFAULT_GOTO_MESS;
-    nullsession->mesvar[8] = DEFAULT_BIND_MESS;
-    nullsession->mesvar[9] = DEFAULT_SYSTEM_MESS;
-    nullsession->mesvar[10]= DEFAULT_PATH_MESS;
-    nullsession->mesvar[11]= DEFAULT_ERROR_MESS;
-    nullsession->mesvar[12]= DEFAULT_HOOK_MESS;
-    nullsession->charset=mystrdup(DEFAULT_CHARSET);
-    nullsession->logcharset=logcs_is_special(DEFAULT_LOGCHARSET) ?
-                              DEFAULT_LOGCHARSET : mystrdup(DEFAULT_LOGCHARSET);
-    nullify_conv(&nullsession->c_io);
-    nullify_conv(&nullsession->c_log);
-
+    init_nullses();
     PROF("other");
     apply_options();
     tintin();
