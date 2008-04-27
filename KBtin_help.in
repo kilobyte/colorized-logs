@@ -187,6 +187,7 @@ Example:
 #delete result {ab b ac cad k} a*         ->  result = {b cad k}
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~foreach
+~forall
 
 #foreach {list} <command>
 Executes <command> for each item of {list}.
