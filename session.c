@@ -356,20 +356,6 @@ static struct session *new_session(char *name,char *address,int sock,int issocke
     return do_hook(newsession, HOOK_OPEN, 0, 0);
 }
 
-/***************************************************************************************/
-/* look for the session on the list.  If it's there, return a pointer to its reference */
-/***************************************************************************************/
-static struct session **is_alive(struct session *ses)
-{
-    struct session *sesptr;
-    
-    if (ses==sessionlist)
-        return &sessionlist;
-    for(sesptr = sessionlist; sesptr && sesptr->next!=ses; sesptr=sesptr->next) ;
-    if (sesptr)
-        return &sesptr->next;
-    return 0;
-}
 
 /*****************************************************************************/
 /* cleanup after session died. if session=activesession, try find new active */

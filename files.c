@@ -1077,44 +1077,6 @@ static void prepare_for_write(char *command, char *left, char *right, char *pr, 
     strcat(result, "\n");
 }
 
-static void prepare_quotes(char *string)
-{
-    char s[BUFFER_SIZE], *cpsource, *cpdest;
-    int nest = FALSE;
-
-    strcpy(s, string);
-
-    cpsource = s;
-    cpdest = string;
-
-    while (*cpsource)
-    {
-        if (*cpsource == '\\')
-        {
-            *cpdest++ = *cpsource++;
-            if (*cpsource)
-                *cpdest++ = *cpsource++;
-        }
-        else if (*cpsource == '\"' && nest == FALSE)
-        {
-            *cpdest++ = '\\';
-            *cpdest++ = *cpsource++;
-        }
-        else if (*cpsource == '{')
-        {
-            nest = TRUE;
-            *cpdest++ = *cpsource++;
-        }
-        else if (*cpsource == '}')
-        {
-            nest = FALSE;
-            *cpdest++ = *cpsource++;
-        }
-        else
-            *cpdest++ = *cpsource++;
-    }
-    *cpdest = '\0';
-}
 
 /**********************************/
 /* load a file for input to mud.  */

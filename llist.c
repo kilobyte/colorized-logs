@@ -400,47 +400,6 @@ struct listnode* search_node_with_wild(struct listnode *listhead, char *cptr)
     return NULL;
 }
 
-static int check_one_node(char *text, char *action)
-{
-    char *temp, temp2[BUFFER_SIZE], *tptr;
-
-    while (*text && *action)
-    {
-        if (*action == '*')
-        {
-            action++;
-            temp = action;
-            tptr = temp2;
-            while (*temp && *temp != '*')
-                *tptr++ = *temp++;
-            *tptr = '\0';
-            if (strlen(temp2) == 0)
-                return TRUE;
-            while (strncmp(temp2, text, strlen(temp2)) != 0 && *text)
-                text++;
-        }
-        else
-        {
-            temp = action;
-            tptr = temp2;
-            while (*temp && *temp != '*')
-                *tptr++ = *temp++;
-            *tptr = '\0';
-            if (strncmp(temp2, text, strlen(temp2)) != 0)
-                return FALSE;
-            else
-            {
-                text += strlen(temp2);
-                action += strlen(temp2);
-            }
-        }
-    }
-    if (*text)
-        return FALSE;
-    else if ((*action == '*' && !*(action + 1)) || !*action)
-        return TRUE;
-    return FALSE;
-}
 
 /*********************************************************************/
 /* create a node containing the ltext, rtext fields and place at the */

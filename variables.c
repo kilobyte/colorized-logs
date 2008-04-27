@@ -529,8 +529,6 @@ int isatom_inline(char *arg,struct session *ses)
 /*        CHANGE: now it's tail-> {bounce a} to allow iterators    */
 /*******************************************************************/
 
-static char zerostr[1] = ""; /* empty string */
-
 /* FUNCTION:  get_split_pos - where to split                 */
 /* ARGUMENTS: list - list (after all substitutions done)     */
 /*            head_length - where to split                   */
@@ -558,44 +556,6 @@ static char* get_split_pos(char *list, int head_length)
         return list;
 }
 
-/* FUNCTION:  is_braced_atom                               */
-/* ARGUMENTS: s - list (after all substitutions done)      */
-/*            ses - session; used only for error handling  */
-/* RESULT:    TRUE if s is braced atom e.g. '{atom}'       */
-static int is_braced_atom(char *s,struct session *ses)
-{
-    int nest = 0;
-
-    if(*s == '\0')
-        return FALSE;
-
-    while (*s != '\0' && !(*s == DEFAULT_CLOSE && nest == 0))
-    {
-        if (*s=='\\') /* next character is taken verbatim, i.e. \\{ does not open group */
-            s++;
-        else
-            if (*s == DEFAULT_OPEN)
-                nest++;
-            else
-                if (*s == DEFAULT_CLOSE)
-                    nest--;
-
-        if(*s != '\0') /* check in case if '\\' is the last character  */
-            s++;
-
-        if(nest == 0 && *s != '\0') /* we are at outer level and not at end */
-            return FALSE;
-    }
-
-    /* this error occurs when there are to many opening delimiters */
-    if(nest > 0)
-    {
-        tintin_eprintf(ses,"Unmatched braces error - too many opening delimiters");
-        return FALSE;
-    }
-
-    return TRUE;
-}
 
 /* FUNCTION:  is_braced_atom - checks if list is braced atom          */
 /* ARGUMENTS: beg - points to the first character of list             */

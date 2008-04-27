@@ -2,6 +2,7 @@
 *	handle broken terminals which report screen size of 0x0 a bit better
 *	up MAX_LOCATIONS to 2048
 *	bugfix: crash if a session is closed from an event or tick
+*	drop support for single byte only compilation
 
 1.0.12:
 *	#localtime, #gmtime
