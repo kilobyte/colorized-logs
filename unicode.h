@@ -1,4 +1,3 @@
-#ifdef UTF8
 #define WC wchar_t
 #define WCL sizeof(WC)
 #define WCI wint_t
@@ -12,7 +11,7 @@
 #define FLATlen utf8_width
 int wcwidth(WC ucs);
 int wcswidth(const WC *pwcs, size_t n);
-#else
+#if 0
 #define WC char
 #define WCL 1
 #define WCI int

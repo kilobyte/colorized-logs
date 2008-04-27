@@ -9,8 +9,6 @@
 #include "tintin.h"
 #include "translit.h"
 
-#ifdef UTF8
-
 #ifdef PROFILING
 extern char *prof_area;
 #endif
@@ -482,4 +480,3 @@ void convert(struct charset_conv *conv, char *outbuf, char *inbuf, int dir)
         syserr("unknown conversion mode");
     }
 }
-#endif

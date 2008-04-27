@@ -919,15 +919,10 @@ void tolower_command(char *arg,struct session *ses)
         tintin_eprintf(ses,"#Syntax: #tolower <var> <text>");
     else
     {
-#ifdef UTF8
         TO_WC(txt, right);
         for (p = txt; *p; p++)
             *p = towlower(*p);
         WRAP_WC(right, txt);
-#else
-        for (p = right; *p; p++)
-            *p = tolower(*p);
-#endif
         set_variable(left,right,ses);
     }
 }
@@ -946,15 +941,10 @@ void toupper_command(char *arg,struct session *ses)
         tintin_eprintf(ses,"#Syntax: #toupper <var> <text>");
     else
     {
-#ifdef UTF8
         TO_WC(txt, right);
         for (p = txt; *p; p++)
             *p = towupper(*p);
         WRAP_WC(right, txt);
-#else
-        for (p = right; *p; p++)
-            *p = toupper(*p);
-#endif
         set_variable(left,right,ses);
     }
 }
@@ -973,17 +963,11 @@ void firstupper_command(char *arg,struct session *ses)
         tintin_eprintf(ses,"#Syntax: #firstupper <var> <text>");
     else
     {
-#ifdef UTF8
         TO_WC(txt, right);
         for (p = txt; *p; p++)
             *p = towlower(*p);
         *txt=towupper(*txt);
         WRAP_WC(right, txt);
-#else
-        for (p = right; *p; p++)
-            *p = tolower(*p);
-        *right=toupper(*right);
-#endif
         set_variable(left,right,ses);
     }
 }
@@ -1060,15 +1044,10 @@ void reverse_command(char *arg,struct session *ses)
         tintin_eprintf(ses,"#Error - Syntax: #reverse {destination variable} {string}");
     else
     {
-#ifdef UTF8
         TO_WC(origstring, strvar);
         revstr(revstring, origstring);
         WRAP_WC(strvar, revstring);
         set_variable(destvar, strvar, ses);
-#else
-        revstr(revstring, strvar);
-        set_variable(destvar, revstring, ses);
-#endif
     }
 }
 
@@ -1337,7 +1316,6 @@ int random_inline(char *arg, struct session *ses)
     return 0;
 }
 
-#ifdef UTF8
 /************************************************************************************/
 /* cut a string to width len, putting the cut point into *rstr and return the width */
 /************************************************************************************/
@@ -1359,7 +1337,6 @@ static int cutws(WC *str, int len, WC **rstr)
     *rstr=str;
     return s;
 }
-#endif
 
 /*****************************************************/
 /* Syntax: #postpad {dest var} {length} {text}       */
@@ -1386,7 +1363,6 @@ void postpad_command(char *arg,struct session *ses)
             tintin_eprintf(ses,"#Error in #postpad - length has to be a positive number >0, got {%s}.",lengthstr);
         else
         {
-#ifdef UTF8
             TO_WC(bstr, astr);
             len=cutws(bstr, length, &bptr);
             aptr=astr+wc_to_utf8(astr, bstr, bptr-bstr, BUFFER_SIZE-3);
@@ -1394,16 +1370,6 @@ void postpad_command(char *arg,struct session *ses)
                 len++, *aptr++=' ';
             *aptr=0;
             set_variable(destvar, astr, ses);
-#else
-            strncpy(bstr, astr, length);
-            bstr[length] = '\0';
-            if ((len = strlen(astr)) < length)
-            {
-                for(; len < length; len++)
-                    bstr[len] = ' ';
-            }
-            set_variable(destvar, bstr, ses);
-#endif
         }
     }
 }
@@ -1436,7 +1402,6 @@ void prepad_command(char *arg,struct session *ses)
             tintin_eprintf(ses,"#Error in #prepad - length has to be a positive number >0, got {%s}.",lengthstr);
         else
         {
-#ifdef UTF8
             TO_WC(bstr, astr);
             len=cutws(bstr, length, &bptr);
             aptr=astr;
@@ -1445,17 +1410,6 @@ void prepad_command(char *arg,struct session *ses)
             aptr+=wc_to_utf8(aptr, bstr, bptr-bstr, BUFFER_SIZE-3);
             *aptr=0;
             set_variable(destvar, astr, ses);
-#else
-            int i, len_diff;
-            len_diff = length - strlen(astr);
-
-            for(i = 0; i < len_diff; i++)
-                bstr[i] = ' ';
-
-            strncpy(bstr + len_diff, astr, length);
-            bstr[length] = 0;
-            set_variable(destvar, bstr, ses);
-#endif
         }
     }
 }
@@ -1663,7 +1617,6 @@ void substring_command(char *arg,struct session *ses)
         tintin_eprintf(ses, "#SYNTAX: substr <var> <l>[,<r>] <string>");
     else
     {
-#ifdef UTF8
         p=mid;
         TO_WC(buf, right);
         lptr=buf;
@@ -1695,15 +1648,6 @@ void substring_command(char *arg,struct session *ses)
         if (s==r && w==2)
             *p++=' ';	/* the right edge is cut */
         *p=0;
-
-
-#else
-        s=strlen(right);
-        if ((l<=s)&&(l<=r))
-            sprintf(mid, "%.*s",r+1-l,right+l-1);
-        else
-            *mid=0;
-#endif
         set_variable(left,mid,ses);
     }
 }

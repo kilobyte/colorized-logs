@@ -123,13 +123,8 @@ int connect_mud(char *host, char *port, struct session *ses)
     
     for (addr=ai; addr; addr=addr->ai_next)
     {
-#ifdef UTF8
         tintin_printf(ses, "#Trying to connect... (%s) (charset=%s)",
             afstr(addr->ai_family), ses->charset);
-#else
-        tintin_printf(ses, "#Trying to connect... (%s)",
-            afstr(addr->ai_family));
-#endif
         
         if ((sock=socket(addr->ai_family, addr->ai_socktype, addr->ai_protocol))==-1)
         {
@@ -270,27 +265,19 @@ void write_line_mud(char *line, struct session *ses)
                 sizeof(ses->nagle));
             ses->nagle=1;
         }
-#ifdef UTF8
         PROFPUSH("conv: utf8->remote");
         convert(&ses->c_io, rstr, line, 1);
         PROFPOP;
         telnet_write_line(rstr, ses);
-#else
-        telnet_write_line(line, ses);
-#endif
     }
     else if (ses==nullsession)
         tintin_eprintf(ses, "#spurious output: %s", line);  /* CHANGE ME */
     else
     {
-#ifdef UTF8
         PROFPUSH("conv: utf8->remote");
         convert(&ses->c_io, rstr, line, 1);
         PROFPOP;
         pty_write_line(rstr, ses);
-#else
-        pty_write_line(line, ses);
-#endif
     }
     do_hook(ses, HOOK_SEND, line, 1);
 }

@@ -300,10 +300,8 @@ struct session
     int closing;
     int nagle;
     int halfcr_in, halfcr_log; /* \r at the end of a packet */
-#ifdef UTF8
     char *charset, *logcharset;
     struct charset_conv c_io,c_log;
-#endif
 #ifdef HAVE_LIBZ
     int can_mccp;
     z_stream *mccp;

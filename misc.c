@@ -198,11 +198,7 @@ void char_command(char *arg,struct session *ses)
 {
     get_arg_in_braces(arg, arg, 1);
     /* It doesn't make any sense to use a variable here. */
-#ifdef UTF8
     if (ispunct(*arg) || ((unsigned char)(*arg)>127))
-#else
-    if (ispunct(*arg) && ((unsigned char)(*arg)<127)) /* possible feature... */
-#endif
     {
         tintin_char = *arg;
         tintin_printf(ses, "#OK. TINTIN-CHAR is now {%c}", tintin_char);
@@ -636,30 +632,20 @@ void system_command(char *arg,struct session *ses)
     {
         if (ses->mesvar[9])
             tintin_puts1("#EXECUTING SHELL COMMAND.", ses);
-#ifdef UTF8
         utf8_to_local(buf, arg);
         if (!(output = mypopen(buf,0)))
-#else
-        if (!(output = mypopen(arg,0)))
-#endif
         {
             tintin_puts1("#ERROR EXECUTING SHELL COMMAND.",ses);
             prompt(NULL);
             return;
         };
-#ifdef UTF8
         memset(&cs, 0, sizeof(cs));
-#endif
         
         while (fgets(buf,BUFFER_SIZE,output))
         {
             do_in_MUD_colors(buf,1);
-#ifdef UTF8
             local_to_utf8(ustr, buf, BUFFER_SIZE, &cs);
             user_textout(ustr);
-#else
-            user_textout(buf);
-#endif
         }
         fclose(output);
         if (ses->mesvar[9])
@@ -683,16 +669,10 @@ void shell_command(char *arg,struct session *ses)
     {
         if (ses->mesvar[9])
             tintin_puts1("#EXECUTING SHELL COMMAND.", ses);
-#ifdef UTF8
         utf8_to_local(cmd, arg);
-#endif
         if (ui_own_output)
             user_pause();
-#ifdef UTF8
         system(cmd);
-#else
-        system(arg);
-#endif
         if (ui_own_output)
             user_resume();
         if (ses->mesvar[9])
@@ -982,14 +962,10 @@ void info_command(char *arg, struct session *ses)
     }
     else
         tintin_printf(ses, "Non-fullscreen mode");
-#ifdef UTF8
     tintin_printf(ses, "Local charset: %s, remote charset: %s",
         user_charset_name, ses->charset);
     tintin_printf(ses, "Log type: %s, log charset: %s",
         logtypes[ses->logtype], logcs_name(ses->logcharset));
-#else
-    tintin_printf(ses, "Log type: %s", logtypes[ses->logtype]);
-#endif
     if(ses->logfile)
         tintin_printf(ses, "Logging to: {%s}", ses->logname);
     else
@@ -1207,7 +1183,6 @@ void timecommands_command(char *arg, struct session *ses)
         tintin_printf(ses, "#Time elapsed: %d.%06d", (int)tv2.tv_sec, (int)tv2.tv_usec);
 }
 
-#ifdef UTF8
 /************************/
 /* the #charset command */
 /************************/
@@ -1238,7 +1213,6 @@ void charset_command(char *arg, struct session *ses)
         cleanup_conv(&nc);
     tintin_printf(ses, "#Charset set to %s", arg);
 }
-#endif
 
 
 /********************/
@@ -1248,11 +1222,7 @@ void chr_command(char *arg, struct session *ses)
 {
     char destvar[BUFFER_SIZE], left[BUFFER_SIZE], *lp;
     char res[BUFFER_SIZE], *r;
-#ifdef UTF8
     WC v;
-#else
-    unsigned int v;
-#endif
     
     arg=get_arg(arg, destvar, 0, ses);
     if (!*destvar)
@@ -1313,7 +1283,6 @@ void chr_command(char *arg, struct session *ses)
                 tintin_eprintf(ses, "#chr: can't represent 0 in {%s}", left);
                 return;
             }
-#ifdef UTF8
             if (v>0x10ffff)
             {
                 tintin_eprintf(ses, "#chr: not an Unicode value -- got %d=0x%x in {%s}",
@@ -1321,16 +1290,6 @@ void chr_command(char *arg, struct session *ses)
                 return;
             }
             r+=wc_to_utf8(r, &v, 1, res-r+BUFFER_SIZE);
-#else
-            if (v>255)
-            {
-                tintin_eprintf(ses, "#chr: only 8-bit values allowed -- got %d=0x%x in {%s}",
-                    v, v, left);
-                return;
-            }
-            if (r-res<BUFFER_SIZE-1)
-                *r++=v;
-#endif
             lp=space_out(lp);
         }
     }

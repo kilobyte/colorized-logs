@@ -214,12 +214,8 @@ struct session *run_command(char *arg,struct session *ses)
         return(ses);
     };
 
-#ifdef UTF8
     utf8_to_local(ustr, right);
     if (!(sock=run(ustr)))
-#else
-    if (!(sock=run(right)))
-#endif
     {
         tintin_eprintf(ses, "#forkpty() FAILED!");
         return ses;
@@ -348,14 +344,12 @@ static struct session *new_session(char *name,char *address,int sock,int issocke
         else
             newsession->hooks[i]=0;
     newsession->closing=0;
-#ifdef UTF8
     newsession->charset = mystrdup(issocket ? ses->charset : user_charset_name);
     newsession->logcharset = logcs_is_special(ses->logcharset) ?
                               ses->logcharset : mystrdup(ses->logcharset);
     if (!new_conv(&newsession->c_io, newsession->charset, 0))
         tintin_eprintf(0, "#Warning: can't open charset: %s", newsession->charset);
     nullify_conv(&newsession->c_log);
-#endif
     sessionlist = newsession;
     activesession = newsession;
 
@@ -404,14 +398,9 @@ void cleanup_session(struct session *ses)
     {
         user_textout_draft(0, 0);
         sprintf(buf,"%s\n",ses->last_line);
-#ifdef UTF8
         convert(&ses->c_io, ses->last_line, buf, -1);
         do_in_MUD_colors(ses->last_line,0);
         user_textout(ses->last_line);
-#else
-        do_in_MUD_colors(buf,0);
-        user_textout(buf);
-#endif
     };
     sprintf(buf, "#SESSION '%s' DIED.", ses->name);
     tintin_puts(buf, NULL);
@@ -426,12 +415,10 @@ void cleanup_session(struct session *ses)
     SFREE(ses->name);
     SFREE(ses->address);
     SFREE(ses->partial_line_marker);
-#ifdef UTF8
     cleanup_conv(&ses->c_io);
     SFREE(ses->charset);
     if (!logcs_is_special(ses->logcharset))
         SFREE(ses->logcharset);
-#endif
 #ifdef HAVE_LIBZ
     if (ses->mccp)
     {

@@ -358,12 +358,8 @@ static void apply_options()
     char homepath[BUFFER_SIZE], temp[BUFFER_SIZE], sname[BUFFER_SIZE], *strptr;
     char ustr[BUFFER_SIZE];
     FILE *f;
-#ifdef UTF8
 # define DO_INPUT(str,iv) local_to_utf8(ustr,str,BUFFER_SIZE,0);\
                           activesession=parse_input(str,iv,activesession);
-#else
-# define DO_INPUT(str,iv) activesession=parse_input(str,iv,activesession);
-#endif
 
     for(opt=options->next; opt; opt=opt->next)
     {
@@ -391,11 +387,7 @@ static void apply_options()
             DO_INPUT(temp, 1);
             break;
         case ' ':
-#ifdef UTF8
             local_to_utf8(ustr, opt->right, BUFFER_SIZE, 0);
-#else
-# define ustr opt->right
-#endif
             if ((f=fopen(opt->right,"r")))
             {
                 if (activesession->verbose || !real_quiet)
@@ -404,7 +396,6 @@ static void apply_options()
             }
             else
                 tintin_eprintf(0, "#FILE NOT FOUND: {%s}", ustr);
-#undef ustr
             break;
         case '-':
             *homepath = '\0';
@@ -418,11 +409,7 @@ static void apply_options()
             
             strcpy(temp, homepath);
             strcat(temp, "/.tintinrc");
-#ifdef UTF8
             local_to_utf8(ustr, temp, BUFFER_SIZE, 0);
-#else
-# define ustr temp
-#endif
             if ((f=fopen(temp,"r")))
                 activesession = do_read(f, ustr, activesession);
             else
@@ -432,12 +419,9 @@ static void apply_options()
                     strcpy(homepath, strptr);
                     strcpy(temp, homepath);
                     strcat(temp, "/.tintinrc");
-#ifdef UTF8
                     local_to_utf8(ustr, temp, BUFFER_SIZE, 0);
-#endif
                     if ((f=fopen(temp,"r")))
                         activesession = do_read(f, ustr, activesession);
-#undef ustr
                 }
             }
         }
@@ -454,9 +438,7 @@ int main(int argc, char **argv, char **environ)
     struct session *ses;
 
     tintin_exec=argv[0];
-#ifdef UTF8
     init_locale();
-#endif
     user_setdriver(isatty(0)?1:0);
     parse_options(argc, argv, environ);
     init_bind();
@@ -586,13 +568,11 @@ ever wants to read -- that is what docs are for.
     nullsession->mesvar[10]= DEFAULT_PATH_MESS;
     nullsession->mesvar[11]= DEFAULT_ERROR_MESS;
     nullsession->mesvar[12]= DEFAULT_HOOK_MESS;
-#ifdef UTF8
     nullsession->charset=mystrdup(DEFAULT_CHARSET);
     nullsession->logcharset=logcs_is_special(DEFAULT_LOGCHARSET) ?
                               DEFAULT_LOGCHARSET : mystrdup(DEFAULT_LOGCHARSET);
     nullify_conv(&nullsession->c_io);
     nullify_conv(&nullsession->c_log);
-#endif
 
     PROF("other");
     apply_options();
@@ -642,11 +622,9 @@ static void tintin(void)
     char kbdbuf[BUFFER_SIZE];
     WC ch;
     int inbuf=0;
-#ifdef UTF8
     mbstate_t instate;
     
     memset(&instate, 0, sizeof(instate));
-#endif
 
     while (TRUE)
     {
@@ -713,7 +691,6 @@ static void tintin(void)
             i=0;
             while(i<inbuf)
             {
-#ifdef UTF8
                 result=mbrtowc(&ch, kbdbuf+i, inbuf-i, &instate);
                 if (result==-2)		/* incomplete but valid sequence */
                 {
@@ -734,9 +711,6 @@ static void tintin(void)
                     i++; /* oops... bad ISO/ANSI, bad */
                 else
                     i+=result;
-#else
-                ch=kbdbuf[i++];
-#endif
                 if (user_process_kbd(activesession, ch))
                 {
                     hist_num=-1;
@@ -913,16 +887,12 @@ static void read_mud(struct session *ses)
 static void do_one_line(char *line,int nl,struct session *ses)
 {
     int isnb;
-#ifdef UTF8
     char ubuf[BUFFER_SIZE];
 
     PROFPUSH("conv: remote->utf8");
     convert(&ses->c_io, ubuf, line, -1);
 # define line ubuf
     PROF("looking for passwords");
-#else
-    PROFPUSH("looking for passwords");
-#endif
     switch (ses->server_echo)
     {
     case 0:

@@ -90,14 +90,9 @@ void expand_filename(char *arg, char *result, char *lstr)
         };
     };
     strcpy(result, arg);
-#ifdef UTF8
     utf8_to_local(lstr, r0);
-#else
-    strcpy(lstr, r0);
-#endif
 }
 
-#ifdef UTF8
 /****************************************/
 /* convert charsets and write to a file */
 /****************************************/
@@ -121,10 +116,6 @@ static void cfprintf(FILE *f, char *fmt, ...)
     utf8_to_local(lstr, buf);
     fputs(lstr, f);
 }
-#else
-# define cfputs fputs
-# define cfprintf fprintf
-#endif
 
 #if 0
 /**********************************/
@@ -472,11 +463,9 @@ void log_command(char *arg, struct session *ses)
                 "#OK. PIPING LOG TO {%s} .....");
             if (ses->logfile)
                 ses->logname=mystrdup(temp);
-#ifdef UTF8
             if (!new_conv(&ses->c_log, logcs_charset(ses->logcharset), 1))
                 tintin_eprintf(ses, "#Warning: can't open charset: %s",
                                     logcs_charset(ses->logcharset));
-#endif
                         
         }
         else if (ses->logfile)
@@ -559,11 +548,9 @@ struct session* do_read(FILE *myfile, char *filename, struct session *ses)
 {
     char line[BUFFER_SIZE], buffer[BUFFER_SIZE], lstr[BUFFER_SIZE], *cptr, *eptr;
     int flag,nl,ignore_lines;
-#ifdef UTF8
     mbstate_t cs;
     
     memset(&cs, 0, sizeof(cs));
-#endif
 
     flag = !in_read;
     if (!ses->verbose)
@@ -585,14 +572,9 @@ struct session* do_read(FILE *myfile, char *filename, struct session *ses)
     *buffer=0;
     ignore_lines=0;
     nl=0;
-#ifdef UTF8
     while (fgets(lstr, BUFFER_SIZE, myfile))
     {
         local_to_utf8(line, lstr, BUFFER_SIZE, &cs);
-#else
-    while (fgets(line, BUFFER_SIZE, myfile))
-    {
-#endif
         if (!nl++)
             if (line[0]=='#' && line[1]=='!') /* Unix hashbang script */
                 continue;
@@ -762,12 +744,10 @@ void write_command(char *filename, struct session *ses)
     SFLAG("verbatim", verbatim, 0);
     SFLAG("ticksize", tick_size, DEFAULT_TICK_SIZE);
     SFLAG("pretick", pretick, DEFAULT_PRETICK);
-#ifdef UTF8
     if (strcmp(DEFAULT_CHARSET, ses->charset))
         cfprintf(myfile, "%ccharset {%s}\n", tintin_char, ses->charset);
     if (strcmp(logcs_name(DEFAULT_LOGCHARSET), logcs_name(ses->logcharset)))
         cfprintf(myfile, "%clogcharset {%s}\n", tintin_char, logcs_name(ses->logcharset));
-#endif
     nodeptr = templist = hash2list(ses->aliases, "*");
     while ((nodeptr = nodeptr->next))
     {
@@ -943,12 +923,10 @@ void writesession_command(char *filename, struct session *ses)
     SFLAG("verbatim", verbatim, 0);
     SFLAG("ticksize", tick_size, DEFAULT_TICK_SIZE);
     SFLAG("pretick", pretick, DEFAULT_PRETICK);
-#ifdef UTF8
     if (strcmp(nullsession->charset, ses->charset))
         cfprintf(myfile, "%ccharset {%s}\n", tintin_char, ses->charset);
     if (strcmp(logcs_name(nullsession->logcharset), logcs_name(ses->logcharset)))
         cfprintf(myfile, "%clogcharset {%s}\n", tintin_char, logcs_name(ses->logcharset));
-#endif
     
     nodeptr = onptr = hash2list(ses->aliases,"*");
     while ((nodeptr = nodeptr->next))
@@ -1145,11 +1123,9 @@ void textin_command(char *arg, struct session *ses)
 {
     FILE *myfile;
     char buffer[BUFFER_SIZE], filename[BUFFER_SIZE], *cptr, lfname[BUFFER_SIZE];
-#ifdef UTF8
     mbstate_t cs;
     
     memset(&cs, 0, sizeof(cs));
-#endif
 
     get_arg_in_braces(arg, buffer, 1);
     substitute_vars(buffer, filename);
@@ -1171,12 +1147,8 @@ void textin_command(char *arg, struct session *ses)
     {
         for (cptr = buffer; *cptr && *cptr != '\n'; cptr++) ;
         *cptr = '\0';
-#ifdef UTF8
         local_to_utf8(lfname, buffer, BUFFER_SIZE, &cs);
         write_line_mud(lfname, ses);
-#else
-        write_line_mud(buffer, ses);
-#endif
     }
     fclose(myfile);
     tintin_printf(ses,"#File read - Success.");
@@ -1215,7 +1187,6 @@ void logtype_command(char *arg, struct session *ses)
     tintin_eprintf(ses, "#No such logtype: {%s}\n", left);
 }
 
-#ifdef UTF8
 /***************************/
 /* the #logcharset command */
 /***************************/
@@ -1252,4 +1223,3 @@ void logcharset_command(char *arg, struct session *ses)
     if (ses->mesvar[MSG_LOG])
         tintin_printf(ses, "#Log charset set to %s", logcs_name(arg));
 }
-#endif

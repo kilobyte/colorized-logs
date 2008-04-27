@@ -155,10 +155,8 @@ gagthis
 profile
 #endif
 
-#ifdef UTF8
 charset
 logcharset
-#endif
 
 doactions
 dopromptactions
