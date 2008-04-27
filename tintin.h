@@ -196,10 +196,20 @@
 #define HOOK_DEACTIVATE	6
 #define NHOOKS          7
 
-/************************ structures *********************/
+/************************ includes *********************/
+#include "config.h"
 #include <stdio.h>
 #include "_stdint.h"
 #include <iconv.h>
+#include <ctype.h>
+#include <wctype.h>
+#include "malloc.h"
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdarg.h>
+#include <wchar.h>
+#include <signal.h>
+#include <errno.h>
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
 # include <time.h>
@@ -211,10 +221,24 @@
 # endif
 #endif
 #ifdef HAVE_LIBZ
-#include <zlib.h>
+# include <zlib.h>
 #endif
-#include "malloc.h"
+#ifdef HAVE_STRING_H
+# include <string.h>
+#else
+# ifdef HAVE_STRINGS_H
+#  include <strings.h>
+# endif
+#endif
+#ifndef HAVE_MEMCPY
+# define memcpy(d, s, n) bcopy ((s), (d), (n))
+# define memmove(d, s, n) bcopy ((s), (d), (n))
+#endif
+#if GWINSZ_IN_SYS_IOCTL
+# include <sys/ioctl.h>
+#endif
 
+/************************ structures *********************/
 struct listnode
 {
     struct listnode *next;

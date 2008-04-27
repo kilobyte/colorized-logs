@@ -5,56 +5,17 @@
 /*          (T)he K(I)cki(N) (T)ickin D(I)kumud Clie(N)t             */
 /*                     coded by peter unold 1992                     */
 /*********************************************************************/
-#include "config.h"
-#include <ctype.h>
-#ifdef HAVE_STRING_H
-#include <string.h>
-#else
-#ifdef HAVE_STRINGS_H
-#include <strings.h>
-#endif
-#endif
 #include "tintin.h"
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
+#include "protos.h"
 #include "ui.h"
-
-static void show_session(struct session *ses);
-static struct session *new_session(char *name,char *address,int sock,int issocket,struct session *ses);
-
-extern char *get_arg_in_braces(char *s,char *arg,int flag);
-extern char *space_out(char *s);
-extern char *mystrdup(char *s);
-extern struct listnode *copy_list(struct listnode *sourcelist,int mode);
-extern struct listnode *init_list(void);
-extern int run(char *command);
-extern void copyroutes(struct session *ses1,struct session *ses2);
-extern int connect_mud(char *host, char *port, struct session *ses);
-extern void kill_all(struct session *ses, int mode);
-extern void prompt(struct session *ses);
-extern void syserr(char *msg, ...);
-extern void tintin_puts(char *cptr, struct session *ses);
-extern void tintin_puts1(char *cptr, struct session *ses);
-extern void tintin_printf(struct session *ses,char *format,...);
-extern void tintin_eprintf(struct session *ses,char *format,...);
-extern struct hashtable* copy_hash(struct hashtable *h);
-extern void do_in_MUD_colors(char *txt,int quotetype);
-extern int isatom(char *arg);
-extern struct session* do_hook(struct session *ses, int t, char *data, int blockzap);
-extern void utf8_to_local(char *d, char *s);
-extern void nullify_conv(struct charset_conv *conv);
-extern void cleanup_conv(struct charset_conv *conv);
-extern int new_conv(struct charset_conv *conv, char *name, int dir);
-extern void convert(struct charset_conv *conv, char *outbuf, char *inbuf, int dir);
-extern void log_off(struct session *ses);
 
 extern struct session *sessionlist, *activesession, *nullsession;
 extern char *history[HISTORY_SIZE];
 extern char *user_charset_name;
 extern int any_closed;
 
+static struct session *new_session(char *name,char *address,int sock,int issocket,struct session *ses);
+static void show_session(struct session *ses);
 
 int session_exists(char *name)
 {

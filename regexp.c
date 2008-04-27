@@ -1,27 +1,13 @@
-#include "config.h"
 #include "tintin.h"
+#include "protos.h"
 #ifdef HAVE_REGCOMP
 #include <sys/types.h>
 #include <regex.h>
-#ifdef HAVE_STRING_H
-#include <string.h>
-#else
-#ifdef HAVE_STRINGS_H
-#include <strings.h>
-#endif
-#endif
 
 extern char tintin_char;
 extern pvars_t *pvars;	/* the %0, %1, %2,....%9 variables */
-extern char *get_arg_in_braces(char *s,char *arg,int flag);
-extern char *get_arg(char *s,char *arg,int flag,struct session *ses);
-void substitute_vars(char *arg, char *result);
-extern void substitute_myvars(char *arg,char *result,struct session *ses);
-extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
-extern struct session *if_command(char *arg, struct session *ses);
-extern void tintin_eprintf(struct session *ses,char *format,...);
-extern int is_abrev(char *s1, char *s2);
 
+extern struct session *if_command(char *arg, struct session *ses);
 
 int check_regexp(char *line, char *action, pvars_t *vars, int inside, struct session *ses)
 {

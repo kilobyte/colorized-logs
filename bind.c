@@ -1,26 +1,6 @@
-#include "config.h"
-#ifdef HAVE_STRING_H
-#include <string.h>
-#else
-#ifdef HAVE_STRINGS_H
-#include <strings.h>
-#endif
-#endif
-#include <wchar.h>
 #include "tintin.h"
 #include "ui.h"
-
-extern char *get_arg_in_braces(char *s,char *arg,int flag);
-extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
-extern void tintin_printf(struct session *ses,char *format,...);
-extern char* get_hash(struct hashtable *h, char *key);
-extern void set_hash(struct hashtable *h, char *key, char *value);
-extern void show_hashlist(struct session *ses, struct hashtable *h, char *pat, const char *msg_all, const char *msg_none);
-extern void delete_hashlist(struct session *ses, struct hashtable *h, char *pat, const char *msg_ok, const char *msg_none);
-extern struct hashtable* init_hash();
-extern void substitute_myvars(char *arg,char *result,struct session *ses);
-extern void substitute_vars(char *arg, char *result);
-extern void tintin_eprintf(struct session *ses,char *format,...);
+#include "protos.h"
 
 
 extern int bindnum;

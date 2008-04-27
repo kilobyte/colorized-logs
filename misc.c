@@ -5,19 +5,9 @@
 /*          (T)he K(I)cki(N) (T)ickin D(I)kumud Clie(N)t             */
 /*                     coded by peter unold 1992                     */
 /*********************************************************************/
-#include "config.h"
-#ifdef HAVE_STRING_H
-#include <string.h>
-#else
-#ifdef HAVE_STRINGS_H
-#include <strings.h>
-#endif
-#endif
-#include <ctype.h>
-#include <stdlib.h>
-#include <wchar.h>
 #include "tintin.h"
 #include "ui.h"
+#include "protos.h"
 
 
 /* externs */
@@ -28,44 +18,11 @@ extern int keypad,retain;
 extern pvars_t *pvars;	/* the %0, %1, %2,....%9 variables */
 extern char status[BUFFER_SIZE];
 int margins,marginl,marginr;
-extern FILE *mypopen(const char *command, int wr);
 extern int LINES,COLS;
-extern void cleanup_session(struct session *ses);
-extern int count_list(struct listnode *listhead);
-extern int count_routes(struct session *ses);
-extern char *get_arg_in_braces(char *s,char *arg,int flag);
-extern char *get_arg(char *s,char *arg,int flag,struct session *ses);
-extern int is_abrev(char *s1, char *s2);
-extern struct session *newactive_session(void);
-extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
-extern void prepare_actionalias(char *string, char *result, struct session *ses);
-extern void prompt(struct session *ses);
-extern void substitute_myvars(char *arg,char *result,struct session *ses);
-extern void substitute_vars(char *arg, char *result);
-extern void tintin_puts(char *cptr,struct session *ses);
-extern void tintin_puts1(char *cptr,struct session *ses);
-extern void tintin_printf(struct session *ses, char *format, ...);
-extern void tintin_eprintf(struct session *ses, char *format, ...);
-extern void write_line_mud(char *line, struct session *ses);
-extern void set_variable(char *left,char *right,struct session *ses);
-extern void do_all_high(char *line,struct session *ses);
-extern void do_all_sub(char *line, struct session *ses);
-extern int getcolor(char **ptr,int *color,const int flag);
-extern void kill_all(struct session *ses, int mode);
-extern void do_in_MUD_colors(char *txt,int quotetype);
 extern int puts_echoing,in_read;
-extern struct session* do_hook(struct session *ses, int t, char *data, int blockzap);
 extern char *logtypes[];
 extern int real_quiet;
 extern char *user_charset_name;
-extern void utf8_to_local(char *d, char *s);
-extern void local_to_utf8(char *d, char *s, int maxb, mbstate_t *cs);
-extern int new_conv(struct charset_conv *conv, char *name, int dir);
-extern void cleanup_conv(struct charset_conv *conv);
-extern char* mystrdup(char *s);
-extern int wc_to_utf8(char *d, const wchar_t *s, int n, int maxb);
-extern char *space_out(char *s);
-extern int utf8_to_wc(wchar_t *d, char *s, int n);
 
 
 int yes_no(char *txt)

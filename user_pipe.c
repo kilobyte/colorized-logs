@@ -1,20 +1,7 @@
-#include "config.h"
 #include "tintin.h"
-#include <signal.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <wctype.h>
-#ifdef HAVE_STRING_H
-# include <string.h>
-#else
-# ifdef HAVE_STRINGS_H
-#  include <strings.h>
-# endif
-#endif
-#include <stdarg.h>
-#include <wchar.h>
 #include "unicode.h"
 #include "ui.h"
+#include "protos.h"
 
 
 extern int wc_to_utf8(char *d, const wchar_t *s, int n, int maxb);

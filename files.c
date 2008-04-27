@@ -6,49 +6,15 @@
 /*                     coded by peter unold 1992                     */
 /*                    New code by Bill Reiss 1993                    */
 /*********************************************************************/
-#include "config.h"
-#ifdef HAVE_STRING_H
-# include <string.h>
-#else
-# ifdef HAVE_STRINGS_H
-#  include <strings.h>
-# endif
-#endif
-#include <unistd.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <pwd.h>
-#include <stdarg.h>
-#include <wchar.h>
 #include "tintin.h"
 #include "ui.h"
+#include "protos.h"
+#include <pwd.h>
 
 static void prepare_for_write(char *command, char *left, char *right, char *pr, char *result);
-
-extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
-extern struct session *nullsession;
-extern char *get_arg_in_braces(char *s,char *arg,int flag);
-extern struct listnode *searchnode_list(struct listnode *listhead,char *cptr);
-extern void prompt(struct session *ses);
 extern void char_command(char *arg,struct session *ses);
-extern void substitute_myvars(char *arg,char *result,struct session *ses);
-extern void substitute_vars(char *arg, char *result);
-extern void tintin_printf(struct session *ses, const char *format, ...);
-extern void tintin_eprintf(struct session *ses, const char *format, ...);
-extern char *space_out(char *s);
-extern struct listnode* hash2list(struct hashtable *h, char *pat);
-extern void zap_list(struct listnode *nptr);
-extern char* get_hash(struct hashtable *h, char *key);
-extern void write_line_mud(char *line, struct session *ses);
-extern FILE *mypopen(const char *command, int wr);
-extern char *mystrdup(char *s);
-extern char *get_arg(char *s,char *arg,int flag,struct session *ses);
-extern int is_abrev(char *s1, char *s2);
-extern void utf8_to_local(char *d, char *s);
-extern void local_to_utf8(char *d, char *s, int maxb, mbstate_t *cs);
-extern int new_conv(struct charset_conv *conv, char *name, int dir);
-extern void cleanup_conv(struct charset_conv *conv);
-extern void convert(struct charset_conv *conv, char *outbuf, char *inbuf, int dir);
+
+extern struct session *nullsession;
 
 extern int puts_echoing;
 extern int alnum, acnum, subnum, hinum, varnum, antisubnum, routnum, bindnum, pdnum, hooknum;

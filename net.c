@@ -5,22 +5,6 @@
 /*          (T)he K(I)cki(N) (T)ickin D(I)kumud Clie(N)t             */
 /*                     coded by peter unold 1992                     */
 /*********************************************************************/
-#include "config.h"
-#include <ctype.h>
-
-#ifdef HAVE_STRING_H
-# include <string.h>
-#else
-# ifdef HAVE_STRINGS_H
-#  include <strings.h>
-# endif
-#endif
-#ifndef HAVE_MEMCPY
-# define memcpy(d, s, n) bcopy ((s), (d), (n))
-# define memmove(d, s, n) bcopy ((s), (d), (n))
-#endif
-
-#include <errno.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in_systm.h>
@@ -28,40 +12,27 @@
 #include <netinet/ip.h>
 #include <netinet/tcp.h>
 #include <netdb.h>
-#include <signal.h>
-#include <stdlib.h>
 #include "tintin.h"
+#include "protos.h"
 
 #ifndef BADSIG
 #define BADSIG (void (*)())-1
 #endif
-
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #include <arpa/inet.h>
 #endif
 
 
-extern int do_telnet_protocol(char *data,int nb,struct session *ses);
 static void alarm_func(int);
 
 extern struct session *sessionlist, *activesession, *nullsession;
-extern int errno;
-extern void syserr(char *msg, ...);
-extern void tintin_printf(struct session *ses, char *format, ...);
-extern void tintin_eprintf(struct session *ses, char *format, ...);
-extern void prompt(struct session *ses);
-extern void telnet_write_line(char *line, struct session *ses);
-extern void pty_write_line(char *line, struct session *ses);
-extern struct session* do_hook(struct session *ses, int t, char *data, int blockzap);
-extern void convert(struct charset_conv *conv, char *outbuf, char *inbuf, int dir);
 #ifdef PROFILING
 extern char *prof_area;
 #endif
 #ifdef HAVE_LIBZ
 int init_mccp(struct session *ses, int cplen, char *cpsrc);
 #endif
-extern void debuglog(struct session *ses, const char *format, ...);
 
 #ifndef SOL_IP
 static int SOL_IP;

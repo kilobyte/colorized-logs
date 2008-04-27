@@ -11,5 +11,5 @@ DIR="${*:+${DIR:-.}/}"
   egrep -v '^struct session \*[a-z_]+_command\('|
   while read x
     do
-      echo "extern $x;"
+      echo "$x;"
     done) >protos.h

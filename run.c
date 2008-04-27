@@ -1,31 +1,16 @@
 #define _XOPEN_SOURCE
-#include "config.h"
-#include <stdio.h>
+#include "tintin.h"
 #include <fcntl.h>
-#include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #if HAVE_TERMIOS_H
 # include <termios.h>
-#endif
-#if GWINSZ_IN_SYS_IOCTL
-# include <sys/ioctl.h>
 #endif
 #ifdef HAVE_GRANTPT
 # ifdef HAVE_STROPTS_H
 #  include <stropts.h>
 # endif
 #endif
-#ifdef HAVE_STRING_H
-# include <string.h>
-#else
-# ifdef HAVE_STRINGS_H
-#  include <strings.h>
-# endif
-#endif
-#include <stdlib.h>
-#include <signal.h>
-#include "tintin.h"
 #include "ui.h"
 
 extern char **environ;
@@ -144,7 +129,7 @@ void termdebug_command(char *arg, struct session *ses)
 #endif
 
 
-int forkpty(int *amaster,char *dummy,struct termios *termp, struct winsize *wp)
+static int forkpty(int *amaster,char *dummy,struct termios *termp, struct winsize *wp)
 {
     int master,slave;
     int pid;

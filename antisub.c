@@ -5,33 +5,8 @@
 /*          (T)he K(I)cki(N) (T)ickin D(I)kumud Clie(N)t             */
 /*                     coded by peter unold 1992                     */
 /*********************************************************************/
-#include "config.h"
 #include "tintin.h"
-#ifdef HAVE_STRING_H
-#include <string.h>
-#else
-#ifdef HAVE_STRINGS_H
-#include <strings.h>
-#endif
-#endif
-
-#ifdef HAVE_STDLIB_H
-#include <stdlib.h>
-#endif
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
-extern char *get_arg_in_braces(char *s,char *arg,int flag);
-extern struct listnode *searchnode_list(struct listnode *listhead, char *cptr);
-extern struct listnode *search_node_with_wild(struct listnode *listhead, char *cptr);
-extern void tintin_puts(char *cptr, struct session *ses);
-extern void prompt(struct session *ses);
-extern void deletenode_list(struct listnode *listhead, struct listnode *nptr);
-extern void insertnode_list(struct listnode *listhead, char *ltext, char *rtext, char *prtext, int mode);
-extern void tintin_printf(struct session *ses,char *format,...);
-extern int check_one_action(char *line, char *action, pvars_t *vars, int inside, struct session *ses);
-extern void show_list(struct listnode *listhead);
+#include "protos.h"
 
 extern pvars_t *pvars;	/* the %0, %1, %2,....%9 variables */
 extern int antisubnum;

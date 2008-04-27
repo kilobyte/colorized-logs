@@ -1,27 +1,8 @@
-#include "config.h"
-#include <ctype.h>
-#ifdef HAVE_STRING_H
-#include <string.h>
-#else
-#ifdef HAVE_STRINGS_H
-#include <strings.h>
-#endif
-#endif
 #include "tintin.h"
-#include <stdlib.h>
+#include "protos.h"
 
 extern char tintin_char;
 extern int hooknum;
-extern char *get_arg_in_braces(char *s,char *arg,int flag);
-extern char *get_arg(char *s,char *arg,int flag,struct session *ses);
-extern void prompt(struct session *ses);
-extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
-extern int is_abrev(char *s1, char *s2);
-extern void tintin_printf(struct session *ses,char *format,...);
-extern void tintin_eprintf(struct session *ses,char *format,...);
-extern void prepare_actionalias(char *string, char *result, struct session *ses);
-extern char *space_out(char *s);
-extern char *mystrdup(char *s);
 extern pvars_t *pvars;  /* the %0, %1, %2,....%9 variables */
 extern int in_alias;
 

@@ -1,46 +1,10 @@
 /* Autoconf patching by David Hedbor, neotron@lysator.liu.se */
-#include "config.h"
 #include "tintin.h"
-#include <ctype.h>
-int stacks[100][4];
+#include "protos.h"
 
-#ifdef HAVE_UNISTD_H
-#include <stdlib.h>
-#include <unistd.h>
-#endif
-#ifdef HAVE_STRING_H
-#include <string.h>
-#else
-#ifdef HAVE_STRINGS_H
-#include <strings.h>
-#endif
-#endif
-
-extern char *get_arg_in_braces(char *s,char *arg,int flag);
-extern char *space_out(char *s);
-extern char *get_inline(char *s,char *dest);
+static int stacks[100][4];
 static int conv_to_ints(char *arg,struct session *ses);
 static int do_one_inside(int begin, int end);
-int eval_expression(char *arg,struct session *ses);
-extern int finditem_inline(char *arg,struct session *ses);
-extern int is_abrev(char *s1, char *s2);
-extern int isatom_inline(char *arg,struct session *ses);
-extern int listlength_inline(char *arg,struct session *ses);
-extern int match(char *regex, char *string);
-extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
-extern int random_inline(char *arg, struct session *ses);
-extern void set_variable(char *left,char *right,struct session *ses);
-extern int strlen_inline(char *arg, struct session *ses);
-extern int grep_inline(char *arg, struct session *ses);
-extern int strcmp_inline(char *arg, struct session *ses);
-extern int match_inline(char *arg, struct session *ses);
-extern int ord_inline(char *arg, struct session *ses);
-extern void substitute_myvars(char *arg,char *result,struct session *ses);
-extern void substitute_vars(char *arg, char *result);
-extern void tintin_printf(struct session *ses,char *format,...);
-extern void tintin_eprintf(struct session *ses,char *format,...);
-extern char *get_arg(char *s,char *arg,int flag,struct session *ses);
-
 
 extern char tintin_char;
 

@@ -1,20 +1,8 @@
-#include "config.h"
 #include "tintin.h"
-#include <stdlib.h>
-#ifdef HAVE_STRING_H
-# include <string.h>
-#else
-# ifdef HAVE_STRINGS_H
-#  include <strings.h>
-# endif
-#endif
+#include "protos.h"
 
 #define DELETED_HASHENTRY ((char*)init_hash)
-extern unsigned int crc(char *str);
-extern char *mystrdup(char *s);
-extern void syserr(char *msg, ...);
-extern struct listnode *init_list(void);
-extern int match(char *regex, char *string);
+#define crc(x) ((unsigned int)crc32s(x))
 
 /**********************************/
 /* initialize an empty hash table */

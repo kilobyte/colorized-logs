@@ -1,19 +1,10 @@
 #include "config.h"
 #include "tintin.h"
-
-#include <signal.h>
+#include "protos.h"
 
 #ifdef PROFILING
 
 typedef void (*sighandler_t)(int);
-
-extern struct hashtable* init_hash();
-extern char* get_hash(struct hashtable *h, char *key);
-extern void set_hash_nostring(struct hashtable *h, char *key, char *value);
-extern void tintin_printf(struct session *ses,char *format,...);
-extern struct listnode* hash2list(struct hashtable *h, char *pat);
-extern void syserr(char *msg, ...);
-extern void zap_list(struct listnode *nptr);
 
 char *prof_area;
 time_t kbd_lag, mud_lag;

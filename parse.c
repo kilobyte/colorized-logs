@@ -5,22 +5,8 @@
 /*          (T)he K(I)cki(N) (T)ickin D(I)kumud Clie(N)t             */
 /*                     coded by peter unold 1992                     */
 /*********************************************************************/
-#include "config.h"
-#ifdef HAVE_STRING_H
-#include <string.h>
-#else
-#ifdef HAVE_STRINGS_H
-#include <strings.h>
-#endif
-#endif
-
-#include <ctype.h>
-#include <signal.h>
 #include "tintin.h"
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
+#include "protos.h"
 
 #include "commands.h"
 typedef void (*t_command)(char*, struct session*);
@@ -29,37 +15,18 @@ typedef struct session *(*t_c_command)(char*, struct session*);
 static struct session *parse_tintin_command(char *command, char *arg,struct session *ses);
 static void do_speedwalk(char *cp, struct session *ses);
 static inline char *get_arg_with_spaces(char *s, char *arg);
-
-extern int is_abrev(char *s1, char *s2);
-static inline int is_speedwalk_dirs(char *cp);
-extern void substitute_myvars(char *arg,char *result,struct session *ses);
-extern void substitute_vars(char *arg, char *result);
-extern void tintin_printf(struct session *ses,char *format,...);
-extern void tintin_eprintf(struct session *ses,char *format,...);
-extern void write_line_mud(char *line, struct session *ses);
-extern int do_goto(char *txt,struct session *ses);
-extern void do_out_MUD_colors(char *line);
-char *space_out(char *s);
-char *get_arg_in_braces(char *s,char *arg,int flag);
 static void write_com_arg_mud(char *command, char *argument, int nsp, struct session *ses);
-void prompt(struct session *ses);
-extern char* get_hash(struct hashtable *h, char *key);
-extern char* set_hash_nostring(struct hashtable *h, char *key, char *value);
-extern struct hashtable *init_hash();
 extern void end_command(char *arg, struct session *ses);
 extern void unlink_command(char *arg, struct session *ses);
-extern void check_insert_path(char *command, struct session *ses, int force);
+
+static inline int is_speedwalk_dirs(char *cp);
 
 extern struct session *sessionlist, *activesession, *nullsession;
 extern pvars_t *pvars;	/* the %0, %1, %2,....%9 variables */
 extern char tintin_char, verbatim_char;
 extern int term_echoing;
 static inline char *get_arg_stop_spaces(char *s, char *arg);
-extern char *get_command(char *s, char *arg);
 static char *get_arg_all(char *s, char *arg);
-extern void tstphandler(int sig);
-extern void debuglog(struct session *ses, const char *format, ...);
-extern struct session* do_hook(struct session *ses, int t, char *data, int blockzap);
 int in_alias=0;
 extern int in_read;
 extern int aborting;

@@ -4,32 +4,13 @@
 /*          (T)he K(I)cki(N) (T)ickin D(I)kumud Clie(N)t             */
 /*                     coded by peter unold 1992                     */
 /*********************************************************************/
-#include "config.h"
-#include <stdlib.h>
-#ifdef HAVE_STRING_H
-# include <string.h>
-#else
-# ifdef HAVE_STRINGS_H
-#  include <strings.h>
-# endif
-#endif
-#ifndef HAVE_MEMCPY
-# define memcpy(d, s, n) bcopy ((s), (d), (n))
-# define memmove(d, s, n) bcopy ((s), (d), (n))
-#endif
-
-#include <stdarg.h>
-
-#include <signal.h>
 #include "tintin.h"
+#include "protos.h"
 #include <fcntl.h>
-#include <errno.h>
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
 #include <sys/resource.h>
-#include <wchar.h>
 #include "unicode.h"
 #include "ui.h"
 
@@ -38,6 +19,10 @@
 #endif
 
 typedef void (*sighandler_t)(int);
+
+extern void end_command(char *arg, struct session *ses);
+
+static void echo_input(char *txt);
 
 /*************** globals ******************/
 int term_echoing = TRUE;
@@ -79,10 +64,6 @@ static void tintin(void);
 static void read_mud(struct session *ses);
 static void do_one_line(char *line,int nl,struct session *ses);
 static void snoop(char *buffer, struct session *ses);
-void tintin_puts(char *cptr, struct session *ses);
-void tintin_puts1(char *cptr, struct session *ses);
-void tintin_printf(struct session *ses, const char *format, ...);
-void tintin_eprintf(struct session *ses, const char *format, ...);
 char status[BUFFER_SIZE];
 
 /************ externs *************/
@@ -92,41 +73,7 @@ extern int ticker_interrupted, time0;
 extern int tick_size, sec_to_tick;
 
 static void myquitsig(int);
-extern struct session *newactive_session(void);
-extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
 extern struct completenode *complete_head;
-extern struct listnode *init_list(void);
-extern void read_complete(void);
-extern void syserr(char *msg, ...);
-extern char* mystrdup(const char*);
-extern int do_one_antisub(char *line, struct session *ses);
-extern void prompt(struct session *ses);
-extern int check_event(int time, struct session *ses);
-extern void check_all_actions(char *line, struct session *ses);
-extern void check_all_promptactions(char *line, struct session *ses);
-extern void do_all_high(char *line,struct session *ses);
-extern void do_all_sub(char *line, struct session *ses);
-extern void do_in_MUD_colors(char *txt,int quotetype);
-extern void init_bind(void);
-extern int isnotblank(char *line,int flag);
-extern int match(char *regex, char *string);
-extern int iscompleteprompt(char *line);
-static void echo_input(char *txt);
-extern struct hashtable* init_hash();
-extern void init_parse();
-extern struct session *do_read(FILE *myfile, char *filename, struct session *ses);
-extern void do_history(char *buffer, struct session *ses);
-extern int read_buffer_mud(char *buffer, struct session *ses);
-extern void cleanup_session(struct session *ses);
-void make_name(char *str, char *basis, int run);
-extern void set_magic_hook(struct session *ses);
-extern struct session* do_hook(struct session *ses, int t, char *data, int blockzap);
-extern void flush_socket(struct session *ses);
-extern void write_logf(struct session *ses, char *txt, char *prefix, char *suffix);
-extern void write_log(struct session *ses, char *txt, int n);
-extern void init_net();
-extern void init_locale();
-extern void end_command(char *arg, struct session *ses);
 #ifdef PROFILING
 extern char *prof_area;
 extern time_t kbd_lag, mud_lag;
@@ -134,13 +81,6 @@ extern int kbd_cnt, mud_cnt;
 extern void setup_prof();
 #endif
 extern int ui_sep_input;
-extern struct listnode *init_list(void);
-extern void addnode_list(struct listnode *listhead, char *ltext, char *rtext, char *prtext);
-extern void kill_list(struct listnode *nptr);
-extern void user_setdriver(int dr);
-extern void local_to_utf8(char *d, char *s, int maxb, mbstate_t *cs);
-extern void nullify_conv(struct charset_conv *conv);
-extern void convert(struct charset_conv *conv, char *outbuf, char *inbuf, int dir);
 
 static void tstphandler(int sig)
 {

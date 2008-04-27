@@ -1,15 +1,10 @@
 /* Do all the telnet protocol stuff */
 
-#include <unistd.h>
-#include "config.h"
 #include "tintin.h"
+#include "protos.h"
 
-extern void tintin_printf(struct session *ses, char *format, ...);
-extern void tintin_eprintf(struct session *ses, char *format, ...);
 extern int LINES,COLS,isstatus;
 extern struct session *sessionlist;
-extern void pty_resize(int fd,int sx,int sy);
-extern void syserr(char *msg, ...);
 
 #define EOR 239     /* End of Record */
 #define SE  240     /* subnegotiation end */
@@ -181,15 +176,15 @@ void telnet_resize_all(void)
         }
 }
 
-int do_telnet_protocol(unsigned char *data,int nb,struct session *ses)
+int do_telnet_protocol(char *data, int nb, struct session *ses)
 {
-    unsigned char *cp = data+1;
+    unsigned char *cp = (unsigned char*)data+1;
     unsigned char wt;
     unsigned char answer[3];
     unsigned char nego[128],*np;
 
-#define NEXTCH  cp++;               \
-                if (cp-data>=nb)    \
+#define NEXTCH  cp++;                               \
+                if (cp-(unsigned char*)data>=nb)    \
                     return -1;
 
     if (nb<2)
@@ -305,7 +300,7 @@ sbloop:
             *np++=*cp;
             goto sbloop;
         }
-        nb=cp-data;
+        nb=cp-(unsigned char*)data;
 #ifdef TELNET_DEBUG
         {
             char buf[BUFFER_SIZE],*b=buf;
@@ -363,7 +358,7 @@ sbloop:
         return 2;
     }
     /* not reached */
-    return (cp-data);
+    return (cp-(unsigned char*)data);
 nego_too_long:
     tintin_eprintf(ses, "#error: unterminated TELNET subnegotiation received.");
     return 2; /* we leave everything but IAC SB */

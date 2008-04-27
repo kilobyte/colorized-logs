@@ -1,24 +1,7 @@
-#include "config.h"
 #include "tintin.h"
-#include <signal.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <wctype.h>
-#ifdef HAVE_STRING_H
-# include <string.h>
-#else
-# ifdef HAVE_STRINGS_H
-#  include <strings.h>
-# endif
-#endif
-#include <stdarg.h>
-#include <wchar.h>
 #include "unicode.h"
 #include "ui.h"
-
-extern void syserr(char *msg, ...);
-extern void userpipe_initdriver();
-extern void usertty_initdriver();
+#include "protos.h"
 
 extern int colors[];
 const char *attribs[8]={"",";5",";3",";3;5",";4",";4;5",";4;3",";4;3;5"};

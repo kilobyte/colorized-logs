@@ -4,17 +4,8 @@
  * stolen from Spencer Sun: only recognizes * and \ as special characters
  */
  
-#include "config.h"
-#ifdef HAVE_STRING_H
-#include <string.h>
-#else
-#ifdef HAVE_STRINGS_H
-#include <strings.h>
-#endif
-#endif
-#include <stdlib.h>
-#include <assert.h>
 #include "tintin.h"
+#include <assert.h>
  
 int match(char *regex, char *string)
 {

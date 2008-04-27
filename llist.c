@@ -5,32 +5,8 @@
 /*          (T)he K(I)cki(N) (T)ickin D(I)kumud Clie(N)t             */
 /*                     coded by peter unold 1992                     */
 /*********************************************************************/
-#include "config.h"
-#ifdef HAVE_STRING_H
-#include <string.h>
-#else
-#ifdef HAVE_STRINGS_H
-#include <strings.h>
-#endif
-#endif
-
 #include "tintin.h"
-#include <stdlib.h>
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
-void insertnode_list(struct listnode *listhead, char *ltext, char *rtext, char *prtext, int mode);
-int match(char *regex, char *string);
-extern void kill_routes(struct session *ses);
-extern void check_all_promptactions(char *line, struct session *ses);
-extern void prompt(struct session *ses);
-extern void tintin_printf(struct session *ses,char *format,...);
-extern void syserr(char *msg, ...);
-extern struct hashtable* init_hash();
-extern void kill_hash(struct hashtable* h);
-extern char* mystrdup(char *s);
+#include "protos.h"
 
 
 /***************************************/

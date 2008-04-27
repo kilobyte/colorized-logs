@@ -9,51 +9,12 @@
 /* the path is implemented as a fix-sized queue. It gets a bit messy */
 /* here and there, but it should work....                            */
 /*********************************************************************/
-#include "config.h"
-#ifdef HAVE_STRING_H
-#include <string.h>
-#else
-#ifdef HAVE_STRINGS_H
-#include <strings.h>
-#endif
-#endif
 #include "tintin.h"
+#include "protos.h"
 
-#ifdef HAVE_STDLIB_H
-#include <stdlib.h>
-#endif
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
-void check_insert_path(char *command, struct session *ses, int force);
 static int return_flag = TRUE;
 
-extern char *get_arg_in_braces(char *s,char *arg,int flag);
-extern void prompt(struct session *ses);
-extern void kill_list(struct listnode *nptr);
-extern struct listnode *search_node_with_wild(struct listnode *listhead, char *cptr);
-extern struct listnode *searchnode_list(struct listnode *listhead, char *cptr);
-extern struct listnode *init_list(void);
-extern struct listnode *deletenode_list(struct listnode *listhead, struct listnode *nptr);
-extern struct listnode *addnode_list(struct listnode *listhead, char *ltext, char *rtext, char *prtext);
 extern struct session *nullsession;
-extern void insertnode_list(struct listnode *listhead, char *ltext, char *rtext, char *prtext, int mode);
-extern int isatom(char *arg);
-extern int isatom_inline(char *arg,struct session *ses);
-extern void isatom_command(char *line,struct session *ses);
-extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
-extern void show_list(struct listnode *listhead);
-extern void shownode_list(struct listnode *nptr);
-extern void tintin_puts(char *cptr, struct session *ses);
-extern void tintin_puts1(char *cptr, struct session *ses);
-extern void tintin_printf(struct session *ses,char *format,...);
-extern void tintin_eprintf(struct session *ses,char *format,...);
-extern void prepare_actionalias(char *string, char *result, struct session *ses);
-extern char* get_hash(struct hashtable *h, char *key);
-extern void set_hash(struct hashtable *h, char *key, char *value);
-extern void show_hashlist(struct session *ses, struct hashtable *h, char *pat, const char *msg_all, const char *msg_none);
-extern void delete_hashlist(struct session *ses, struct hashtable *h, char *pat, const char *msg_ok, const char *msg_none);
 
 extern char tintin_char;
 extern int pdnum;

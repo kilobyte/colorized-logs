@@ -5,7 +5,7 @@ INCLUDES = -DDATA_PATH=\"$(helpdir)\"
 #"
 man_MANS = ansi2html.1 ansi2txt.1 KBtin.6 ttyrec2ansi.1
 
-BUILT_SOURCES=commands.h load_commands.h profinit.h
+BUILT_SOURCES=commands.h load_commands.h profinit.h protos.h
 KBtin_C_FILES=tintin.h unicode.h action.c alias.c antisub.c files.c glob.c help.c highlight.c history.c ivars.c llist.c main.c misc.c net.c parse.c path.c session.c substitute.c ticks.c utils.c variables.c events.c user.c run.c colors.c routes.c bind.c telnet.c crc.c hash.c regexp.c prof.c hooks.c unicode.c ui.h user_pipe.c user_tty.c translit.h wcwidth.c malloc.h
 KBtin_SOURCES=$(KBtin_C_FILES) $(BUILT_SOURCES)
 KBtin_LDADD=@GLIB_LIBS@ @ZLIB_LIBS@ @LTLIBICONV@
@@ -17,7 +17,7 @@ ansi2txt_SOURCES=ansi2txt.c
 
 KBtin_DOCS=BUGS OLDNEWS KEYPAD FAQ
 EXTRA_DIST=KBtin_help.in commands make_commands $(man_MANS) help2ansi fixmanual terminfo.src prof_init kbtin.ico make_protos $(KBtin_DOCS) autogen
-CLEANFILES=commands.h load_commands.h KBtin_help.gz manual.html profinit.h
+CLEANFILES=commands.h load_commands.h KBtin_help.gz manual.html profinit.h protos.h
 DISTCLEANFILES=_stdint.h
 
 #kludge to prevent $(BUILT_SOURCES) from being distributed

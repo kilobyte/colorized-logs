@@ -1,38 +1,5 @@
-#include "config.h"
-#ifdef HAVE_STRING_H
-#include <string.h>
-#else
-#ifdef HAVE_STRINGS_H
-#include <strings.h>
-#endif
-#endif
-#include <ctype.h>
 #include "tintin.h"
-
-
-#ifdef HAVE_STDLIB_H
-#include <stdlib.h>
-#endif
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
-extern char *get_arg_in_braces(char *s,char *arg,int flag);
-extern struct listnode *searchnode_list(struct listnode *listhead, char *cptr);
-extern struct listnode *search_node_with_wild(struct listnode *listhead, char *cptr);
-extern void deletenode_list(struct listnode *listhead, struct listnode *nptr);
-extern int find(char *text,char *pat,int *from,int *to,char *fastener);
-extern int finditem_inline(char *arg,struct session *ses);
-extern void finditem_command(char *arg,struct session *ses);
-extern void insertnode_list(struct listnode *listhead, char *ltext, char *rtext, char *prtext, int mode);
-extern int is_abrev(char *s1, char *s2);
-extern void prompt(struct session *ses);
-extern void show_list(struct listnode *listhead);
-extern void substitute_myvars(char *arg,char *result,struct session *ses);
-extern void substitute_vars(char *arg, char *result);
-extern void tintin_printf(struct session *ses, char *format, ...);
-extern void tintin_eprintf(struct session *ses, char *format, ...);
-extern char* get_fastener(const char*, char*);
+#include "protos.h"
 
 extern int hinum;
 extern int getcolor(char **ptr,int *color,const int flag);

@@ -1,32 +1,10 @@
-#include "config.h"
 #include "tintin.h"
-#include <stdlib.h>
-#ifdef HAVE_STRING_H
-# include <string.h>
-#else
-# ifdef HAVE_STRINGS_H
-#  include <strings.h>
-# endif
-#endif
+#include "protos.h"
 
-extern char* mystrdup(char *s);
-extern char *get_arg_in_braces(char *s,char *arg,int flag);
-extern char *get_arg(char *s,char *arg,int flag,struct session *ses);
-extern struct listnode* searchnode_list(struct listnode* list,char* left);
 extern int routnum;
 extern int varnum;
-extern void deletenode_list(struct listnode *listhead, struct listnode *nptr);
-extern int eval_expression(char *arg,struct session *ses);
-extern void insertnode_list(struct listnode *listhead, char *ltext, char *rtext, char *prtext, int mode);
-extern int match(char *regex, char *string);
-extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
-extern void substitute_myvars(char *arg,char *result,struct session *ses);
-extern void substitute_vars(char *arg, char *result);
-extern void tintin_printf(struct session *ses,char *format,...);
-extern void tintin_eprintf(struct session *ses,char *format,...);
-extern void set_variable(char *left,char *right,struct session *ses);
 extern char tintin_char;
-extern int is_abrev(char *s1, char *s2);
+
 extern struct session *if_command(char *arg, struct session *ses);
 
 

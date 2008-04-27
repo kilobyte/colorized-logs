@@ -5,27 +5,10 @@
 /*          (T)he K(I)cki(N) (T)ickin D(I)kumud Clie(N)t             */
 /*                     coded by peter unold 1992                     */
 /*********************************************************************/
-#include "config.h"
-#ifdef HAVE_STRING_H
-#include <string.h>
-#else
-#ifdef HAVE_STRINGS_H
-#include <strings.h>
-#endif
-#endif
 #include "tintin.h"
-#include <stdlib.h>
+#include "protos.h"
 
 static void insert_history(char *buffer, struct session *ses);
-
-extern char *space_out(char* s);
-extern char *mystrdup(char *s);
-extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
-extern int is_abrev(char *s1, char *s2);
-extern void check_all_promptactions(char *line, struct session *ses);
-extern void prompt(struct session *ses);
-extern void tintin_printf(struct session *ses,char *format,...);
-extern void tintin_eprintf(struct session *ses,char *format,...);
 
 extern char *history[HISTORY_SIZE];
 

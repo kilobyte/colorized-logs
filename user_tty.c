@@ -1,51 +1,19 @@
-#include "config.h"
 #include "tintin.h"
-#include <signal.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <wctype.h>
-#ifdef HAVE_STRING_H
-# include <string.h>
-#else
-# ifdef HAVE_STRINGS_H
-#  include <strings.h>
-# endif
-#endif
-#include <stdarg.h>
-#include <wchar.h>
 #include "unicode.h"
 #include "ui.h"
-
-
-extern int wc_to_utf8(char *d, const wchar_t *s, int n, int maxb);
-extern int getcolor(char **ptr,int *color,const int flag);
-extern int one_utf8_to_mb(char **d, char **s, mbstate_t *cs);
-extern void utf8_to_local(char *d, char *s);
-extern char translit(WC ch);
-mbstate_t outstate;
-#define OUTSTATE &outstate
-
+#include "protos.h"
 #if HAVE_TERMIOS_H
 # include <termios.h>
 #endif
-#if GWINSZ_IN_SYS_IOCTL
-# include <sys/ioctl.h>
-#endif
+
+static mbstate_t outstate;
+#define OUTSTATE &outstate
 
 #define B_LENGTH CONSOLE_LENGTH
 
 extern char status[BUFFER_SIZE];
-extern int find_bind(char *key,int msg,struct session *ses);
 extern int keypad,retain;
-extern int setcolor(char *txt,int c);
-extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
-extern void syserr(char *msg, ...);
 extern struct session *activesession, *lastdraft;
-extern void telnet_resize_all(void);
-extern struct session *zap_command(char *arg, struct session *ses);
-extern int wc_to_mb(char *d, wchar_t *s, int n, mbstate_t *cs);
-extern int utf8_to_wc(wchar_t *d, char *s, int n);
-extern void utf8_to_mb(char **d, char *s, mbstate_t *cs);
 
 static char out_line[BUFFER_SIZE],b_draft[BUFFER_SIZE];
 static WC k_input[BUFFER_SIZE],kh_input[BUFFER_SIZE],tk_input[BUFFER_SIZE];

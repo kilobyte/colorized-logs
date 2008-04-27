@@ -1,28 +1,10 @@
-#include "config.h"
-#include <stdio.h>
-#include <stdlib.h>
-#ifdef HAVE_STRING_H
-#include <string.h>
-#else
-#ifdef HAVE_STRINGS_H
-#include <strings.h>
-#endif
-#endif
 #include "tintin.h"
+#include "protos.h"
 
 extern struct session *sessionlist;
 extern struct session *activesession;
-
-extern char *get_arg_in_braces(char *s,char *arg,int flag);
-extern int match(char *regex, char *string);
-extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
-extern void tintin_printf(struct session *ses, const char *format, ...);
-extern void tintin_eprintf(struct session *ses, const char *format, ...);
 extern struct session *nullsession;
-extern void substitute_myvars(char *arg,char *result,struct session *ses);
-extern void substitute_vars(char *arg, char *result);
 extern int recursion;
-extern char* mystrdup(char *s);
 
 void execute_event(struct eventnode *ev, struct session *ses)
 {

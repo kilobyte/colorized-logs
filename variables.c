@@ -4,62 +4,9 @@
 /*          (T)he K(I)cki(N) (T)ickin D(I)kumud Clie(N)t             */
 /*                     coded by peter unold 1992                     */
 /*********************************************************************/
-#include "config.h"
-#ifdef HAVE_STRING_H
-# include <string.h>
-#else
-# ifdef HAVE_STRINGS_H
-#  include <strings.h>
-# endif
-#endif
-#include <ctype.h>
-#include <wctype.h>
 #include "tintin.h"
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-# include <unistd.h>
-#endif
-#include <wchar.h>
 #include "unicode.h"
-
-void substitute_myvars(char *arg,char *result,struct session *ses);
-
-extern char *get_arg_in_braces(char *s,char *arg,int flag);
-extern char *get_arg(char *s,char *arg,int flag,struct session *ses);
-extern struct listnode *search_node_with_wild(struct listnode *listhead, char *cptr);
-extern struct listnode *searchnode_list(struct listnode *listhead, char *cptr);
-extern char* space_out(char* s);
-extern void deletenode_list(struct listnode *listhead, struct listnode *nptr);
-extern void insertnode_list(struct listnode *listhead, char *ltext, char *rtext, char *prtext, int mode);
-extern int match(char *regex, char *string);
-extern struct session *parse_input(char *input,int override_verbatim,struct session *ses);
-extern void path2var(char *var, struct session *ses);
-extern void seslist(char *var);
-extern void check_all_promptactions(char *line, struct session *ses);
-extern void prompt(struct session *ses);
-extern int random_inline(char *arg, struct session *ses);
-extern void random_command(char *arg,struct session *ses);
-extern void show_list(struct listnode *listhead);
-extern void shownode_list(struct listnode *nptr);
-extern void substitute_vars(char *arg, char *result);
-extern int timetilltick(struct session *ses);
-extern void tintin_printf(struct session *ses, char *format, ...);
-extern void tintin_eprintf(struct session *ses, char *format, ...);
-extern char *mystrdup(char *s);
-extern void zap_list(struct listnode *nptr);
-extern char* get_hash(struct hashtable *h, char *key);
-extern void set_hash(struct hashtable *h, char *key, char *value);
-extern struct listnode* hash2list(struct hashtable *h, char *pat);
-extern void show_hashlist(struct session *ses, struct hashtable *h, char *pat, const char *msg_all, const char *msg_none);
-extern void delete_hashlist(struct session *ses, struct hashtable *h, char *pat, const char *msg_ok, const char *msg_none);
-extern int is_abrev(char *s1, char *s2);
-extern struct session *if_command(char *line, struct session *ses);
-extern int wc_to_utf8(char *d, const wchar_t *s, int n, int maxb);
-extern int utf8_len(char *s);
-extern int utf8_ncpy(char *d, char *s, int n, int maxb);
-extern char* utf8_seek(char *s, int n);
-extern int utf8_to_wc(wchar_t *d, char *s, int n);
-extern int utf8_width(char *s);
+#include "protos.h"
 
 extern int varnum;
 extern pvars_t *pvars;
@@ -69,6 +16,8 @@ extern int aborting;
 extern char *_;
 extern struct session *activesession;
 extern char tintin_char;
+
+extern struct session *if_command(char *arg, struct session *ses);
 
 void set_variable(char *left,char *right,struct session *ses)
 {
