@@ -33,6 +33,7 @@ deathlog
 echo
 explode
 *foreach
+*forall
 firstupper
 help
 highlight

@@ -797,6 +797,11 @@ struct session *foreach_command(char *arg,struct session *ses)
     return ses;
 }
 
+struct session *forall_command(char *arg,struct session *ses)
+{
+    return foreach_command(arg, ses);
+}
+
 static int compar(const void *a,const void *b)
 {
     return strcmp(*(char **)a,*(char **)b);
