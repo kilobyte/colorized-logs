@@ -564,8 +564,8 @@ def
 #localtime foo 1189969300;#showme $foo
 #gmtime foo 1189969300;#showme $foo
 >>>
-40 01 21  16 08 2007  0 258 1
-40 01 19  16 08 2007  0 258 0
+40 01 21  16 09 2007  0 259 1
+40 01 19  16 09 2007  0 259 0
 ===
 
 ### changing session inside compound commands

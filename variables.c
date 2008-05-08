@@ -1494,8 +1494,8 @@ void localtime_command(char *arg,struct session *ses)
     localtime_r(&t, &ts);
     sprintf(ct, "%02d %02d %02d  %02d %02d %04d  %d %d %d",
                     ts.tm_sec, ts.tm_min, ts.tm_hour,
-                    ts.tm_mday, ts.tm_mon, ts.tm_year+1900,
-                    ts.tm_wday, ts.tm_yday, ts.tm_isdst);
+                    ts.tm_mday, ts.tm_mon+1, ts.tm_year+1900,
+                    ts.tm_wday, ts.tm_yday+1, ts.tm_isdst);
     if (!*left)
         tintin_printf(ses, "#%s.", ct);
     else
@@ -1525,8 +1525,8 @@ void gmtime_command(char *arg,struct session *ses)
     gmtime_r(&t, &ts);
     sprintf(ct, "%02d %02d %02d  %02d %02d %04d  %d %d %d",
                     ts.tm_sec, ts.tm_min, ts.tm_hour,
-                    ts.tm_mday, ts.tm_mon, ts.tm_year+1900,
-                    ts.tm_wday, ts.tm_yday, ts.tm_isdst);
+                    ts.tm_mday, ts.tm_mon+1, ts.tm_year+1900,
+                    ts.tm_wday, ts.tm_yday+1, ts.tm_isdst);
     if (!*left)
         tintin_printf(ses, "#%s.", ct);
     else
