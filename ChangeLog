@@ -6,6 +6,8 @@
 *	yTin's pseudovars: _random, _time, _clock, _msec, HOME
 *	#ctoi for Chinese numbers, taken from yTin
 *	start month and yday from 1, not 0 (#localtime, #gmtime)
+*	fix compilation without zlib.  Fail such compilation with a help
+	message if --disable-mccp is not given.
 
 1.0.12:
 *	#localtime, #gmtime

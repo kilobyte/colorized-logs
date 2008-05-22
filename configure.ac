@@ -31,8 +31,19 @@ AC_PROG_GCC_TRADITIONAL
 AC_TYPE_SIGNAL
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([memcpy getpt ptsname snprintf vsnprintf _getpty grantpt forkpty regcomp getaddrinfo wcwidth])
-AC_CHECK_LIB(z, gzread, [AC_DEFINE([HAVE_LIBZ], [1], [Define if zlib is available.])
-			ZLIB_LIBS=-lz])
+AC_ARG_ENABLE(mccp, [])
+if [[ "X$enable_mccp" != "Xno" ]]
+  then
+    AC_CHECK_LIB(z, gzread, [AC_DEFINE([HAVE_LIBZ], [1], [Define if zlib is available.])
+			ZLIB_LIBS=-lz], [AC_MSG_ERROR([
+zlib doesn't appear to be available.
+
+Please install zlib and its headers.  On most systems, the package will be named
+zlib-dev or libz-dev.  Or, you can "./configure --disable-mccp" to ignore this
+issue.  That's kind of a bad idea, though, since MCCP usually greatly reduces
+bandwidth-related lag.
+])])
+fi
 AC_SUBST([ZLIB_LIBS])
 AM_PATH_GLIB_2_0([2.10.0], [AC_DEFINE([HAVE_GLIB], [1], [Define if glib 2.10+ is available.])])
 AM_ICONV
