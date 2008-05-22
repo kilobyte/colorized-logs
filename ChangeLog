@@ -1,6 +1,6 @@
 1.0.13:
 *	handle broken terminals which report screen size of 0x0 a bit better
-*	up MAX_LOCATIONS to 2048
+*	increase several fixed limits
 *	bugfix: crash if a session is closed from an event or tick
 *	drop support for single byte only compilation
 *	yTin's pseudovars: _random, _time, _clock, _msec, HOME

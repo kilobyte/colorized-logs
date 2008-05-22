@@ -170,8 +170,8 @@
 #define END 1
 #define K_ACTION_MAGIC "#X~4~~2~~12~[This action is being deleted!]~7~X"
 
-#define BUFFER_SIZE 2048
-#define INPUT_CHUNK 768
+#define BUFFER_SIZE 4096
+#define INPUT_CHUNK 1536
 #define MSG_ALIAS       0
 #define MSG_ACTION      1
 #define MSG_SUBSTITUTE  2
