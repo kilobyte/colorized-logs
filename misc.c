@@ -7,7 +7,20 @@
 /*********************************************************************/
 #include "tintin.h"
 #include "ui.h"
-#include "protos.h"
+#include "protos/colors.h"
+#include "protos/highlight.h"
+#include "protos/hooks.h"
+#include "protos/llist.h"
+#include "protos/main.h"
+#include "protos/net.h"
+#include "protos/parse.h"
+#include "protos/routes.h"
+#include "protos/run.h"
+#include "protos/session.h"
+#include "protos/substitute.h"
+#include "protos/unicode.h"
+#include "protos/utils.h"
+#include "protos/variables.h"
 
 
 /* externs */

@@ -1,6 +1,14 @@
 /* Autoconf patching by David Hedbor, neotron@lysator.liu.se */
 #include "tintin.h"
-#include "protos.h"
+#include "protos/action.h"
+#include "protos/glob.h"
+#include "protos/ivars.h"
+#include "protos/main.h"
+#include "protos/misc.h"
+#include "protos/parse.h"
+#include "protos/regexp.h"
+#include "protos/utils.h"
+#include "protos/variables.h"
 
 static int stacks[100][4];
 static int conv_to_ints(char *arg,struct session *ses);

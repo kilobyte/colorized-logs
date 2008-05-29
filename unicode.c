@@ -3,7 +3,8 @@
 #include "config.h"
 #include "tintin.h"
 #include "translit.h"
-#include "protos.h"
+#include "protos/utils.h"
+#include "protos/wcwidth.h"
 
 #ifdef PROFILING
 extern char *prof_area;

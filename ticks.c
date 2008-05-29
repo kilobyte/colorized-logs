@@ -7,7 +7,9 @@
 /*********************************************************************/
 #include "tintin.h"
 #include <assert.h>
-#include "protos.h"
+#include "protos/events.h"
+#include "protos/main.h"
+#include "protos/parse.h"
 
 /* externs */
 struct session *sessionlist;

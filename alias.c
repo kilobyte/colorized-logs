@@ -6,7 +6,11 @@
 /*                     coded by peter unold 1992                     */
 /*********************************************************************/
 #include "tintin.h"
-#include "protos.h"
+#include "protos/glob.h"
+#include "protos/hash.h"
+#include "protos/llist.h"
+#include "protos/main.h"
+#include "protos/parse.h"
 
 
 extern int alnum;

@@ -1,5 +1,8 @@
 #include "tintin.h"
-#include "protos.h"
+#include "protos/crc.h"
+#include "protos/glob.h"
+#include "protos/llist.h"
+#include "protos/utils.h"
 
 #define DELETED_HASHENTRY ((char*)init_hash)
 #define crc(x) ((unsigned int)crc32s(x))

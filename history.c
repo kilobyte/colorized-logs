@@ -6,7 +6,9 @@
 /*                     coded by peter unold 1992                     */
 /*********************************************************************/
 #include "tintin.h"
-#include "protos.h"
+#include "protos/main.h"
+#include "protos/parse.h"
+#include "protos/utils.h"
 
 static void insert_history(char *buffer, struct session *ses);
 

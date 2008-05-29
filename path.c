@@ -10,7 +10,14 @@
 /* here and there, but it should work....                            */
 /*********************************************************************/
 #include "tintin.h"
-#include "protos.h"
+#include "protos/action.h"
+#include "protos/alias.h"
+#include "protos/hash.h"
+#include "protos/llist.h"
+#include "protos/main.h"
+#include "protos/parse.h"
+#include "protos/path.h"
+#include "protos/variables.h"
 
 static int return_flag = TRUE;
 

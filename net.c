@@ -13,7 +13,13 @@
 #include <netinet/tcp.h>
 #include <netdb.h>
 #include "tintin.h"
-#include "protos.h"
+#include "protos/files.h"
+#include "protos/hooks.h"
+#include "protos/main.h"
+#include "protos/run.h"
+#include "protos/telnet.h"
+#include "protos/unicode.h"
+#include "protos/utils.h"
 
 #ifndef BADSIG
 #define BADSIG (void (*)())-1

@@ -5,7 +5,27 @@
 /*                     coded by peter unold 1992                     */
 /*********************************************************************/
 #include "tintin.h"
-#include "protos.h"
+#include "protos/action.h"
+#include "protos/antisub.h"
+#include "protos/bind.h"
+#include "protos/colors.h"
+#include "protos/files.h"
+#include "protos/glob.h"
+#include "protos/hash.h"
+#include "protos/highlight.h"
+#include "protos/history.h"
+#include "protos/hooks.h"
+#include "protos/llist.h"
+#include "protos/main.h"
+#include "protos/misc.h"
+#include "protos/net.h"
+#include "protos/parse.h"
+#include "protos/session.h"
+#include "protos/substitute.h"
+#include "protos/ticks.h"
+#include "protos/unicode.h"
+#include "protos/user.h"
+#include "protos/utils.h"
 #include <fcntl.h>
 #include <sys/wait.h>
 #include <sys/types.h>

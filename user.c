@@ -1,7 +1,9 @@
 #include "tintin.h"
 #include "unicode.h"
 #include "ui.h"
-#include "protos.h"
+#include "protos/user_pipe.h"
+#include "protos/user_tty.h"
+#include "protos/utils.h"
 
 extern int colors[];
 const char *attribs[8]={"",";5",";3",";3;5",";4",";4;5",";4;3",";4;3;5"};

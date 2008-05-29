@@ -1,7 +1,9 @@
 /* Do all the telnet protocol stuff */
 
 #include "tintin.h"
-#include "protos.h"
+#include "protos/main.h"
+#include "protos/run.h"
+#include "protos/utils.h"
 
 extern int LINES,COLS,isstatus;
 extern struct session *sessionlist;

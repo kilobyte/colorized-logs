@@ -8,7 +8,16 @@
 /*********************************************************************/
 #include "tintin.h"
 #include "ui.h"
-#include "protos.h"
+#include "protos/action.h"
+#include "protos/hash.h"
+#include "protos/llist.h"
+#include "protos/main.h"
+#include "protos/net.h"
+#include "protos/parse.h"
+#include "protos/run.h"
+#include "protos/unicode.h"
+#include "protos/utils.h"
+#include "protos/variables.h"
 #include <pwd.h>
 
 static void prepare_for_write(char *command, char *left, char *right, char *pr, char *result);

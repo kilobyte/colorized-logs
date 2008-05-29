@@ -5,7 +5,10 @@
 /* to make it work better.                                       */
 /*****************************************************************/
 #include "tintin.h"
-#include "protos.h"
+#include "protos/main.h"
+#include "protos/parse.h"
+#include "protos/run.h"
+#include "protos/utils.h"
 
 extern char tintin_char;
 extern char *tintin_exec;

@@ -6,7 +6,19 @@
 /*                     coded by peter unold 1992                     */
 /*********************************************************************/
 #include "tintin.h"
-#include "protos.h"
+#include "protos/colors.h"
+#include "protos/files.h"
+#include "protos/hash.h"
+#include "protos/hooks.h"
+#include "protos/llist.h"
+#include "protos/main.h"
+#include "protos/net.h"
+#include "protos/parse.h"
+#include "protos/routes.h"
+#include "protos/run.h"
+#include "protos/unicode.h"
+#include "protos/utils.h"
+#include "protos/variables.h"
 #include "ui.h"
 
 extern struct session *sessionlist, *activesession, *nullsession;

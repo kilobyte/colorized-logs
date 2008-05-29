@@ -1,6 +1,5 @@
 #include "config.h"
 #include "tintin.h"
-#include "protos.h"
 
 #ifdef PROFILING
 

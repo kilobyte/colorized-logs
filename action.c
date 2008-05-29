@@ -6,7 +6,15 @@
 /*                     coded by peter unold 1992                     */
 /*********************************************************************/
 #include "tintin.h"
-#include "protos.h"
+#include "protos/action.h"
+#include "protos/files.h"
+#include "protos/glob.h"
+#include "protos/llist.h"
+#include "protos/main.h"
+#include "protos/parse.h"
+#include "protos/utils.h"
+#include "protos/variables.h"
+
 
 extern struct session *activesession, *nullsession;
 extern pvars_t *pvars;	/* the %0, %1, %2,....%9 variables */

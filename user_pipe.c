@@ -1,7 +1,6 @@
 #include "tintin.h"
 #include "unicode.h"
 #include "ui.h"
-#include "protos.h"
 
 
 extern int wc_to_utf8(char *d, const wchar_t *s, int n, int maxb);

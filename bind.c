@@ -1,6 +1,11 @@
 #include "tintin.h"
 #include "ui.h"
-#include "protos.h"
+#include "protos/action.h"
+#include "protos/alias.h"
+#include "protos/hash.h"
+#include "protos/main.h"
+#include "protos/parse.h"
+#include "protos/variables.h"
 
 
 extern int bindnum;

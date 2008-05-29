@@ -6,7 +6,18 @@
 /*********************************************************************/
 #include "tintin.h"
 #include "unicode.h"
-#include "protos.h"
+#include "protos/action.h"
+#include "protos/alias.h"
+#include "protos/chinese.h"
+#include "protos/glob.h"
+#include "protos/hash.h"
+#include "protos/main.h"
+#include "protos/parse.h"
+#include "protos/path.h"
+#include "protos/session.h"
+#include "protos/ticks.h"
+#include "protos/unicode.h"
+#include "protos/utils.h"
 
 extern int varnum;
 extern pvars_t *pvars;

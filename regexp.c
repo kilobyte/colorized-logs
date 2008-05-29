@@ -1,5 +1,7 @@
 #include "tintin.h"
-#include "protos.h"
+#include "protos/main.h"
+#include "protos/parse.h"
+#include "protos/utils.h"
 #ifdef HAVE_REGCOMP
 #include <sys/types.h>
 #include <regex.h>

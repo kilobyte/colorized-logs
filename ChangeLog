@@ -8,6 +8,7 @@
 *	start month and yday from 1, not 0 (#localtime, #gmtime)
 *	fix compilation without zlib.  Fail such compilation with a help
 	message if --disable-mccp is not given.
+*	auto-remake function prototypes
 
 1.0.12:
 *	#localtime, #gmtime

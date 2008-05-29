@@ -6,7 +6,17 @@
 /*                     coded by peter unold 1992                     */
 /*********************************************************************/
 #include "tintin.h"
-#include "protos.h"
+#include "protos/action.h"
+#include "protos/colors.h"
+#include "protos/files.h"
+#include "protos/hash.h"
+#include "protos/hooks.h"
+#include "protos/main.h"
+#include "protos/net.h"
+#include "protos/parse.h"
+#include "protos/path.h"
+#include "protos/utils.h"
+#include "protos/variables.h"
 
 #include "commands.h"
 typedef void (*t_command)(char*, struct session*);
