@@ -9,6 +9,8 @@
 *	fix compilation without zlib.  Fail such compilation with a help
 	message if --disable-mccp is not given.
 *	auto-remake function prototypes
+*	bugfix: UTF-8 chars split by a packet boundary were mangled in the
+	log.
 
 1.0.12:
 *	#localtime, #gmtime
