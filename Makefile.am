@@ -55,10 +55,7 @@ load_commands.h: commands make_commands commands.h
 profinit.h: $(KBtin_C_FILES) prof_init
 	$(srcdir)/prof_init $(srcdir) $(KBtin_C_FILES)
 
-protos:
-	mkdir -p protos
-
-$(KBtin_C_FILES:%.c=protos/%.h): protos/%.h: %.c make_protos protos
+$(KBtin_C_FILES:%.c=protos/%.h): protos/%.h: %.c make_protos
 	$(srcdir)/make_protos $(srcdir) $*.c
 
 KBtin_help.gz: KBtin_help.in
