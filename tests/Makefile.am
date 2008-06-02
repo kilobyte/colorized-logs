@@ -24,7 +24,7 @@ check-local: atconfig atlocal $(TESTSUITE)
 	$(SHELL) $(TESTSUITE)
 
 clean-local:
-	$(SHELL) $(TESTSUITE) --clean
+	if [ -e "$(TESTSUITE)" ]; then $(SHELL) $(TESTSUITE) --clean; fi
 
 AUTOTEST = $(AUTOM4TE) --language=autotest
 $(TESTSUITE): package.m4 testsuite.at $(TESTSUITE_AT)
