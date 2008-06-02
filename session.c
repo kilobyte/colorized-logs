@@ -273,7 +273,7 @@ static struct session *new_session(char *name,char *address,int sock,int issocke
     newsession->binds = copy_hash(ses->binds);
     newsession->issocket = issocket;
     newsession->naws = !issocket;
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
     newsession->can_mccp = 0;
     newsession->mccp = 0;
     newsession->mccp_more = 0;
@@ -378,7 +378,7 @@ void cleanup_session(struct session *ses)
     SFREE(ses->charset);
     if (!logcs_is_special(ses->logcharset))
         SFREE(ses->logcharset);
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
     if (ses->mccp)
     {
         inflateEnd(ses->mccp);

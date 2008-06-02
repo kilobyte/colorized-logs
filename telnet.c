@@ -246,7 +246,7 @@ int do_telnet_protocol(char *data, int nb, struct session *ses)
             case DONT:  answer[1]=WONT; break;
             };
             break;
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
         case COMPRESS2:
             switch(wt)
             {
@@ -335,7 +335,7 @@ sbloop:
             if (*(np+1)==SEND)
                 telnet_send_ttype(ses);
             break;
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
         case COMPRESS2:
             if (ses->can_mccp)
                 return -4; /* compressed data immediately follows, we need to return */

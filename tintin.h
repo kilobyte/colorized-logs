@@ -220,7 +220,7 @@
 #  include <time.h>
 # endif
 #endif
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
 # include <zlib.h>
 #endif
 #ifdef HAVE_STRING_H
@@ -326,7 +326,7 @@ struct session
     int halfcr_in, halfcr_log; /* \r at the end of a packet */
     char *charset, *logcharset;
     struct charset_conv c_io,c_log;
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
     int can_mccp;
     z_stream *mccp;
     int mccp_more;

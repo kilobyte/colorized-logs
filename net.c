@@ -36,7 +36,7 @@ extern struct session *sessionlist, *activesession, *nullsession;
 #ifdef PROFILING
 extern char *prof_area;
 #endif
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
 int init_mccp(struct session *ses, int cplen, char *cpsrc);
 #endif
 
@@ -286,7 +286,7 @@ int read_buffer_mud(char *buffer, struct session *ses)
         return didget;
     }
 
-#ifdef HAVE_LIBZ    
+#ifdef HAVE_ZLIB    
     if (ses->mccp)
     {
         if (!ses->mccp_more)
@@ -388,7 +388,7 @@ int read_buffer_mud(char *buffer, struct session *ses)
                 *cpdest++=255;
                 cpsource+=2;
                 break;
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
             case -4:
                 didget-=i;
                 i-=5;
@@ -425,7 +425,7 @@ void init_net()
 #endif
 }
 
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
 int init_mccp(struct session *ses, int cplen, char *cpsrc)
 {
     if (ses->mccp)

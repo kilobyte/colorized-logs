@@ -279,7 +279,7 @@ static void init_nullses(void)
     nullsession->socket = 0;
     nullsession->issocket = 0;
     nullsession->naws = 0;
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
     nullsession->can_mccp = 0;
     nullsession->mccp = 0;
     nullsession->mccp_more = 0;
@@ -719,7 +719,7 @@ static void tintin(void)
                         goto after_read;
                         /* The remaining sessions will be done after select() */
                     }
-#ifdef HAVE_LIBZ
+#ifdef HAVE_ZLIB
                 } while (sesptr->mccp_more);
 #else
                 } while (0);
