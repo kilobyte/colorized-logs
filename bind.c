@@ -3,7 +3,7 @@
 #include "protos/action.h"
 #include "protos/alias.h"
 #include "protos/hash.h"
-#include "protos/main.h"
+#include "protos/print.h"
 #include "protos/parse.h"
 #include "protos/variables.h"
 

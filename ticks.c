@@ -8,7 +8,7 @@
 #include "tintin.h"
 #include <assert.h>
 #include "protos/events.h"
-#include "protos/main.h"
+#include "protos/print.h"
 #include "protos/parse.h"
 
 /* externs */

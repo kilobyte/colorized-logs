@@ -5,7 +5,7 @@
 /* to make it work better.                                       */
 /*****************************************************************/
 #include "tintin.h"
-#include "protos/main.h"
+#include "protos/print.h"
 #include "protos/parse.h"
 #include "protos/run.h"
 #include "protos/utils.h"

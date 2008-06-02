@@ -9,7 +9,7 @@
 #include "protos/glob.h"
 #include "protos/hash.h"
 #include "protos/llist.h"
-#include "protos/main.h"
+#include "protos/print.h"
 #include "protos/parse.h"
 #include "protos/routes.h"
 #include "protos/utils.h"

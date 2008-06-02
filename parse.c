@@ -11,7 +11,7 @@
 #include "protos/files.h"
 #include "protos/hash.h"
 #include "protos/hooks.h"
-#include "protos/main.h"
+#include "protos/print.h"
 #include "protos/net.h"
 #include "protos/parse.h"
 #include "protos/path.h"

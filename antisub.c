@@ -8,7 +8,7 @@
 #include "tintin.h"
 #include "protos/action.h"
 #include "protos/llist.h"
-#include "protos/main.h"
+#include "protos/print.h"
 #include "protos/parse.h"
 
 extern pvars_t *pvars;	/* the %0, %1, %2,....%9 variables */

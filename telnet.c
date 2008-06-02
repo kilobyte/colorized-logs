@@ -1,7 +1,7 @@
 /* Do all the telnet protocol stuff */
 
 #include "tintin.h"
-#include "protos/main.h"
+#include "protos/print.h"
 #include "protos/run.h"
 #include "protos/utils.h"
 

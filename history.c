@@ -6,7 +6,7 @@
 /*                     coded by peter unold 1992                     */
 /*********************************************************************/
 #include "tintin.h"
-#include "protos/main.h"
+#include "protos/print.h"
 #include "protos/parse.h"
 #include "protos/utils.h"
 

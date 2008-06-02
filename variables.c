@@ -11,7 +11,7 @@
 #include "protos/chinese.h"
 #include "protos/glob.h"
 #include "protos/hash.h"
-#include "protos/main.h"
+#include "protos/print.h"
 #include "protos/parse.h"
 #include "protos/path.h"
 #include "protos/session.h"

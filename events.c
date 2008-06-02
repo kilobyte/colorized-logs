@@ -1,7 +1,7 @@
 #include "tintin.h"
 #include "protos/action.h"
 #include "protos/glob.h"
-#include "protos/main.h"
+#include "protos/print.h"
 #include "protos/parse.h"
 #include "protos/utils.h"
 #include "protos/variables.h"

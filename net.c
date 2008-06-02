@@ -15,7 +15,7 @@
 #include "tintin.h"
 #include "protos/files.h"
 #include "protos/hooks.h"
-#include "protos/main.h"
+#include "protos/print.h"
 #include "protos/run.h"
 #include "protos/telnet.h"
 #include "protos/unicode.h"
