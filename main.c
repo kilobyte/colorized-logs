@@ -330,6 +330,9 @@ static void init_nullses(void)
                               DEFAULT_LOGCHARSET : mystrdup(DEFAULT_LOGCHARSET);
     nullify_conv(&nullsession->c_io);
     nullify_conv(&nullsession->c_log);
+#ifdef HAVE_GNUTLS
+    nullsession->ssl=0;
+#endif
 }
 
 static void opterror(char *msg, ...)
@@ -385,14 +388,14 @@ static void parse_options(int argc, char **argv, char **environ)
                 else
                     addnode_list(options, "r", argv[arg], 0);
             }
-            else if (!strcmp(argv[arg],"-s"))
+            else if (!strcasecmp(argv[arg],"-s"))
             {
                 if (++arg==argc)
-                    opterror("Invalid option: bare -s");
+                    opterror("Invalid option: bare %s", argv[arg]);
                 else if (++arg==argc)
                     opterror("Bad option: -s needs both an address and a port number!");
                 else
-                    addnode_list(options, "s", argv[arg-1], argv[arg]);
+                    addnode_list(options, argv[arg-2]+1, argv[arg-1], argv[arg]);
             }
             else
                 opterror("Invalid option: {%s}",argv[arg]);
@@ -436,6 +439,13 @@ static void apply_options()
             make_name(sname, opt->right, 1);
             snprintf(temp, BUFFER_SIZE,
                 "%cses %s {%s %s}", tintin_char, sname, opt->right, opt->pr);
+            DO_INPUT(temp, 1);
+            break;
+        case 'S':
+            set_magic_hook(activesession);
+            make_name(sname, opt->right, 1);
+            snprintf(temp, BUFFER_SIZE,
+                "%csslses %s {%s %s}", tintin_char, sname, opt->right, opt->pr);
             DO_INPUT(temp, 1);
             break;
         case ' ':
@@ -539,6 +549,9 @@ ever wants to read -- that is what docs are for.
     PROF("initializing");
     setup_ulimit();
     init_nullses();
+#ifdef HAVE_GNUTLS
+    gnutls_global_init();
+#endif
     PROF("other");
     apply_options();
     tintin();

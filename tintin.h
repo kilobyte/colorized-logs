@@ -237,6 +237,9 @@
 #if GWINSZ_IN_SYS_IOCTL
 # include <sys/ioctl.h>
 #endif
+#ifdef HAVE_GNUTLS
+# include <gnutls/gnutls.h>
+#endif
 
 /************************ structures *********************/
 struct listnode
@@ -331,6 +334,9 @@ struct session
     z_stream *mccp;
     int mccp_more;
     char mccp_buf[INPUT_CHUNK];
+#endif
+#ifdef HAVE_GNUTLS
+    gnutls_session_t ssl;
 #endif
 };
 

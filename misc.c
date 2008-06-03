@@ -898,8 +898,12 @@ void info_command(char *arg, struct session *ses)
         tintin_printf(ses, "Session : {%s}  (null session)", ses->name);
     else
         tintin_printf(ses, "Session : {%s}  Type: %s  %s : {%s}", ses->name,
-            ses->issocket?"TCP/IP":"pty", ses->issocket?"Address":
-            "Command line", ses->address);
+            ses->issocket?
+#ifdef HAVE_GNUTLS
+                ses->ssl?"TCP/IP+SSL" :
+#endif
+                "TCP/IP" : "pty",
+            ses->issocket?"Address":"Command line", ses->address);
 #ifdef HAVE_ZLIB
     if (ses->issocket)
         tintin_printf(ses, "MCCP compression : %s", ses->mccp?"enabled":"disabled");

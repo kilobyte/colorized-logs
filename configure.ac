@@ -37,6 +37,12 @@ zlib-dev or libz-dev.  Or, you can "./configure --disable-mccp" to ignore this
 issue.  That's kind of a bad idea, though, since MCCP usually greatly reduces
 bandwidth-related lag.
 ])
+AC_ARG_LIB(ssl, gnutls, GNUTLS, gnutls/gnutls.h, gnutls, gnutls_global_init, [
+Please install gnutls and its headers.  On most systems, the package will be named
+libgnutls-dev or gnutls-dev.  Or, you can "./configure --disable-ssl" to compile
+without support for encryption.
+])
+
 AM_PATH_GLIB_2_0([2.10.0], [AC_DEFINE([HAVE_GLIB], [1], [Define if glib 2.10+ is available.])])
 AM_ICONV
 

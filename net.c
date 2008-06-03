@@ -266,9 +266,47 @@ void flush_socket(struct session *ses)
     ses->nagle=0;
 }
 
-/*******************************************************************/
-/* read at most BUFFER_SIZE chars from mud - parse protocol stuff  */
-/*******************************************************************/
+/***************************************************/
+/* low-level read/write, includes encryption layer */
+/***************************************************/
+static int read_socket(struct session *ses, char *buffer, int len)
+{
+#ifdef HAVE_GNUTLS
+    int ret;
+    
+    if (ses->ssl)
+    {
+        do
+        {
+            ret=gnutls_record_recv(ses->ssl, buffer, len);
+        } while (ret==GNUTLS_E_INTERRUPTED || ret==GNUTLS_E_AGAIN);
+        return ret;
+    }
+    else
+#endif
+        return read(ses->socket, buffer, len);
+}
+
+int write_socket(struct session *ses, char *buffer, int len)
+{
+#ifdef HAVE_GNUTLS
+    int ret;
+    
+    if (ses->ssl)
+    {
+        ret=gnutls_record_send(ses->ssl, buffer, len);
+        while (ret==GNUTLS_E_INTERRUPTED || ret==GNUTLS_E_AGAIN)
+            ret=gnutls_record_send(ses->ssl, 0, 0);
+        return ret;
+    }
+    else
+#endif
+        return write(ses->socket, buffer, len);
+}
+
+/***********************************************************************/
+/* read at most BUFFER_SIZE chars from mud - do compression and telnet */
+/***********************************************************************/
 int read_buffer_mud(char *buffer, struct session *ses)
 {
     int i, didget, b;
@@ -291,7 +329,7 @@ int read_buffer_mud(char *buffer, struct session *ses)
     {
         if (!ses->mccp_more)
         {
-            didget = read(ses->socket, ses->mccp_buf, INPUT_CHUNK);
+            didget = read_socket(ses, ses->mccp_buf, INPUT_CHUNK);
             if (didget<=0)
             {
                 ses->mccp_more=0;
@@ -332,7 +370,7 @@ int read_buffer_mud(char *buffer, struct session *ses)
     else
 #endif
     {
-        didget = read(ses->socket, tmpbuf+len, INPUT_CHUNK-len);
+        didget = read_socket(ses, tmpbuf+len, INPUT_CHUNK-len);
         
         if (didget < 0)
             return -1;
