@@ -658,3 +658,11 @@ ctoi 零
 1158
 0
 ===
+
+### infinite recursion
+<<<
+#alias x x
+x
+>>>
+#TOO DEEP RECURSION.
+===
