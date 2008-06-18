@@ -20,13 +20,18 @@
 #include "protos/utils.h"
 #include "protos/variables.h"
 #include "ui.h"
+#ifdef HAVE_GNUTLS
+#include "protos/ssl.h"
+#else
+# define gnutls_session_t int
+#endif
+
 
 extern struct session *sessionlist, *activesession, *nullsession;
 extern char *history[HISTORY_SIZE];
 extern char *user_charset_name;
 extern int any_closed;
 #ifdef HAVE_GNUTLS
-static gnutls_certificate_credentials_t ssl_cred=0;
 #else
 # define gnutls_session_t int
 #endif
@@ -44,8 +49,6 @@ int session_exists(char *name)
     return 0;
 }
 
-#define is7alpha(x) ((((x)>='A')&&((x)<='Z')) || (((x)>='a')&&((x)<='z')))
-#define is7alnum(x) ((((x)>='0')&&((x)<='9')) || is7alpha(x))
 /* FIXME: use non-ascii letters in generated names */
 
 /* NOTE: basis is in the local charset, not UTF-8 */
@@ -144,7 +147,6 @@ static struct session *socket_session(char *arg, struct session *ses, int ssl)
     char *port;
 #ifdef HAVE_GNUTLS
     gnutls_session_t sslses;
-    int ret;
 #endif
 
     if (list_sessions(arg,ses,left,right))
@@ -177,29 +179,18 @@ static struct session *socket_session(char *arg, struct session *ses, int ssl)
 
 #ifdef HAVE_GNUTLS
     if (ssl)
-    {
-        if (!ssl_cred)
-            gnutls_certificate_allocate_credentials(&ssl_cred);
-        gnutls_init(&sslses, GNUTLS_CLIENT);
-        gnutls_priority_set_direct(sslses, "PERFORMANCE", 0);
-        gnutls_credentials_set(sslses, GNUTLS_CRD_CERTIFICATE, ssl_cred);
-        gnutls_transport_set_ptr(sslses, (gnutls_transport_ptr_t)sock);
-        do 
+        if (!(sslses=ssl_negotiate(sock, host, ses)))
         {
-            ret=gnutls_handshake(sslses);
-        } while (ret==GNUTLS_E_AGAIN || ret==GNUTLS_E_INTERRUPTED);
-        if (ret)
-        {
-            tintin_eprintf(ses, "#SSL handshake failed: %s", gnutls_strerror(ret));
             close(sock);
             return ses;
         }
-    }
+    
     return(new_session(left, right, sock, 1, ssl?sslses:0, ses));
 #else
     return(new_session(left, right, sock, 1, 0, ses));
 #endif
 }
+
 
 struct session *session_command(char *arg, struct session *ses)
 {

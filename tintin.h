@@ -91,6 +91,8 @@
 #define DEFAULT_COMPRESSION_EXT ""
 #endif
 #define NEWS_FILE   "NEWS"
+#define CONFIG_DIR ".tintin"
+#define CERT_DIR   "ssl"
 
 #define DEFAULT_DISPLAY_BLANK TRUE        /* blank lines */
 #define DEFAULT_ECHO_SEPINPUT TRUE        /* echo when there is an input box */
@@ -239,6 +241,7 @@
 #endif
 #ifdef HAVE_GNUTLS
 # include <gnutls/gnutls.h>
+# include <gnutls/x509.h>
 #endif
 
 /************************ structures *********************/
@@ -396,4 +399,6 @@ struct ttyrec_header
                       (x)>=0xff01) && ((x)<=0xff60 ||	\
                       (x)>=0xffe0) && ((x)<=0xffe6 ||	\
                       (x)>=0x20000) && (x)<=0x2ffff)
+#define is7alpha(x) ((((x)>='A')&&((x)<='Z')) || (((x)>='a')&&((x)<='z')))
+#define is7alnum(x) ((((x)>='0')&&((x)<='9')) || is7alpha(x))
 #define EMPTY_CHAR 0xffff

@@ -549,9 +549,6 @@ ever wants to read -- that is what docs are for.
     PROF("initializing");
     setup_ulimit();
     init_nullses();
-#ifdef HAVE_GNUTLS
-    gnutls_global_init();
-#endif
     PROF("other");
     apply_options();
     tintin();

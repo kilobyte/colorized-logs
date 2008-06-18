@@ -11,7 +11,7 @@
 *	auto-remake function prototypes
 *	bugfix: UTF-8 chars split by a packet boundary were mangled in the
 	log.
-*	SSL support (#sslsession).  No certificate validation for now.
+*	SSL support (#sslsession).
 
 1.0.12:
 *	#localtime, #gmtime
