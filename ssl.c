@@ -162,7 +162,7 @@ static int diff_certs(gnutls_x509_crt_t c1, gnutls_x509_crt_t c2)
 
 static int ssl_check_cert(gnutls_session_t sslses, char *host, struct session *oldses)
 {
-    char fname[BUFFER_SIZE];
+    char fname[BUFFER_SIZE], buf2[BUFFER_SIZE], *bptr;
     time_t t;
     gnutls_x509_crt_t cert, oldcert;
     const gnutls_datum_t *cert_list;
@@ -194,15 +194,21 @@ static int ssl_check_cert(gnutls_session_t sslses, char *host, struct session *o
     t=time(0);
     if (gnutls_x509_crt_get_activation_time(cert)>t)
     {
+        snprintf(buf2, BUFFER_SIZE, "%s", ctime(&t));
+        if ((bptr=strchr(buf2, '\n')))
+            *bptr=0;
         snprintf(fname, BUFFER_SIZE, "certificate activation time is in the future (%s).",
-            ctime(&t));
+            buf2);
         err=fname;
     }
     
     if (gnutls_x509_crt_get_expiration_time(cert)<t)
     {
-        snprintf(fname, BUFFER_SIZE, "the certificate has expired (on %s).",
-            ctime(&t));
+        snprintf(buf2, BUFFER_SIZE, "%s", ctime(&t));
+        if ((bptr=strchr(buf2, '\n')))
+            *bptr=0;
+        snprintf(fname, BUFFER_SIZE, "certificate has expired (on %s).",
+            buf2);
         err=fname;
     }
     
@@ -213,11 +219,11 @@ static int ssl_check_cert(gnutls_session_t sslses, char *host, struct session *o
             t-=gnutls_x509_crt_get_expiration_time(oldcert);
             if (err || t<-7*24*3600)
             {
-                snprintf(fname, BUFFER_SIZE, err?
-                          "certificate mismatch, and %s." :
+                snprintf(buf2, BUFFER_SIZE, err?
+                          "certificate mismatch, and new %s" :
                           "the server certificate is different from the saved one.",
                       err);
-                err=fname;
+                err=buf2;
             }
             else
             {
