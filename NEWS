@@ -102,3 +102,6 @@
 
 1.0.13:
 * The month and day-of-year starts from 1 in #localtime and #gmtime.
+* some yTin compatibility: pseudovars: _random, _time, _clock, _msec, HOME
+  and #ctoi (Chinese numerals)
+* SSL support: #sslsession
