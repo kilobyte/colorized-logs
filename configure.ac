@@ -45,6 +45,7 @@ without support for encryption.
 
 AM_PATH_GLIB_2_0([2.10.0], [AC_DEFINE([HAVE_GLIB], [1], [Define if glib 2.10+ is available.])])
 AM_ICONV
+AM_CONDITIONAL(SANE_MAKE, make -v >/dev/null 2>/dev/null)
 
 AC_PTYRANGES
 AC_DEV_PTMX
