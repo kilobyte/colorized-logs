@@ -256,7 +256,7 @@ void write_log(struct session *ses, char *txt, int n)
     struct ttyrec_header th;
     char ubuf[BUFFER_SIZE*2],lbuf[BUFFER_SIZE*2];
     
-    if (ses->logcharset!=LOGCS_REMOTE && strcmp(user_charset_name, ses->charset))
+    if (ses->logcharset!=LOGCS_REMOTE && strcasecmp(user_charset_name, ses->charset))
     {
         convert(&ses->c_io, ubuf, txt, -1);
         convert(&ses->c_log, lbuf, ubuf, 1);
