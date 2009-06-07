@@ -21,7 +21,7 @@ gnutls_session_t ssl_negotiate(int sock, char *host, struct session *oldses)
     gnutls_set_default_priority(sslses);
     gnutls_certificate_type_set_priority(sslses, cert_type_priority);
     gnutls_credentials_set(sslses, GNUTLS_CRD_CERTIFICATE, ssl_cred);
-    gnutls_transport_set_ptr(sslses, (gnutls_transport_ptr_t)sock);
+    gnutls_transport_set_ptr(sslses, (gnutls_transport_ptr_t)(intptr_t)sock);
     do 
     {
         ret=gnutls_handshake(sslses);

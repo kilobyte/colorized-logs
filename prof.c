@@ -1,5 +1,9 @@
 #include "config.h"
 #include "tintin.h"
+#include "protos/hash.h"
+#include "protos/llist.h"
+#include "protos/print.h"
+#include "protos/utils.h"
 
 #ifdef PROFILING
 
@@ -16,8 +20,8 @@ static void sigprof(void)
 
     if (!prof_area)
         return;
-    c=(int)get_hash(prof_count, prof_area);
-    set_hash_nostring(prof_count, prof_area, (char *)(c+1));
+    c=(intptr_t)get_hash(prof_count, prof_area);
+    set_hash_nostring(prof_count, prof_area, (char *)(intptr_t)(c+1));
 }
 
 void setup_prof()
@@ -54,7 +58,7 @@ void profile_command(struct session *ses, char *arg)
     hl=hash2list(prof_count,"*");
     ln=hl;
     while((ln=ln->next))
-        tintin_printf(0, "%-26s %6d", ln->left, (int)ln->right);
+        tintin_printf(0, "%-26s %6d", ln->left, (intptr_t)ln->right);
     zap_list(hl);
     if (kbd_cnt)
         tintin_printf(0, "Avg. response time for kbd input: %d.%06d",
