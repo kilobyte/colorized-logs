@@ -2,7 +2,7 @@
 AC_INIT([KBtin], [1.0.13], [kilobyte@angband.pl])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([action.c])
-AM_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
 AC_PROG_AWK
@@ -28,7 +28,6 @@ AC_C_BIGENDIAN
 
 # Checks for library functions.
 AC_PROG_GCC_TRADITIONAL
-AC_TYPE_SIGNAL
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([memcpy getpt ptsname snprintf vsnprintf _getpty grantpt forkpty regcomp getaddrinfo wcwidth])
 AC_ARG_LIB(mccp, zlib, ZLIB, zlib.h, z, gzread, [
