@@ -7,7 +7,7 @@ if [[ "X$enable_$1" != "Xno" ]]
     ac_$2_is_there=yes
     AC_CHECK_HEADER([$4], , [ac_$2_is_there=no])
     AC_CHECK_LIB([$5], [$6], [:], [ac_$2_is_there=no])
-    if [[ "x$ac_$2_is_there" == "xyes" ]]
+    if [[ "x$ac_$2_is_there" = "xyes" ]]
       then
     	AC_DEFINE([HAVE_$3], [1], [Define if $2 is available.])
         $3_LIBS=-l$5
