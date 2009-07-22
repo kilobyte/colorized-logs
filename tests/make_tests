@@ -10,7 +10,7 @@ while(<IN>)
     chomp;
     if (/^### (.*)/)
     {
-        print "AT_SETUP([$1])\n";
+        print "AT_SETUP([[$1]])\n";
         $vars="";
     }
     elsif (/^\$\$\$ (.*)/)

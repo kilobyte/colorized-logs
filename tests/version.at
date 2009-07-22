@@ -1,4 +1,4 @@
-AT_SETUP([#version])
+AT_SETUP([[#version]])
 
 AT_DATA([testin], [#version
 ])
