@@ -29,6 +29,7 @@ KBtin-*.tar.gz
 load_commands.h
 Makefile
 Makefile.in
+Makefile.protos
 manual.html
 *.o
 *.orig
