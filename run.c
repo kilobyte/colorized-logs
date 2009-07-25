@@ -149,7 +149,7 @@ static int forkpty(int *amaster,char *dummy,struct termios *termp, struct winsiz
     master=filedes[0];
     slave=filedes[1];
 #else
-#if defined(HAVE_GRANTPT) && (defined(HAVE_GETPT) || defined(HAVE_DEV_PTMX))
+#if defined(HAVE_GRANTPT) && (defined(HAVE_GETPT) || defined(HAVE_DEV_PTMX) || defined(HAVE_POSIX_OPENPT))
 # ifdef HAVE_PTSNAME
     char *name;
 # else
@@ -159,7 +159,11 @@ static int forkpty(int *amaster,char *dummy,struct termios *termp, struct winsiz
 # ifdef HAVE_GETPT
     master=getpt();
 # else
+#  ifdef HAVE_DEV_PTMX
     master=open("/dev/ptmx", O_RDWR);
+#  else
+    master=posix_openpt(O_RDWR);
+#  endif
 # endif
 
     if (master<0)
