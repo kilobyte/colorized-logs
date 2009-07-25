@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([KBtin], [1.0.13], [kilobyte@angband.pl])
+AC_INIT([KBtin], [1.0.13.1], [kilobyte@angband.pl])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([action.c])
 AC_CONFIG_HEADERS([config.h])
@@ -14,6 +14,11 @@ AC_PROG_EGREP
 # Checks for libraries.
 
 # Checks for header files.
+if uname|grep -q -i bsd
+  then
+    export C_INCLUDE_PATH=/usr/local/include
+    export LIBRARY_PATH=/usr/local/lib
+fi
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CREATE_STDINT_H
@@ -35,15 +40,26 @@ Please install zlib and its headers.  On most systems, the package will be named
 zlib-dev or libz-dev.  Or, you can "./configure --disable-mccp" to ignore this
 issue.  That's kind of a bad idea, though, since MCCP usually greatly reduces
 bandwidth-related lag.
+Debian/Ubuntu: apt-get install zlib1g-dev
 ])
 AC_ARG_LIB(ssl, gnutls, GNUTLS, gnutls/gnutls.h, gnutls, gnutls_global_init, [
 Please install gnutls and its headers.  On most systems, the package will be named
 libgnutls-dev or gnutls-dev.  Or, you can "./configure --disable-ssl" to compile
 without support for encryption.
+Debian/Ubuntu: apt-get install libgnutls-dev
+BSD: cd /usr/ports/security/gnutls && make install
 ])
-
 AM_PATH_GLIB_2_0([2.10.0], [AC_DEFINE([HAVE_GLIB], [1], [Define if glib 2.10+ is available.])])
 AM_ICONV
+if [[ "x$am_cv_func_iconv" != "xyes" ]]
+  then AC_MSG_ERROR([
+Alas, iconv is not available.  On most systems it's available as part of
+standard libc, yet for some reason you don't have it.  The easiest way to
+get it is to install GNU libiconv.
+BSD: cd /usr/ports/converters/libiconv && make install
+])
+fi
+
 AM_CONDITIONAL(SANE_MAKE, make -v >/dev/null 2>/dev/null)
 
 AC_PTYRANGES
