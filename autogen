@@ -8,5 +8,5 @@ if [ ! -e config.rpath ]
   then
     ln -s /usr/share/gettext/config.rpath config.rpath
 fi
-automake --add-missing
+automake --add-missing --copy
 autoconf
