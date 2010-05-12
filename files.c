@@ -39,7 +39,9 @@ int in_read=0;
 
 /*******************************/
 /* expand tildes in a filename */
-/*******************************/
+/********************************************/
+/* result must be at least BUFFER_SIZE long */
+/********************************************/
 void expand_filename(char *arg, char *result, char *lstr)
 {
     char *r0=result;
@@ -47,7 +49,7 @@ void expand_filename(char *arg, char *result, char *lstr)
     if (*arg=='~')
     {
         if (*(arg+1)=='/')
-            result+=sprintf(result,"%s",getenv("HOME")), arg++;
+            result+=snprintf(result,BUFFER_SIZE,"%s",getenv("HOME")), arg++;
         else
         {
             char *p;
@@ -60,11 +62,11 @@ void expand_filename(char *arg, char *result, char *lstr)
                 strncpy(name, arg+1, p-arg-1);
                 pwd=getpwnam(name);
                 if (pwd)
-                    result+=sprintf(result,"%s",pwd->pw_dir), arg=p;
+                    result+=snprintf(result,BUFFER_SIZE,"%s",pwd->pw_dir), arg=p;
             }
         };
     };
-    strcpy(result, arg);
+    strlcpy(result, arg, r0-result+BUFFER_SIZE);
     utf8_to_local(lstr, r0);
 }
 

@@ -74,3 +74,26 @@ void syserr(char *msg, ...)
     vsprintf(str, fmt, ap);
 }
 #endif
+
+#ifndef HAVE_STRLCPY
+size_t strlcpy(char *dst, const char *src, size_t n)
+{
+    if (!n)
+        return strlen(src);
+
+    const char *s = src;
+
+    while (--n > 0)
+        if (!(*dst++ = *s++))
+            break;
+
+    if (!n)
+    {
+        *dst++ = 0;
+        while (*s++)
+            ;
+    }
+
+    return s - src - 1;
+}
+#endif
