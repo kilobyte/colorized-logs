@@ -75,7 +75,7 @@ extern int o_lastcolor;
 int real_quiet=0; /* if set, #verbose 0 will be really quiet */ 
 char *history[HISTORY_SIZE];
 struct session *sessionlist, *activesession, *nullsession;
-char **pvars;	/* the %0, %1, %2,....%9 variables */
+pvars_t *pvars;	/* the %0, %1, %2,....%9 variables */
 char tintin_char = DEFAULT_TINTIN_CHAR;
 char verbatim_char = DEFAULT_VERBATIM_CHAR;
 char prev_command[BUFFER_SIZE];
