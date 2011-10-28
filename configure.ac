@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 AC_INIT([KBtin], [1.0.13.1], [kilobyte@angband.pl])
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([-Wall])
 AC_CONFIG_SRCDIR([action.c])
 AC_CONFIG_HEADERS([config.h])
 
