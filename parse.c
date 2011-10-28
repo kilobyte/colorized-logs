@@ -139,7 +139,7 @@ struct session* parse_input(char *input,int override_verbatim,struct session *se
         }
         else
         {
-            input = get_command(input, result);            
+            input = get_command(input, result);
             substitute_myvars( result, command, ses);
             nspaces=0;
             while (*input==' ')
@@ -184,7 +184,7 @@ struct session* parse_input(char *input,int override_verbatim,struct session *se
         }
         if (ses->debuglogfile)
             debuglog(ses, "%s", command);
-    
+
         if (*command == tintin_char)
             ses = parse_tintin_command(command + 1, arg, ses);
         else if ((al = get_hash(ses->aliases, command)))
@@ -343,13 +343,13 @@ static struct session* parse_tintin_command(char *command, char *arg,struct sess
                 return do_hook(sesptr, HOOK_ACTIVATE, 0, 0);
             }
         }
-        
+
     a=command;
     b=cmd;
     while (*a)
         *b++=tolower(*a++);
     *b=0;
-    
+
     if (isdigit(*command))
     {
         int i = atoi(command);
@@ -368,17 +368,17 @@ static struct session* parse_tintin_command(char *command, char *arg,struct sess
         PPOP;
         return (ses);
     }
-        
+
     else if ((func=get_hash(c_commands, cmd)))
     {
         ses=((t_c_command)func)(arg, ses);
     }
-    
+
     else if ((func=get_hash(commands, cmd)))
     {
         ((t_command)func)(arg, ses);
     }
-                
+
     else
     {
         tintin_eprintf(ses,"#UNKNOWN TINTIN-COMMAND: [%c%s]",tintin_char,command);
@@ -613,7 +613,7 @@ static inline char* get_arg_stop_spaces(char *s, char *arg)
 char* get_arg(char *s,char *arg,int flag,struct session *ses)
 {
     char tmp[BUFFER_SIZE],*cptr;
-    
+
     cptr=get_arg_in_braces(s,arg,flag);
     if (*s)
     {

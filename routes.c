@@ -17,7 +17,7 @@ extern struct session *if_command(char *arg, struct session *ses);
 static void addroute(struct session *ses,int a,int b,char *way,int dist,char *cond)
 {
     struct routenode *r;
-    
+
     r=ses->routes[a];
     while (r&&(r->dest!=b))
         r=r->next;
@@ -45,7 +45,7 @@ void copyroutes(struct session *ses1,struct session *ses2)
 {
     int i;
     struct routenode *r,*p;
-    
+
     for (i=0;i<MAX_LOCATIONS;i++)
     {
         if (ses1->locations[i])
@@ -73,7 +73,7 @@ void kill_routes(struct session *ses)
 {
     struct routenode *r,*p;
     int i;
-    
+
     for (i=0;i<MAX_LOCATIONS;i++)
     {
         SFREE(ses->locations[i]);
@@ -96,7 +96,7 @@ int count_routes(struct session *ses)
     struct routenode *r;
     int i;
     int num=0;
-    
+
     for (i=0;i<MAX_LOCATIONS;i++)
         for (r=ses->routes[i];r;r=r->next)
             num++;
@@ -108,7 +108,7 @@ static void kill_unused_locations(struct session *ses)
     int i;
     int us[MAX_LOCATIONS];
     struct routenode *r;
-    
+
     for (i=0;i<MAX_LOCATIONS;i++)
         us[i]=0;
     for (i=0;i<MAX_LOCATIONS;i++)
@@ -151,7 +151,7 @@ void route_command(char *arg,struct session *ses)
     char a[BUFFER_SIZE],b[BUFFER_SIZE],way[BUFFER_SIZE],dist[BUFFER_SIZE],cond[BUFFER_SIZE];
     int i,j,d;
     struct routenode *r;
-    
+
     arg=get_arg(arg,a,0,ses);
     arg=get_arg(arg,b,0,ses);
     arg=get_arg_in_braces(arg,way,0);
@@ -261,10 +261,10 @@ void unroute_command(char *arg,struct session *ses)
     int i;
     struct routenode **r,*p;
     int found=0;
-    
+
     arg=get_arg(arg,a,0,ses);
     arg=get_arg(arg,b,1,ses);
-    
+
     if ((!*a)||(!*b))
     {
         tintin_eprintf(ses,"#SYNTAX: #unroute <from> <to>");
@@ -312,16 +312,16 @@ void goto_command(char *arg,struct session *ses)
     struct routenode *r;
     int d[MAX_LOCATIONS],ok[MAX_LOCATIONS],way[MAX_LOCATIONS];
     char *path[MAX_LOCATIONS],*locs[MAX_LOCATIONS];
-    
+
     arg=get_arg(arg,A,0,ses);
     arg=get_arg(arg,B,1,ses);
-    
+
     if ((!*A)||(!*B))
     {
         tintin_eprintf(ses,"#SYNTAX: #goto <from> <to>");
         return;
     };
-    
+
     for (a=0;a<MAX_LOCATIONS;a++)
         if (ses->locations[a]&&!strcmp(ses->locations[a],A))
             break;
@@ -381,7 +381,7 @@ void goto_command(char *arg,struct session *ses)
             if (r->dest==d[i-1])
                 path[i]=mystrdup(r->path);
     }
-    
+
     /*
        we need to copy all used route data (paths and location names)
        because of ugly bad users who can use #unroute in the middle
@@ -418,20 +418,20 @@ void dogoto_command(char *arg,struct session *ses)
     int d[MAX_LOCATIONS],ok[MAX_LOCATIONS],way[MAX_LOCATIONS];
     char path[BUFFER_SIZE], *pptr;
     int flag;
-    
+
     arg=get_arg(arg,A,0,ses);
     arg=get_arg(arg,B,0,ses);
     arg=get_arg(arg,distvar,0,ses);
     arg=get_arg(arg,locvar,0,ses);
     arg=get_arg(arg,pathvar,0,ses);
-    
+
     if ((!*A)||(!*B))
     {
         tintin_eprintf(ses,"#SYNTAX: #dogoto <from> <to> [<distvar> [<locvar> [<pathvar>]]] [#else ...]");
         return;
     };
     flag=*distvar||*locvar||*pathvar;
-    
+
     for (a=0;a<MAX_LOCATIONS;a++)
         if (ses->locations[a]&&!strcmp(ses->locations[a],A))
             break;

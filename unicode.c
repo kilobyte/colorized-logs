@@ -18,7 +18,7 @@ char *user_charset_name;
 int utf8_len(char *s)
 {
     int l=0;
-    
+
     while(*s)
         if ((*s++&0xc0)!=0x80)
             l++;
@@ -66,8 +66,8 @@ int utf8_to_wc(wchar_t *d, char *s, int n)
     char *s0;
     unsigned char ic;
     int tc,c,cnt,surrogate;
-    
-    
+
+
 #define OUTC(x,y) \
         {               \
             *d++=(x);   \
@@ -90,7 +90,7 @@ int utf8_to_wc(wchar_t *d, char *s, int n)
                     c=tc;
                 else
                     continue;
-                
+
                 if (c<0xA0)     /* illegal */
                     c=0xFFFD;
                 if (c==0xFFEF)  /* BOM */
@@ -160,7 +160,7 @@ int utf8_to_wc(wchar_t *d, char *s, int n)
 int wc_to_utf8(char *d, const wchar_t *s, int n, int maxb)
 {
     char *maxd, *d0;
-    
+
     d0=d;
     maxd=d+maxb-8;
 #define uv ((unsigned int)(*s))
@@ -215,11 +215,11 @@ int one_utf8_to_mb(char **d, char **s, mbstate_t *cs)
 {
     wchar_t u[2];
     int len,len2;
-    
+
     len=utf8_to_wc(u, *s, 1);
     if (!len)
         return 0;
-    
+
     *s+=len;
     len2=wcrtomb(*d, u[0], cs);
     if (len2!=-1)
@@ -237,7 +237,7 @@ void utf8_to_mb(char **d, char *s, mbstate_t *cs)
 int wc_to_mb(char *d, wchar_t *s, int n, mbstate_t *cs)
 {
     int res, len=0;
-    
+
     while(*s && n--)
     {
         res=wcrtomb(d, *s++, cs);
@@ -255,7 +255,7 @@ int wc_to_mb(char *d, wchar_t *s, int n, mbstate_t *cs)
 void utf8_to_local(char *d, char *s)
 {
     mbstate_t cs;
-    
+
     PROFPUSH("conv: utf8->local");
     memset(&cs, 0, sizeof(cs));
     utf8_to_mb(&d, s, &cs);
@@ -268,7 +268,7 @@ void local_to_utf8(char *d, char *s, int maxb, mbstate_t *cs)
     mbstate_t cs0;
     int len,n;
     wchar_t c;
-    
+
     PROFPUSH("conv: local->utf8");
     if (!cs)
     {
@@ -305,7 +305,7 @@ out:
 int utf8_width(char *s)
 {
     wchar_t buf[BUFFER_SIZE];
-    
+
     utf8_to_wc(buf, s, BUFFER_SIZE-1);
     return wcswidth(buf, BUFFER_SIZE-1);
 }
@@ -379,7 +379,7 @@ void convert(struct charset_conv *conv, char *outbuf, char *inbuf, int dir)
     else
         syserr("invalid conversion direction");
 #endif
-    
+
     switch(conv->mode)
     {
     case 3:             /* ASCII => UTF-8 */

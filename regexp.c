@@ -51,11 +51,11 @@ void grep_command(char *arg, struct session *ses)
     pvars_t vars,*lastpvars;
     char left[BUFFER_SIZE], line[BUFFER_SIZE], right[BUFFER_SIZE];
     int flag=0;
-    
+
     arg=get_arg(arg, left, 0, ses);
     arg=get_arg(arg, line, 0, ses);
     arg=get_arg_in_braces(arg, right, 0);
-    
+
     if (!*left || !*right)
     {
         tintin_eprintf(ses,"#ERROR: valid syntax is: #grep <pattern> <line> <command> [#else ...]");
@@ -98,10 +98,10 @@ void grep_command(char *arg, struct session *ses)
 int grep_inline(char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], line[BUFFER_SIZE];
-    
+
     arg=get_arg(arg, left, 0, ses);
     arg=get_arg(arg, line, 1, ses);
-    
+
     if (!*left)
     {
         tintin_eprintf(ses,"#ERROR: valid syntax is: (#grep <pattern> <line>)");

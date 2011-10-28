@@ -312,7 +312,7 @@ void substitute_vars(char *arg, char *result)
                 {
                     len-=valuelen-numands-1;
                     if (!aborting)
-                    {                    
+                    {
                         tintin_eprintf(0,"#ERROR: command+vars too long in {%s}.",ARG);
                         aborting=1;
                     }
@@ -483,13 +483,13 @@ void match_command(char *arg, struct session *ses)
     char left[BUFFER_SIZE], line[BUFFER_SIZE], right[BUFFER_SIZE],
          temp[BUFFER_SIZE];
     int flag=0;
-    
+
     arg=get_arg_in_braces(arg, left, 0);
     arg=get_arg_in_braces(arg, line, 0);
     arg=get_arg_in_braces(arg, right, 0);
     substitute_vars(line, temp);
     substitute_myvars(temp, line, ses);
-    
+
     if (!*left || !*right)
     {
         tintin_eprintf(ses,"#ERROR: valid syntax is: #match <pattern> <line> <command> [#else ...]");
@@ -533,10 +533,10 @@ int match_inline(char *arg, struct session *ses)
 {
     pvars_t vars;
     char left[BUFFER_SIZE], line[BUFFER_SIZE];
-    
+
     arg=get_arg(arg, left, 0, ses);
     arg=get_arg(arg, line, 1, ses);
-    
+
     if (!*left)
     {
         tintin_eprintf(ses,"#ERROR: valid syntax is: (#match <pattern> <line>)");
@@ -682,10 +682,10 @@ static int check_a_action(char *line, char *action, int inside, struct session *
 void doactions_command(char *arg, struct session *ses)
 {
     char line[BUFFER_SIZE];
-    
+
     get_arg(arg, line, 1, ses);
     /* the line provided may be empty */
-    
+
     check_all_actions(line, ses);
 }
 
@@ -693,9 +693,9 @@ void doactions_command(char *arg, struct session *ses)
 void dopromptactions_command(char *arg, struct session *ses)
 {
     char line[BUFFER_SIZE];
-    
+
     get_arg(arg, line, 1, ses);
     /* the line provided may be empty */
-    
+
     check_all_promptactions(line, ses);
 }

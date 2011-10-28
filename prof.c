@@ -28,14 +28,14 @@ void setup_prof()
 {
     struct sigaction act;
     struct itimerval it;
-    
+
     prof_count=init_hash();
 #define PS(x) set_hash_nostring(prof_count, x, 0);
 #include "profinit.h"
 #undef PS
 
     sigemptyset(&act.sa_mask);
-    act.sa_flags=SA_RESTART;            
+    act.sa_flags=SA_RESTART;
 
     act.sa_handler=(sighandler_t)sigprof;
     if (sigaction(SIGPROF,&act,0))
@@ -53,7 +53,7 @@ void setup_prof()
 void profile_command(struct session *ses, char *arg)
 {
     struct listnode *hl,*ln;
-    
+
     tintin_printf(0, "#KBtin profiling data:");
     hl=hash2list(prof_count,"*");
     ln=hl;

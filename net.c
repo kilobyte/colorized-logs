@@ -63,7 +63,7 @@ static char* afstr(int af)
              * We would need separate autoconf checks just for them,
              * and they don't support TCP anyway.  We probably should
              * allow all SOCK_STREAM-capable transports, but I'm a bit
-             * unsure.  */  
+             * unsure.  */
             snprintf(msg, 19, "AF=%d", af);
             return msg;
     }
@@ -79,13 +79,13 @@ int connect_mud(char *host, char *port, struct session *ses)
     int err, val;
     struct addrinfo *ai, hints, *addr;
     int sock;
-    
+
     memset(&hints, 0, sizeof(hints));
     hints.ai_family=AF_UNSPEC;
     hints.ai_socktype=SOCK_STREAM;
     hints.ai_protocol=IPPROTO_TCP;
     hints.ai_flags=AI_ADDRCONFIG;
-    
+
     if ((err=getaddrinfo(host, port, &hints, &ai)))
     {
         if (err==-2)
@@ -94,26 +94,26 @@ int connect_mud(char *host, char *port, struct session *ses)
             tintin_eprintf(ses, "#ERROR: %s", gai_strerror(err));
         return 0;
     }
-    
+
     if (signal(SIGALRM, alarm_func) == BADSIG)
         syserr("signal SIGALRM");
-    
+
     for (addr=ai; addr; addr=addr->ai_next)
     {
         tintin_printf(ses, "#Trying to connect... (%s) (charset=%s)",
             afstr(addr->ai_family), ses->charset);
-        
+
         if ((sock=socket(addr->ai_family, addr->ai_socktype, addr->ai_protocol))==-1)
         {
             tintin_eprintf(ses, "#ERROR: %s", strerror(errno));
             continue;
         }
-        
+
         val=IPTOS_LOWDELAY;
         if (setsockopt(sock, SOL_IP, IP_TOS, &val, sizeof(val)))
             /*tintin_eprintf(ses, "#setsockopt: %s", strerror(errno))*/;
             /* FIXME: BSD doesn't like this on IPv6 */
-        
+
         abort_connect=0;
         alarm(15);
     intr:
@@ -135,12 +135,12 @@ int connect_mud(char *host, char *port, struct session *ses)
                 continue;
             }
         }
-        
+
         alarm(0);
         freeaddrinfo(ai);
         return sock;
     }
-    
+
     if (!ai)
         tintin_eprintf(ses, "#No valid addresses for {%s}", host);
     freeaddrinfo(ai);
@@ -273,7 +273,7 @@ static int read_socket(struct session *ses, char *buffer, int len)
 {
 #ifdef HAVE_GNUTLS
     int ret;
-    
+
     if (ses->ssl)
     {
         do
@@ -291,7 +291,7 @@ int write_socket(struct session *ses, char *buffer, int len)
 {
 #ifdef HAVE_GNUTLS
     int ret;
-    
+
     if (ses->ssl)
     {
         ret=gnutls_record_send(ses->ssl, buffer, len);
@@ -324,7 +324,7 @@ int read_buffer_mud(char *buffer, struct session *ses)
         return didget;
     }
 
-#ifdef HAVE_ZLIB    
+#ifdef HAVE_ZLIB
     if (ses->mccp)
     {
         if (!ses->mccp_more)
@@ -371,10 +371,10 @@ int read_buffer_mud(char *buffer, struct session *ses)
 #endif
     {
         didget = read_socket(ses, tmpbuf+len, INPUT_CHUNK-len);
-        
+
         if (didget < 0)
             return -1;
-        
+
         else if (didget == 0)
             return -1;
     }
@@ -383,7 +383,7 @@ int read_buffer_mud(char *buffer, struct session *ses)
 #if 0
     tintin_printf(ses,"~8~text:[%s]~-1~",tmpbuf);
 #endif
-    
+
     if ((didget+=len) == INPUT_CHUNK)
         ses->more_coming = 1;
     else

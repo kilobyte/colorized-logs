@@ -42,7 +42,7 @@ static void show_session(struct session *ses);
 int session_exists(char *name)
 {
     struct session *sesptr;
-    
+
     for (sesptr = sessionlist; sesptr; sesptr = sesptr->next)
         if (!strcmp(sesptr->name, name))
             return 1;
@@ -56,11 +56,11 @@ void make_name(char *str, char *basis, int run)
 {
     char *t;
     int i,j;
-    
+
     if (run)
         for(t=basis; (*t=='/')||is7alnum(*t)||(*t=='_'); t++)
             if (*t=='/')
-                basis=t+1;    
+                basis=t+1;
     if (!is7alpha(*basis))
         goto noname;
     strcpy(str, basis);
@@ -159,7 +159,7 @@ static struct session *socket_session(char *arg, struct session *ses, int ssl)
         tintin_eprintf(ses,"#session: HEY! SPECIFY AN ADDRESS WILL YOU?");
         return ses;
     }
-    
+
     port=host;
     while (*port && !isspace(*port))
         port++;
@@ -184,7 +184,7 @@ static struct session *socket_session(char *arg, struct session *ses, int ssl)
             close(sock);
             return ses;
         }
-    
+
     return(new_session(left, right, sock, 1, ssl?sslses:0, ses));
 #else
     return(new_session(left, right, sock, 1, 0, ses));
@@ -379,7 +379,7 @@ void cleanup_session(struct session *ses)
     int i;
     char buf[BUFFER_SIZE];
     struct session *sesptr, *act;
-    
+
     if (ses->closing)
         return;
     any_closed=1;
@@ -430,7 +430,7 @@ void cleanup_session(struct session *ses)
     if (ses->ssl)
         gnutls_deinit(ses->ssl);
 #endif
-    
+
     TFREE(ses, struct session);
 }
 

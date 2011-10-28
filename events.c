@@ -158,7 +158,7 @@ void undelay_command(char *arg, struct session *ses)
     arg = get_arg_in_braces(arg, left, 1);
     substitute_vars(left, temp);
     substitute_myvars(temp, left, ses);
-    
+
     if (!*left)
     {
         tintin_eprintf(ses,"#ERROR: valid syntax is: #undelay {event pattern}");
@@ -178,7 +178,7 @@ void undelay_command(char *arg, struct session *ses)
         }
         else
             ev=&((*ev)->next);
-        
+
     if (flag == 0)
         tintin_printf(ses,"#THAT EVENT IS NOT DEFINED.");
 }

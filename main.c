@@ -72,7 +72,7 @@ int any_closed=0;
 extern int recursion;
 char *_; /* incoming line being processed */
 extern int o_lastcolor;
-int real_quiet=0; /* if set, #verbose 0 will be really quiet */ 
+int real_quiet=0; /* if set, #verbose 0 will be really quiet */
 char *history[HISTORY_SIZE];
 struct session *sessionlist, *activesession, *nullsession;
 pvars_t *pvars; /* the %0, %1, %2,....%9 variables */
@@ -157,7 +157,7 @@ static void sigwinch(void)
 static int new_news(void)
 {
     struct stat KBtin, news;
-    
+
     if (stat(tintin_exec, &KBtin))
         return 0;       /* can't stat the executable??? */
     if (stat(NEWS_FILE, &news))
@@ -193,7 +193,7 @@ static void setup_signals(void)
     act.sa_handler=(sighandler_t)tstphandler;
     if (sigaction(SIGTSTP,&act,0))
         syserr("sigaction SIGTSTP");
-    
+
     if (ui_own_output && ui_tty)
     {
         act.sa_handler=(sighandler_t)sigcont;
@@ -203,7 +203,7 @@ static void setup_signals(void)
         if (sigaction(SIGWINCH,&act,0))
             syserr("sigaction SIGWINCH");
     }
-        
+
     if (ui_own_output)
     {
         if (signal(SIGSEGV,(sighandler_t)sigsegv) == BADSIG)
@@ -211,7 +211,7 @@ static void setup_signals(void)
         if (signal(SIGFPE,(sighandler_t)sigfpe) == BADSIG)
             syserr("signal SIGFPE");
     }
-    
+
     act.sa_handler=(sighandler_t)sigchild;
     if (sigaction(SIGCHLD,&act,0))
         syserr("sigaction SIGCHLD");
@@ -243,7 +243,7 @@ static void init_nullses(void)
 {
     int i;
     struct timeval tv;
-    
+
     gettimeofday(&tv, 0);
     time0 = tv.tv_sec;
     utime0 = tv.tv_usec;
@@ -352,7 +352,7 @@ static void parse_options(int argc, char **argv, char **environ)
 {
     int noargs=0;
     int arg;
-    
+
     options=init_list();
 
     for (arg=1;arg<argc;arg++)
@@ -468,7 +468,7 @@ static void apply_options()
                     *homepath = '\0';
             else
                 strcpy(homepath, DEFAULT_FILE_DIR);
-            
+
             strcpy(temp, homepath);
             strcat(temp, "/.tintinrc");
             local_to_utf8(ustr, temp, BUFFER_SIZE, 0);
@@ -488,7 +488,7 @@ static void apply_options()
             }
         }
     }
-    
+
     kill_list(options);
 }
 
@@ -598,7 +598,7 @@ static void tintin(void)
     WC ch;
     int inbuf=0;
     mbstate_t instate;
-    
+
     memset(&instate, 0, sizeof(instate));
 
     while (TRUE)
@@ -639,7 +639,7 @@ static void tintin(void)
         if (need_resize)
         {
             char buf[BUFFER_SIZE];
-            
+
             user_resize();
             sprintf(buf, "#NEW SCREEN SIZE: %dx%d.", COLS, LINES);
             tintin_puts1(buf, activesession);
@@ -662,7 +662,7 @@ static void tintin(void)
             if (result==0 && !isatty(0))
                 eofinput=1;
             inbuf+=result;
-            
+
             i=0;
             while(i<inbuf)
             {
@@ -689,7 +689,7 @@ static void tintin(void)
                 if (user_process_kbd(activesession, ch))
                 {
                     hist_num=-1;
-                    
+
                     if (term_echoing || (got_more_kludge && done_input[0]))
                         /* got_more_kludge: echo any non-empty line */
                     {
@@ -776,14 +776,14 @@ static void read_mud(struct session *ses)
         if (ses->logtype)
         {
             count=0;
-        
+
             if (ses->halfcr_log)
             {
                 ses->halfcr_log=0;
                 if (buffer[0]!='\n')
                     temp[count++]='\r';
             }
-        
+
             for (n = 0; n < didget; n++)
                 if (buffer[n] != '\r')
                     temp[count++] = buffer[n];
@@ -953,13 +953,13 @@ static void echo_input(char *txt)
 {
     char out[BUFFER_SIZE],*cptr,*optr;
     static int c=7;
-    
+
     if (ui_own_output)
     {
         user_textout("");
         c=lastcolor;
     }
-    
+
     optr=out;
     if (ui_own_output)
         optr+=sprintf(optr, ECHO_COLOR);

@@ -11,7 +11,7 @@ mbstate_t outstate;
 extern void user_illegal();
 extern void user_noop();
 extern int need_resize;
-    
+
 
 static char *i_pos;
 
@@ -93,7 +93,7 @@ void userpipe_initdriver()
     ui_own_output=0;
     ui_tty=1;
     ui_drafts=0;
-    
+
     user_init           = userpipe_init;
     user_done           = user_noop;
     user_pause          = user_illegal;

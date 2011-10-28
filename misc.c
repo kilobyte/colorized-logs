@@ -406,7 +406,7 @@ void loop_command(char *arg, struct session *ses)
                 strcpy(vars[counter],"");
         lastpvars=pvars;
         pvars=&vars;
-    
+
         flag = 1;
         counter = bound1;
         while (flag == 1)
@@ -596,7 +596,7 @@ void system_command(char *arg,struct session *ses)
     FILE *output;
     char buf[BUFFER_SIZE],ustr[BUFFER_SIZE];
     mbstate_t cs;
-    
+
     get_arg(arg, arg, 1, ses);
     if (*arg)
     {
@@ -610,7 +610,7 @@ void system_command(char *arg,struct session *ses)
             return;
         };
         memset(&cs, 0, sizeof(cs));
-        
+
         while (fgets(buf,BUFFER_SIZE,output))
         {
             do_in_MUD_colors(buf,1);
@@ -737,7 +737,7 @@ void tablist(struct completenode *tcomplete)
 
     /*
        I'll search through the entire list, printing thre names to a line then
-       outputing the line.  Creates a nice 3 column effect.  To increase the # 
+       outputing the line.  Creates a nice 3 column effect.  To increase the #
        if columns, just increase the mod #.  Also.. decrease the # in the %s's
      */
 
@@ -981,7 +981,7 @@ int iscompleteprompt(char *line)
 {
     int c=7;
     char ch=' ';
-    
+
     for (;*line;line++)
         if (*line=='~')
         {
@@ -1123,7 +1123,7 @@ void timecommands_command(char *arg, struct session *ses)
 {
     struct timeval tv1,tv2;
     char sec[BUFFER_SIZE],usec[BUFFER_SIZE],right[BUFFER_SIZE];
-    
+
     arg = get_arg(arg, sec, 0, ses);
     arg = get_arg(arg, usec, 0, ses);
     arg = get_arg(arg, right, 1, ses);
@@ -1167,7 +1167,7 @@ void charset_command(char *arg, struct session *ses)
     struct charset_conv nc;
 
     get_arg(arg, arg, 1, ses);
-    
+
     if (!*arg)
     {
         tintin_printf(ses, "#Remote charset: %s", ses->charset);
@@ -1199,7 +1199,7 @@ void chr_command(char *arg, struct session *ses)
     char destvar[BUFFER_SIZE], left[BUFFER_SIZE], *lp;
     char res[BUFFER_SIZE], *r;
     WC v;
-    
+
     arg=get_arg(arg, destvar, 0, ses);
     if (!*destvar)
     {
@@ -1281,7 +1281,7 @@ void ord_command(char *arg, struct session *ses)
 {
     char destvar[BUFFER_SIZE], left[BUFFER_SIZE], res[BUFFER_SIZE], *r;
     WC right[BUFFER_SIZE], *cptr;
-    
+
     arg=get_arg(arg, destvar, 0, ses);
     if (!*destvar)
     {
@@ -1319,7 +1319,7 @@ void hexord_command(char *arg, struct session *ses)
 {
     char destvar[BUFFER_SIZE], left[BUFFER_SIZE], res[BUFFER_SIZE], *r;
     WC right[BUFFER_SIZE], *cptr;
-    
+
     arg=get_arg(arg, destvar, 0, ses);
     if (!*destvar)
     {

@@ -152,17 +152,17 @@
 /*************************************************************************/
 #define PROMPT_FOR_MORE_TEXT "*line * of *"
 
-#define REMOVE_ONEELEM_BRACES /* remove braces around one element list in 
+#define REMOVE_ONEELEM_BRACES /* remove braces around one element list in
                                  #splitlist command i.e. {atom} -> atom
                                  similar to #getitemnr command behaviour */
 
 #define EMPTY_LINE "-gag-"
 #define STACK_LIMIT 8192*1024
 
-/**************************************************************************/ 
+/**************************************************************************/
 /* The stuff below here shouldn't be modified unless you know what you're */
 /* doing........                                                          */
-/**************************************************************************/ 
+/**************************************************************************/
 #define STOP_AT_SPACES 0
 #define WITH_SPACES 1
 #define ALPHA 1

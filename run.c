@@ -243,7 +243,7 @@ ok:
     if (wp)
         ioctl(master,TIOCSWINSZ,wp);
     /* let's ignore errors on this ioctl silently */
-    
+
     pid=fork();
     switch(pid)
     {
@@ -270,7 +270,7 @@ ok:
 void pty_resize(int fd,int sx,int sy)
 {
     struct winsize ws;
-    
+
     if (LINES>1 && COLS>0)
     {
         ws.ws_row=LINES-1;
@@ -320,7 +320,7 @@ int run(char *command)
         {
             char *argv[4];
             char cmd[BUFFER_SIZE+5];
-            
+
             sprintf(cmd, "exec %s", command);
             argv[0]="sh";
             argv[1]="-c";
@@ -340,7 +340,7 @@ int run(char *command)
 FILE* mypopen(char *command, int wr)
 {
     int p[2];
-    
+
     if (pipe(p))
         return 0;
     switch(fork())
@@ -405,17 +405,17 @@ void pty_write_line(char *line, struct session *ses)
 #else
 # ifdef RESET_RAW
     struct termios ta;
-    
+
     memset(&ta, 0, sizeof(ta));
     pty_makeraw(&ta);
     tcsetattr(ses->socket, TCSANOW, &ta);
 # endif
 #endif
-    
+
     len=sprintf(out, "%s\n", line);
     if (write(ses->socket, out, len) == -1)
         syserr("write in pty_write_line()");
-    
+
 #ifdef PTY_ECHO_HACK
     /* FIXME: if write() blocks, they'll act in raw mode */
     tcsetattr(ses->socket, TCSANOW, &oldta);

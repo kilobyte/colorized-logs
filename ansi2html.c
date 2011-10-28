@@ -27,7 +27,7 @@ void class()
 void span()
 {
     int tmp, _fg=fg, _bg=bg;
-    
+
     if (fg==-1 && bg==-1 && !fl)
         return;
     printf("<b");
@@ -50,17 +50,17 @@ void span()
     }
     else if (fl&BOLD)
         class(),printf("BOLD");
-    
+
     if (_bg!=-1)
         class(),printf("B%s", cols[_bg]);
-    
+
     if (fl&ITALIC)
         class(),printf("ITA");
     if (fl&UNDERLINE)
         class(),printf((fl&BLINK)?"UNDBLI":"UND");
     else if (fl&BLINK)
         class(),printf("BLI");
-    
+
     if (cl)
         printf("\"");
     printf(">");
@@ -79,23 +79,23 @@ void unspan()
 int main()
 {
     int i;
-    
+
     printf(
 "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\n"
-"	\"http://www.w3.org/TR/html4/strict.dtd\">\n"
+"\t\"http://www.w3.org/TR/html4/strict.dtd\">\n"
 "<html>\n"
 "<head>\n"
 "<!--<title></title>-->\n"
 "<style type=\"text/css\">\n"
 "body {background-color: black;}\n"
 "pre {\n"
-"	font-weight: normal;\n"
-"	color: #aaa;\n"
-"	white-space: -moz-pre-wrap;\n"
-"	white-space: -o-pre-wrap;\n"
-"	white-space: -pre-wrap;\n"
-"	white-space: pre-wrap;\n"
-"	word-wrap: break-word;\n"
+"\tfont-weight: normal;\n"
+"\tcolor: #aaa;\n"
+"\twhite-space: -moz-pre-wrap;\n"
+"\twhite-space: -o-pre-wrap;\n"
+"\twhite-space: -pre-wrap;\n"
+"\twhite-space: pre-wrap;\n"
+"\tword-wrap: break-word;\n"
 "}\n"
 "b {font-weight: normal}\n"
 "b.BLK {color: #000}\n"

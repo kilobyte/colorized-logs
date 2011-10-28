@@ -10,7 +10,7 @@ int main()
     struct ttyrec_header th;
     char buf[BUFFER_SIZE];
     int s,n,r;
-    
+
     while(1)
     {
         if (read(0, &th, 12)!=12)
@@ -32,6 +32,6 @@ int main()
             n-=r;
         }
     }
-    
+
     return 0;
 }

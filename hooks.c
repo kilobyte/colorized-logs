@@ -29,7 +29,7 @@ void hooks_command(char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
     int t, flag;
-    
+
     arg=get_arg(arg, left, 0, ses);
     arg=space_out(arg);
     if (!*left || !*arg)
@@ -70,7 +70,7 @@ void unhook_command(char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE];
     int t, flag;
-    
+
     arg=get_arg(arg, left, 1, ses);
     if (!*left)
     {
@@ -106,7 +106,7 @@ struct session* do_hook(struct session *ses, int t, char *data, int blockzap)
 
     if (!ses->hooks[t])
         return ses;
-    
+
     if (blockzap)
     {
         oldclos=ses->closing;

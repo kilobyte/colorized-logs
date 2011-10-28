@@ -153,7 +153,7 @@ struct listnode* copy_list(struct listnode *sourcelist,int mode)
 static int prioritycmp(char *a, char *b)
 {
     int res;
-    
+
 not_numeric:
     while(*a && *a==*b && !isadigit(*a))
     {

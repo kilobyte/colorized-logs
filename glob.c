@@ -3,10 +3,10 @@
  * match -- returns 1 if `string' satisfised `regex' and 0 otherwise
  * stolen from Spencer Sun: only recognizes * and \ as special characters
  */
- 
+
 #include "tintin.h"
 #include <assert.h>
- 
+
 int match(char *regex, char *string)
 {
     char *rp = regex, *sp = string, ch, *save;
@@ -78,7 +78,7 @@ int find(char *text,char *pat,int *from,int *to,char *fastener)
             *to=*from+strlen(fastener)-1;
         return 1;
     }
-    
+
     txt=text;
     if (*pat=='^')
     {

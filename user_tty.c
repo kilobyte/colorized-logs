@@ -120,7 +120,7 @@ static void add_doublewidth(WC *right, WC *left, int len)
 static void zap_doublewidth(WC *right, WC *left, int len)
 {
     int norm=0;
-    
+
     while(*left && len--)
         if (*left==EMPTY_CHAR)
         {
@@ -141,7 +141,7 @@ static void zap_doublewidth(WC *right, WC *left, int len)
 static void to_wc(WC *d, char *s)
 {
     WC buf[BUFFER_SIZE];
-    
+
     utf8_to_wc(buf,s,BUFFER_SIZE-1);
     add_doublewidth(d, buf, BUFFER_SIZE);
 }
@@ -149,7 +149,7 @@ static void to_wc(WC *d, char *s)
 static void wrap_wc(char *d, WC *s)
 {
     WC buf[BUFFER_SIZE];
-    
+
     zap_doublewidth(buf, s, BUFFER_SIZE);
     wc_to_utf8(d,buf,-1,BUFFER_SIZE);
 }
@@ -157,7 +157,7 @@ static void wrap_wc(char *d, WC *s)
 static int out_wc(char *d, WC *s, int n)
 {
     WC buf[BUFFER_SIZE];
-    
+
     zap_doublewidth(buf, s, n);
     return wc_to_mb(d,buf,n,OUTSTATE);
 }
@@ -414,7 +414,7 @@ static inline void print_char(const WC ch)
     dw=wcwidth(ch);
     if (dw<0)
         dw=0;
-    
+
     if (o_pos+dw-1>=COLS)
     {
         tbuf+=sprintf(tbuf,"\033[0;37;40m\r\n\033[2K");
@@ -442,7 +442,7 @@ static inline void print_char(const WC ch)
 static void form_feed()
 {
     int i;
-    
+
     for(i=(isstatus?2:1);i<LINES;i++)
     {
         tbuf+=sprintf(tbuf,"\033[0;37;40m\r\n\033[2K");
@@ -566,7 +566,7 @@ static void usertty_textout_draft(char *txt, int flag)
         strcpy(b_draft,txt);
 #ifdef USER_DEBUG
         strcat(b_draft,"\342\226\240");
-#endif    
+#endif
         if ((o_draftlen=strlen(b_draft)))
             b_textout(b_draft);
 #ifdef USER_DEBUG
@@ -586,7 +586,7 @@ static void usertty_textout_draft(char *txt, int flag)
 static void transpose_chars()
 {
     WC w1[3], w2[3], *l, *r;
-    
+
     w1[1]=w1[2]=w2[1]=w2[2]=0;
     if (k_input[k_pos-1]==EMPTY_CHAR)
     {
@@ -618,7 +618,7 @@ static int transpose_words()
 {
     WC buf[BUFFER_SIZE];
     int a1,a2,b1,b2;
-    
+
     a2=k_pos;
     while(a2<k_len && (k_input[a2]==EMPTY_CHAR || !iswalnum(k_input[a2])))
         a2++;
@@ -671,7 +671,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
 {
     char txt[16];
     int i, dw;
-    
+
     switch(state)
     {
 #if 0
@@ -1449,7 +1449,7 @@ static void usertty_resize(void)
     if (isstatus)
         redraw_status();
     redraw_in();
-    
+
     telnet_resize_all();
 }
 
@@ -1517,9 +1517,9 @@ static void usertty_init(void)
     o_draftlen=0;
     o_strongdraft=0;
     o_lastcolor=7;
-    
+
     tbuf+=sprintf(tbuf,"\033[1;1f\0337");
-    
+
     sprintf(done_input,"~12~KB~3~tin ~7~%s by ~11~kilobyte@angband.pl~9~\n",VERSION);
     usertty_textout(done_input);
     {
@@ -1567,7 +1567,7 @@ static void fwrite_out(FILE *f,char *pos)
 {
     int c=7;
     char lstr[BUFFER_SIZE], ustr[BUFFER_SIZE], *s=ustr;
-    
+
     for (;*pos;pos++)
     {
         if (*pos=='~')
@@ -1639,7 +1639,7 @@ void usertty_initdriver()
     ui_own_output=1;
     ui_tty=1;
     ui_drafts=1;
-    
+
     user_init           = usertty_init;
     user_done           = usertty_done;
     user_pause          = usertty_pause;

@@ -27,7 +27,7 @@ struct hashtable* init_hash()
 void kill_hash(struct hashtable* h)
 {
     int i;
-    
+
     if (h->nval)
         for (i=0; i<h->size; i++)
         {
@@ -62,7 +62,7 @@ static inline void rehash(struct hashtable *h, int s)
 {
     int i,gs;
     struct hashentry *gt;
-    
+
     gt=h->tab;
     gs=h->size;
     h->tab=CALLOC(s, struct hashentry);
@@ -205,7 +205,7 @@ int delete_hash(struct hashtable *h, char *key)
 static struct listnode* merge_lists(struct listnode* a, struct listnode* b)
 {
     struct listnode* c=0, *c0;
-    
+
     if (!a)
         return b;
     if (!b)
@@ -292,7 +292,7 @@ struct hashtable* copy_hash(struct hashtable *h)
     CFREE(g->tab, g->size, struct hashentry);
     g->size=(h->nval>4) ? (h->nval*2) : 8;
     g->tab=CALLOC(g->size, struct hashentry);
-    
+
     for(i=0; i<h->size; i++)
         if (h->tab[i].left && h->tab[i].left!=DELETED_HASHENTRY)
             set_hash(g, h->tab[i].left, h->tab[i].right);

@@ -155,13 +155,13 @@ void highlight_command(char *arg, struct session *ses)
         else
         {
             int i;
-            
+
             if (!puts_echoing && ses->mesvar[11])
             {
                 tintin_eprintf(ses,"#Invalid highlighting color: {%s}",left);
                 return;
             }
-            
+
             if (strcmp(left,"list"))
                 tintin_printf(ses,"#Invalid highlighting color, valid colors are:");
             tmp3[0]=0;

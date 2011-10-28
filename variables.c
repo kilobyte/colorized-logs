@@ -834,7 +834,7 @@ void sortlist_command(char *arg,struct session *ses)
         tintin_eprintf(ses,"#SYNTAX: sortlist var {list}");
         return;
     }
-    
+
     n=0;
     list = right;
     while (*list)
@@ -1044,7 +1044,7 @@ void explode_command(char *arg, struct session *ses)
         {
             tintin_eprintf(ses,"#ERROR: exploded line too long in #explode {%s} {%s} {%s}",left,del,right);
             res[BUFFER_SIZE-10]=0;
-        }        
+        }
         set_variable(left,res,ses);
     }
 }
@@ -1196,7 +1196,7 @@ void expand_command(char *arg,struct session *ses)
                     outptr+=snprintf(outptr, out+BUFFER_SIZE-outptr, " {%s}", cur);
                 if (outptr>=out+BUFFER_SIZE-1)
                 {
-                    tintin_eprintf(ses, "#ERROR: expanded line too long in {%s}", list); 
+                    tintin_eprintf(ses, "#ERROR: expanded line too long in {%s}", list);
                     return;
                 }
             }
@@ -1274,7 +1274,7 @@ int random_inline(char *arg, struct session *ses)
 static int cutws(WC *str, int len, WC **rstr)
 {
     int w,s;
-    
+
     s=0;
     while(*str)
     {
@@ -1708,10 +1708,10 @@ struct session *ifexists_command(char *line, struct session *ses)
 void ctoi_command(char* arg, struct session* ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
-    
-    arg=get_arg(arg, left, 0, ses); 
-    arg=get_arg(arg, right, 1, ses); 
-    
+
+    arg=get_arg(arg, left, 0, ses);
+    arg=get_arg(arg, right, 1, ses);
+
     if (!*left || !*right)
         tintin_eprintf(ses, "#Syntax: #ctoi <var> <text>");
     else

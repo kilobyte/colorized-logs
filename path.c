@@ -130,7 +130,7 @@ void path2var(char *var, struct session *ses)
 
         len = 0;
         r=var;
-        
+
         while ((ln = ln->next))
         {
             dirlen = strlen(ln->left);
@@ -193,9 +193,9 @@ void return_command(char *arg,struct session *ses)
 {
     int n;
     char *err;
-    
+
     get_arg_in_braces(arg, arg, 1);
-    
+
     if (ses!=nullsession)
     {
         if (ses->no_return==MAX_PATH_LENGTH)
@@ -208,7 +208,7 @@ void return_command(char *arg,struct session *ses)
             tintin_eprintf(ses, "#No place to return from!");
             return;
         }
-        
+
         if (!*arg)
             n=1;
         else
@@ -227,7 +227,7 @@ void return_command(char *arg,struct session *ses)
         };
         if (n>ses->path_length)
             n=ses->path_length;
-        
+
         while (n--)
         {
             struct listnode *ln = ses->path;
