@@ -199,6 +199,7 @@
 #define NHOOKS          7
 
 /************************ includes *********************/
+#define _GNU_SOURCE
 #include "config.h"
 #include <stdio.h>
 #include "_stdint.h"
