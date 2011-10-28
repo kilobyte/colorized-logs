@@ -24,8 +24,7 @@ DEADJOE
 .deps
 KBtin
 KBtin_help.gz
-kbtin-*.tar.gz
-KBtin-*.tar.gz
+kbtin-*.tar.xz
 load_commands.h
 Makefile
 Makefile.in
