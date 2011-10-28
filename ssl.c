@@ -43,7 +43,7 @@ static int cert_file(char *name, char *respath)
 {
     char fname[BUFFER_SIZE], *fn, *home;
     
-    if (!*name || *name=='.')	// no valid hostname starts with a dot
+    if (!*name || *name=='.')   // no valid hostname starts with a dot
         return 0;
     fn=fname;
     while(1)
@@ -62,7 +62,7 @@ static int cert_file(char *name, char *respath)
         else
             return 0;
     }
-    if (*(fn-1)=='.')	// no valid hostname ends with a dot, either
+    if (*(fn-1)=='.')   // no valid hostname ends with a dot, either
         return 0;
     *fn=0;
     if (!(home=getenv("HOME")))

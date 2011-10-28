@@ -150,7 +150,7 @@ static struct session *socket_session(char *arg, struct session *ses, int ssl)
 #endif
 
     if (list_sessions(arg,ses,left,right))
-        return(ses);	/* (!*left)||(!*right) */
+        return(ses);    /* (!*left)||(!*right) */
 
     strcpy(host, space_out(right));
 
@@ -217,7 +217,7 @@ struct session *run_command(char *arg,struct session *ses)
     int sock;
 
     if (list_sessions(arg,ses,left,right))
-        return(ses);	/* (!*left)||(!*right) */
+        return(ses);    /* (!*left)||(!*right) */
 
     if (!*right)
     {
@@ -381,7 +381,7 @@ void cleanup_session(struct session *ses)
     struct session *sesptr, *act;
     
     if (ses->closing)
-    	return;
+        return;
     any_closed=1;
     ses->closing=2;
     do_hook(act=ses, HOOK_CLOSE, 0, 1);
@@ -411,7 +411,7 @@ void cleanup_session(struct session *ses)
     if (ses->debuglogfile)
         fclose(ses->debuglogfile);
     for(i=0;i<NHOOKS;i++)
-    	SFREE(ses->hooks[i]);
+        SFREE(ses->hooks[i]);
     SFREE(ses->name);
     SFREE(ses->address);
     SFREE(ses->partial_line_marker);

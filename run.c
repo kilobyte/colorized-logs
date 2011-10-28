@@ -202,39 +202,39 @@ close_master:
 
 ok:
 #else
-  char *p, *q, *l, *d;
-  char PtyName[32], TtyName[32];
+    char *p, *q, *l, *d;
+    char PtyName[32], TtyName[32];
 
-  strcpy(PtyName, PtyProto);
-  strcpy(TtyName, TtyProto);
-  for (p = PtyName; *p != 'X'; p++)
-    ;
-  for (q = TtyName; *q != 'X'; q++)
-    ;
-  for (l = PTYRANGE0; (*p = *l) != '\0'; l++)
+    strcpy(PtyName, PtyProto);
+    strcpy(TtyName, TtyProto);
+    for (p = PtyName; *p != 'X'; p++)
+        ;
+    for (q = TtyName; *q != 'X'; q++)
+        ;
+    for (l = PTYRANGE0; (*p = *l) != '\0'; l++)
     {
-      for (d = PTYRANGE1; (p[1] = *d) != '\0'; d++)
+        for (d = PTYRANGE1; (p[1] = *d) != '\0'; d++)
         {
-/*        tintin_printf(0,"OpenPTY tries '%s'", PtyName);*/
-          if ((master = open(PtyName, O_RDWR | O_NOCTTY)) == -1)
-            continue;
-          q[0] = *l;
-          q[1] = *d;
-          if (access(TtyName, R_OK | W_OK))
+/*          tintin_printf(0,"OpenPTY tries '%s'", PtyName);*/
+            if ((master = open(PtyName, O_RDWR | O_NOCTTY)) == -1)
+                continue;
+            q[0] = *l;
+            q[1] = *d;
+            if (access(TtyName, R_OK | W_OK))
             {
-              close(master);
-              continue;
+                close(master);
+                continue;
             }
-          if((slave=open(TtyName, O_RDWR|O_NOCTTY))==-1)
-	  {
-	  	close(master);
-	  	continue;
-	  }
-          goto ok;
+            if((slave=open(TtyName, O_RDWR|O_NOCTTY))==-1)
+            {
+                close(master);
+                continue;
+            }
+            goto ok;
         }
     }
-  return -1;
-  ok:
+    return -1;
+    ok:
 #endif
 #endif
 

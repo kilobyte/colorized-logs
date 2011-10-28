@@ -294,8 +294,8 @@ void logcomment_command(char *arg, struct session *ses)
 
     if (!arg)
     {
-    	tintin_eprintf(ses, "#Logcomment what?");
-    	return;
+        tintin_eprintf(ses, "#Logcomment what?");
+        return;
     }
     if (!ses->logfile)
     {
@@ -660,12 +660,12 @@ struct session* read_command(char *filename, struct session *ses)
 }
 
 
-#define WFLAG(name,var,org)		if(var!=(org))                                \
-                                    {                                       \
-                                        sprintf(num, "%d", var);            \
-                                        prepare_for_write(name, num, 0, 0, buffer); \
-                                        cfputs(buffer, myfile);             \
-                                    }
+#define WFLAG(name,var,org)     if(var!=(org))                                  \
+                                {                                               \
+                                    sprintf(num, "%d", var);                    \
+                                    prepare_for_write(name, num, 0, 0, buffer); \
+                                    cfputs(buffer, myfile);                     \
+                                }
 #define SFLAG(name,var,org)     WFLAG(name,ses->var,org)
 /**********************/
 /* the #write command */

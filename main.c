@@ -75,7 +75,7 @@ extern int o_lastcolor;
 int real_quiet=0; /* if set, #verbose 0 will be really quiet */ 
 char *history[HISTORY_SIZE];
 struct session *sessionlist, *activesession, *nullsession;
-pvars_t *pvars;	/* the %0, %1, %2,....%9 variables */
+pvars_t *pvars; /* the %0, %1, %2,....%9 variables */
 char tintin_char = DEFAULT_TINTIN_CHAR;
 char verbatim_char = DEFAULT_VERBATIM_CHAR;
 char prev_command[BUFFER_SIZE];
@@ -361,7 +361,7 @@ static void parse_options(int argc, char **argv, char **environ)
         {
             if (!strcmp(argv[arg],"--"))
                 noargs=1;
-            else if (!strcmp(argv[arg],"--version"))	/* make autotest happy */
+            else if (!strcmp(argv[arg],"--version")) /* make autotest happy */
             {
                 printf("KBtin version "VERSION"\n");
                 exit(0);
@@ -508,7 +508,7 @@ int main(int argc, char **argv, char **environ)
     init_parse();
     strcpy(status,EMPTY_LINE);
     user_init();
-    /*  read_complete();		no tab-completion */
+    /*  read_complete();            no tab-completion */
     ses = NULL;
     srand((getpid()*0x10001)^time0);
     lastdraft=0;
@@ -667,13 +667,13 @@ static void tintin(void)
             while(i<inbuf)
             {
                 result=mbrtowc(&ch, kbdbuf+i, inbuf-i, &instate);
-                if (result==-2)		/* incomplete but valid sequence */
+                if (result==-2)         /* incomplete but valid sequence */
                 {
                     memmove(kbdbuf, kbdbuf+i, inbuf-i);
                     inbuf-=i;
                     goto partial;
                 }
-                else if (result==-1)	/* invalid sequence */
+                else if (result==-1)    /* invalid sequence */
                 {
                     ch=0xFFFD;
                     i++;
@@ -682,7 +682,7 @@ static void tintin(void)
                      * but staying charset-agnostic makes the code simpler.
                      */
                 }
-                else if (result==0)	/* literal 0 */
+                else if (result==0)     /* literal 0 */
                     i++; /* oops... bad ISO/ANSI, bad */
                 else
                     i+=result;
@@ -794,7 +794,7 @@ static void read_mud(struct session *ses)
                     else if (buffer[n+1]!='\n')
                         temp[count++]='\r';
                 }
-            temp[count]=0;	/* didget<BUFFER_SIZE, so no overflow */
+            temp[count]=0;      /* didget<BUFFER_SIZE, so no overflow */
             write_log(ses, temp, count);
         }
         else
@@ -814,7 +814,7 @@ static void read_mud(struct session *ses)
         goto halfcr;
     }
     while (*cpsource)
-    {		/*cut out each of the lines and process */
+    {       /*cut out each of the lines and process */
         if (*cpsource == '\n')
         {
             *cpdest = '\0';

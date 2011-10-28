@@ -7,7 +7,7 @@
 #include <regex.h>
 
 extern char tintin_char;
-extern pvars_t *pvars;	/* the %0, %1, %2,....%9 variables */
+extern pvars_t *pvars;  /* the %0, %1, %2,....%9 variables */
 
 extern struct session *if_command(char *arg, struct session *ses);
 

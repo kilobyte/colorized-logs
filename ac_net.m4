@@ -6,11 +6,11 @@ dnl Domain.
 dnl
 dnl usage:
 dnl
-dnl	AC_LBL_LIBRARY_NET
+dnl     AC_LBL_LIBRARY_NET
 dnl
 dnl results:
 dnl
-dnl	LIBS
+dnl     LIBS
 dnl
 
 dnl This test is for network applications that need socket() and
@@ -49,20 +49,20 @@ AC_DEFUN([AC_LBL_LIBRARY_NET], [
     # Most operating systems have gethostbyname() in the default searched
     # libraries (i.e. libc):
     AC_CHECK_FUNC(gethostbyname, ,
-	# Some OSes (eg. Solaris) place it in libnsl:
-	AC_CHECK_LIB(nsl, gethostbyname, , 
-	    # Some strange OSes (SINIX) have it in libsocket:
-	    AC_CHECK_LIB(socket, gethostbyname, ,
-		# Unfortunately libsocket sometimes depends on libnsl.
-		# AC_CHECK_LIB's API is essentially broken so the
-		# following ugliness is necessary:
-		AC_CHECK_LIB(socket, gethostbyname,
-		    LIBS="-lsocket -lnsl $LIBS",
-		    AC_CHECK_LIB(resolv, gethostbyname),
-		    -lnsl))))
+        # Some OSes (eg. Solaris) place it in libnsl:
+        AC_CHECK_LIB(nsl, gethostbyname, ,
+            # Some strange OSes (SINIX) have it in libsocket:
+            AC_CHECK_LIB(socket, gethostbyname, ,
+                # Unfortunately libsocket sometimes depends on libnsl.
+                # AC_CHECK_LIB's API is essentially broken so the
+                # following ugliness is necessary:
+                AC_CHECK_LIB(socket, gethostbyname,
+                    LIBS="-lsocket -lnsl $LIBS",
+                    AC_CHECK_LIB(resolv, gethostbyname),
+                    -lnsl))))
     AC_CHECK_FUNC(socket, , AC_CHECK_LIB(socket, socket, ,
-	AC_CHECK_LIB(socket, socket, LIBS="-lsocket -lnsl $LIBS", ,
-	    -lnsl)))
+        AC_CHECK_LIB(socket, socket, LIBS="-lsocket -lnsl $LIBS", ,
+            -lnsl)))
     # DLPI needs putmsg under HPUX so test for -lstr while we're at it
     AC_CHECK_LIB(str, putmsg)
     ])

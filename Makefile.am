@@ -113,5 +113,5 @@ bin: $(bin_PROGRAMS) $(help_DATA)
 	mkdir -p ~/bin
 	cp -p $(bin_PROGRAMS) $(help_DATA) ~/bin
 
-unbin: 
+unbin:
 	cd ~/bin && rm -rf $(bin_PROGRAMS) $(help_DATA)

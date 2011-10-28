@@ -152,7 +152,7 @@ int connect_mud(char *host, char *port, struct session *ses)
     int sock, val;
     struct sockaddr_in sockaddr;
 
-    if (isdigit(*host))		/* interpret host part */
+    if (isdigit(*host))         /* interpret host part */
         sockaddr.sin_addr.s_addr = inet_addr(host);
     else
     {
@@ -168,7 +168,7 @@ int connect_mud(char *host, char *port, struct session *ses)
     }
 
     if (isdigit(*port))
-        sockaddr.sin_port = htons(atoi(port));	/* intepret port part */
+        sockaddr.sin_port = htons(atoi(port));  /* intepret port part */
     else
     {
         tintin_eprintf(ses, "#THE PORT SHOULD BE A NUMBER (got {%s}).", port);
@@ -189,7 +189,7 @@ int connect_mud(char *host, char *port, struct session *ses)
     if (signal(SIGALRM, alarm_func) == BADSIG)
         syserr("signal SIGALRM");
 
-    alarm(15);			/* We'll allow connect to hang in 15seconds! NO MORE! */
+    alarm(15);                  /* We'll allow connect to hang in 15seconds! NO MORE! */
     val = connect(sock, (struct sockaddr *)&sockaddr, sizeof(sockaddr));
     alarm(0);
 
@@ -414,12 +414,12 @@ int read_buffer_mud(char *buffer, struct session *ses)
                 *cpdest=0;
                 return didget-len;
             case -2:
-            	i-=2;
-            	didget-=2;
-            	cpsource+=2;
-            	if (!i)
+                i-=2;
+                didget-=2;
+                cpsource+=2;
+                if (!i)
                     ses->ga=1;
-            	break;
+                break;
             case -3:
                 i -= 2;
                 didget-=1;

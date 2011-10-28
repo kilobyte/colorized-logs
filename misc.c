@@ -28,7 +28,7 @@ extern struct session *sessionlist,*activesession,*nullsession;
 extern struct completenode *complete_head;
 extern char tintin_char;
 extern int keypad,retain;
-extern pvars_t *pvars;	/* the %0, %1, %2,....%9 variables */
+extern pvars_t *pvars; /* the %0, %1, %2,....%9 variables */
 extern char status[BUFFER_SIZE];
 int margins,marginl,marginr;
 extern int LINES,COLS;
@@ -379,7 +379,7 @@ void margins_command(char *arg,struct session *ses)
 void showme_command(char *arg,struct session *ses)
 {
     get_arg(arg, arg, 1, ses);
-    tintin_printf(ses,"%s",arg);	/* KB: no longer check for actions */
+    tintin_printf(ses,"%s",arg);        /* KB: no longer check for actions */
 }
 
 /***********************/
@@ -508,8 +508,8 @@ void messages_command(char *arg,struct session *ses)
             {
                 b=1;
                 for (mestype=0;mestype<MAX_MESVAR;mestype++)
-                    if (ses->mesvar[mestype])	/* at least one type is ON? */
-                        b=0;			/* disable them all */
+                    if (ses->mesvar[mestype])   /* at least one type is ON? */
+                        b=0;                    /* disable them all */
             };
             for (mestype=0;mestype<MAX_MESVAR;mestype++)
                 ses->mesvar[mestype]=b;
@@ -669,12 +669,12 @@ struct session* zap_command(char *arg, struct session *ses)
     }
     if (ses!=nullsession)
     {
-    	if(ses->closing)
-    	{
-    	    if (ses->closing==-1)
-    	    	tintin_eprintf(ses, "#You can't use #ZAP from here.");
-    	    return ses;
-    	}
+        if(ses->closing)
+        {
+            if (ses->closing==-1)
+                tintin_eprintf(ses, "#You can't use #ZAP from here.");
+            return ses;
+        }
         tintin_puts("#ZZZZZZZAAAAAAAAPPPP!!!!!!!!! LET'S GET OUTTA HERE!!!!!!!!", ses);
         ses->closing=1;
         do_hook(ses, HOOK_ZAP, 0, 1);
@@ -850,7 +850,7 @@ void tab_delete(char *arg, struct session *ses)
     else
     {
         if (strcmp(c_buff, s_buff) == 0)
-        {	/* for the last node to delete */
+        {       /* for the last node to delete */
             tmpold->next = NULL;
             free(tmp);
             tintin_puts("#Tab word deleted.", NULL);
@@ -949,7 +949,7 @@ void info_command(char *arg, struct session *ses)
     if (ses->debuglogfile)
         tintin_printf(ses, "Debuglog: {%s}", ses->debuglogname);
     if (ses->closing)
-    	tintin_printf(ses, "The session has it's closing mark set to %d!", ses->closing);
+        tintin_printf(ses, "The session has it's closing mark set to %d!", ses->closing);
     prompt(ses);
 }
 

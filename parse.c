@@ -32,7 +32,7 @@ extern void unlink_command(char *arg, struct session *ses);
 static inline int is_speedwalk_dirs(char *cp);
 
 extern struct session *sessionlist, *activesession, *nullsession;
-extern pvars_t *pvars;	/* the %0, %1, %2,....%9 variables */
+extern pvars_t *pvars; /* the %0, %1, %2,....%9 variables */
 extern char tintin_char, verbatim_char;
 extern int term_echoing;
 static inline char *get_arg_stop_spaces(char *s, char *arg);
@@ -330,7 +330,7 @@ static struct session* parse_tintin_command(char *command, char *arg,struct sess
             if (*arg)
             {
                 get_arg_in_braces(arg, arg, 1);
-                parse_input(arg,1, sesptr);	/* was: #sessioname commands */
+                parse_input(arg,1, sesptr);     /* was: #sessioname commands */
                 PPOP;
                 return (ses);
             }

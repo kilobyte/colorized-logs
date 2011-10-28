@@ -11,7 +11,7 @@
 #include "protos/print.h"
 #include "protos/parse.h"
 
-extern pvars_t *pvars;	/* the %0, %1, %2,....%9 variables */
+extern pvars_t *pvars;  /* the %0, %1, %2,....%9 variables */
 extern int antisubnum;
 
 /*******************************/

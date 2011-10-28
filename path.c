@@ -241,9 +241,9 @@ void return_command(char *arg,struct session *ses)
             while (ln->next)
                 (ln = ln->next);
             strcpy(command, ln->right);
-            return_flag = FALSE;	/* temporarily turn off path tracking */
+            return_flag = FALSE; /* temporarily turn off path tracking */
             parse_input(command,0,ses);
-            return_flag = TRUE;	/* restore path tracking */
+            return_flag = TRUE;  /* restore path tracking */
             deletenode_list(ses->path, ln);
         }
     }

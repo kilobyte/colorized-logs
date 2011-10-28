@@ -85,7 +85,7 @@ int do_inline(char *line,int *res,struct session *ses)
     line=space_out(line);
     /*
        tintin_printf(ses,"#executing inline command [%c%s] with [%s]",tintin_char,command,line);
-    */	
+    */
     if (is_abrev(command,"finditem"))
         *res=finditem_inline(line,ses);
     else if (is_abrev(command,"isatom"))
@@ -426,7 +426,7 @@ static int do_one_inside(int begin, int end)
             if (stacks[ploc][1] != 15)
                 return 0;
             switch (highest) {
-            case 3:			/* highest priority is *,/ */
+            case 3:            /* highest priority is *,/ */
                 stacks[ploc][0] = stacks[next][0];
                 if (stacks[loc][3]==0)
                     stacks[ploc][2] *= stacks[next][2];
@@ -439,14 +439,14 @@ static int do_one_inside(int begin, int end)
                         tintin_eprintf(0, "#Error: Division by zero.");
                     }
                 break;
-            case 5:			/* highest priority is +,- */
+            case 5:            /* highest priority is +,- */
                 stacks[ploc][0] = stacks[next][0];
                 if (stacks[loc][3]==2)
                     stacks[ploc][2] += stacks[next][2];
                 else
                     stacks[ploc][2] -= stacks[next][2];
                 break;
-            case 8:			/* highest priority is >,>=,<,<= */
+            case 8:            /* highest priority is >,>=,<,<= */
                 stacks[ploc][0] = stacks[next][0];
                 switch(stacks[loc][3])
                 {
@@ -463,19 +463,19 @@ static int do_one_inside(int begin, int end)
                     stacks[ploc][2] = (stacks[ploc][2] <= stacks[next][2]);
                 }
                 break;
-            case 11:			/* highest priority is == */
+            case 11:            /* highest priority is == */
                 stacks[ploc][0] = stacks[next][0];
                 stacks[ploc][2] = (stacks[ploc][2] == stacks[next][2]);
                 break;
-            case 12:			/* highest priority is != */
+            case 12:            /* highest priority is != */
                 stacks[ploc][0] = stacks[next][0];
                 stacks[ploc][2] = (stacks[ploc][2] != stacks[next][2]);
                 break;
-            case 13:			/* highest priority is && */
+            case 13:            /* highest priority is && */
                 stacks[ploc][0] = stacks[next][0];
                 stacks[ploc][2] = (stacks[ploc][2] && stacks[next][2]);
                 break;
-            case 14:			/* highest priority is || */
+            case 14:            /* highest priority is || */
                 stacks[ploc][0] = stacks[next][0];
                 stacks[ploc][2] = (stacks[ploc][2] || stacks[next][2]);
                 break;

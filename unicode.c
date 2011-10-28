@@ -69,13 +69,13 @@ int utf8_to_wc(wchar_t *d, char *s, int n)
     
     
 #define OUTC(x,y) \
-        {		\
-            *d++=(x);	\
-            if (!--n)	\
-            {		\
-                y;	\
-                break;	\
-            }		\
+        {               \
+            *d++=(x);   \
+            if (!--n)   \
+            {           \
+                y;      \
+                break;  \
+            }           \
         }
 
     s0=s;
@@ -91,7 +91,7 @@ int utf8_to_wc(wchar_t *d, char *s, int n)
                 else
                     continue;
                 
-                if (c<0xA0)	/* illegal */
+                if (c<0xA0)     /* illegal */
                     c=0xFFFD;
                 if (c==0xFFEF)  /* BOM */
                     continue;
@@ -382,7 +382,7 @@ void convert(struct charset_conv *conv, char *outbuf, char *inbuf, int dir)
     
     switch(conv->mode)
     {
-    case 3:		/* ASCII => UTF-8 */
+    case 3:             /* ASCII => UTF-8 */
         if (dir<0)
         {
             while(*inbuf)
@@ -393,7 +393,7 @@ void convert(struct charset_conv *conv, char *outbuf, char *inbuf, int dir)
             *outbuf=0;
             return;
         }
-        else		/* UTF-8 => ASCII */
+        else            /* UTF-8 => ASCII */
         {
             while(*inbuf)
                 if ((unsigned char)*inbuf>=127)
@@ -404,7 +404,7 @@ void convert(struct charset_conv *conv, char *outbuf, char *inbuf, int dir)
             return;
         }
     case 0:
-        if (dir<0)	/* ISO-8859-1 => UTF-8 */
+        if (dir<0)      /* ISO-8859-1 => UTF-8 */
         {
             wptr=wbuf;
             while(*inbuf)
@@ -415,7 +415,7 @@ void convert(struct charset_conv *conv, char *outbuf, char *inbuf, int dir)
             outbuf+=wc_to_utf8(outbuf, wbuf, wptr-wbuf, BUFFER_SIZE);
             return;
         }
-        else		/* UTF-8 => ISO-8859-1 */
+        else            /* UTF-8 => ISO-8859-1 */
         {
             utf8_to_wc(wbuf, inbuf, BUFFER_SIZE-1);
             wptr=wbuf;
@@ -429,14 +429,14 @@ void convert(struct charset_conv *conv, char *outbuf, char *inbuf, int dir)
             *outbuf=0;
             return;
         }
-    case 1:	/* UTF-8 => UTF-8 */
-        if (dir<0)	/* input: sanitize it */
+    case 1:     /* UTF-8 => UTF-8 */
+        if (dir<0)      /* input: sanitize it */
         {
             utf8_to_wc(wbuf, inbuf, BUFFER_SIZE-1);
             outbuf+=wc_to_utf8(outbuf, wbuf, -1, BUFFER_SIZE);
             return;
         }
-        else		/* output: trust ourself */
+        else            /* output: trust ourself */
         {
             while(*inbuf)
                 *outbuf++=*inbuf++;

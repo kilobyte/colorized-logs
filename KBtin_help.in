@@ -401,7 +401,7 @@ guaranteed to work.
 
 All simple scripts like greek, cyrillic or hebrew are supported, although no
 transliteration is attempted for non-latin ones.  Scripts which are more
-complex work in a spotty way at best at this moment.  
+complex work in a spotty way at best at this moment.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~speedwalk
 
@@ -954,11 +954,11 @@ Examples:
 #time now
 
 #action {The armoury will reset in %1.} {
-		#time armreset $1;
-		#time now;
-		#math tmp {$armreset-$now-1800};
-		#delay $tmp {#showme Armoury reset in 30 minutes!}
-	}
+                #time armreset $1;
+                #time now;
+                #math tmp {$armreset-$now-1800};
+                #delay $tmp {#showme Armoury reset in 30 minutes!}
+        }
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~localtime
 
@@ -1396,9 +1396,9 @@ $0 will be assigned the whole part of the line that matched the regexp.
 
 Example:
  #grep {__h_abc(.)def(.+)ghijkl} {abc1def12345ghi} {whatever}
- 	$0 = "abc1def12345ghi"
-	$1 = "1"
-	$2 = "12345"
+        $0 = "abc1def12345ghi"
+        $1 = "1"
+        $2 = "12345"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~strcmp
 

@@ -18,7 +18,7 @@ void ctoi(char* input)
         for (i=0;i<nod;i++)
             if (!strncmp(tmp, cdigit[i], 3))
             {
-                if (i==14)	/* synonyms */
+                if (i==14)      /* synonyms */
                     i=2;
                 else if (i==15)
                     i=13;

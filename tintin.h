@@ -4,10 +4,10 @@
 #define NDEBUG
 #define UTF8                /* UTF8 support */
 
-#undef TELNET_DEBUG	/* define to show TELNET negotiations */
-#undef USER_DEBUG	/* debugging of the user interface */
-#undef TERM_DEBUG	/* debugging pseudo-tty stuff */
-#undef PROFILING	/* profiling */
+#undef TELNET_DEBUG     /* define to show TELNET negotiations */
+#undef USER_DEBUG       /* debugging of the user interface */
+#undef TERM_DEBUG       /* debugging pseudo-tty stuff */
+#undef PROFILING        /* profiling */
 
 /************************/
 /* The meaning of life: */
@@ -18,17 +18,17 @@
 /**********************/
 /* color ANSI numbers */
 /**********************/
-#define COLOR_BLACK 	0
-#define COLOR_BLUE  	4
-#define COLOR_GREEN	2
-#define COLOR_CYAN	6
-#define COLOR_RED	1
-#define COLOR_MAGENTA	5
-#define COLOR_YELLOW	3
-#define COLOR_WHITE	7
+#define COLOR_BLACK     0
+#define COLOR_BLUE      4
+#define COLOR_GREEN     2
+#define COLOR_CYAN      6
+#define COLOR_RED       1
+#define COLOR_MAGENTA   5
+#define COLOR_YELLOW    3
+#define COLOR_WHITE     7
 
-#define LOGCS_LOCAL	((char*)1)
-#define LOGCS_REMOTE	((char*)2)
+#define LOGCS_LOCAL     ((char*)1)
+#define LOGCS_REMOTE    ((char*)2)
 
 
 /*************************/
@@ -65,8 +65,8 @@
 #define LOG_INPUT_PREFIX "" /* you can add ANSI codes, etc here */
 #define LOG_INPUT_SUFFIX ""
 #define RESET_RAW       /* reset pseudo-terminals to raw mode every write */
-#define GOTO_CHAR '>'	/* be>mt -> #goto be mt */
-		/*Comment last line out to disable this behavior */
+#define GOTO_CHAR '>'   /* be>mt -> #goto be mt */
+                        /*Comment last line out to disable this behavior */
 #define OLD_LOG 0 /* set to one to use old-style logging */
 #define DEFAULT_LOGTYPE (1-OLD_LOG)       /* 0: cr/lf, 1: lf, 2: ttyrec */
 #define DEFAULT_OPEN '{' /*character that starts an argument */
@@ -99,8 +99,8 @@
 #define DEFAULT_ECHO_NOSEPINPUT FALSE     /* echo when input is not managed */
 #define DEFAULT_IGNORE FALSE              /* ignore */
 #define DEFAULT_SPEEDWALK FALSE           /* speedwalk */
-	/* note: classic speedwalks are possible only on some primitive
-	   MUDs with only 4 basic directions (w,e,n,s)                   */
+        /* note: classic speedwalks are possible only on some primitive
+           MUDs with only 4 basic directions (w,e,n,s)                   */
 #define DEFAULT_PRESUB FALSE              /* presub before actions */
 #define DEFAULT_TOGGLESUBS FALSE          /* turn subs on and off FALSE=ON*/
 #define DEFAULT_KEYPAD FALSE              /* start in standard keypad mode */
@@ -120,10 +120,10 @@
 #define DEFAULT_HOOK_MESS TRUE
 #define DEFAULT_LOG_MESS TRUE
 #define DEFAULT_PRETICK 10
-#define DEFAULT_CHARSET "ISO-8859-1"	/* the MUD-side charset */
+#define DEFAULT_CHARSET "ISO-8859-1"      /* the MUD-side charset */
 #define DEFAULT_LOGCHARSET LOGCS_LOCAL
 #define DEFAULT_PARTIAL_LINE_MARKER 0
-#define BAD_CHAR '?'	        /* marker for chars illegal for a charset */
+#define BAD_CHAR '?'                      /* marker for chars illegal for a charset */
 #define CHAR_VERBATIM '\\'
 #define CHAR_QUOTE '"'
 #define CHAR_NEWLINE ';'
@@ -153,8 +153,8 @@
 #define PROMPT_FOR_MORE_TEXT "*line * of *"
 
 #define REMOVE_ONEELEM_BRACES /* remove braces around one element list in 
-				 #splitlist command i.e. {atom} -> atom
-				 similar to #getitemnr command behaviour */
+                                 #splitlist command i.e. {atom} -> atom
+                                 similar to #getitemnr command behaviour */
 
 #define EMPTY_LINE "-gag-"
 #define STACK_LIMIT 8192*1024
@@ -194,8 +194,8 @@
 #define HOOK_ZAP        2
 #define HOOK_END        3
 #define HOOK_SEND       4
-#define HOOK_ACTIVATE	5
-#define HOOK_DEACTIVATE	6
+#define HOOK_ACTIVATE   5
+#define HOOK_DEACTIVATE 6
 #define NHOOKS          7
 
 /************************ includes *********************/
@@ -380,11 +380,11 @@ struct ttyrec_header
 };
 
 #define logcs_is_special(x) ((x)==LOGCS_LOCAL || (x)==LOGCS_REMOTE)
-#define logcs_name(x) (((x)==LOGCS_LOCAL)?"local":	\
-                       ((x)==LOGCS_REMOTE)?"remote":	\
+#define logcs_name(x) (((x)==LOGCS_LOCAL)?"local":              \
+                       ((x)==LOGCS_REMOTE)?"remote":            \
                         (x))
-#define logcs_charset(x) (((x)==LOGCS_LOCAL)?user_charset_name:	\
-                          ((x)==LOGCS_REMOTE)?ses->charset:	\
+#define logcs_charset(x) (((x)==LOGCS_LOCAL)?user_charset_name: \
+                          ((x)==LOGCS_REMOTE)?ses->charset:     \
                            (x))
 
 /* Chinese rod numerals are _not_ digits for our purposes. */
@@ -393,12 +393,12 @@ struct ttyrec_header
 /* Japanese/Chinese double-width chars.  We can't use wcwidth() as that's
    a GNU extension.  The code below is buggy as it should return 0 for
    non-printables, but nyah... */
-#define isw2width(x) ((x)>=0x1100  && ((x)<=0x11ff ||	\
-                      (x)>=0x2e80) && ((x)<=0xd7ff ||	\
-                      (x)>=0xf900) && ((x)<=0xfaff ||	\
-                      (x)>=0xfe30) && ((x)<=0xfe6f ||	\
-                      (x)>=0xff01) && ((x)<=0xff60 ||	\
-                      (x)>=0xffe0) && ((x)<=0xffe6 ||	\
+#define isw2width(x) ((x)>=0x1100  && ((x)<=0x11ff ||   \
+                      (x)>=0x2e80) && ((x)<=0xd7ff ||   \
+                      (x)>=0xf900) && ((x)<=0xfaff ||   \
+                      (x)>=0xfe30) && ((x)<=0xfe6f ||   \
+                      (x)>=0xff01) && ((x)<=0xff60 ||   \
+                      (x)>=0xffe0) && ((x)<=0xffe6 ||   \
                       (x)>=0x20000) && (x)<=0x2ffff)
 #define is7alpha(x) ((((x)>='A')&&((x)<='Z')) || (((x)>='a')&&((x)<='z')))
 #define is7alnum(x) ((((x)>='0')&&((x)<='9')) || is7alpha(x))

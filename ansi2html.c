@@ -148,16 +148,16 @@ normal:
         ch=getchar();
         goto normal;
     case 7:
-        printf("&iexcl;");	/* bell */
+        printf("&iexcl;");      /* bell */
         ch=getchar();
         goto normal;
-    case 12:			/* form feed */
+    case 12:                    /* form feed */
     formfeed:
         ch=getchar();
         unspan();
         printf("\n<hr>\n");
         goto normal;
-    case 27:			/* ESC */
+    case 27:                    /* ESC */
         ch=getchar();
         goto esc;
     case '<':
@@ -190,7 +190,7 @@ csi:
     {
     case ';':
         if (++ntok>=10)
-            goto normal;	/* too many tokens, something is fishy */
+            goto normal;        /* too many tokens, something is fishy */
         tok[ntok]=0;
         ch=getchar();
         goto csi;
@@ -266,7 +266,7 @@ csi:
     case 'J':
         goto formfeed;
     default:
-        ch=getchar();		/* invalid/unimplemented code, ignore */
+        ch=getchar();           /* invalid/unimplemented code, ignore */
     case EOF:
         goto normal;
     }

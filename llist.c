@@ -126,10 +126,9 @@ void kill_all(struct session *ses, int mode)
             kill_hash(ses->pathdirs);
             kill_hash(ses->binds);
             kill_routes(ses);
-        }				/* If */
+        }
         break;
-    }				/* Switch */
-
+    }
 }
 /***********************************************/
 /* make a copy of a list - return: ptr to copy */
@@ -244,10 +243,10 @@ void insertnode_list(struct listnode *listhead, char *ltext, char *rtext, char *
 
 
     case LENGTH:
-    	ln=strlen(ltext);
+        ln=strlen(ltext);
         while ((nptrlast = nptr) && (nptr = nptr->next))
         {
-        	lo=strlen(nptr->left);
+            lo=strlen(nptr->left);
             if (ln<lo)
             {
                 newnode->next = nptr;
@@ -294,7 +293,7 @@ void insertnode_list(struct listnode *listhead, char *ltext, char *rtext, char *
         newnode->next = NULL;
         return;
         break;
-    }				/*  Switch  */
+    }
 }
 
 /*****************************/

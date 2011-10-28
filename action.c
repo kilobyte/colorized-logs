@@ -17,7 +17,7 @@
 
 
 extern struct session *activesession, *nullsession;
-extern pvars_t *pvars;	/* the %0, %1, %2,....%9 variables */
+extern pvars_t *pvars;  /* the %0, %1, %2,....%9 variables */
 extern int term_echoing;
 extern char tintin_char;
 extern int acnum;
@@ -100,7 +100,7 @@ void action_command(char *arg, struct session *ses)
     arg = get_arg_in_braces(arg, right, 1);
     arg = get_arg_in_braces(arg, pr, 1);
     if (!*pr)
-        strcpy(pr, "5");		/* defaults priority to 5 if no value given */
+        strcpy(pr, "5"); /* defaults priority to 5 if no value given */
     if (!*left)
     {
         tintin_printf(ses,"#Defined actions:");
@@ -144,7 +144,7 @@ void promptaction_command(char *arg, struct session *ses)
     arg = get_arg_in_braces(arg, right, 1);
     arg = get_arg_in_braces(arg, pr, 1);
     if (!*pr)
-        strcpy(pr, "5");		/* defaults priority to 5 if no value given */
+        strcpy(pr, "5"); /* defaults priority to 5 if no value given */
     if (!*left)
     {
         tintin_printf(ses,"#Defined prompts:");
@@ -300,7 +300,7 @@ void substitute_vars(char *arg, char *result)
     while (*arg)
     {
         if (*arg == '%')
-        {		/* substitute variable */
+        {               /* substitute variable */
             numands = 1;        /* at least one */
             while (*(arg + numands) == '%')
                 numands++;
@@ -332,7 +332,7 @@ novar1:
             in_alias=0; /* not a simple alias */
         }
         if (*arg == '$')
-        {		/* substitute variable */
+        {               /* substitute variable */
             numands = 1;        /* at least one */
             while (*(arg + numands) == '$')
                 numands++;
@@ -427,7 +427,7 @@ void check_all_actions(char *line, struct session *ses)
             parse_input(ln->right,1,ses);
             recursion=0;
             pvars = lastpvars;
-            /*      return;*/		/* KB: we want ALL actions to be done */
+            /*      return;*/    /* KB: we want ALL actions to be done */
         }
     }
     if (deletedActions)
@@ -465,7 +465,7 @@ void check_all_promptactions(char *line, struct session *ses)
             parse_input(ln->right,1,ses);
             recursion=0;
             pvars=lastpvars;
-            /*      return;*/		/* KB: we want ALL actions to be done */
+            /*      return;*/    /* KB: we want ALL actions to be done */
         }
     }
     if (deletedActions)

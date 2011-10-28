@@ -95,18 +95,18 @@ void userpipe_initdriver()
     ui_drafts=0;
     
     user_init           = userpipe_init;
-    user_done		= user_noop;
-    user_pause		= user_illegal;
-    user_resume 	= user_illegal;
-    user_textout 	= userpipe_textout;
-    user_textout_draft 	= user_noop;
-    user_process_kbd	= userpipe_process_kbd;
-    user_beep		= userpipe_beep;
-    user_keypad		= user_illegal;
-    user_retain		= user_illegal;
-    user_passwd		= user_noop;
-    user_condump	= user_illegal;
-    user_title		= (printffunc*)user_illegal;
-    user_resize		= userpipe_resize;
-    user_show_status	= user_illegal;
+    user_done           = user_noop;
+    user_pause          = user_illegal;
+    user_resume         = user_illegal;
+    user_textout        = userpipe_textout;
+    user_textout_draft  = user_noop;
+    user_process_kbd    = userpipe_process_kbd;
+    user_beep           = userpipe_beep;
+    user_keypad         = user_illegal;
+    user_retain         = user_illegal;
+    user_passwd         = user_noop;
+    user_condump        = user_illegal;
+    user_title          = (printffunc*)user_illegal;
+    user_resize         = userpipe_resize;
+    user_show_status    = user_illegal;
 }

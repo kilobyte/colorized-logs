@@ -680,7 +680,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
         goto insert_verbatim;
         break;
 #endif
-    case 4:			/* ESC O */
+    case 4:                     /* ESC O */
         state=0;
         switch(ch)
         {
@@ -704,7 +704,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
             find_bind(txt,1,ses);
         };
         break;
-    case 3:			/* ESC [ [ */
+    case 3:                     /* ESC [ [ */
         state=0;
         if (b_bottom!=b_screenb)
             b_scroll(b_bottom);
@@ -713,7 +713,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
             find_bind(txt,1,ses);
         };
         break;
-    case 2:			/* ESC [ */
+    case 2:                     /* ESC [ */
         state=0;
         if (isadigit(ch))
         {
@@ -727,7 +727,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
                 {
 
                 prev_history:
-                case 'A':	/* up arrow */
+                case 'A':       /* up arrow */
                     if (ret(0))
                         redraw_in();
                     if (b_bottom!=b_screenb)
@@ -745,7 +745,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
                     redraw_in();
                     break;
                 next_history:
-                case 'B':	/* down arrow */
+                case 'B':       /* down arrow */
                     if (ret(0))
                         redraw_in();
                     if (b_bottom!=b_screenb)
@@ -764,7 +764,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
                     redraw_in();
                     break;
                 key_cursor_left:
-                case 'D':	/* left arrow */
+                case 'D':       /* left arrow */
                     if (b_bottom!=b_screenb)
                         b_scroll(b_bottom);
                     if (ret(1))
@@ -784,7 +784,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
                         redraw_in();
                     break;
                 key_cursor_right:
-                case 'C':	/* right arrow */
+                case 'C':       /* right arrow */
                     if (b_bottom!=b_screenb)
                         b_scroll(b_bottom);
                     if (ret(1))
@@ -824,20 +824,20 @@ static int usertty_process_kbd(struct session *ses, WC ch)
                     if (ch=='~')
                         switch(val)
                         {
-                        case 5:		/* [PgUp] */
+                        case 5:         /* [PgUp] */
                             if (b_screenb>b_first+LINES-(isstatus?3:2))
                                 b_scroll(b_screenb+(isstatus?3:2)-LINES);
                             else
                                 write(1,"\007",1);
                             break;
-                        case 6:		/* [PgDn] */
+                        case 6:         /* [PgDn] */
                             if (b_screenb<b_bottom)
                                 b_scroll(b_screenb+LINES-(isstatus?3:2));
                             else
                                 write(1,"\007",1);
                             break;
                         key_home:
-                        case 1:		/* [Home] */
+                        case 1:         /* [Home] */
                         case 7:
                             if (b_bottom!=b_screenb)
                                 b_scroll(b_bottom);
@@ -856,7 +856,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
                                 redraw_in();
                             break;
                         key_end:
-                        case 4:		/* [End] */
+                        case 4:         /* [End] */
                         case 8:
                             if (b_bottom!=b_screenb)
                                 b_scroll(b_bottom);
@@ -875,7 +875,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
                                 redraw_in();
                             break;
                         key_del:
-                        case 3:		/* [Del] */
+                        case 3:         /* [Del] */
                             ret(0);
                             if (b_bottom!=b_screenb)
                                 b_scroll(b_bottom);
@@ -899,7 +899,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
                             }
                         };
         break;
-    case 1:			/* ESC */
+    case 1:                     /* ESC */
         if (ch=='[')
         {
             state=2; val=0;
@@ -930,9 +930,9 @@ static int usertty_process_kbd(struct session *ses, WC ch)
             break;
         switch(ch)
         {
-        case 9:     /* Alt-Tab */
+        case 9:         /* Alt-Tab */
             goto key_alt_tab;
-        case '<':	/* Alt-< */
+        case '<':       /* Alt-< */
             if (b_bottom!=b_screenb)
                 b_scroll(b_bottom);
             if (ret(0))
@@ -947,7 +947,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
             countpos();
             redraw_in();
             break;
-        case '>':	/* Alt-> */
+        case '>':       /* Alt-> */
             if (b_bottom!=b_screenb)
                 b_scroll(b_bottom);
             if (ret(0))
@@ -1164,15 +1164,15 @@ static int usertty_process_kbd(struct session *ses, WC ch)
             term_commit();
 #endif
             return(1);
-        case 1:			/* ^[A] */
+        case 1:                 /* ^[A] */
             if (find_bind("^A",0,ses))
                 break;
             goto key_home;
-        case 2:			/* ^[B] */
+        case 2:                 /* ^[B] */
             if (find_bind("^B",0,ses))
                 break;
             goto key_cursor_left;
-        case 4:			/* ^[D] */
+        case 4:                 /* ^[D] */
             if (find_bind("^D",0,ses))
                 break;
             if (k_pos||k_len)
@@ -1182,18 +1182,18 @@ static int usertty_process_kbd(struct session *ses, WC ch)
             *done_input=0;
             activesession=zap_command("",ses);
             return(0);
-        case 5:			/* ^[E] */
+        case 5:                 /* ^[E] */
             if (find_bind("^E",0,ses))
                 break;
             goto key_end;
-        case 6:			/* ^[F] */
+        case 6:                 /* ^[F] */
             if (find_bind("^F",0,ses))
                 break;
             goto key_cursor_right;
-        case 8:			/* ^[H] */
+        case 8:                 /* ^[H] */
             if (find_bind("^H",0,ses))
                 break;
-        case 127:       /* [backspace] */
+        case 127:               /* [backspace] */
             if (b_bottom!=b_screenb)
                 b_scroll(b_bottom);
             ret(0);
@@ -1208,7 +1208,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
             };
             redraw_in();
             break;
-        case 9:			/* [Tab],^[I] */
+        case 9:                 /* [Tab],^[I] */
             if (find_bind("Tab",0,ses)||find_bind("^I",0,ses))
                 break;
             {
@@ -1224,7 +1224,7 @@ key_alt_tab:
             };
             redraw_in();
             break;
-        case 11:		/* ^[K] */
+        case 11:                /* ^[K] */
             if (find_bind("^K",0,ses))
                 break;
             ret(0);
@@ -1239,22 +1239,22 @@ key_alt_tab:
             }
             redraw_in();
             break;
-        case 14:		/* ^[N] */
+        case 14:                /* ^[N] */
             if (find_bind("^N",0,ses))
                 break;
             goto next_history;
-        case 16:		/* ^[P] */
+        case 16:                /* ^[P] */
             if (find_bind("^P",0,ses))
                 break;
             goto prev_history;
 #if 0
-        case 17:		/* ^[Q] */
+        case 17:                /* ^[Q] */
             if (find_bind("^Q",0,ses))
                 break;
             state=5;
             break;
 #endif
-        case 20:		/* ^[T] */
+        case 20:                /* ^[T] */
             if (find_bind("^T",0,ses))
                 break;
             ret(1);
@@ -1269,7 +1269,7 @@ key_alt_tab:
             }
             redraw_in();
             break;
-        case 21:		/* ^[U] */
+        case 21:                /* ^[U] */
             if (find_bind("^U",0,ses))
                 break;
             ret(0);
@@ -1286,13 +1286,13 @@ key_alt_tab:
             redraw_in();
             break;
 #if 0
-        case 22:		/* ^[V] */
+        case 22:                /* ^[V] */
             if (find_bind("^V",0,ses))
                 break;
             state=5;
             break;
 #endif
-        case 23:		/* ^[W] */
+        case 23:                /* ^[W] */
             if (find_bind("^W",0,ses))
                 break;
             ret(0);
@@ -1315,7 +1315,7 @@ key_alt_tab:
             }
             redraw_in();
             break;
-        case 25:		/* ^[Y] */
+        case 25:                /* ^[Y] */
             if (find_bind("^Y",0,ses))
                 break;
             ret(0);
@@ -1444,7 +1444,7 @@ static void usertty_resize(void)
     term_commit();
     term_getsize();
     usertty_drawscreen();
-    b_screenb=-666;		/* impossible value */
+    b_screenb=-666;             /* impossible value */
     b_scroll(b_bottom);
     if (isstatus)
         redraw_status();
@@ -1575,7 +1575,7 @@ static void fwrite_out(FILE *f,char *pos)
             {
                 if ((c>>4)&7)
                     s+=sprintf(s,COLORCODE(c));
-                else	/* a kludge to make a certain log archive happy */
+                else    /* a kludge to make a certain log archive happy */
                     s+=sprintf(s,"\033[0%s;3%d%sm",((c)&8)?";1":"",colors[(c)&7],attribs[(c)>>7]);
                 continue;
             };
@@ -1640,19 +1640,19 @@ void usertty_initdriver()
     ui_tty=1;
     ui_drafts=1;
     
-    user_init		= usertty_init;
-    user_done		= usertty_done;
-    user_pause		= usertty_pause;
-    user_resume 	= usertty_resume;
-    user_textout 	= usertty_textout;
-    user_textout_draft 	= usertty_textout_draft;
-    user_process_kbd	= usertty_process_kbd;
-    user_beep		= usertty_beep;
-    user_keypad		= usertty_keypad;
-    user_retain		= usertty_retain;
-    user_passwd		= usertty_passwd;
-    user_condump	= usertty_condump;
-    user_title		= usertty_title;
-    user_resize		= usertty_resize;
-    user_show_status	= usertty_show_status;
+    user_init           = usertty_init;
+    user_done           = usertty_done;
+    user_pause          = usertty_pause;
+    user_resume         = usertty_resume;
+    user_textout        = usertty_textout;
+    user_textout_draft  = usertty_textout_draft;
+    user_process_kbd    = usertty_process_kbd;
+    user_beep           = usertty_beep;
+    user_keypad         = usertty_keypad;
+    user_retain         = usertty_retain;
+    user_passwd         = usertty_passwd;
+    user_condump        = usertty_condump;
+    user_title          = usertty_title;
+    user_resize         = usertty_resize;
+    user_show_status    = usertty_show_status;
 }
