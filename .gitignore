@@ -20,8 +20,10 @@ config.sub
 configure
 configure.lineno
 configure.scan
+depcomp
 DEADJOE
 .deps
+install-sh
 KBtin
 KBtin_help.gz
 kbtin-*.tar.xz
