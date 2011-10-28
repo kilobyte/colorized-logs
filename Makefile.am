@@ -93,7 +93,7 @@ cvs-dist: KBtin check
 	cvs tag `echo "Release-$(VERSION)" | sed 's/\./-/g'`
 	$(MAKE) dist
 
-SUBDIRS = tests
+SUBDIRS = . tests
 
 mac: clean
 	./configure --prefix=/usr				&& \
