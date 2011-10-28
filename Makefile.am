@@ -9,7 +9,7 @@ BUILT_SOURCES=commands.h load_commands.h profinit.h $(KBtin_C_FILES:%.c=protos/%
 KBtin_SOURCES=$(KBtin_C_FILES) tintin.h unicode.h ui.h translit.h malloc.h
 KBtin_LDADD=@GLIB_LIBS@ @ZLIB_LIBS@ @LTLIBICONV@ @GNUTLS_LIBS@
 
-AM_CFLAGS=@GLIB_CFLAGS@
+AM_CFLAGS=@GLIB_CFLAGS@ -Wall
 
 ansi2html_SOURCES=ansi2html.c
 ansi2txt_SOURCES=ansi2txt.c
