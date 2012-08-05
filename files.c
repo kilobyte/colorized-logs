@@ -242,8 +242,13 @@ void write_logf(struct session *ses, char *txt, char *prefix, char *suffix)
     convert(&ses->c_log, lbuf+len, buf, 1);
     len+=strlen(lbuf+len);
     if (ses->logtype==2)
-        ((struct ttyrec_header*)lbuf)->len=
-            to_little_endian(len-sizeof(struct ttyrec_header));
+    {
+        uint32_t blen=len-sizeof(struct ttyrec_header);
+        lbuf[ 8]=blen;
+        lbuf[ 9]=blen>>8;
+        lbuf[10]=blen>>16;
+        lbuf[11]=blen>>24;
+    }
 
     if (fwrite(lbuf, 1, len, ses->logfile)<len)
     {
