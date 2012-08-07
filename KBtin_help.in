@@ -1083,7 +1083,7 @@ ugly way of handling local echo.
 Note: the <name> is required.
 
 Example:
-#ses t2t towers.angband.com 9999
+#ses t2t t2tmud.org 9999
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~run
 
@@ -1101,7 +1101,7 @@ Examples:
 #run a bash
 #run sql sqlplus
 #run adventure /usr/games/advent
-#run t2t ssh charybda.icm.edu.pl;telnet towers.angband.com 9999
+#run t2t ssh charybda.icm.edu.pl;telnet t2tmud.org 9999
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~zap
 

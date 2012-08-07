@@ -532,7 +532,7 @@ ever wants to read -- that is what docs are for.
     tintin_printf(0,"#~7~  Jacek Narebski                                ~2~#");
     tintin_printf(0,"##################################################~7~");
     tintin_printf(0,"~15~#session <name> <host> <port> ~7~to connect to a remote server");
-    tintin_printf(0,"                              ~8~#ses t2t towers.angband.com 9999");
+    tintin_printf(0,"                                      ~8~#ses t2t t2tmud.org 9999");
     tintin_printf(0,"~15~#run <name> <command>         ~7~to run a local command");
     tintin_printf(0,"                              ~8~#run advent adventure");
     tintin_printf(0,"                              ~8~#run sql mysqlclient");
