@@ -5,6 +5,7 @@ System commands:
    end         suspend     system      shell
 Session management:
    session     run         zap         <session>   all         snoop
+   sslsession
 Input/output:
    verbatim    char        echo        history     cr          mudcolors
    blank       speedwalk   showme      status      margins     bell
@@ -1084,6 +1085,19 @@ Note: the <name> is required.
 
 Example:
 #ses t2t t2tmud.org 9999
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~sslsession
+
+#sslsession
+Lists all active sessions, as in #session (also non-SSL ones).
+
+#sslsession <name> <host> <port>
+Starts a new encrypted session, connecting over SSL to TCP <port> on <host>.
+The server's certificate will be retained, and compared during subsequent
+connections.
+
+Example:
+#sslses t2t t2tmud.org 443
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~run
 
