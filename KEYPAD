@@ -18,7 +18,7 @@ Terminals I checked:
     newer versions work fine, older ones have a bug that causes the
     down arrow to be misreported as the diagonal up-left one.  This
     bug is hard-coded in rxvt -- so the only option that doesn't
-    involve patching the source is upgrading to a never version.
+    involve patching the source is upgrading to a newer version.
 
 * wterm:
     it's based on old rxvt code, and I'm not aware of a fixed version.
