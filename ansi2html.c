@@ -7,15 +7,15 @@
 #define BLINK        0x100000
 #define INVERSE      0x200000
 
-int fg,bg,fl,b,cl;
+static int fg,bg,fl,b,cl;
 
-char *cols[]={"BLK","RED","GRN","YEL","BLU","MAG","CYN","WHI",
-              "HIK","HIR","HIG","HIY","HIB","HIM","HIC","HIW"};
+static char *cols[]={"BLK","RED","GRN","YEL","BLU","MAG","CYN","WHI",
+                     "HIK","HIR","HIG","HIY","HIB","HIM","HIC","HIW"};
 
-int ntok, tok[10];
-int ch;
+static int ntok, tok[10];
+static int ch;
 
-void class()
+static void class()
 {
     if (!cl)
         printf(" class=\"");
@@ -24,7 +24,7 @@ void class()
     cl=1;
 }
 
-void span()
+static void span()
 {
     int tmp, _fg=fg, _bg=bg;
 
@@ -68,7 +68,7 @@ void span()
 }
 
 
-void unspan()
+static void unspan()
 {
     if (b)
         printf("</b>");
