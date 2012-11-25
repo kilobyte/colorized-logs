@@ -375,6 +375,14 @@ static FILE* open_logfile(struct session *ses, char *name, const char *filemsg, 
         }
         else
             tintin_eprintf(ses, "#ERROR: COULDN'T OPEN PIPE: {bzip2 >%s}.", fname);
+    else if (len>=4 && !strcmp(fname+len-3,".xz"))
+        if ((f = mypopen(strcat(strcpy(temp,"xz >"),lfname), 1)))
+        {
+            if (ses->mesvar[MSG_LOG])
+                tintin_printf(ses, filemsg, fname);
+        }
+        else
+            tintin_eprintf(ses, "#ERROR: COULDN'T OPEN PIPE: {xz >%s}.", fname);
     else
         if ((f = fopen(lfname, "w")))
         {
