@@ -176,10 +176,12 @@ static void debug_info(void)
     char txt[BUFFER_SIZE];
     sprintf(txt,"b_first=%d, b_current=%d, b_last=%d, b_bottom=%d, b_screenb=%d",
             b_first, b_current, b_last, b_bottom, b_screenb);
-    tbuf+=sprintf(tbuf,"\033[1;%df\033[41;33;1m[\033[41;35m%s\033[41;33m]\033[37;40;0m",COLS-strlen(txt)-1,txt);
+    tbuf+=sprintf(tbuf,"\033[1;%df\033[41;33;1m[\033[41;35m%s\033[41;33m]\033[37;40;0m",
+            COLS-(int)strlen(txt)-1,txt);
     sprintf(txt,"k_len=%d, strlen(k_input)=%d, k_pos=%d, k_scrl=%d",
-            k_len, WClen(k_input), k_pos, k_scrl);
-    tbuf+=sprintf(tbuf,"\033[2;%df\033[41;33;1m[\033[41;35m%s\033[41;33m]\033[37;40;0m",COLS-strlen(txt)-1,txt);
+            k_len, (int)WClen(k_input), k_pos, k_scrl);
+    tbuf+=sprintf(tbuf,"\033[2;%df\033[41;33;1m[\033[41;35m%s\033[41;33m]\033[37;40;0m",
+            COLS-(int)strlen(txt)-1,txt);
 }
 #endif
 
