@@ -325,6 +325,7 @@ static void init_nullses(void)
     nullsession->mesvar[10]= DEFAULT_PATH_MESS;
     nullsession->mesvar[11]= DEFAULT_ERROR_MESS;
     nullsession->mesvar[12]= DEFAULT_HOOK_MESS;
+    nullsession->mesvar[13]= DEFAULT_LOG_MESS;
     nullsession->charset=mystrdup(DEFAULT_CHARSET);
     nullsession->logcharset=logcs_is_special(DEFAULT_LOGCHARSET) ?
                               DEFAULT_LOGCHARSET : mystrdup(DEFAULT_LOGCHARSET);
