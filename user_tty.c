@@ -10,6 +10,7 @@
 #if HAVE_TERMIOS_H
 # include <termios.h>
 #endif
+#include <assert.h>
 
 static mbstate_t outstate;
 #define OUTSTATE &outstate
@@ -42,6 +43,7 @@ static int xterm;
 #endif
 static int putty;
 extern int need_resize;
+static int term_width;
 
 static char term_buf[BUFFER_SIZE*8],*tbuf;
 
@@ -328,7 +330,12 @@ static void draw_out(char *pos)
             tbuf+=sprintf(tbuf,COLORCODE(c));
             pos++;
             continue;
-        };
+        }
+        if (*pos=='\r') // wrapped line marker
+        {
+            pos++;
+            continue;
+        }
         one_utf8_to_mb(&tbuf, &pos, &outstate);
     };
 }
@@ -419,6 +426,7 @@ static inline void print_char(const WC ch)
 
     if (o_pos+dw-1>=COLS)
     {
+        out_line[o_len++]='\r';
         tbuf+=sprintf(tbuf,"\033[0;37;40m\r\n\033[2K");
         b_addline();
     }
@@ -1399,6 +1407,67 @@ key_alt_tab:
     return(0);
 }
 
+/********************************************/
+/* reformat the scrollback into a new width */
+/********************************************/
+static void b_resize()
+{
+    char **src;
+    int src_lines,i;
+    char line[BUFFER_SIZE],*lp;
+    int cont;
+    int color;
+
+    src_lines=b_bottom-b_first;
+    if (term_width==COLS)
+        return;
+    term_width=COLS;
+
+    /* FIXME: unlike old code, this will not work with a hard memory cap */
+    if (!(src=CALLOC(src_lines,char*)))
+        syserr("Out of memory");
+    if (b_bottom>b_first)
+        memcpy(src,b_output+(b_first%B_LENGTH),src_lines*sizeof(char*));
+    else
+    {
+        memcpy(src,b_output+(b_first%B_LENGTH),(B_LENGTH-b_first%B_LENGTH)*sizeof(char*));
+        memcpy(src+B_LENGTH-b_first%B_LENGTH,b_output,(b_bottom%B_LENGTH)*sizeof(char*));
+    }
+    o_len=o_pos=0;
+    o_oldcolor=o_prevcolor=o_lastprevcolor=7;
+    b_first=b_bottom=b_current=b_last=0;
+    lp=line;
+    cont=0;
+    color=-1;
+    for(i=0;i<src_lines;i++)
+    {
+        int ncolor=color;
+        char *sp=src[i];
+        if (cont && *sp=='~' && getcolor(&sp,&ncolor,0))
+        {
+            /* don't insert extra color codes for continuations */
+            if (color!=ncolor)
+                sp=src[i];
+        }
+        while (*sp && lp-line<BUFFER_SIZE-2)
+            *lp++=*sp++;
+        SFREE(src[i]);
+        if ((cont=(lp>line && lp[-1]=='\r')))
+            lp--;
+        else
+        {
+            *lp++='\n';
+            *lp=0;
+            b_textout(line);
+            lp=line;
+        }
+    }
+    assert(!cont);
+    CFREE(src,src_lines,char*);
+    if (o_draftlen)
+        b_textout(b_draft); /* restore the draft */
+}
+
 /******************************/
 /* set up the window outlines */
 /******************************/
@@ -1445,6 +1514,8 @@ static void usertty_resize(void)
 {
     term_commit();
     term_getsize();
+    if (term_width!=COLS)
+        b_resize();
     usertty_drawscreen();
     b_screenb=-666;             /* impossible value */
     b_scroll(b_bottom);
@@ -1484,6 +1555,7 @@ static void usertty_init(void)
     /* some versions of PuTTY and screen badly support bg colors */
     putty=(term=getenv("TERM"))&&(!strcasecmp(term,"xterm")||!strncasecmp(term,"screen",6));
     term_getsize();
+    term_width=COLS;
     term_init();
     tbuf=term_buf+sprintf(term_buf,"\033[?7l");
     usertty_keypad(keypad);
@@ -1528,7 +1600,7 @@ static void usertty_init(void)
         int i;
         for (i=0;i<COLS;++i)
             done_input[i]='-';
-        sprintf(done_input+COLS,"~7~");
+        sprintf(done_input+COLS,"~7~\n");
     };
     usertty_textout(done_input);
 }
@@ -1558,6 +1630,8 @@ static void usertty_resume(void)
     usertty_keypad(keypad);
     usertty_drawscreen();
     b_screenb=-666;     /* impossible value */
+    if (term_width!=COLS)
+        b_resize();
     b_scroll(b_bottom);
     if (isstatus)
         redraw_status();
@@ -1565,9 +1639,9 @@ static void usertty_resume(void)
 }
 
 
-static void fwrite_out(FILE *f,char *pos)
+static int fwrite_out(FILE *f,char *pos)
 {
-    int c=7;
+    int c=7, eol=1;
     char lstr[BUFFER_SIZE], ustr[BUFFER_SIZE], *s=ustr;
 
     for (;*pos;pos++)
@@ -1581,22 +1655,23 @@ static void fwrite_out(FILE *f,char *pos)
                     s+=sprintf(s,"\033[0%s;3%d%sm",((c)&8)?";1":"",colors[(c)&7],attribs[(c)>>7]);
                 continue;
             };
-        if (*pos!='\n')
+        if (*pos=='\r')
+            eol=0;
+        else if (*pos!='\n')
             *s++=*pos;
     }
     *s=0;
     utf8_to_local(lstr, ustr);
     fputs(lstr, f);
+    return eol;
 }
 
 static void usertty_condump(FILE *f)
 {
     int i;
     for (i=b_first;i<b_current;i++)
-    {
-        fwrite_out(f,b_output[i%B_LENGTH]);
-        fprintf(f,"\n");
-    };
+        if (fwrite_out(f,b_output[i%B_LENGTH]))
+            fprintf(f,"\n");
     fwrite_out(f,out_line);
 }
 
