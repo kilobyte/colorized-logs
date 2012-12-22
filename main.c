@@ -523,23 +523,23 @@ every time.  It is not GNU bc or something similar, we don't want half
 a screenful of all-uppercase (cAPS kEY IS STUCK AGAIN?) text that no one
 ever wants to read -- that is what docs are for.
 */
-    tintin_printf(0,"~2~##################################################");
-    tintin_printf(0, "#~7~                ~12~K B ~3~t i n~7~     v %-15s ~2~#", VERSION);
-    tintin_printf(0,"#~7~ current developer: ~9~Adam Borowski               ~2~#");
-    tintin_printf(0,"#~7~                          (~9~kilobyte@angband.pl~7~) ~2~#");
-    tintin_printf(0,"#~7~ based on ~12~tintin++~7~ v 2.1.9 by Peter Unold,      ~2~#");
-    tintin_printf(0,"#~7~  Bill Reiss, David A. Wagner, Joann Ellsworth, ~2~#");
-    tintin_printf(0,"#~7~     Jeremy C. Jack, Ulan@GrimneMUD and         ~2~#");
-    tintin_printf(0,"#~7~  Jacek Narebski                                ~2~#");
-    tintin_printf(0,"##################################################~7~");
-    tintin_printf(0,"~15~#session <name> <host> <port> ~7~to connect to a remote server");
-    tintin_printf(0,"                              ~8~#ses t2t t2tmud.org 9999");
-    tintin_printf(0,"~15~#run <name> <command>         ~7~to run a local command");
-    tintin_printf(0,"                              ~8~#run advent adventure");
-    tintin_printf(0,"                              ~8~#run sql mysqlclient");
-    tintin_printf(0,"~15~#help                         ~7~to get the help index");
-    if (new_news())
-        tintin_printf(ses,"Check #news now!");
+        tintin_printf(0,"~2~##################################################");
+        tintin_printf(0, "#~7~                ~12~K B ~3~t i n~7~     v %-15s ~2~#", VERSION);
+        tintin_printf(0,"#~7~ current developer: ~9~Adam Borowski               ~2~#");
+        tintin_printf(0,"#~7~                          (~9~kilobyte@angband.pl~7~) ~2~#");
+        tintin_printf(0,"#~7~ based on ~12~tintin++~7~ v 2.1.9 by Peter Unold,      ~2~#");
+        tintin_printf(0,"#~7~  Bill Reiss, David A. Wagner, Joann Ellsworth, ~2~#");
+        tintin_printf(0,"#~7~     Jeremy C. Jack, Ulan@GrimneMUD and         ~2~#");
+        tintin_printf(0,"#~7~  Jacek Narebski                                ~2~#");
+        tintin_printf(0,"##################################################~7~");
+        tintin_printf(0,"~15~#session <name> <host> <port> ~7~to connect to a remote server");
+        tintin_printf(0,"                              ~8~#ses t2t t2tmud.org 9999");
+        tintin_printf(0,"~15~#run <name> <command>         ~7~to run a local command");
+        tintin_printf(0,"                              ~8~#run advent adventure");
+        tintin_printf(0,"                              ~8~#run sql mysqlclient");
+        tintin_printf(0,"~15~#help                         ~7~to get the help index");
+        if (new_news())
+            tintin_printf(ses,"Check #news now!");
     }
 
     init_net();
