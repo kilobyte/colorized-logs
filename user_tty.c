@@ -44,7 +44,7 @@ static int xterm;
 static int putty;
 extern int need_resize;
 static int term_width;
-
+static int dump_color;
 static char term_buf[BUFFER_SIZE*8],*tbuf;
 
 static void term_commit(void)
@@ -1641,7 +1641,7 @@ static void usertty_resume(void)
 
 static int fwrite_out(FILE *f,char *pos)
 {
-    int c=7, eol=1;
+    int c=dump_color, eol=1;
     char lstr[BUFFER_SIZE], ustr[BUFFER_SIZE], *s=ustr;
 
     for (;*pos;pos++)
@@ -1649,10 +1649,13 @@ static int fwrite_out(FILE *f,char *pos)
         if (*pos=='~')
             if (getcolor(&pos,&c,0))
             {
+                if (c==dump_color)
+                    continue;
                 if ((c>>4)&7)
                     s+=sprintf(s,COLORCODE(c));
                 else    /* a kludge to make a certain log archive happy */
                     s+=sprintf(s,"\033[0%s;3%d%sm",((c)&8)?";1":"",colors[(c)&7],attribs[(c)>>7]);
+                dump_color=c;
                 continue;
             };
         if (*pos=='\r')
@@ -1669,6 +1672,7 @@ static int fwrite_out(FILE *f,char *pos)
 static void usertty_condump(FILE *f)
 {
     int i;
+    dump_color=7;
     for (i=b_first;i<b_current;i++)
         if (fwrite_out(f,b_output[i%B_LENGTH]))
             fprintf(f,"\n");
