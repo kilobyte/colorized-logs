@@ -250,7 +250,7 @@ void write_logf(struct session *ses, char *txt, char *prefix, char *suffix)
         lbuf[11]=blen>>24;
     }
 
-    if (fwrite(lbuf, 1, len, ses->logfile)<len)
+    if ((int)fwrite(lbuf, 1, len, ses->logfile)<len)
     {
         log_off(ses);
         tintin_eprintf(ses, "#WRITE ERROR -- LOGGING DISABLED.  Disk full?");
@@ -283,7 +283,7 @@ void write_log(struct session *ses, char *txt, int n)
         }
     }
 
-    if (fwrite(txt, 1, n, ses->logfile)<n)
+    if ((int)fwrite(txt, 1, n, ses->logfile)<n)
     {
         log_off(ses);
         tintin_eprintf(ses, "#WRITE ERROR -- LOGGING DISABLED.  Disk full?");
@@ -1120,7 +1120,7 @@ char *logtypes[]=
 void logtype_command(char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE];
-    int t;
+    unsigned t;
 
     arg=get_arg(arg, left, 1, ses);
     if (!*left)

@@ -349,7 +349,7 @@ static void opterror(char *msg, ...)
 
 static struct listnode *options;
 
-static void parse_options(int argc, char **argv, char **environ)
+static void parse_options(int argc, char **argv)
 {
     int noargs=0;
     int arg;
@@ -496,14 +496,14 @@ static void apply_options()
 /**************************************************************************/
 /* main() - show title - setup signals - init lists - readcoms - tintin() */
 /**************************************************************************/
-int main(int argc, char **argv, char **environ)
+int main(int argc, char **argv)
 {
     struct session *ses;
 
     tintin_exec=argv[0];
     init_locale();
     user_setdriver(isatty(0)?1:0);
-    parse_options(argc, argv, environ);
+    parse_options(argc, argv);
     init_bind();
     hist_num=-1;
     init_parse();
