@@ -36,9 +36,7 @@ void help_command(char *arg,struct session *ses)
 {
     FILE *myfile=NULL;
     char text[BUFFER_SIZE], line[BUFFER_SIZE], filestring[BUFFER_SIZE];
-    int flag;
 
-    flag = TRUE;
     if (strcmp(DEFAULT_FILE_DIR, "HOME"))
     {
         sprintf(filestring, "%s/KBtin_help", DEFAULT_FILE_DIR);
@@ -84,23 +82,18 @@ void help_command(char *arg,struct session *ses)
     if (*arg)
     {
         sprintf(text, "~%s", arg);
-        while (flag)
+        while (fgets(line, sizeof(line), myfile))
         {
-            fgets(line, sizeof(line), myfile);
             if (*line == '~')
             {
                 if (*(line + 1) == '*')
+                    break;
+                if (is_abrev(text, line))
                 {
-                    tintin_printf(0,"#Sorry, no help on that word.");
-                    flag = FALSE;
-                }
-                else if (is_abrev(text, line))
-                {
-                    while (flag)
+                    while (fgets(line, sizeof(line), myfile))
                     {
-                        fgets(line, sizeof(line), myfile);
                         if ((*line == '~')&&(*(line+1)=='~'))
-                            flag = FALSE;
+                            goto end;
                         else
                         {
                             *(line + strlen(line) - 1) = '\0';
@@ -114,11 +107,10 @@ void help_command(char *arg,struct session *ses)
     }
     else
     {
-        while (flag)
+        while (fgets(line, sizeof(line), myfile))
         {
-            fgets(line, sizeof(line), myfile);
             if ((*line == '~')&&(*(line+1)=='~'))
-                flag = FALSE;
+                goto end;
             else
             {
                 *(line + strlen(line) - 1) = '\0';
@@ -127,6 +119,8 @@ void help_command(char *arg,struct session *ses)
             }
         }
     }
+   tintin_printf(0,"#Sorry, no help on that word.");
+end:
     prompt(NULL);
     fclose(myfile);
 }
