@@ -642,7 +642,10 @@ void shell_command(char *arg,struct session *ses)
         utf8_to_local(cmd, arg);
         if (ui_own_output)
             user_pause();
-        system(cmd);
+        if (system(cmd))
+            ; /* yay source hardening retardness -- not only missing /bin/sh is
+                 illegal on a POSIX system, but also there's no way to check for
+                 that error without false positives */
         if (ui_own_output)
             user_resume();
         if (ses->mesvar[9])
