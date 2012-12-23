@@ -72,7 +72,7 @@
 #define DEFAULT_OPEN '{' /*character that starts an argument */
 #define DEFAULT_CLOSE '}' /*character that ends an argument */
 #define HISTORY_SIZE 128                  /* history size */
-#define MAX_PATH_LENGTH 256               /* max path lenght */
+#define MAX_PATH_LENGTH 256               /* max path length (#route) */
 #define MAX_LOCATIONS 2048
 #define DEFAULT_TINTIN_CHAR '#'           /* tintin char */
 #define DEFAULT_TICK_SIZE 60
