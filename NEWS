@@ -105,3 +105,6 @@
 * some yTin compatibility: pseudovars: _random, _time, _clock, _msec, HOME
   and #ctoi (Chinese numerals)
 * SSL support: #sslsession
+
+1.0.14:
+* proper handling of line wrap when screen width changes and in #condump
