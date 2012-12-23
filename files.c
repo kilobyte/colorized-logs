@@ -335,7 +335,7 @@ static FILE* open_logfile(struct session *ses, char *name, const char *filemsg, 
     }
     if (*name=='>')
     {
-        if ((*++name=='>'))
+        if (*++name=='>')
         {
             expand_filename(++name, fname, lfname);
             if ((f=fopen(lfname, "a")))
