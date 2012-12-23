@@ -541,6 +541,7 @@ ever wants to read -- that is what docs are for.
         if (new_news())
             tintin_printf(ses,"Check #news now!");
     }
+    user_mark_greeting();
 
     init_net();
     setup_signals();

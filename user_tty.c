@@ -29,6 +29,7 @@ static int o_len,o_pos,o_oldcolor,o_prevcolor,o_draftlen,o_lastprevcolor;
 #define o_color color
 #define o_lastcolor lastcolor
 static int b_first,b_current,b_last,b_bottom,b_screenb,o_strongdraft;
+static int b_greeting;
 static char *b_output[B_LENGTH];
 static int scr_len,scr_curs;
 extern int isstatus;
@@ -1435,7 +1436,9 @@ static void b_resize()
     }
     o_len=o_pos=0;
     o_oldcolor=o_prevcolor=o_lastprevcolor=7;
-    b_first=b_bottom=b_current=b_last=0;
+    if (b_greeting>=b_first)
+        b_greeting-=b_first;
+    b_bottom=b_current=b_last=b_first=0;
     lp=line;
     cont=0;
     color=-1;
@@ -1466,6 +1469,11 @@ static void b_resize()
     CFREE(src,src_lines,char*);
     if (o_draftlen)
         b_textout(b_draft); /* restore the draft */
+}
+
+static void usertty_mark_greeting(void)
+{
+    b_greeting=b_bottom;
 }
 
 /******************************/
@@ -1673,7 +1681,7 @@ static void usertty_condump(FILE *f)
 {
     int i;
     dump_color=7;
-    for (i=b_first;i<b_current;i++)
+    for (i = (b_greeting>b_first)?b_greeting:b_first; i<b_current; i++)
         if (fwrite_out(f,b_output[i%B_LENGTH]))
             fprintf(f,"\n");
     fwrite_out(f,out_line);
@@ -1736,4 +1744,5 @@ void usertty_initdriver()
     user_title          = usertty_title;
     user_resize         = usertty_resize;
     user_show_status    = usertty_show_status;
+    user_mark_greeting  = usertty_mark_greeting;
 }

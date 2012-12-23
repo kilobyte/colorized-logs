@@ -109,4 +109,5 @@ void userpipe_initdriver()
     user_title          = (printffunc*)user_illegal;
     user_resize         = userpipe_resize;
     user_show_status    = user_illegal;
+    user_mark_greeting  = user_noop;
 }

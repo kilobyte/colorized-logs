@@ -44,3 +44,4 @@ voidFILEpfunc *user_condump;
 printffunc *user_title;
 voidfunc *user_resize;
 voidfunc *user_show_status;
+voidfunc *user_mark_greeting;
