@@ -1,6 +1,7 @@
 #include "tintin.h"
 #include "unicode.h"
 #include "ui.h"
+#include "protos/utils.h"
 
 
 extern int wc_to_utf8(char *d, const wchar_t *s, int n, int maxb);
@@ -48,7 +49,7 @@ static void userpipe_textout(char *txt)
         default:
             one_utf8_to_mb(&b, &a, &outstate);
         }
-    write(1,buf,b-buf);
+    write_stdout(buf,b-buf);
 }
 
 static int userpipe_process_kbd(struct session *ses, WC ch)
@@ -76,7 +77,7 @@ static int userpipe_process_kbd(struct session *ses, WC ch)
 
 static void userpipe_beep(void)
 {
-    write(1,"\007",1);
+    write_stdout("\007",1);
     /* should it beep if we're redirected to a pipe? */
 }
 

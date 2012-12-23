@@ -50,7 +50,7 @@ static char term_buf[BUFFER_SIZE*8],*tbuf;
 
 static void term_commit(void)
 {
-    write(1,term_buf,tbuf-term_buf);
+    write_stdout(term_buf,tbuf-term_buf);
     tbuf=term_buf;
 }
 
@@ -477,7 +477,7 @@ static void b_textout(char *txt)
             print_char('[');
             break;
         case 7:
-            write(1,"\007",1);
+            write_stdout("\007",1);
             break;
         case 8:
         case 127:
@@ -839,13 +839,13 @@ static int usertty_process_kbd(struct session *ses, WC ch)
                             if (b_screenb>b_first+LINES-(isstatus?3:2))
                                 b_scroll(b_screenb+(isstatus?3:2)-LINES);
                             else
-                                write(1,"\007",1);
+                                write_stdout("\007",1);
                             break;
                         case 6:         /* [PgDn] */
                             if (b_screenb<b_bottom)
                                 b_scroll(b_screenb+LINES-(isstatus?3:2));
                             else
-                                write(1,"\007",1);
+                                write_stdout("\007",1);
                             break;
                         key_home:
                         case 1:         /* [Home] */
@@ -1335,7 +1335,7 @@ key_alt_tab:
             if (!*yank_buffer)
             {
                 redraw_in();
-                write(1,"\007",1);
+                write_stdout("\007",1);
                 break;
             }
             i=WClen(yank_buffer);
@@ -1369,7 +1369,7 @@ key_alt_tab:
 #endif
             dw=isw2width(ch)?2:1;
             if (k_len+dw==BUFFER_SIZE)
-                write(1,"\007",1);
+                write_stdout("\007",1);
             else
             {
                 k_input[k_len+=dw]=0;
@@ -1619,7 +1619,7 @@ static void usertty_done(void)
     usertty_keypad(0);
     term_commit();
     term_restore();
-    write(1,"\n",1);
+    write_stdout("\n",1);
 }
 
 static void usertty_pause(void)
@@ -1716,7 +1716,7 @@ static void usertty_title(char *fmt,...)
 
 static void usertty_beep(void)
 {
-    write(1,"\007",1);
+    write_stdout("\007",1);
 }
 
 

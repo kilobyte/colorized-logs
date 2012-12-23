@@ -403,3 +403,6 @@ struct ttyrec_header
 #define is7alpha(x) ((((x)>='A')&&((x)<='Z')) || (((x)>='a')&&((x)<='z')))
 #define is7alnum(x) ((((x)>='0')&&((x)<='9')) || is7alpha(x))
 #define EMPTY_CHAR 0xffff
+
+#define write_stdout(x, len) do if (write(1, (x), (len))!=(len)) \
+                                  syserr("write to stdout failed"); while(0)
