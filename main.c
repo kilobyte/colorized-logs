@@ -530,7 +530,7 @@ ever wants to read -- that is what docs are for.
         tintin_printf(0,"#~7~ based on ~12~tintin++~7~ v 2.1.9 by Peter Unold,      ~2~#");
         tintin_printf(0,"#~7~  Bill Reiss, David A. Wagner, Joann Ellsworth, ~2~#");
         tintin_printf(0,"#~7~     Jeremy C. Jack, Ulan@GrimneMUD and         ~2~#");
-        tintin_printf(0,"#~7~  Jacek Narebski                                ~2~#");
+        tintin_printf(0,"#~7~  Jakub Narębski                                ~2~#");
         tintin_printf(0,"##################################################~7~");
         tintin_printf(0,"~15~#session <name> <host> <port> ~7~to connect to a remote server");
         tintin_printf(0,"                              ~8~#ses t2t t2tmud.org 9999");
