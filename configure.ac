@@ -23,7 +23,7 @@ AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CREATE_STDINT_H
 AC_HEADER_TIOCGWINSZ
-AC_CHECK_HEADERS([strings.h string.h sys/time.h termios.h unistd.h stropts.h])
+AC_CHECK_HEADERS([strings.h string.h sys/time.h termios.h unistd.h stropts.h pty.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -34,6 +34,7 @@ AC_C_BIGENDIAN
 # Checks for library functions.
 AC_PROG_GCC_TRADITIONAL
 AC_FUNC_VPRINTF
+AC_SEARCH_LIBS(forkpty, util)
 AC_CHECK_FUNCS([memcpy getpt ptsname snprintf vsnprintf _getpty grantpt forkpty regcomp getaddrinfo wcwidth posix_openpt strlcpy])
 AC_ARG_LIB(mccp, zlib, ZLIB, zlib.h, z, gzread, [
 Please install zlib and its headers.  On most systems, the package will be named

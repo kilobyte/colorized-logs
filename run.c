@@ -11,6 +11,9 @@
 #  include <stropts.h>
 # endif
 #endif
+#ifdef HAVE_PTY_H
+# include <pty.h>
+#endif
 #include "ui.h"
 
 extern char **environ;
