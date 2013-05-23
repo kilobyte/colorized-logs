@@ -27,6 +27,8 @@ extern struct session *sessionlist;
 #define DONT    254
 #define IAC 255     /* interpret as command */
 
+#undef ECHO
+
 #define ECHO                1
 #define SUPPRESS_GO_AHEAD   3
 #define STATUS              5
