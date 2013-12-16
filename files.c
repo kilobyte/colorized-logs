@@ -273,7 +273,7 @@ void write_log(struct session *ses, char *txt, int n)
     if (ses->logtype==2)
     {
         ttyrec_timestamp(&th);
-        th.len=n;
+        th.len=to_little_endian(n);
         if (fwrite(&th, 1, sizeof(struct ttyrec_header), ses->logfile)<
             sizeof(struct ttyrec_header))
         {
