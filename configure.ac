@@ -3,6 +3,8 @@ AC_INIT([KBtin], [1.0.14], [kilobyte@angband.pl])
 AM_INIT_AUTOMAKE([-Wall dist-xz no-dist-gzip])
 AC_CONFIG_SRCDIR([action.c])
 AC_CONFIG_HEADERS([config.h])
+# Use kernel-like CC instead of the usual verbose insanity.
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 # Checks for programs.
 AC_PROG_AWK
