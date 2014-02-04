@@ -1,5 +1,5 @@
-
 AT_INIT
+AT_COLOR_TESTS
 AT_TESTED([KBtin])
 
 dnl define([forinclude], [ifelse($#,0,, $#,1,m4_include([$1]), [m4_include([$1])
