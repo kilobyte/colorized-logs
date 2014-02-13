@@ -201,6 +201,8 @@ error:
                     txt=back;
                 }
             }
+            else if (*(txt+1)=='%' && *(txt+2)=='G')
+                txt+=2;
             break;
         case '~':
             back=txt;
