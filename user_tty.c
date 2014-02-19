@@ -124,7 +124,7 @@ static void zap_doublewidth(WC *right, WC *left, int len)
 {
     int norm=0;
 
-    while(*left && len--)
+    while(len-- && *left)
         if (*left==EMPTY_CHAR)
         {
             if (norm)
