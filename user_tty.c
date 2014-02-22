@@ -1413,7 +1413,7 @@ key_alt_tab:
 /********************************************/
 static void b_resize()
 {
-    char **src;
+    char *src[B_LENGTH];
     int src_lines,i;
     char line[BUFFER_SIZE],*lp;
     int cont;
@@ -1424,9 +1424,7 @@ static void b_resize()
         return;
     term_width=COLS;
 
-    /* FIXME: unlike old code, this will not work with a hard memory cap */
-    if (!(src=CALLOC(src_lines,char*)))
-        syserr("Out of memory");
+    assert(src_lines<=B_LENGTH);
     if (b_bottom>b_first)
         memcpy(src,b_output+(b_first%B_LENGTH),src_lines*sizeof(char*));
     else
@@ -1466,7 +1464,6 @@ static void b_resize()
         }
     }
     assert(!cont);
-    CFREE(src,src_lines,char*);
     if (o_draftlen)
         b_textout(b_draft); /* restore the draft */
 }
