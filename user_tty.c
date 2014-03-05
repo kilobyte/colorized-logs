@@ -1426,7 +1426,7 @@ static void b_resize()
     term_width=COLS;
 
     assert(src_lines<=B_LENGTH);
-    if (b_bottom>b_first)
+    if (b_bottom%B_LENGTH > b_first%B_LENGTH)
         memcpy(src,b_output+(b_first%B_LENGTH),src_lines*sizeof(char*));
     else
     {
