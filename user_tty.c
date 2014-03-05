@@ -1464,7 +1464,12 @@ static void b_resize()
             lp=line;
         }
     }
-    assert(!cont);
+    if (cont)
+    {
+        *lp++='\n';
+        *lp=0;
+        b_textout(line);
+    }
     b_last=b_current;
     if (o_draftlen)
         b_textout(b_draft); /* restore the draft */
