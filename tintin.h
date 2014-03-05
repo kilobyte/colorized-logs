@@ -1,7 +1,6 @@
 /******************************************************************/
 /* file: tintin.h - the include file for KBtin                    */
 /******************************************************************/
-#define NDEBUG
 #define UTF8                /* UTF8 support */
 
 #undef TELNET_DEBUG     /* define to show TELNET negotiations */
