@@ -318,7 +318,7 @@ int run(char *command)
 #endif
     {
     case -1:
-        return(0);
+        return(-1);
     case 0:
         {
             char *argv[4];
