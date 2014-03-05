@@ -238,7 +238,7 @@ void write_line_mud(char *line, struct session *ses)
     {
         if (!ses->nagle)
         {
-            setsockopt(ses->socket, SOL_TCP, TCP_NODELAY, &ses->nagle,
+            setsockopt(ses->socket, IPPROTO_TCP, TCP_NODELAY, &ses->nagle,
                 sizeof(ses->nagle));
             ses->nagle=1;
         }
@@ -261,7 +261,7 @@ void write_line_mud(char *line, struct session *ses)
 
 void flush_socket(struct session *ses)
 {
-    setsockopt(ses->socket, SOL_TCP, TCP_NODELAY, &ses->nagle,
+    setsockopt(ses->socket, IPPROTO_TCP, TCP_NODELAY, &ses->nagle,
         sizeof(ses->nagle));
     ses->nagle=0;
 }
