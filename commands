@@ -168,3 +168,4 @@ hexord
 localtime
 gmtime
 ctoi
+loginputformat

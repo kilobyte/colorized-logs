@@ -259,6 +259,8 @@ static void init_nullses(void)
     nullsession->logfile = 0;
     nullsession->logname = 0;
     nullsession->logtype = DEFAULT_LOGTYPE;
+    nullsession->loginputprefix=mystrdup(LOG_INPUT_PREFIX);
+    nullsession->loginputsuffix=mystrdup(LOG_INPUT_SUFFIX);
     nullsession->blank = DEFAULT_DISPLAY_BLANK;
     nullsession->echo = ui_sep_input?DEFAULT_ECHO_SEPINPUT
                                     :DEFAULT_ECHO_NOSEPINPUT;
@@ -701,7 +703,8 @@ static void tintin(void)
                         if (activesession->echo)
                             echo_input(done_input);
                         if (activesession->logfile)
-                            write_logf(activesession, done_input, LOG_INPUT_PREFIX, LOG_INPUT_SUFFIX);
+                            write_logf(activesession, done_input,
+                                activesession->loginputprefix, activesession->loginputsuffix);
                     }
                     if (*done_input)
                         strcpy(prev_command, done_input);

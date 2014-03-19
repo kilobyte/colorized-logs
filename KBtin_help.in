@@ -29,6 +29,7 @@ Control statements:
 Files:
    condump     deathlog    log         logtype     logcomment  logcharset
    unlink      read        textin      verbose     write       writesession
+   loginputformat
 Comments:
    nop         remark
 Variables:
@@ -857,6 +858,15 @@ timestamping, automatically writing some comments, etc.
 
 Example:
 #ctime NOW;#logcomment {==== Time mark: $NOW ====}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~loginputformat
+
+#loginputprefix <prefix> <suffix>
+Braces every line of keyboard input with <prefix> and <suffix>.  This
+allows telling them apart from the MUD's output.
+
+Example:
+#loginputformat « »
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~read
 

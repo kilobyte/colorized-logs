@@ -298,6 +298,8 @@ static struct session *new_session(char *name, char *address, int sock, int isso
     newsession->logfile = 0;
     newsession->logname = 0;
     newsession->logtype = ses->logtype;
+    newsession->loginputprefix = mystrdup(ses->loginputprefix);
+    newsession->loginputsuffix = mystrdup(ses->loginputsuffix);
     newsession->ignore = ses->ignore;
     newsession->aliases = copy_hash(ses->aliases);
     newsession->actions = copy_list(ses->actions, PRIORITY);
@@ -410,6 +412,8 @@ void cleanup_session(struct session *ses)
         log_off(ses);
     if (ses->debuglogfile)
         fclose(ses->debuglogfile);
+    SFREE(ses->loginputprefix);
+    SFREE(ses->loginputsuffix);
     for(i=0;i<NHOOKS;i++)
         SFREE(ses->hooks[i]);
     SFREE(ses->name);

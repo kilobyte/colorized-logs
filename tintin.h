@@ -307,6 +307,7 @@ struct session
     int snoopstatus;
     FILE *logfile,*debuglogfile;
     char *logname,*debuglogname;
+    char *loginputprefix, *loginputsuffix;
     int logtype;
     int ignore;
     struct listnode *actions, *prompts, *subs, *highs, *antisubs;
