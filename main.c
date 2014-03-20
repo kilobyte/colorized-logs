@@ -545,7 +545,6 @@ ever wants to read -- that is what docs are for.
     }
     user_mark_greeting();
 
-    init_net();
     setup_signals();
 #ifdef PROFILING
     setup_prof();

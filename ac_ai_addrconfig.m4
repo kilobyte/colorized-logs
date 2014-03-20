@@ -1,6 +1,3 @@
-dnl *****************************
-dnl *** Checks for SOL_IP     ***
-dnl *****************************
 AC_DEFUN([AC_AI_ADDRCONFIG], [
 AC_MSG_CHECKING(for AI_ADDRCONFIG)
 AC_TRY_COMPILE([#include <netdb.h>], [

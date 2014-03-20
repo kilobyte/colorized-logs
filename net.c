@@ -40,11 +40,6 @@ extern char *prof_area;
 int init_mccp(struct session *ses, int cplen, char *cpsrc);
 #endif
 
-#ifndef SOL_IP
-static int SOL_IP;
-static int SOL_TCP;
-#endif
-
 static int abort_connect;
 
 #ifdef HAVE_GETADDRINFO
@@ -110,7 +105,7 @@ int connect_mud(char *host, char *port, struct session *ses)
         }
 
         val=IPTOS_LOWDELAY;
-        if (setsockopt(sock, SOL_IP, IP_TOS, &val, sizeof(val)))
+        if (setsockopt(sock, IPPROTO_IP, IP_TOS, &val, sizeof(val)))
             /*tintin_eprintf(ses, "#setsockopt: %s", strerror(errno))*/;
             /* FIXME: BSD doesn't like this on IPv6 */
 
@@ -189,7 +184,7 @@ int connect_mud(char *host, char *port, struct session *ses)
     sockaddr.sin_family = AF_INET;
 
     val=IPTOS_LOWDELAY;
-    setsockopt(sock, SOL_IP, IP_TOS, &val, sizeof(val));
+    setsockopt(sock, IPPROTO_IP, IP_TOS, &val, sizeof(val));
 
     tintin_printf(ses, "#Trying to connect...");
 
@@ -457,17 +452,6 @@ int read_buffer_mud(char *buffer, struct session *ses)
     }
     *cpdest = '\0';
     return didget;
-}
-
-void init_net()
-{
-#ifndef SOL_IP
-    struct protoent *pent;
-    pent = getprotobyname ("ip");
-    SOL_IP = (pent != NULL) ? pent->p_proto : 0;
-    pent = getprotobyname ("tcp");
-    SOL_TCP = (pent != NULL) ? pent->p_proto : 0;
-#endif
 }
 
 #ifdef HAVE_ZLIB
