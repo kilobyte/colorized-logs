@@ -48,7 +48,7 @@
 * characters with codes 128-255 no longer display as weird blinking reversed
   things. Note that their usage should be strongly discouraged as these
   codes can have different meaning in different OSes/fonts, but some people
-  seem to cannot type 'Baruk-Khazad Dum' instead of 'Barûk-Khazâd Dûm'.
+  seem to cannot type 'Baruk-Khazad Dum' instead of 'BarÃ»k-KhazÃ¢d DÃ»m'.
 * new editing keys:
   - Tab allows you to temporarily suspend typing a longer command-line until
     next use of Tab.
