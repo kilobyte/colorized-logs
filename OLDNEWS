@@ -33,7 +33,7 @@
     FORTRAN type indices (first element has index '1' not '0')
   - #reverse {destination variable} {string} command added 
   - #postpad {destination variable} {length} {text} command added, 
-    truncates text to lenght and pads with spaces at the end if necessary
+    truncates text to length and pads with spaces at the end if necessary
   - #prepad {destination variable} {length} {text} command added
 * #isatom {destination variable} {list} command added; to be substituted
   by #if test
@@ -68,7 +68,7 @@
 
 0.2.8:                                           Mon Jul 10 19:54:26 CET 2000
 * #writesession now properly writes all changes (everything that differs
-  from aliases/actions/ect. loaded before starting current session)
+  from aliases/actions/etc. loaded before starting current session)
 * multi-color highlights (#high 6/4 asshole)
 * try appending .gz to the log name and see what happens :)
 
@@ -186,7 +186,7 @@
 0.4.3:                                           May 15 23:03 CET 2002
 * action/promptaction priority of 10 no longer sorts between 1 and 2
 * new #message type: error.  Turn it on to prevent error messages from
-  being lost even if their appropiate message type is hidden.
+  being lost even if their appropriate message type is hidden.
 * #verbose allows turning the -v flag on and off
 * #verbatim, #blank, #echo, #speedwalk, #togglesub, #presub and #message
   are now local to each session.

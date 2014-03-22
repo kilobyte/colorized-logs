@@ -53,7 +53,7 @@ Terminals I checked:
     doesn't work, and I'm not aware of a workaround
 
 * xterm:
-    in many cases, it can be switched to an appropiate mode, with same
+    in many cases, it can be switched to an appropriate mode, with same
     problems as with gnome-terminal.  Otherwise, it requires some tinkering
     with xmodmap.  It seems that feeding the following to xmodmap will make
     #keypad work (making the NumLock key stuck as a side effect, though).

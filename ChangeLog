@@ -121,7 +121,7 @@
 *	window title in xterms
 *	#undelay as an alias for #remove=#unevent
 *	bugfix: \e[K and \e[D used to swallow some text
-*	core dumps will now be properly generated when appropiate
+*	core dumps will now be properly generated when appropriate
 *	#pretick
 *	some tintin++ 1.86 compatibility:
 	*	#ifexists

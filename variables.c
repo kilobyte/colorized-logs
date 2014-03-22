@@ -502,7 +502,7 @@ int isatom_inline(char *arg,struct session *ses)
 /*        contain elements from element number <head length>+1     */
 /*        to the last element of the list.                         */
 /*        Both <head> and <tail> can be empty after command.       */
-/*        DEFAULT <head lenght> is 1.                              */
+/*        DEFAULT <head length> is 1.                              */
 /*******************************************************************/
 /*    Ex: #splitlist {head} {tail} {smile {say Hi!} flip bounce}   */
 /*        -> head = smile                                          */

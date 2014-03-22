@@ -28,9 +28,9 @@ struct listnode* init_list(void)
     return (listhead);
 }
 
-/************************************************/
-/* kill list - run throught list and free nodes */
-/************************************************/
+/***********************************************/
+/* kill list - run through list and free nodes */
+/***********************************************/
 void kill_list(struct listnode *nptr)
 {
     struct listnode *nexttodel;

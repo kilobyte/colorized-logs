@@ -277,7 +277,7 @@ Example:
 
 #collate <dest.var> {list}
 Replaces repeating sequences of {list} elements by a single one, prefixed by
-the number of occurences.  If an element is already prefixed by a number x,
+the number of occurrences.  If an element is already prefixed by a number x,
 it is considered to be x already collated elements.
 
 Example:
@@ -556,7 +556,7 @@ $1 - first word/braces after the alias name
 $2 - second argument
 $3 - third argument
 ...
-$9 - nineth argument.
+$9 - ninth argument.
 That is, if "blargh" is an alias, typing "blargh a {b c} d" means:
 $0 = "a {b c} d"
 $1 = "a"
@@ -580,7 +580,7 @@ highlight stuff, remind you about items stats, etc.
 <pattern> can include positional variables %0..%9, which can be used in <new
 text> as well.
 Note:
-subsitutions, similarily to actions, do NOT ignore color codes.
+subsitutions, similarly to actions, do NOT ignore color codes.
 
 Examples:
 #sub {Your mighty bash sends %1 sprawling.} {~~-1~15:1~BASH SUCCESS: [$1]~~-1~7~}
@@ -619,7 +619,7 @@ Lists all highlights.
 Shows all available color names.
 
 #highlight <color> <pattern>
-From now, all occurences of <pattern> will be colored <color>.
+From now, all occurrences of <pattern> will be colored <color>.
 
 <pattern> can contain * as wildcards (not %n as it was the case with
 substitutes).  Highlight is _the_only_ KBtin command which ignores color

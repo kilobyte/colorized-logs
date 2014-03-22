@@ -270,7 +270,7 @@ void unpromptaction_command(char *arg, struct session *ses)
 }
 
 /**************************************************************************/
-/* run throught each of the commands on the right side of an alias/action */
+/* run through each of the commands on the right side of an alias/action  */
 /* expression, call substitute_text() for all commands but #alias/#action */
 /**************************************************************************/
 void prepare_actionalias(char *string, char *result, struct session *ses)

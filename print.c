@@ -11,10 +11,10 @@ extern char *_;
 extern struct session *sessionlist, *activesession, *nullsession;
 int puts_echoing = TRUE;
 
-/*****************************************************/
-/* output to screen should go throught this function */
-/* text gets checked for actions                     */
-/*****************************************************/
+/****************************************************/
+/* output to screen should go through this function */
+/* text gets checked for actions                    */
+/****************************************************/
 void tintin_puts(char *cptr, struct session *ses)
 {
     char line[BUFFER_SIZE];
@@ -28,10 +28,10 @@ void tintin_puts(char *cptr, struct session *ses)
     tintin_printf(ses,line);
 }
 
-/*****************************************************/
-/* output to screen should go throught this function */
-/* text gets checked for substitutes and actions     */
-/*****************************************************/
+/****************************************************/
+/* output to screen should go through this function */
+/* text gets checked for substitutes and actions    */
+/****************************************************/
 void tintin_puts1(char *cptr, struct session *ses)
 {
     char line[BUFFER_SIZE];
