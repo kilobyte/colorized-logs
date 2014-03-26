@@ -172,13 +172,15 @@ int wc_to_utf8(char *d, const wchar_t *s, int n, int maxb)
             *vb++=uv;
             continue;
         }
-        if (uv < 0x800) {
+        if (uv < 0x800)
+        {
             *vb++ = ( uv >>  6)         | 0xc0;
             *vb++ = ( uv        & 0x3f) | 0x80;
             continue;
         }
 #ifdef WCHAR_IS_UCS4
-        if (uv < 0x10000) {
+        if (uv < 0x10000)
+        {
 #endif
             *vb++ = ( uv >> 12)         | 0xe0;
             *vb++ = ((uv >>  6) & 0x3f) | 0x80;
@@ -186,7 +188,8 @@ int wc_to_utf8(char *d, const wchar_t *s, int n, int maxb)
 #ifdef WCHAR_IS_UCS4
             continue;
         }
-        if (uv < 0x110000) {
+        if (uv < 0x110000)
+        {
             *vb++ = ( uv >> 18)         | 0xf0;
             *vb++ = ((uv >> 12) & 0x3f) | 0x80;
             *vb++ = ((uv >>  6) & 0x3f) | 0x80;
