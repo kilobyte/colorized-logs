@@ -8,6 +8,7 @@ autom4te.cache
 autoscan.log
 charsets.*
 commands.h
+compile
 config.cache
 config.guess
 config.h
