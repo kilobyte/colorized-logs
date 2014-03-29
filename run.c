@@ -302,6 +302,16 @@ int run(char *command)
 {
     int fd;
 
+#if defined(__FreeBSD_kernel__) && defined(__GLIBC__)
+    /* Work around a kfreebsd 9.x bug.  If the handler for SIGCHLD is anything
+       but SIG_DFL, grantpt() and thus forkpty() doesn't work. */
+    struct sigaction act, oldact;
+    sigemptyset(&act.sa_mask);
+    act.sa_flags=SA_RESTART;
+    act.sa_handler=SIG_DFL;
+    sigaction(SIGCHLD, &act, &oldact);
+#endif
+
 #ifndef PTY_ECHO_HACK
     struct termios ta;
     struct winsize ws;
@@ -312,10 +322,18 @@ int run(char *command)
     ws.ws_col=COLS;
     ws.ws_xpixel=0;
     ws.ws_ypixel=0;
-    switch(forkpty(&fd,0,&ta,(LINES>1 && COLS>0)?&ws:0))
+    int res = forkpty(&fd,0,&ta,(LINES>1 && COLS>0)?&ws:0);
 #else
-    switch(forkpty(&fd,0,0,0))
+    int res = forkpty(&fd,0,0,0);
 #endif
+
+#if defined(__FreeBSD_kernel__) && defined(__GLIBC__)
+    int err = errno;
+    sigaction(SIGCHLD, &oldact, 0);
+    errno = err;
+#endif
+
+    switch(res)
     {
     case -1:
         return -1;
