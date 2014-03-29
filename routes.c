@@ -100,7 +100,7 @@ int count_routes(struct session *ses)
     for (i=0;i<MAX_LOCATIONS;i++)
         for (r=ses->routes[i];r;r=r->next)
             num++;
-    return(num);
+    return num;
 }
 
 static void kill_unused_locations(struct session *ses)

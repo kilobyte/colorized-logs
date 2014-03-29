@@ -581,8 +581,8 @@ restart:
     }
 
     if (tick_time > curr_time)
-        return (tick_time - curr_time);
-    return (0);
+        return tick_time - curr_time;
+    return 0;
 }
 
 /***************************/

@@ -363,7 +363,7 @@ sbloop:
         return 2;
     }
     /* not reached */
-    return (cp-(unsigned char*)data);
+    return cp-(unsigned char*)data;
 nego_too_long:
     tintin_eprintf(ses, "#error: unterminated TELNET subnegotiation received.");
     return 2; /* we leave everything but IAC SB */

@@ -15,5 +15,5 @@ int main()
             while(((ch=getchar())=='[')||(ch==',')||((ch>='0')&&(ch<='9'))||(ch==';'));
     }
     while (ch!=EOF);
-    return(0);
+    return 0;
 }

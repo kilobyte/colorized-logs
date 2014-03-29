@@ -25,7 +25,7 @@ struct listnode* init_list(void)
     if ((listhead = TALLOC(struct listnode)) == NULL)
         syserr("couldn't alloc listhead");
     listhead->next = NULL;
-    return (listhead);
+    return listhead;
 }
 
 /***********************************************/
@@ -142,7 +142,7 @@ struct listnode* copy_list(struct listnode *sourcelist,int mode)
         insertnode_list(resultlist, sourcelist->left, sourcelist->right,
                         sourcelist->pr, mode);
 
-    return (resultlist);
+    return resultlist;
 }
 
 /******************************************************************/
@@ -415,5 +415,5 @@ int count_list(struct listnode *listhead)
     nptr = listhead;
     while ((nptr = nptr->next))
         ++count;
-    return (count);
+    return count;
 }

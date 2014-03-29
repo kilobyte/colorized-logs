@@ -318,7 +318,7 @@ int run(char *command)
 #endif
     {
     case -1:
-        return(-1);
+        return -1;
     case 0:
         {
             char *argv[4];
@@ -335,7 +335,7 @@ int run(char *command)
             exit(127);
         }
     default:
-        return(fd);
+        return fd;
     }
 }
 

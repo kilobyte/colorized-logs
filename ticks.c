@@ -193,5 +193,5 @@ int check_event(int time, struct session *ses)
     if(ses->tickstatus && ses->tick_size>ses->pretick && tt-time>ses->pretick)
         tt-=ses->pretick;
 
-    return ((et<tt && et!=0) ? et : tt);
+    return (et<tt && et!=0) ? et : tt;
 }

@@ -150,7 +150,7 @@ int eval_expression(char *arg,struct session *ses)
             if (flag)
             {
                 if (prev == -1)
-                    return (stacks[0][2]);
+                    return stacks[0][2];
                 begin = -1;
                 end = i;
             }

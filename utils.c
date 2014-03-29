@@ -15,7 +15,7 @@ void syserr(char *msg, ...);
 /*********************************************/
 int is_abrev(char *s1, char *s2)
 {
-    return (!strncmp(s2, s1, strlen(s1)));
+    return !strncmp(s2, s1, strlen(s1));
 }
 
 /********************************/

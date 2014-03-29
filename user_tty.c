@@ -312,10 +312,10 @@ end:
 static int b_shorten()
 {
     if (b_first>b_bottom)
-        return(FALSE);
+        return FALSE;
     SFREE(b_output[b_first%B_LENGTH]);
     b_first++;
-    return(TRUE);
+    return TRUE;
 }
 
 /********************************************/
@@ -1175,7 +1175,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
             scr_curs=0;
             term_commit();
 #endif
-            return(1);
+            return 1;
         case 1:                 /* ^[A] */
             if (find_bind("^A",0,ses))
                 break;
@@ -1193,7 +1193,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
                 redraw_in();
             *done_input=0;
             activesession=zap_command("",ses);
-            return(0);
+            return 0;
         case 5:                 /* ^[E] */
             if (find_bind("^E",0,ses))
                 break;
@@ -1406,7 +1406,7 @@ key_alt_tab:
     redraw_cursor();
     term_commit();
 #endif
-    return(0);
+    return 0;
 }
 
 /********************************************/

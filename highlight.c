@@ -61,7 +61,7 @@ static int get_high_num(char *hig)
     char *sl,tmp[BUFFER_SIZE];
 
     if (!*hig)
-        return(-1);
+        return -1;
     if (isdigit(*hig))
     {
         sl=strchr(hig,'/');
@@ -70,12 +70,12 @@ static int get_high_num(char *hig)
         sprintf(tmp, "~%.*s~", (int)(sl-hig), hig);
         sl=tmp;
         if (getcolor(&sl,&highcolor,0))
-            return (highcolor);
+            return highcolor;
     };
     for (code=0;cNames[code].num!=-1;code++)
         if (is_abrev(hig,cNames[code].name))
-            return(highcolor=cNames[code].num);
-    return(-1);
+            return highcolor=cNames[code].num;
+    return -1;
 }
 
 static int get_high(char *hig)

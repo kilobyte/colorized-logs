@@ -1262,7 +1262,7 @@ int random_inline(char *arg, struct session *ses)
                 tmp = low;
                 low = high, high = tmp;
             };
-            return (low + rand() % (high - low + 1));
+            return low + rand() % (high - low + 1);
         }
     }
     return 0;
@@ -1653,7 +1653,7 @@ int strcmp_inline(char *line, struct session *ses)
     line = get_arg(line, left, 0, ses);
     line = get_arg(line, right, 1, ses);
 
-    return (!strcmp(left,right));
+    return !strcmp(left,right);
 }
 
 /***************************************/

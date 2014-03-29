@@ -17,7 +17,7 @@ int match(char *regex, char *string)
         {
         case '*':
             if ('\0' == *sp)           /* match empty string at end of `string' */
-                return ('\0' == *rp);  /* but only if we're done with the pattern */
+                return '\0' == *rp;    /* but only if we're done with the pattern */
             /* greedy algorithm: save starting location, then find end of string */
             save = sp;
             sp += strlen(sp);
@@ -84,7 +84,7 @@ int find(char *text,char *pat,int *from,int *to,char *fastener)
     {
         for (pat++;(*pat)&&(*pat!='*');)
             if (*(pat++)!=*(txt++))
-                return(0);
+                return 0;
         if (!*pat)
         {
             *from=0;
