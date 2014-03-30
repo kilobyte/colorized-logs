@@ -169,14 +169,15 @@ session.  Any output is prefixed with "%<name>".
 
 #finditem <dest.var> <needle> {haystack}
 searches for <needle> in the list <haystack>.  If found, <dest.var> is set
-to the index of found item, if not - <dest.var> becomes 0.
+to the index of found item, if not - <dest.var> becomes 0.  <needle> may
+include asterisks which glob an arbitrary substring.
 
 Finditem can be used also as an inline in expressions:
 (#finditem <needle> {haystack})
 
 Examples:
 #finditem result d {a b c d e}            ->  result = 4
-#find result a*b {db ac akg afgh}         ->  result = 3
+#find result a*b {db ac akb afgh}         ->  result = 3
 #math result {5+2*#find g {a b c}}        ->  result = 5
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~deleteitems
