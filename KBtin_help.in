@@ -40,9 +40,8 @@ Text variables:
 Time:
    ctime       time        localtime   gmtime
 Lists:
-   finditem    deleteitems foreach     finditem    getitem     isatom
-   listlength  splitlist   implode     explode     sortlist    collate
-   expand
+   finditem    deleteitems foreach     getitem     isatom      listlength
+   splitlist   implode     explode     sortlist    collate     expand
 Tickers:
    tick        tickon      tickoff     ticksize    pretick
 Events:
