@@ -1,5 +1,6 @@
 /* Autoconf patching by David Hedbor, neotron@lysator.liu.se */
 #include "tintin.h"
+#include "assert.h"
 #include "protos/action.h"
 #include "protos/glob.h"
 #include "protos/ivars.h"
@@ -433,6 +434,7 @@ static int do_one_inside(int begin, int end)
             prev = ptr;
             ptr = stacks[ptr][0];
         }
+
         if (highest == 15)
         {
             if (begin > -1)
@@ -461,6 +463,7 @@ static int do_one_inside(int begin, int end)
         }
         else
         {
+            assert(loc >= 0);
             next = stacks[loc][0];
             if (ploc == -1 || stacks[next][0] == 0 || stacks[next][1] != 15)
                 return 0;
