@@ -213,27 +213,27 @@ static int ssl_check_cert(gnutls_session_t sslses, char *host, struct session *o
     if (!oldcert)
         save_cert(cert, host, 1, oldses);
     else if (diff_certs(cert, oldcert))
+    {
+        t-=gnutls_x509_crt_get_expiration_time(oldcert);
+        if (err)
         {
-            t-=gnutls_x509_crt_get_expiration_time(oldcert);
-            if (err)
-            {
-                snprintf(buf2, BUFFER_SIZE, "certificate mismatch, and new %s",
-                         err);
-                err=buf2;
-            }
-            else if (t<-7*24*3600)
-                err = "the server certificate is different from the saved one.";
-            else
-            {
-                tintin_printf(oldses, (t>0)?
-                    "#SSL notice: server certificate has changed, but the old one was expired.":
-                    "#SSL notice: server certificate has changed, but the old one was about to expire.");
-                /* Replace the old cert */
-                save_cert(cert, host, 0, oldses);
-                gnutls_x509_crt_deinit(oldcert);
-                oldcert=0;
-            }
+            snprintf(buf2, BUFFER_SIZE, "certificate mismatch, and new %s",
+                     err);
+            err=buf2;
         }
+        else if (t<-7*24*3600)
+            err = "the server certificate is different from the saved one.";
+        else
+        {
+            tintin_printf(oldses, (t>0)?
+                "#SSL notice: server certificate has changed, but the old one was expired.":
+                "#SSL notice: server certificate has changed, but the old one was about to expire.");
+            /* Replace the old cert */
+            save_cert(cert, host, 0, oldses);
+            gnutls_x509_crt_deinit(oldcert);
+            oldcert=0;
+        }
+    }
     else
     {
         /* All ok */
