@@ -215,14 +215,14 @@ static int ssl_check_cert(gnutls_session_t sslses, char *host, struct session *o
     else if (diff_certs(cert, oldcert))
         {
             t-=gnutls_x509_crt_get_expiration_time(oldcert);
-            if (err || t<-7*24*3600)
+            if (err)
             {
-                snprintf(buf2, BUFFER_SIZE, err?
-                          "certificate mismatch, and new %s" :
-                          "the server certificate is different from the saved one.",
-                      err);
+                snprintf(buf2, BUFFER_SIZE, "certificate mismatch, and new %s",
+                         err);
                 err=buf2;
             }
+            else if (t<-7*24*3600)
+                err = "the server certificate is different from the saved one.";
             else
             {
                 tintin_printf(oldses, (t>0)?
