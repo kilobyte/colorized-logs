@@ -120,51 +120,49 @@ int eval_expression(char *arg,struct session *ses)
     int i, begin, end, flag, prev;
 
     i = conv_to_ints(arg,ses);
-    if (i)
+    if (!i)
+        return 0;
+
+    while (1)
     {
-        while (1)
+        i = 0;
+        flag = 1;
+        begin = -1;
+        end = -1;
+        prev = -1;
+        while (stacks[i][0] && flag)
         {
-            i = 0;
-            flag = 1;
-            begin = -1;
-            end = -1;
-            prev = -1;
-            while (stacks[i][0] && flag)
+            if (stacks[i][1] == 0)
             {
-                if (stacks[i][1] == 0)
-                {
-                    begin = i;
-                }
-                else if (stacks[i][1] == 1)
-                {
-                    end = i;
-                    flag = 0;
-                }
-                prev = i;
-                i = stacks[i][0];
+                begin = i;
             }
-            if ((flag && (begin != -1)) || (!flag && (begin == -1)))
+            else if (stacks[i][1] == 1)
             {
-                tintin_eprintf(ses,"#Unmatched parentheses error in {%s}.",arg);
-                return 0;
-            }
-            if (flag)
-            {
-                if (prev == -1)
-                    return stacks[0][2];
-                begin = -1;
                 end = i;
+                flag = 0;
             }
-            i = do_one_inside(begin, end);
-            if (!i)
-            {
-                tintin_eprintf(ses, "#Invalid expression to evaluate in {%s}", arg);
-                return 0;
-            }
+            prev = i;
+            i = stacks[i][0];
+        }
+        if ((flag && (begin != -1)) || (!flag && (begin == -1)))
+        {
+            tintin_eprintf(ses,"#Unmatched parentheses error in {%s}.",arg);
+            return 0;
+        }
+        if (flag)
+        {
+            if (prev == -1)
+                return stacks[0][2];
+            begin = -1;
+            end = i;
+        }
+        i = do_one_inside(begin, end);
+        if (!i)
+        {
+            tintin_eprintf(ses, "#Invalid expression to evaluate in {%s}", arg);
+            return 0;
         }
     }
-    else
-        return 0;
 }
 
 static int conv_to_ints(char *arg,struct session *ses)
