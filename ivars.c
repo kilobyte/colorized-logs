@@ -117,19 +117,16 @@ int do_inline(char *line,int *res,struct session *ses)
 
 int eval_expression(char *arg,struct session *ses)
 {
-    int i, begin, end, flag, prev;
-
-    i = conv_to_ints(arg,ses);
-    if (!i)
+    if (!conv_to_ints(arg,ses))
         return 0;
 
     while (1)
     {
-        i = 0;
-        flag = 1;
-        begin = -1;
-        end = -1;
-        prev = -1;
+        int i = 0;
+        int flag = 1;
+        int begin = -1;
+        int end = -1;
+        int prev = -1;
         while (stacks[i][0] && flag)
         {
             if (stacks[i][1] == 0)
@@ -156,8 +153,7 @@ int eval_expression(char *arg,struct session *ses)
             begin = -1;
             end = i;
         }
-        i = do_one_inside(begin, end);
-        if (!i)
+        if (!do_one_inside(begin, end))
         {
             tintin_eprintf(ses, "#Invalid expression to evaluate in {%s}", arg);
             return 0;
@@ -410,17 +406,13 @@ static int conv_to_ints(char *arg,struct session *ses)
 
 static int do_one_inside(int begin, int end)
 {
-    int prev, ptr, highest, loc, ploc, next;
-
     while (1)
     {
-        ptr = 0;
-        if (begin > -1)
-            ptr = stacks[begin][0];
-        highest = 16;
-        loc = -1;
-        ploc = -1;
-        prev = -1;
+        int ptr = (begin > -1) ? stacks[begin][0] : 0;
+        int highest = 16;
+        int loc = -1;
+        int ploc = -1;
+        int prev = -1;
         while (ptr < end)
         {
             if (stacks[ptr][1] < highest)
@@ -452,7 +444,7 @@ static int do_one_inside(int begin, int end)
         }
         else if (highest == 2)
         {
-            next = stacks[loc][0];
+            int next = stacks[loc][0];
             if (stacks[next][1] != 15 || stacks[next][0] == 0)
                 return 0;
             stacks[loc][0] = stacks[next][0];
@@ -462,7 +454,7 @@ static int do_one_inside(int begin, int end)
         else
         {
             assert(loc >= 0);
-            next = stacks[loc][0];
+            int next = stacks[loc][0];
             if (ploc == -1 || stacks[next][0] == 0 || stacks[next][1] != 15)
                 return 0;
             if (stacks[ploc][1] != 15)
