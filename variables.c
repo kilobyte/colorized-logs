@@ -131,7 +131,7 @@ void substitute_myvars(char *arg,char *result,struct session *ses)
                         path2var(value,ses);
                     else
                     if (strcmp(varname,"IDLETIME")==0)
-                        sprintf(value,"%ld",time(0)-ses->idle_since);
+                        sprintf(value,"%ld", (long int)(time(0)-ses->idle_since));
                     else
                     if (_ && (strcmp(varname,"LINE")==0 ||
                         strcmp(varname,"_")==0))
@@ -153,16 +153,16 @@ void substitute_myvars(char *arg,char *result,struct session *ses)
                         sprintf(value,"%d", rand());
                     else
                     if (strcmp(varname,"_time")==0 || strcmp(varname,"time")==0)
-                        sprintf(value,"%ld", time0);
+                        sprintf(value,"%ld", (long int)time0);
                     else
                     if (strcmp(varname,"_clock")==0)
-                        sprintf(value,"%ld", time(0));
+                        sprintf(value,"%ld", (long int)time(0));
                     else
                     if (strcmp(varname,"_msec")==0)
                     {
                         struct timeval tv;
                         gettimeofday(&tv, 0);
-                        sprintf(value,"%ld", (tv.tv_sec-time0)*1000+(tv.tv_usec-utime0)/1000);
+                        sprintf(value,"%ld", (long int)((tv.tv_sec-time0)*1000+(tv.tv_usec-utime0)/1000));
                     }
                     else
                     if (strcmp(varname,"HOME")==0)
