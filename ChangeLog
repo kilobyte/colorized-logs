@@ -1,3 +1,8 @@
+1.0.15:
+*	#loginputformat
+*	TCP keepalives
+*	bugfix: crashes when resizing the terminal window
+
 1.0.14:
 *	logging to .xz
 *	proper handling of long lines when screen width changes

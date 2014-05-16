@@ -108,3 +108,6 @@
 
 1.0.14:
 * proper handling of line wrap when screen width changes and in #condump
+
+1.0.15:
+* #loginputformat allows decorating input data in logs.
