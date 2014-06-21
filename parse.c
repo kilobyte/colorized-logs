@@ -592,13 +592,6 @@ static inline char* get_arg_stop_spaces(char *s, char *arg)
             s++;
             inside = !inside;
         }
-        else if (*s==CHAR_NEWLINE) /* ; */
-        {
-            if (inside)
-                *arg++ = *s++;
-            else
-                break;
-        }
         else if (!inside && *s == ' ')
             break;
         else
