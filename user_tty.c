@@ -1565,7 +1565,7 @@ static void usertty_init(void)
     xterm=getenv("DISPLAY")&&(getenv("WINDOWID")||getenv("KONSOLE_DCOP_SESSION"));
 #endif
     /* some versions of PuTTY and screen badly support bg colors */
-    putty=(term=getenv("TERM"))&&(!strcasecmp(term,"xterm")||!strncasecmp(term,"screen",6));
+    putty=(term=getenv("TERM"))&&!strncasecmp(term,"screen",6);
     term_getsize();
     term_width=COLS;
     term_init();
