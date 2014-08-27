@@ -112,7 +112,7 @@ int connect_mud(char *host, char *port, struct session *ses)
         val=1;
         setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, &val, sizeof(val));
 #ifdef TCP_KEEPIDLE
-        val=5*60; /* 5 minutes */
+        val=30; /* in seconds */
         setsockopt(sock, IPPROTO_TCP, TCP_KEEPIDLE, &val, sizeof(val));
 #endif
 
