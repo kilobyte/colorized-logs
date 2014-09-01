@@ -105,6 +105,7 @@ int main()
 "b.RED {color: #a00}\n"
 "b.MAG {color: #a0a}\n"
 "b.YEL {color: #aa0}\n"
+"b.WHI {color: #aaa}\n"
 "b.HIK {color: #555}\n"
 "b.HIB {color: #55f}\n"
 "b.HIG {color: #5f5}\n"
