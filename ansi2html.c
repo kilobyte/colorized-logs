@@ -90,7 +90,7 @@ int main()
 "body {background-color: black;}\n"
 "pre {\n"
 "\tfont-weight: normal;\n"
-"\tcolor: #aaa;\n"
+"\tcolor: #bbb;\n"
 "\twhite-space: -moz-pre-wrap;\n"
 "\twhite-space: -o-pre-wrap;\n"
 "\twhite-space: -pre-wrap;\n"
