@@ -33,7 +33,7 @@ Files:
 Comments:
    nop         remark
 Variables:
-   math        random      variable    unvariable
+   math        random      variable    unvariable  initvariable
 Text variables:
    firstupper  tolower     toupper     substring   prepad      postpad
    reverse     strlen      decolorize  atoi    chr    ord      hexord
@@ -1723,6 +1723,16 @@ Removes all variables whose name matches <pattern>.
 
 Example:
 #unvar tell*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~initvariable
+
+#initvar <var> <value>
+If variable <var> doesn't exist, set it to <value>, do nothing otherwise.
+This is merely a convenience over:
+#ifexists <var> {#nop} #else #var <var> <value>
+
+Example:
+#init count 0
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~H Tab completion
 ~retab

@@ -169,3 +169,4 @@ localtime
 gmtime
 ctoi
 loginputformat
+initvariable
