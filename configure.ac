@@ -1,4 +1,4 @@
-# Process this file with autoconf to produce a configure script.
+# When releasing: remember to update ChangeLog and NEWS.
 AC_INIT([KBtin], [1.0.15], [kilobyte@angband.pl])
 AM_INIT_AUTOMAKE([-Wall dist-xz no-dist-gzip])
 AC_CONFIG_SRCDIR([action.c])
