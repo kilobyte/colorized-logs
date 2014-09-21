@@ -179,16 +179,16 @@ static struct session *socket_session(char *arg, struct session *ses, int ssl)
 
 #ifdef HAVE_GNUTLS
     if (ssl)
+    {
         if (!(sslses=ssl_negotiate(sock, host, ses)))
         {
             close(sock);
             return ses;
         }
-
-    return new_session(left, right, sock, 1, ssl?sslses:0, ses);
-#else
-    return new_session(left, right, sock, 1, 0, ses);
+        return new_session(left, right, sock, 1, sslses, ses);
+    }
 #endif
+    return new_session(left, right, sock, 1, 0, ses);
 }
 
 
