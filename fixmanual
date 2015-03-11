@@ -22,7 +22,9 @@ while(<STDIN>)
             ($blah,$blah,$blah,$blah,$blah,$blah,$blah,$blah,
                $blah,$mtime,$blah,$blah,$blah)
                 = stat($ARGV[0]);
-            print "Last modified: ".localtime($mtime) if (defined $mtime && $mtime);
+            # GMT is unfriendly, but we don't know the timezone of last change
+            # vs the timezone of build machine.
+            print "Last modified: ".gmtime($mtime)." GMT" if (defined $mtime && $mtime);
         }
         print "</body></html>\n";
         exit;
