@@ -1742,6 +1742,5 @@ Example:
 Tab-completion is disabled in KBtin.  The current usage of the Tab key is more
 convenient in my opinion.  If you disagree, lemme know, we can think of a
 better solution.
-[Note: this will change in the next(?) version]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~*end*
