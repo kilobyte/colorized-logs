@@ -1,16 +1,16 @@
 Installation
 ============
 
-* as root
+* system-wide
 	+ tar xvfz KBtin-0.4.0.tar.gz
 	  If you have an ancient version of tar, you may need to ungzip
 	  the archive manually first:
 		+ gzip -d KBtin-0.4.0.tar.gz
 		+ tar xvf KBtin-0.4.0.tar
 	+ ./configure
-	+ make install
+	+ make install (as root)
 
-* as ordinary user
+* per-user
 	+ Untar the archive (as above)
 	+ ./configure
 	Then either:
