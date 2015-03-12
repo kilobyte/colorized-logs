@@ -1,6 +1,7 @@
 #define _XOPEN_SOURCE
 #include "tintin.h"
 #include <fcntl.h>
+#include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #if HAVE_TERMIOS_H
