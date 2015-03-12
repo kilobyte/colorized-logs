@@ -1,6 +1,4 @@
 #include "tintin.h"
-#include "unicode.h"
-#include "ui.h"
 #include "protos/user_pipe.h"
 #include "protos/user_tty.h"
 #include "protos/utils.h"

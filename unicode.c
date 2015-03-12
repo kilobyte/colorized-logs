@@ -1,6 +1,5 @@
 #include <langinfo.h>
 #include <locale.h>
-#include "config.h"
 #include "tintin.h"
 #include "translit.h"
 #include "protos/utils.h"

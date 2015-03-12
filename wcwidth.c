@@ -1,4 +1,3 @@
-#include "config.h"
 #ifndef HAVE_WCWIDTH
 
 /*

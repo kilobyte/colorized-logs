@@ -1,5 +1,4 @@
 #include "tintin.h"
-#include "unicode.h"
 #include "ui.h"
 #include "protos/utils.h"
 

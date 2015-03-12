@@ -26,12 +26,10 @@
 #include "protos/unicode.h"
 #include "protos/user.h"
 #include "protos/utils.h"
-#include <fcntl.h>
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/resource.h>
-#include "unicode.h"
 #include "ui.h"
 
 #ifndef BADSIG
