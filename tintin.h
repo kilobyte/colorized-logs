@@ -405,4 +405,4 @@ struct ttyrec_header
 #define EMPTY_CHAR 0xffff
 
 #define write_stdout(x, len) do if (write(1, (x), (len))!=(len)) \
-                                  syserr("write to stdout failed"); while(0)
+                                  syserr("write to stdout failed"); while (0)
