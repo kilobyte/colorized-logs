@@ -466,4 +466,3 @@ dnl behind the fixed sized types; the "least" and "fast" types are still being
 dnl discussed.  The probability that the "fast" types may be removed before
 dnl the standard is finalized is high enough that they are not currently
 dnl implemented.
-
