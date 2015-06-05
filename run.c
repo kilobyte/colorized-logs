@@ -271,10 +271,10 @@ void pty_resize(int fd,int sx,int sy)
 {
     struct winsize ws;
 
-    if (LINES>1 && COLS>0)
+    if (sx>0 && sy>0)
     {
-        ws.ws_row=LINES-1;
-        ws.ws_col=COLS;
+        ws.ws_row=sy;
+        ws.ws_col=sx;
         ws.ws_xpixel=0;
         ws.ws_ypixel=0;
         ioctl(fd,TIOCSWINSZ,&ws);
