@@ -1366,7 +1366,7 @@ void prepad_command(char *arg,struct session *ses)
     }
 }
 
-#define INVALID_TIME 0x80000000
+#define INVALID_TIME (int)0x80000000
 
 /************************************************************/
 /* parse time, return # of seconds or INVALID_TIME on error */
