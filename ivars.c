@@ -189,16 +189,16 @@ static int conv_to_ints(char *arg,struct session *ses)
         {
             ptr++;
             tptr=left;
-            while((*ptr) && (*ptr != ']') && (*ptr != '=') && (*ptr != '!'))
+            while ((*ptr) && (*ptr != ']') && (*ptr != '=') && (*ptr != '!'))
             {
                 *tptr = *ptr;
                 ptr++;
                 tptr++;
             }
             *tptr='\0';
-            if(!*ptr)
+            if (!*ptr)
                 return 0; /* error */
-            if(*ptr == ']')
+            if (*ptr == ']')
                 tintin_eprintf(ses, "#Compare %s to what ? (only one var between [ ])", left);
             /* fprintf(stderr, "Left argument = '%s'\n", left); */
             switch(*ptr)
@@ -229,7 +229,7 @@ static int conv_to_ints(char *arg,struct session *ses)
             /* fprintf(stderr, "%c - %s match\n", (m) ? '=' : '!', (regex) ? "regex" : "string"); */
 
             tptr=right;
-            while((*ptr) && (*ptr != ']'))
+            while ((*ptr) && (*ptr != ']'))
             {
                 *tptr = *ptr;
                 ptr++;
@@ -237,13 +237,13 @@ static int conv_to_ints(char *arg,struct session *ses)
             }
             *tptr='\0';
             /* fprintf(stderr, "Right argument = '%s'\n", right); */
-            if(!*ptr)
+            if (!*ptr)
                 return 0;
-            if(regex)
+            if (regex)
                 result = match(right, left) ? 0 : 1;
             else
                 result = strcmp(left, right);
-            if((result == 0 && m == 0) || (result != 0 && m != 0))
+            if ((result == 0 && m == 0) || (result != 0 && m != 0))
             { /* success */
                 stacks[i][1] = 15;
                 stacks[i][2] = 1;

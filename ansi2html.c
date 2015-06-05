@@ -201,7 +201,7 @@ csi:
         ch=getchar();
         goto csi;
     case 'm':
-        for(i=0;i<=ntok;i++)
+        for (i=0;i<=ntok;i++)
             switch(tok[i])
             {
             case 0:

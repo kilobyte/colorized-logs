@@ -13,7 +13,7 @@ extern int recursion;
 
 void execute_event(struct eventnode *ev, struct session *ses)
 {
-    if(activesession==ses && ses->mesvar[3])
+    if (activesession==ses && ses->mesvar[3])
         tintin_printf(ses, "[EVENT: %s]", ev->event);
     parse_input(ev->event,1,ses);
     recursion=0;
@@ -40,7 +40,7 @@ static void list_events(char *arg, struct session *ses)
     if (!*left)
     {
         tintin_printf(ses,"#Defined events:");
-        while(ev != NULL)
+        while (ev != NULL)
         {
             tintin_printf(ses, "(%d)\t {%s}", ev->time-ct, ev->event);
             ev = ev->next;
@@ -49,7 +49,7 @@ static void list_events(char *arg, struct session *ses)
     else
     {
         flag = 0;
-        while(ev != NULL)
+        while (ev != NULL)
         {
             if (match(left, ev->event))
             {
@@ -82,7 +82,7 @@ void delay_command(char *arg, struct session *ses)
     substitute_myvars(temp, left, ses);
     substitute_vars(right, temp);
     substitute_myvars(temp, right, ses);
-    if(!*right)
+    if (!*right)
     {
         list_events(left, ses);
         return;
@@ -99,9 +99,9 @@ void delay_command(char *arg, struct session *ses)
     ev->next = NULL;
     ev->event = mystrdup(right);
 
-    if(ses->events == NULL)
+    if (ses->events == NULL)
         ses->events = ev;
-    else if(ses->events->time > ev->time)
+    else if (ses->events->time > ev->time)
     {
         ev->next = ses->events;
         ses->events = ev;
@@ -109,9 +109,9 @@ void delay_command(char *arg, struct session *ses)
     else
     {
         ptr = ses->events;
-        while((ptrlast = ptr) && (ptr = ptr->next))
+        while ((ptrlast = ptr) && (ptr = ptr->next))
         {
-            if(ptr->time > ev->time)
+            if (ptr->time > ev->time)
             {
                 ev->next = ptr;
                 ptrlast->next = ev;
@@ -133,7 +133,7 @@ void event_command(char *arg, struct session *ses)
 static void remove_event(struct eventnode **ev)
 {
     struct eventnode *tmp;
-    if(*ev)
+    if (*ev)
     {
         tmp = (*ev)->next;
         SFREE((*ev)->event);

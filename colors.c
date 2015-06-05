@@ -121,7 +121,7 @@ again:
                         nt++;
                     else
                         ccolor=7;
-                    for(i=0;i<nt;i++)
+                    for (i=0;i<nt;i++)
                         switch(tok[i])
                         {
                         case 0:
@@ -184,7 +184,7 @@ again:
                         break;
                     if (out-OUT+tok[0]>INPUT_CHUNK*2)
                         break;       /* something fishy is going on */
-                    for(i=0;i<tok[0];i++)
+                    for (i=0;i<tok[0];i++)
                         *out++=' ';
                     break;
                 case 'D': /* this interpretation is badly invalid... */

@@ -226,7 +226,7 @@ ok:
                 close(master);
                 continue;
             }
-            if((slave=open(TtyName, O_RDWR|O_NOCTTY))==-1)
+            if ((slave=open(TtyName, O_RDWR|O_NOCTTY))==-1)
             {
                 close(master);
                 continue;
@@ -371,7 +371,7 @@ FILE* mypopen(char *command, int wr)
         {
             char *argv[4], cmd[BUFFER_SIZE+5];
 
-            if(!wr)
+            if (!wr)
             {
                 close(p[0]);
                 close(0);

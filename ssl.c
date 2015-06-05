@@ -46,7 +46,7 @@ static int cert_file(char *name, char *respath)
     if (!*name || *name=='.')   // no valid hostname starts with a dot
         return 0;
     fn=fname;
-    while(1)
+    while (1)
     {
         if (!*name)
             break;

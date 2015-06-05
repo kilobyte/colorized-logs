@@ -28,7 +28,7 @@ static void userpipe_textout(char *txt)
 {
     char buf[BUFFER_SIZE],*a,*b;
 
-    for(a=txt,b=buf; *a; )
+    for (a=txt,b=buf; *a; )
         switch(*a)
         {
         case '~':
@@ -36,7 +36,7 @@ static void userpipe_textout(char *txt)
             {
                 if (color==-1)
                     color=lastcolor;
-                if(tty)
+                if (tty)
                     b+=sprintf(b,COLORCODE(color));
             }
             else

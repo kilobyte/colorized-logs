@@ -58,7 +58,7 @@ void tickon_command(char *arg,struct session *ses)
     if (ses)
     {
         ses->tickstatus = TRUE;
-        if(ses->time0 == 0)
+        if (ses->time0 == 0)
             ses->time0 = time(NULL);
         tintin_puts("#TICKER IS NOW ON.", ses);
     }
@@ -159,7 +159,7 @@ int check_event(int time, struct session *ses)
     assert(ses != NULL);
 
     /* events check  - that should be done in #delay */
-    while((ev=ses->events) && (ev->time<=time))
+    while ((ev=ses->events) && (ev->time<=time))
     {
         ses->events=ev->next;
         execute_event(ev, ses);
@@ -190,7 +190,7 @@ int check_event(int time, struct session *ses)
         ses->time10=time;
     }
 
-    if(ses->tickstatus && ses->tick_size>ses->pretick && tt-time>ses->pretick)
+    if (ses->tickstatus && ses->tick_size>ses->pretick && tt-time>ses->pretick)
         tt-=ses->pretick;
 
     return (et<tt && et!=0) ? et : tt;

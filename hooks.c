@@ -35,7 +35,7 @@ void hooks_command(char *arg, struct session *ses)
     if (!*left || !*arg)
     {
         flag=1;
-        for(t=0;t<NHOOKS;t++)
+        for (t=0;t<NHOOKS;t++)
             if (ses->hooks[t] && (!*left || is_abrev(left, hook_names[t])))
             {
                 if (flag && !*left)
@@ -44,17 +44,17 @@ void hooks_command(char *arg, struct session *ses)
                 if (*left)
                     return;
             }
-        if(flag)
+        if (flag)
             tintin_printf(ses, *left?"#No such hook.":"#No hooks defined.");
         return;
     }
     arg=get_arg_in_braces(arg, right, 1);
-    for(t=0;t<NHOOKS;t++)
+    for (t=0;t<NHOOKS;t++)
         if (is_abrev(left, hook_names[t]))
         {
             SFREE(ses->hooks[t]);
             ses->hooks[t]=mystrdup(right);
-            if(ses->mesvar[MSG_HOOK])
+            if (ses->mesvar[MSG_HOOK])
                 tintin_printf(ses, "#Ok, will do {%s} on %s.", right, hook_names[t]);
             magic_close_hook=0;
             hooknum++;
@@ -75,21 +75,21 @@ void unhook_command(char *arg, struct session *ses)
     if (!*left)
     {
         flag=1;
-        for(t=0;t<NHOOKS;t++)
+        for (t=0;t<NHOOKS;t++)
             if (ses->hooks[t])
             {
                 if (flag)
                     tintin_printf(ses, "#Defined hooks:"), flag=0;
                 tintin_printf(ses, "%-10s: {%s}", hook_names[t], ses->hooks[t]);
             }
-        if(flag)
+        if (flag)
             tintin_printf(ses, "#No hooks defined.");
         return;
     }
-    for(t=0;t<NHOOKS;t++)
+    for (t=0;t<NHOOKS;t++)
         if (is_abrev(left, hook_names[t]))
         {
-            if(ses->mesvar[MSG_HOOK])
+            if (ses->mesvar[MSG_HOOK])
                 tintin_printf(ses, ses->hooks[t]?"#Removing hook on {%s}":
                     "#There was no hook on {%s} anyway", hook_names[t]);
             SFREE(ses->hooks[t]);
@@ -114,7 +114,7 @@ struct session* do_hook(struct session *ses, int t, char *data, int blockzap)
     }
     lastvars=pvars;
     pvars=&vars;
-    for(i=0;i<10;i++)
+    for (i=0;i<10;i++)
         vars[i][0]=0;
     if (data)
     {

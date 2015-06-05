@@ -155,21 +155,21 @@ static int prioritycmp(char *a, char *b)
     int res;
 
 not_numeric:
-    while(*a && *a==*b && !isadigit(*a))
+    while (*a && *a==*b && !isadigit(*a))
     {
         a++;
         b++;
     }
     if (!a && !b)
         return 0;
-    if(!isadigit(*a) || !isadigit(*b))
+    if (!isadigit(*a) || !isadigit(*b))
         return (*a<*b)? -1 : (*a>*b)? 1 : 0;
-    while(*a=='0')
+    while (*a=='0')
         a++;
-    while(*b=='0')
+    while (*b=='0')
         b++;
     res=0;
-    while(isadigit(*a))
+    while (isadigit(*a))
     {
         if (!isadigit(*b))
             return 1;
@@ -332,7 +332,7 @@ struct listnode* searchnode_list(struct listnode *listhead, char *cptr)
         if ((i = strcmp(listhead->left, cptr)) == 0)
             return listhead;
         /* CHANGED to fix bug when list isn't alphabetically sorted
-           else if(i>0)
+           else if (i>0)
            return NULL;
          */
     }
@@ -373,7 +373,7 @@ struct listnode* search_node_with_wild(struct listnode *listhead, char *cptr)
     while ((listhead = listhead->next))
     {
         /* CHANGED to fix silly globbing behavior
-           if(check_one_node(listhead->left, cptr))
+           if (check_one_node(listhead->left, cptr))
          */
         if (match(cptr, listhead->left))
             return listhead;

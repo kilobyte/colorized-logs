@@ -672,7 +672,7 @@ struct session* zap_command(char *arg, struct session *ses)
     }
     if (ses!=nullsession)
     {
-        if(ses->closing)
+        if (ses->closing)
         {
             if (ses->closing==-1)
                 tintin_eprintf(ses, "#You can't use #ZAP from here.");
@@ -945,7 +945,7 @@ void info_command(char *arg, struct session *ses)
         user_charset_name, ses->charset);
     tintin_printf(ses, "Log type: %s, log charset: %s",
         logtypes[ses->logtype], logcs_name(ses->logcharset));
-    if(ses->logfile)
+    if (ses->logfile)
         tintin_printf(ses, "Logging to: {%s}", ses->logname);
     else
         tintin_printf(ses, "Not logging");
@@ -1210,11 +1210,11 @@ void chr_command(char *arg, struct session *ses)
         return;
     }
     r=res;
-    while(*arg)
+    while (*arg)
     {
         arg=get_arg(arg, left, 0, ses);
         lp=left;
-        while(*lp)
+        while (*lp)
         {
             v=0;
             if (*lp=='u' || *lp=='U')
@@ -1249,7 +1249,7 @@ void chr_command(char *arg, struct session *ses)
             }
             else
             {
-                while(isadigit(*lp))
+                while (isadigit(*lp))
                     v=v*10 + *lp++-'0';
                 if (*lp!=0 && *lp!=' ' && *lp!='\t')
                 {
@@ -1294,7 +1294,7 @@ void ord_command(char *arg, struct session *ses)
     r=res;
     get_arg(arg, left, 1, ses);
     utf8_to_wc(right, left, BUFFER_SIZE-1);
-    for(cptr=right; *cptr; cptr++)
+    for (cptr=right; *cptr; cptr++)
     {
         if (r-res<BUFFER_SIZE-9)
             r+=sprintf(r, " %u", (unsigned int)*cptr);
@@ -1332,7 +1332,7 @@ void hexord_command(char *arg, struct session *ses)
     r=res;
     get_arg(arg, left, 1, ses);
     utf8_to_wc(right, left, BUFFER_SIZE-1);
-    for(cptr=right; *cptr; cptr++)
+    for (cptr=right; *cptr; cptr++)
     {
         if (r-res<BUFFER_SIZE-9)
             r+=sprintf(r, " U+%04X", (unsigned int)*cptr);

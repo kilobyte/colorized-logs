@@ -58,13 +58,13 @@ void make_name(char *str, char *basis, int run)
     int i,j;
 
     if (run)
-        for(t=basis; (*t=='/')||is7alnum(*t)||(*t=='_'); t++)
+        for (t=basis; (*t=='/')||is7alnum(*t)||(*t=='_'); t++)
             if (*t=='/')
                 basis=t+1;
     if (!is7alpha(*basis))
         goto noname;
     strcpy(str, basis);
-    for(t=str; is7alnum(*t)||(*t=='_'); t++);
+    for (t=str; is7alnum(*t)||(*t=='_'); t++);
     *t=0;
     if (!session_exists(str))
         return;
@@ -72,7 +72,7 @@ void make_name(char *str, char *basis, int run)
     do sprintf(t, "%d", i++); while (session_exists(str));
     return;
 noname:
-    for(i=1; ; i++)
+    for (i=1; ; i++)
     {
         j=i;
         *(t=str+10)=0;
@@ -352,7 +352,7 @@ static struct session *new_session(char *name, char *address, int sock, int isso
     copyroutes(ses,newsession);
     newsession->last_line[0]=0;
     for (i=0;i<NHOOKS;i++)
-        if(ses->hooks[i])
+        if (ses->hooks[i])
             newsession->hooks[i]=mystrdup(ses->hooks[i]);
         else
             newsession->hooks[i]=0;
@@ -414,7 +414,7 @@ void cleanup_session(struct session *ses)
         fclose(ses->debuglogfile);
     SFREE(ses->loginputprefix);
     SFREE(ses->loginputsuffix);
-    for(i=0;i<NHOOKS;i++)
+    for (i=0;i<NHOOKS;i++)
         SFREE(ses->hooks[i]);
     SFREE(ses->name);
     SFREE(ses->address);

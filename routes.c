@@ -480,7 +480,7 @@ void dogoto_command(char *arg,struct session *ses)
         d[j++]=i;
     d[j]=a;
     pptr=path;
-    for(i=j;i>=0;i--)
+    for (i=j;i>=0;i--)
         pptr+=snprintf(pptr, path-pptr+BUFFER_SIZE, " %s", ses->locations[d[i]]);
     pptr=path+(pptr!=path);
     if (*locvar)

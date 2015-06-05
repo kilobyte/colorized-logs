@@ -299,7 +299,7 @@ static void init_nullses(void)
         nullsession->routes[i]=0;
         nullsession->locations[i]=0;
     }
-    for(i=0;i<NHOOKS;i++)
+    for (i=0;i<NHOOKS;i++)
         nullsession->hooks[i]=0;
     nullsession->path = init_list();
     nullsession->no_return = 0;
@@ -417,7 +417,7 @@ static void apply_options()
 # define DO_INPUT(str,iv) local_to_utf8(ustr,str,BUFFER_SIZE,0);\
                           activesession=parse_input(str,iv,activesession);
 
-    for(opt=options->next; opt; opt=opt->next)
+    for (opt=options->next; opt; opt=opt->next)
     {
         switch(*opt->left)
         {
@@ -665,7 +665,7 @@ static void tintin(void)
             inbuf+=result;
 
             i=0;
-            while(i<inbuf)
+            while (i<inbuf)
             {
                 result=mbrtowc(&ch, kbdbuf+i, inbuf-i, &instate);
                 if (result==-2)         /* incomplete but valid sequence */

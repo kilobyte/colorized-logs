@@ -71,7 +71,7 @@ void substitute_myvars(char *arg,char *result,struct session *ses)
             varlen = 0;
 
             /* ${name} code added by Sverre Normann */
-            if(*(arg+counter) != DEFAULT_OPEN)
+            if (*(arg+counter) != DEFAULT_OPEN)
             {
                 /* ordinary variable which name contains no spaces and special characters  */
                 specvar = FALSE;
@@ -286,9 +286,9 @@ void listlength_command(char *arg,struct session *ses)
         i=0;
         do
         {
-            if(*arg) i++;
+            if (*arg) i++;
             arg = get_arg_in_braces(arg, temp, 0);
-        } while(*arg);
+        } while (*arg);
         sprintf(temp,"%d",i);
         set_variable(left,temp,ses);
     }
@@ -306,9 +306,9 @@ int listlength_inline(char *arg,struct session *ses)
     arg = list;
     i=0;
     do {
-        if(*arg) i++;
+        if (*arg) i++;
         arg = get_arg_in_braces(arg, temp, 0);
-    } while(*arg);
+    } while (*arg);
     return i;
 }
 
@@ -327,7 +327,7 @@ static int find_item(char *item,char *list)
         list = get_arg_in_braces(list, temp, 0);
         if (match(item,temp))
             return i;
-    } while(*list);
+    } while (*list);
     return 0;
 }
 
@@ -440,7 +440,7 @@ void getitem_command(char *arg,struct session *ses)
 int isatom(char *arg)
 {
     int last = strlen(arg);
-    if((arg[0]    == DEFAULT_OPEN) &&
+    if ((arg[0]    == DEFAULT_OPEN) &&
             (arg[last] == DEFAULT_CLOSE))
         /* one element list = '{elem}' */
         return FALSE;
@@ -527,7 +527,7 @@ static char* get_split_pos(char *list, int head_length)
     int i = 0;
     char temp[BUFFER_SIZE];
 
-    if( list[0] == '\0' ) /* empty string */
+    if ( list[0] == '\0' ) /* empty string */
         return list;
 
     if (head_length > 0)
@@ -559,7 +559,7 @@ static int is_braced_atom_2(char *beg,char *end,struct session *ses)
 
     int nest = 0;
 
-    if(AT_END(beg,end)) /* string is empty */
+    if (AT_END(beg,end)) /* string is empty */
         return FALSE;
 
     if (*beg!=DEFAULT_OPEN)
@@ -576,16 +576,16 @@ static int is_braced_atom_2(char *beg,char *end,struct session *ses)
                 if (*beg == DEFAULT_CLOSE)
                     nest--;
 
-        if(NOT_AT_END(beg,end)) /* in case '\\' is the last character */
+        if (NOT_AT_END(beg,end)) /* in case '\\' is the last character */
             beg++;
 
-        if(nest == 0 && NOT_AT_END(beg,end))  /* we are at outer level and not at end */
+        if (nest == 0 && NOT_AT_END(beg,end))  /* we are at outer level and not at end */
             return FALSE;
     }
 
     /* we can check only if there are too many opening delimiters */
     /* this should not happen anyway */
-    if(nest > 0)
+    if (nest > 0)
     {
         tintin_eprintf(ses,"Unmatched braces error - too many '%c'",DEFAULT_OPEN);
         return FALSE;
@@ -728,9 +728,9 @@ void splitlist_command(char *arg,struct session *ses)
     split_list(head, tail, list, head_length, ses);
 
     /** do all assignments **/
-    if(*headvar) /* nonempty names only */
+    if (*headvar) /* nonempty names only */
         set_variable(headvar,head,ses);
-    if(*tailvar) /* nonempty names only */
+    if (*tailvar) /* nonempty names only */
         set_variable(tailvar,tail,ses);
 }
 
@@ -770,7 +770,7 @@ void deleteitems_command(char *arg,struct session *ses)
                         *rpos++=DEFAULT_CLOSE;
                     }
                 }
-            } while(*arg);
+            } while (*arg);
         *rpos=0;
         set_variable(left,right,ses);
     }
@@ -974,7 +974,7 @@ static WC* revstr(WC *dest, WC *src)
     int i;
     int ilast = WClen(src) - 1;
 
-    for(i = ilast; i >= 0; i--)
+    for (i = ilast; i >= 0; i--)
         dest[ilast - i] = src[i];
     dest[ilast + 1] = '\0';
 
@@ -1070,7 +1070,7 @@ void implode_command(char *arg, struct session *ses)
         p = get_arg_in_braces(right, res, 0);
         r=strchr(res,0);
         len=r-res;
-        while(*p)
+        while (*p)
         {
             p = get_arg_in_braces(p, temp, 0);
             if ((len+=strlen(temp)+dellen) > BUFFER_SIZE-10)
@@ -1104,7 +1104,7 @@ void collate_command(char *arg,struct session *ses)
         get_arg(arg, list, 1, ses);
         arg = list;
         i=0;
-        while(*arg)
+        while (*arg)
         {
             arg=space_out(arg);
             if (isdigit(*arg))
@@ -1116,7 +1116,7 @@ void collate_command(char *arg,struct session *ses)
             arg = get_arg_in_braces(arg, cur, 0);
             if (j)
             {
-                if(strcmp(cur,last))
+                if (strcmp(cur,last))
                 {
                     if (isatom(last))
                     {
@@ -1176,7 +1176,7 @@ void expand_command(char *arg,struct session *ses)
         get_arg(arg, list, 1, ses);
         arg = list;
         i=0;
-        while(*arg)
+        while (*arg)
         {
             arg=space_out(arg);
             if (isdigit(*arg))
@@ -1186,9 +1186,9 @@ void expand_command(char *arg,struct session *ses)
             if (!*arg || *arg==' ')
                 continue;
             arg = get_arg_in_braces(arg, cur, 0);
-            if(j>BUFFER_SIZE/2)
+            if (j>BUFFER_SIZE/2)
                     j=BUFFER_SIZE/2;
-            for(i=0;i<j;i++)
+            for (i=0;i<j;i++)
             {
                 if (isatom(cur))
                     outptr+=snprintf(outptr, out+BUFFER_SIZE-outptr, " %s", cur);
@@ -1276,7 +1276,7 @@ static int cutws(WC *str, int len, WC **rstr)
     int w,s;
 
     s=0;
-    while(*str)
+    while (*str)
     {
         w=wcwidth(*str);
         if (w<0)
@@ -1318,7 +1318,7 @@ void postpad_command(char *arg,struct session *ses)
             TO_WC(bstr, astr);
             len=cutws(bstr, length, &bptr);
             aptr=astr+wc_to_utf8(astr, bstr, bptr-bstr, BUFFER_SIZE-3);
-            while(len<length)
+            while (len<length)
                 len++, *aptr++=' ';
             *aptr=0;
             set_variable(destvar, astr, ses);
@@ -1357,7 +1357,7 @@ void prepad_command(char *arg,struct session *ses)
             TO_WC(bstr, astr);
             len=cutws(bstr, length, &bptr);
             aptr=astr;
-            while(len<length)
+            while (len<length)
                 len++, *aptr++=' ';
             aptr+=wc_to_utf8(aptr, bstr, bptr-bstr, BUFFER_SIZE-3);
             *aptr=0;
@@ -1443,9 +1443,9 @@ void ctime_command(char *arg,struct session *ses)
     else
         tt=time(0);
     p = ct = ctime(&tt);
-    while(p && *p)
+    while (p && *p)
     {
-        if(*p == '\n')
+        if (*p == '\n')
         {
             *p = '\0';
             break;
@@ -1573,7 +1573,7 @@ void substring_command(char *arg,struct session *ses)
         TO_WC(buf, right);
         lptr=buf;
         s=1;
-        while(*lptr)
+        while (*lptr)
         {
             w=wcwidth(*lptr);
             if (w<0)
@@ -1586,7 +1586,7 @@ void substring_command(char *arg,struct session *ses)
         if (s>l)
             *p++=' ';   /* the left edge is cut in half */
         rptr=lptr;
-        while(w=wcwidth(*rptr), *rptr)
+        while (w=wcwidth(*rptr), *rptr)
         {
             if (w<0)
                 w=0;

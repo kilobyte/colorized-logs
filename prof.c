@@ -57,7 +57,7 @@ void profile_command(struct session *ses, char *arg)
     tintin_printf(0, "#KBtin profiling data:");
     hl=hash2list(prof_count,"*");
     ln=hl;
-    while((ln=ln->next))
+    while ((ln=ln->next))
         tintin_printf(0, "%-26s %6d", ln->left, (intptr_t)ln->right);
     zap_list(hl);
     if (kbd_cnt)

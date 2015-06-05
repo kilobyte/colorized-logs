@@ -163,6 +163,6 @@ void init_bind(void)
     keynames=init_hash();
     if (!ui_keyboard)
         return;
-    for(n=KEYNAMES;**n;n+=2)
+    for (n=KEYNAMES;**n;n+=2)
         set_hash(keynames,n[0],n[1]);
 }

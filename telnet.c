@@ -374,7 +374,7 @@ void telnet_write_line(char *line, struct session *ses)
     char outtext[6*BUFFER_SIZE + 2],*out;
 
     out=outtext;
-    while(*line)
+    while (*line)
     {
         if ((unsigned char)*line==255)
             *out++=255;

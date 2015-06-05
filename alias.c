@@ -53,7 +53,7 @@ void delete_hashlist(struct session *ses, struct hashtable *h, char *pat, const 
         return;
     }
     templist=hash2list(h, pat);
-    for(ln=templist->next; ln; ln=ln->next)
+    for (ln=templist->next; ln; ln=ln->next)
     {
         if (msg_ok)
             tintin_printf(ses, msg_ok, ln->left);

@@ -108,7 +108,7 @@ static void term_getsize(void)
 /* len=-1 for infinite */
 static void add_doublewidth(WC *right, WC *left, int len)
 {
-    while(*left && len--)
+    while (*left && len--)
         if (isw2width(*left))
         {
             *right++=*left++;
@@ -124,7 +124,7 @@ static void zap_doublewidth(WC *right, WC *left, int len)
 {
     int norm=0;
 
-    while(len-- && *left)
+    while (len-- && *left)
         if (*left==EMPTY_CHAR)
         {
             if (norm)
@@ -268,7 +268,7 @@ static void redraw_in(void)
         if (!putty)
             tbuf+=sprintf(tbuf,"\033[0K");
         else
-            for(i=l;i<COLS-!!k_scrl;i++)
+            for (i=l;i<COLS-!!k_scrl;i++)
                 *tbuf++=' ';
     scr_curs=(k_scrl!=0)+k_pos-k_scrl;
     redraw_cursor();
@@ -289,7 +289,7 @@ static void redraw_status(void)
                   STATUS_COLOR==COLOR_BLACK?7:0,STATUS_COLOR);
     if (!*(pos=status))
         goto end;
-    while(*pos)
+    while (*pos)
     {
         if (getcolor(&pos,&color,0))
         {
@@ -324,7 +324,7 @@ static int b_shorten()
 static void draw_out(char *pos)
 {
     int c=7;
-    while(*pos)
+    while (*pos)
     {
         if (getcolor(&pos,&c,0))
         {
@@ -454,7 +454,7 @@ static void form_feed()
 {
     int i;
 
-    for(i=(isstatus?2:1);i<LINES;i++)
+    for (i=(isstatus?2:1);i<LINES;i++)
     {
         tbuf+=sprintf(tbuf,"\033[0;37;40m\r\n\033[2K");
         b_addline();
@@ -618,10 +618,10 @@ static void transpose_chars()
         w2[0]=k_input[k_pos];
     r=k_input+k_pos-WClen(w1);
     l=w2;
-    while(*l)
+    while (*l)
         *r++=*l++;
     l=w1;
-    while(*l)
+    while (*l)
         *r++=*l++;
     k_pos+=WClen(w2);
 }
@@ -632,26 +632,26 @@ static int transpose_words()
     int a1,a2,b1,b2;
 
     a2=k_pos;
-    while(a2<k_len && (k_input[a2]==EMPTY_CHAR || !iswalnum(k_input[a2])))
+    while (a2<k_len && (k_input[a2]==EMPTY_CHAR || !iswalnum(k_input[a2])))
         a2++;
     if (a2==k_len)
-        while(a2 && (k_input[a2-1]==EMPTY_CHAR || !iswalnum(k_input[a2-1])))
+        while (a2 && (k_input[a2-1]==EMPTY_CHAR || !iswalnum(k_input[a2-1])))
             a2--;
-    while(a2 && (k_input[a2-1]==EMPTY_CHAR || iswalnum(k_input[a2-1])))
+    while (a2 && (k_input[a2-1]==EMPTY_CHAR || iswalnum(k_input[a2-1])))
         a2--;
     if (k_input[a2]==EMPTY_CHAR)
         a2++;
     if (!a2)
         return 1;
     b2=a2;
-    while(k_input[b2+1]==EMPTY_CHAR || iswalnum(k_input[b2+1]))
+    while (k_input[b2+1]==EMPTY_CHAR || iswalnum(k_input[b2+1]))
         b2++;
     b1=a2;
-    do { if(--b1<0) return 1; } while(k_input[b1]==EMPTY_CHAR || !iswalnum(k_input[b1]));
+    do { if (--b1<0) return 1; } while (k_input[b1]==EMPTY_CHAR || !iswalnum(k_input[b1]));
     if (k_input[b1]==EMPTY_CHAR)
         b1++;
     a1=b1;
-    while(a1>0 && (k_input[a1-1]==EMPTY_CHAR || iswalnum(k_input[a1-1])))
+    while (a1>0 && (k_input[a1-1]==EMPTY_CHAR || iswalnum(k_input[a1-1])))
         a1--;
     if (k_input[a1]==EMPTY_CHAR)
         a1++;
@@ -954,7 +954,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
             if (hist_num==HISTORY_SIZE-1 || !history[hist_num+1])
                 break;
             do hist_num++;
-                while(hist_num!=HISTORY_SIZE-1 && history[hist_num+1]);
+                while (hist_num!=HISTORY_SIZE-1 && history[hist_num+1]);
             TO_WC(k_input, history[hist_num]);
             countpos();
             redraw_in();
@@ -981,9 +981,9 @@ static int usertty_process_kbd(struct session *ses, WC ch)
                redraw_in();
             if (k_pos==k_len)
                 break;
-            while(k_pos<k_len && (k_input[k_pos]==EMPTY_CHAR || !iswalnum(k_input[k_pos])))
+            while (k_pos<k_len && (k_input[k_pos]==EMPTY_CHAR || !iswalnum(k_input[k_pos])))
                 ++k_pos;
-            while(k_pos<k_len && (k_input[k_pos]==EMPTY_CHAR || iswalnum(k_input[k_pos])))
+            while (k_pos<k_len && (k_input[k_pos]==EMPTY_CHAR || iswalnum(k_input[k_pos])))
                 ++k_pos;
             if (k_pos<=k_scrl+COLS-2)
             {
@@ -1002,9 +1002,9 @@ static int usertty_process_kbd(struct session *ses, WC ch)
                redraw_in();
             if (!k_pos)
                 break;
-            while(k_pos && (k_input[k_pos]==EMPTY_CHAR || !iswalnum(k_input[k_pos-1])))
+            while (k_pos && (k_input[k_pos]==EMPTY_CHAR || !iswalnum(k_input[k_pos-1])))
                 --k_pos;
-            while(k_pos && (k_input[k_pos]==EMPTY_CHAR || iswalnum(k_input[k_pos-1])))
+            while (k_pos && (k_input[k_pos]==EMPTY_CHAR || iswalnum(k_input[k_pos-1])))
                 --k_pos;
             if (k_pos>=k_scrl)
             {
@@ -1020,9 +1020,9 @@ static int usertty_process_kbd(struct session *ses, WC ch)
             if (b_bottom!=b_screenb)
                 b_scroll(b_bottom);
             ret(1);
-            while(k_pos<k_len && (k_input[k_pos]==EMPTY_CHAR || !iswalnum(k_input[k_pos])))
+            while (k_pos<k_len && (k_input[k_pos]==EMPTY_CHAR || !iswalnum(k_input[k_pos])))
                 ++k_pos;
-            while(k_pos<k_len && (k_input[k_pos]==EMPTY_CHAR || iswalnum(k_input[k_pos])))
+            while (k_pos<k_len && (k_input[k_pos]==EMPTY_CHAR || iswalnum(k_input[k_pos])))
             {
                 if (k_input[k_pos]!=EMPTY_CHAR)
                     k_input[k_pos]=towlower(k_input[k_pos]);
@@ -1036,9 +1036,9 @@ static int usertty_process_kbd(struct session *ses, WC ch)
                 b_scroll(b_bottom);
             if (ret(1))
                redraw_in();
-            while(k_pos<k_len && (k_input[k_pos]==EMPTY_CHAR || !iswalnum(k_input[k_pos])))
+            while (k_pos<k_len && (k_input[k_pos]==EMPTY_CHAR || !iswalnum(k_input[k_pos])))
                 ++k_pos;
-            while(k_pos<k_len && (k_input[k_pos]==EMPTY_CHAR || iswalnum(k_input[k_pos])))
+            while (k_pos<k_len && (k_input[k_pos]==EMPTY_CHAR || iswalnum(k_input[k_pos])))
             {
                 if (k_input[k_pos]!=EMPTY_CHAR)
                     k_input[k_pos]=towupper(k_input[k_pos]);
@@ -1051,15 +1051,15 @@ static int usertty_process_kbd(struct session *ses, WC ch)
             if (b_bottom!=b_screenb)
                 b_scroll(b_bottom);
             ret(1);
-            while(k_pos<k_len && (k_input[k_pos]==EMPTY_CHAR || !iswalnum(k_input[k_pos])))
+            while (k_pos<k_len && (k_input[k_pos]==EMPTY_CHAR || !iswalnum(k_input[k_pos])))
                 ++k_pos;
-            if(k_pos<k_len && (k_input[k_pos]==EMPTY_CHAR || iswalnum(k_input[k_pos])))
+            if (k_pos<k_len && (k_input[k_pos]==EMPTY_CHAR || iswalnum(k_input[k_pos])))
             {
                 if (k_input[k_pos]!=EMPTY_CHAR)
                     k_input[k_pos]=towupper(k_input[k_pos]);
                 ++k_pos;
             }
-            while(k_pos<k_len && (k_input[k_pos]==EMPTY_CHAR || iswalnum(k_input[k_pos])))
+            while (k_pos<k_len && (k_input[k_pos]==EMPTY_CHAR || iswalnum(k_input[k_pos])))
             {
                 if (k_input[k_pos]!=EMPTY_CHAR)
                     k_input[k_pos]=towlower(k_input[k_pos]);
@@ -1084,9 +1084,9 @@ static int usertty_process_kbd(struct session *ses, WC ch)
             if (k_pos==k_len)
                 break;
             i=k_pos;
-            while(i<k_len && (k_input[i]==EMPTY_CHAR || !iswalnum(k_input[i])))
+            while (i<k_len && (k_input[i]==EMPTY_CHAR || !iswalnum(k_input[i])))
                 i++;
-            while(k_input[i]==EMPTY_CHAR || iswalnum(k_input[i]))
+            while (k_input[i]==EMPTY_CHAR || iswalnum(k_input[i]))
                 i++;
             i-=k_pos;
             memcpy(yank_buffer, k_input+k_pos, i*WCL);
@@ -1103,9 +1103,9 @@ static int usertty_process_kbd(struct session *ses, WC ch)
             if (k_pos!=0)
             {
                 i=k_pos-1;
-                while((i>=0)&&(k_input[i]==EMPTY_CHAR || !iswalnum(k_input[i])))
+                while ((i>=0)&&(k_input[i]==EMPTY_CHAR || !iswalnum(k_input[i])))
                     i--;
-                while((i>=0)&&(k_input[i]==EMPTY_CHAR || iswalnum(k_input[i])))
+                while ((i>=0)&&(k_input[i]==EMPTY_CHAR || iswalnum(k_input[i])))
                     i--;
                 i=k_pos-i-1;
                 memmove(yank_buffer, k_input+k_pos-i, i*WCL);
@@ -1313,9 +1313,9 @@ key_alt_tab:
             if (k_pos!=0)
             {
                 i=k_pos-1;
-                while((i>=0)&&(k_input[i]==EMPTY_CHAR || iswspace(k_input[i])))
+                while ((i>=0)&&(k_input[i]==EMPTY_CHAR || iswspace(k_input[i])))
                     i--;
-                while((i>=0)&&(k_input[i]==EMPTY_CHAR || !iswspace(k_input[i])))
+                while ((i>=0)&&(k_input[i]==EMPTY_CHAR || !iswspace(k_input[i])))
                     i--;
                 i=k_pos-i-1;
                 memmove(yank_buffer, k_input+k_pos-i, i*WCL);
@@ -1441,7 +1441,7 @@ static void b_resize()
     lp=line;
     cont=0;
     color=-1;
-    for(i=0;i<src_lines;i++)
+    for (i=0;i<src_lines;i++)
     {
         int ncolor=color;
         char *sp=src[i];
@@ -1494,7 +1494,7 @@ static void usertty_drawscreen(void)
     if (!putty)
         tbuf+=sprintf(tbuf,"\033[2K");
     else
-        for(i=0;i<COLS;i++)
+        for (i=0;i<COLS;i++)
             *tbuf++=' ';
     if (isstatus)
         tbuf+=sprintf(tbuf,"\033[%d;f\033[37;4%dm\033[2K",LINES,STATUS_COLOR);

@@ -165,7 +165,7 @@ void unlink_command(char *arg, struct session *ses)
 {
     char file[BUFFER_SIZE], temp[BUFFER_SIZE], lstr[BUFFER_SIZE];
 
-    if(*arg)
+    if (*arg)
     {
         arg = get_arg_in_braces(arg, temp, 1);
         substitute_vars(temp, file);
@@ -691,7 +691,7 @@ struct session* read_command(char *filename, struct session *ses)
 }
 
 
-#define WFLAG(name,var,org)     if(var!=(org))                                  \
+#define WFLAG(name,var,org)     if (var!=(org))                                  \
                                 {                                               \
                                     sprintf(num, "%d", var);                    \
                                     prepare_for_write(name, num, 0, 0, buffer); \
@@ -825,7 +825,7 @@ void write_command(char *filename, struct session *ses)
                         rptr->path,
                         rptr->distance,
                         rptr->cond);
-            } while((rptr=rptr->next));
+            } while ((rptr=rptr->next));
 
     nodeptr = templist = hash2list(ses->binds, "*");
     while ((nodeptr = nodeptr->next))
@@ -835,7 +835,7 @@ void write_command(char *filename, struct session *ses)
     }
     zap_list(templist);
 
-    for(nr=0;nr<NHOOKS;nr++)
+    for (nr=0;nr<NHOOKS;nr++)
         if (ses->hooks[nr])
         {
             prepare_for_write("hook", hook_names[nr], ses->hooks[nr], 0, buffer);
@@ -1033,7 +1033,7 @@ void writesession_command(char *filename, struct session *ses)
                             rptr->path,
                             rptr->distance,
                             rptr->cond);
-            } while((rptr=rptr->next));
+            } while ((rptr=rptr->next));
 
     nodeptr = onptr = hash2list(ses->binds,"*");
     while ((nodeptr = nodeptr->next))
@@ -1046,7 +1046,7 @@ void writesession_command(char *filename, struct session *ses)
     }
     zap_list(onptr);
 
-    for(nr=0;nr<NHOOKS;nr++)
+    for (nr=0;nr<NHOOKS;nr++)
         if (ses->hooks[nr])
             if (!nullsession->hooks[nr] ||
                 strcmp(ses->hooks[nr],nullsession->hooks[nr]))
@@ -1146,7 +1146,7 @@ void logtype_command(char *arg, struct session *ses)
         tintin_printf(ses, "#The log type is: %s", logtypes[ses->logtype]);
         return;
     }
-    for(t=0;t<sizeof(logtypes)/sizeof(char*);t++)
+    for (t=0;t<sizeof(logtypes)/sizeof(char*);t++)
         if (is_abrev(left, logtypes[t]))
         {
             ses->logtype=t;

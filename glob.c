@@ -72,7 +72,7 @@ int find(char *text,char *pat,int *from,int *to,char *fastener)
         if (!txt)
             return 0;
         *from=txt-text;
-        if(strchr(pat,'*'))
+        if (strchr(pat,'*'))
             *to=strlen(text)-1;
         else
             *to=*from+strlen(fastener)-1;
@@ -171,7 +171,7 @@ char* get_fastener(char *txt, char *mbl)
     if (*txt=='*')
         return 0;
     m=txt;
-    while(*m && *m!='*')
+    while (*m && *m!='*')
         m++;
     if (*m=='*')
     {

@@ -18,7 +18,7 @@ int utf8_len(char *s)
 {
     int l=0;
 
-    while(*s)
+    while (*s)
         if ((*s++&0xc0)!=0x80)
             l++;
     return l;
@@ -32,7 +32,7 @@ int utf8_ncpy(char *d, char *s, int n, int maxb)
 
     if (--maxb<0)
         return 0;
-    while(*s && maxb)
+    while (*s && maxb)
     {
         if ((*s&0xc0)!=0x80)
             if (nc++>=n)
@@ -51,7 +51,7 @@ char* utf8_seek(char *s, int n)
 {
     if (n<=0)
         return s;
-    for(; *s; s++)
+    for (; *s; s++)
         if ((*s&0xc0)!=0x80)
             if (!n--)
                 return s;
@@ -79,7 +79,7 @@ int utf8_to_wc(wchar_t *d, char *s, int n)
 
     s0=s;
     cnt=surrogate=tc=0;
-    for(;(ic=*s);s++)
+    for (;(ic=*s);s++)
     {
         if (ic>0x7f)
             if (cnt>0 && (ic&0xc0)==0x80)
@@ -164,7 +164,7 @@ int wc_to_utf8(char *d, const wchar_t *s, int n, int maxb)
     maxd=d+maxb-8;
 #define uv ((unsigned int)(*s))
 #define vb d
-    for(;n-- && *s && d<maxd;s++)
+    for (;n-- && *s && d<maxd;s++)
     {
         if (uv<0x80)
         {
@@ -233,14 +233,14 @@ int one_utf8_to_mb(char **d, char **s, mbstate_t *cs)
 
 void utf8_to_mb(char **d, char *s, mbstate_t *cs)
 {
-    while(*s && one_utf8_to_mb(d, &s, cs));
+    while (*s && one_utf8_to_mb(d, &s, cs));
 }
 
 int wc_to_mb(char *d, wchar_t *s, int n, mbstate_t *cs)
 {
     int res, len=0;
 
-    while(*s && n--)
+    while (*s && n--)
     {
         res=wcrtomb(d, *s++, cs);
 
@@ -278,7 +278,7 @@ void local_to_utf8(char *d, char *s, int maxb, mbstate_t *cs)
         cs=&cs0;
     }
     len=strlen(s);
-    while(len && maxb>10)
+    while (len && maxb>10)
     {
         switch(n=mbrtowc(&c, s, len, cs))
         {
@@ -387,7 +387,7 @@ void convert(struct charset_conv *conv, char *outbuf, char *inbuf, int dir)
     case 3:             /* ASCII => UTF-8 */
         if (dir<0)
         {
-            while(*inbuf)
+            while (*inbuf)
                 if ((unsigned char)*inbuf>=127)
                     *outbuf++=BAD_CHAR, inbuf++;
                 else
@@ -397,7 +397,7 @@ void convert(struct charset_conv *conv, char *outbuf, char *inbuf, int dir)
         }
         else            /* UTF-8 => ASCII */
         {
-            while(*inbuf)
+            while (*inbuf)
                 if ((unsigned char)*inbuf>=127)
                     *outbuf++=translit((unsigned char)*inbuf++);
                 else
@@ -409,7 +409,7 @@ void convert(struct charset_conv *conv, char *outbuf, char *inbuf, int dir)
         if (dir<0)      /* ISO-8859-1 => UTF-8 */
         {
             wptr=wbuf;
-            while(*inbuf)
+            while (*inbuf)
                 if ((unsigned char)*inbuf>=127 && (unsigned char)*inbuf<0xA0)
                     *wptr++=0xFFFD, inbuf++;
                 else
@@ -421,7 +421,7 @@ void convert(struct charset_conv *conv, char *outbuf, char *inbuf, int dir)
         {
             utf8_to_wc(wbuf, inbuf, BUFFER_SIZE-1);
             wptr=wbuf;
-            while(*wptr)
+            while (*wptr)
             {
                 if (*wptr>0xFF)
                     *outbuf++=translit(*wptr++);
@@ -440,7 +440,7 @@ void convert(struct charset_conv *conv, char *outbuf, char *inbuf, int dir)
         }
         else            /* output: trust ourself */
         {
-            while(*inbuf)
+            while (*inbuf)
                 *outbuf++=*inbuf++;
             *outbuf++=0;
         }
@@ -448,7 +448,7 @@ void convert(struct charset_conv *conv, char *outbuf, char *inbuf, int dir)
     case 2:
         il=strlen(inbuf);
         ol=BUFFER_SIZE-1;
-        while(il>0)
+        while (il>0)
         {
             if (iconv((dir<0) ? conv->i_in : conv->i_out,
                 &inbuf, &il, &outbuf, &ol))

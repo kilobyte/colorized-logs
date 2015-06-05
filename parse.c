@@ -61,7 +61,7 @@ struct session* parse_input(char *input,int override_verbatim,struct session *se
 # define PPOP
 #endif
 
-    if(++recursion>=MAX_RECURSION)
+    if (++recursion>=MAX_RECURSION)
     {
         in_alias=0;
         if (recursion==MAX_RECURSION)
@@ -399,7 +399,7 @@ void add_command(struct hashtable *h, char *command, t_command func)
         exit(1);
     }
     strcpy(cmd, command);
-    for(n=strlen(cmd); n; n--)
+    for (n=strlen(cmd); n; n--)
     {
         cmd[n]=0;
         if (!get_hash(c_commands, cmd) && !get_hash(commands, cmd))
