@@ -245,7 +245,7 @@ ok:
     /* let's ignore errors on this ioctl silently */
 
     pid=fork();
-    switch(pid)
+    switch (pid)
     {
     case -1:
         close(master);
@@ -330,7 +330,7 @@ int run(char *command)
     errno = err;
 #endif
 
-    switch(res)
+    switch (res)
     {
     case -1:
         return -1;
@@ -361,7 +361,7 @@ FILE* mypopen(char *command, int wr)
 
     if (pipe(p))
         return 0;
-    switch(fork())
+    switch (fork())
     {
     case -1:
         close(p[0]);

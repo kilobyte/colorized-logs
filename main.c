@@ -419,7 +419,7 @@ static void apply_options()
 
     for (opt=options->next; opt; opt=opt->next)
     {
-        switch(*opt->left)
+        switch (*opt->left)
         {
         case '#':
             *opt->left=tintin_char;
@@ -1009,7 +1009,7 @@ static void myquitsig(int sig)
     if (ui_own_output)
     {
         user_textout("~7~\n");
-        switch(sig)
+        switch (sig)
         {
         case SIGTERM:
             user_textout("Terminated\n");

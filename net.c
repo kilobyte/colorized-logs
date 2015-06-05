@@ -46,7 +46,7 @@ static char* afstr(int af)
 {
     static char msg[19];
 
-    switch(af)
+    switch (af)
     {
         case AF_INET:
             return "IPv4";
@@ -120,7 +120,7 @@ int connect_mud(char *host, char *port, struct session *ses)
     intr:
         if ((connect(sock, addr->ai_addr, addr->ai_addrlen)))
         {
-            switch(errno)
+            switch (errno)
             {
             case EINTR:
                 if (abort_connect)
@@ -341,7 +341,7 @@ int read_buffer_mud(char *buffer, struct session *ses)
         }
         ses->mccp->next_out = (Bytef*)(tmpbuf+len);
         ses->mccp->avail_out = INPUT_CHUNK-len;
-        switch(i=inflate(ses->mccp, Z_SYNC_FLUSH))
+        switch (i=inflate(ses->mccp, Z_SYNC_FLUSH))
         {
         case Z_OK:
             didget=INPUT_CHUNK-len-ses->mccp->avail_out;
@@ -398,7 +398,7 @@ int read_buffer_mud(char *buffer, struct session *ses)
     i = didget;
     while (i > 0)
     {
-        switch(*(unsigned char *)cpsource)
+        switch (*(unsigned char *)cpsource)
         {
         case 0:
             i--;
@@ -407,7 +407,7 @@ int read_buffer_mud(char *buffer, struct session *ses)
             break;
         case 255:
             b=do_telnet_protocol(cpsource, i, ses);
-            switch(b)
+            switch (b)
             {
             case -1:
                 len=i;

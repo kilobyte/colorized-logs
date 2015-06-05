@@ -201,12 +201,12 @@ static int conv_to_ints(char *arg,struct session *ses)
             if (*ptr == ']')
                 tintin_eprintf(ses, "#Compare %s to what ? (only one var between [ ])", left);
             /* fprintf(stderr, "Left argument = '%s'\n", left); */
-            switch(*ptr)
+            switch (*ptr)
             {
             case '!' :
                 ptr++;
                 m=1;
-                switch(*ptr)
+                switch (*ptr)
                 {
                 case '=' : regex=0; ptr++; break;
                 case '~' : regex=1; ptr++; break;
@@ -216,7 +216,7 @@ static int conv_to_ints(char *arg,struct session *ses)
             case '=' :
                 ptr++;
                 m=0;
-                switch(*ptr)
+                switch (*ptr)
                 {
                 case '=' : regex=0; ptr++; break;
                 case '~' : regex=1; ptr++; break;
@@ -483,7 +483,7 @@ static int do_one_inside(int begin, int end)
                 break;
             case 8:            /* highest priority is >,>=,<,<= */
                 stacks[ploc][0] = stacks[next][0];
-                switch(stacks[loc][3])
+                switch (stacks[loc][3])
                 {
                 case 5:
                     stacks[ploc][2] = (stacks[ploc][2] > stacks[next][2]);

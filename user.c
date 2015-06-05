@@ -33,7 +33,7 @@ int COLS=0;
 
 void user_setdriver(int dr)
 {
-    switch(dr)
+    switch (dr)
     {
     case 0:
         userpipe_initdriver();

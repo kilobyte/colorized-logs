@@ -280,7 +280,7 @@ void local_to_utf8(char *d, char *s, int maxb, mbstate_t *cs)
     len=strlen(s);
     while (len && maxb>10)
     {
-        switch(n=mbrtowc(&c, s, len, cs))
+        switch (n=mbrtowc(&c, s, len, cs))
         {
         case -2: /* truncated last character */
             *d++=BAD_CHAR;
@@ -382,7 +382,7 @@ void convert(struct charset_conv *conv, char *outbuf, char *inbuf, int dir)
         syserr("invalid conversion direction");
 #endif
 
-    switch(conv->mode)
+    switch (conv->mode)
     {
     case 3:             /* ASCII => UTF-8 */
         if (dir<0)

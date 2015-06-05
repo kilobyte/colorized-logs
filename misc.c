@@ -69,7 +69,7 @@ static void togglebool(int *b, char *arg, struct session *ses, char *msg1, char 
     get_arg(arg,tmp,1,ses);
     if (*tmp)
     {
-        switch(yes_no(tmp))
+        switch (yes_no(tmp))
         {
         case 0:
             *b=0; break;
@@ -478,7 +478,7 @@ void messages_command(char *arg,struct session *ses)
     {
         if (mestype<MAX_MESVAR)
         {
-            switch(yes_no(onoff))
+            switch (yes_no(onoff))
             {
             case 0:
                 ses->mesvar[mestype]=0;
@@ -1223,7 +1223,7 @@ void chr_command(char *arg, struct session *ses)
                 if (*lp=='+')
                     lp++;
             hex:
-                switch(*lp)
+                switch (*lp)
                 {
                 case '0': case '1': case '2': case '3': case '4':
                 case '5': case '6': case '7': case '8': case '9':

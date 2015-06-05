@@ -141,7 +141,7 @@ void telnet_send_ttype(struct session *ses)
 {
     char nego[128],*ttype;
 
-    switch(ses->last_term_type++)
+    switch (ses->last_term_type++)
     {
     case 0:
         ttype=TERM;
@@ -194,7 +194,7 @@ int do_telnet_protocol(char *data, int nb, struct session *ses)
 
     if (nb<2)
         return -1;
-    switch(*cp)
+    switch (*cp)
     {
     case WILL:
     case WONT:
@@ -211,10 +211,10 @@ int do_telnet_protocol(char *data, int nb, struct session *ses)
 #endif
         answer[0]=IAC;
         answer[2]=*cp;
-        switch(*cp)
+        switch (*cp)
         {
         case ECHO:
-            switch(wt)
+            switch (wt)
             {
             case WILL:  answer[1]=DO;   ses->server_echo=1; break;
             case DO:    answer[1]=WONT; break;
@@ -223,7 +223,7 @@ int do_telnet_protocol(char *data, int nb, struct session *ses)
             };
             break;
         case TERMINAL_TYPE:
-            switch(wt)
+            switch (wt)
             {
             case WILL:  answer[1]=DONT; break;
             case DO:    answer[1]=WILL; break;
@@ -232,7 +232,7 @@ int do_telnet_protocol(char *data, int nb, struct session *ses)
             };
             break;
         case NAWS:
-            switch(wt)
+            switch (wt)
             {
             case WILL:  answer[1]=DO;   ses->naws=0; break;
             case DO:    answer[1]=WILL; ses->naws=(LINES>1 && COLS>0); break;
@@ -241,7 +241,7 @@ int do_telnet_protocol(char *data, int nb, struct session *ses)
             };
             break;
         case END_OF_RECORD:
-            switch(wt)
+            switch (wt)
             {
             case WILL:  answer[1]=DO;   break;
             case DO:    answer[1]=WONT; break;
@@ -251,7 +251,7 @@ int do_telnet_protocol(char *data, int nb, struct session *ses)
             break;
 #ifdef HAVE_ZLIB
         case COMPRESS2:
-            switch(wt)
+            switch (wt)
             {
             case WILL:  answer[1]=DO;   ses->can_mccp=time(0)-ses->sessionstart<60; break;
             case DO:    answer[1]=WONT; break;
@@ -261,7 +261,7 @@ int do_telnet_protocol(char *data, int nb, struct session *ses)
             break;
 #endif
         default:
-            switch(wt)
+            switch (wt)
             {
             case WILL:  answer[1]=DONT; break;
             case DO:    answer[1]=WONT; break;
@@ -312,7 +312,7 @@ sbloop:
             unsigned int neb=np-nego;
             np=nego;
             b=buf+sprintf(buf, "IAC SB ");
-            switch(*np)
+            switch (*np)
             {
             case TERMINAL_TYPE:
                 b+=sprintf(b, "TERMINAL-TYPE ");
@@ -332,7 +332,7 @@ sbloop:
             tintin_printf(ses, "~8~[telnet] received: %s~-1~", buf);
         }
 #endif
-        switch(*(np=nego))
+        switch (*(np=nego))
         {
         case TERMINAL_TYPE:
             if (*(np+1)==SEND)

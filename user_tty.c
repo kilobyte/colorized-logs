@@ -470,7 +470,7 @@ static void b_textout(char *txt)
     tbuf+=sprintf(tbuf,"\0338");
     tbuf+=sprintf(tbuf,COLORCODE(o_color));
     for (;*txt;txt++)
-        switch(*txt)
+        switch (*txt)
         {
         case 27:    /* we're not supposed to see escapes here */
             print_char('^');
@@ -684,7 +684,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
     char txt[16];
     int i, dw;
 
-    switch(state)
+    switch (state)
     {
 #if 0
     case 5:
@@ -694,7 +694,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
 #endif
     case 4:                     /* ESC O */
         state=0;
-        switch(ch)
+        switch (ch)
         {
         case 'A':
             goto prev_history;
@@ -735,7 +735,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
         else
             if (iswupper(ch))
             {
-                switch(ch)
+                switch (ch)
                 {
 
                 prev_history:
@@ -834,7 +834,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
                     state=3;
                 else
                     if (ch=='~')
-                        switch(val)
+                        switch (val)
                         {
                         case 5:         /* [PgUp] */
                             if (b_screenb>b_first+LINES-(isstatus?3:2))
@@ -940,7 +940,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
             sprintf(txt,"Alt-^"WCC,(WCI)(ch+64));
         if (find_bind(txt,0,ses))
             break;
-        switch(ch)
+        switch (ch)
         {
         case 9:         /* Alt-Tab */
             goto key_alt_tab;
@@ -1136,7 +1136,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
         /* fallthrough */
 #endif
     case 0:
-        switch(ch)
+        switch (ch)
         {
         case '\n':
         case '\r':

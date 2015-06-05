@@ -136,7 +136,7 @@ int main()
     b=0;
     ch=getchar();
 normal:
-    switch(ch)
+    switch (ch)
     {
     case EOF:
         unspan();
@@ -187,7 +187,7 @@ esc:
     tok[0]=0;
 /****************************************************************************/
 csi:
-    switch(ch)
+    switch (ch)
     {
     case ';':
         if (++ntok>=10)
@@ -202,7 +202,7 @@ csi:
         goto csi;
     case 'm':
         for (i=0;i<=ntok;i++)
-            switch(tok[i])
+            switch (tok[i])
             {
             case 0:
                 fg=bg=-1;

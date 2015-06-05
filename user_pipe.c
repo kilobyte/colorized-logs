@@ -29,7 +29,7 @@ static void userpipe_textout(char *txt)
     char buf[BUFFER_SIZE],*a,*b;
 
     for (a=txt,b=buf; *a; )
-        switch(*a)
+        switch (*a)
         {
         case '~':
             if (getcolor(&a,&color,1))
@@ -54,7 +54,7 @@ static void userpipe_textout(char *txt)
 static int userpipe_process_kbd(struct session *ses, WC ch)
 {
 
-    switch(ch)
+    switch (ch)
     {
     case '\n':
         *i_pos=0;
