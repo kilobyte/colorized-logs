@@ -1439,7 +1439,8 @@ void ctime_command(char *arg,struct session *ses)
     if (*arg2)
         if ((tt=time2secs(arg2,ses))==INVALID_TIME)
             return;
-        else;
+        else
+            {}
     else
         tt=time(0);
     p = ct = ctime(&tt);

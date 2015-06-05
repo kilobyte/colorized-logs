@@ -266,7 +266,7 @@ nocert:
         if (cert_file(host, fname))
             tintin_eprintf(oldses, "# %-57s#", fname);
         else
-            ; /* can't happen */
+            {} /* can't happen */
         tintin_eprintf(oldses, "############################################################");
         tintin_eprintf(oldses, "#Aborting connection!");
         return 0;

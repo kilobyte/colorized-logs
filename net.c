@@ -105,8 +105,10 @@ int connect_mud(char *host, char *port, struct session *ses)
 
         val=IPTOS_LOWDELAY;
         if (setsockopt(sock, IPPROTO_IP, IP_TOS, &val, sizeof(val)))
-            /*tintin_eprintf(ses, "#setsockopt: %s", strerror(errno))*/;
+        {
+            /*tintin_eprintf(ses, "#setsockopt: %s", strerror(errno))*/
             /* FIXME: BSD doesn't like this on IPv6 */
+        }
 
         val=1;
         setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, &val, sizeof(val));
