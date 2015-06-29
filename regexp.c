@@ -11,7 +11,7 @@ extern pvars_t *pvars;  /* the %0, %1, %2,....%9 variables */
 
 extern struct session *if_command(char *arg, struct session *ses);
 
-int check_regexp(char *line, char *action, pvars_t *vars, int inside, struct session *ses)
+static int check_regexp(char *line, char *action, pvars_t *vars, int inside, struct session *ses)
 {
     regex_t preg;
     regmatch_t pmatch[10];

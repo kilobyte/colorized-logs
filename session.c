@@ -39,7 +39,7 @@ extern int any_closed;
 static struct session *new_session(char *name, char *address, int sock, int issocket, gnutls_session_t ssl, struct session *ses);
 static void show_session(struct session *ses);
 
-int session_exists(char *name)
+static int session_exists(char *name)
 {
     struct session *sesptr;
 

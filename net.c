@@ -36,7 +36,7 @@ extern struct session *sessionlist, *activesession, *nullsession;
 extern char *prof_area;
 #endif
 #ifdef HAVE_ZLIB
-int init_mccp(struct session *ses, int cplen, char *cpsrc);
+static int init_mccp(struct session *ses, int cplen, char *cpsrc);
 #endif
 
 static int abort_connect;
@@ -456,7 +456,7 @@ int read_buffer_mud(char *buffer, struct session *ses)
 }
 
 #ifdef HAVE_ZLIB
-int init_mccp(struct session *ses, int cplen, char *cpsrc)
+static int init_mccp(struct session *ses, int cplen, char *cpsrc)
 {
     if (ses->mccp)
         return 0;

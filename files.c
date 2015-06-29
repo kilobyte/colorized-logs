@@ -42,7 +42,7 @@ int in_read=0;
 /********************************************/
 /* result must be at least BUFFER_SIZE long */
 /********************************************/
-void expand_filename(char *arg, char *result, char *lstr)
+static void expand_filename(char *arg, char *result, char *lstr)
 {
     char *r0=result;
 

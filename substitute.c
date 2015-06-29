@@ -100,7 +100,7 @@ void gag_command(char *arg, struct session *ses)
 /*****************************/
 /* the #unsubstitute command */
 /*****************************/
-void unsub(char *arg,int gag,struct session *ses)
+static void unsub(char *arg, int gag, struct session *ses)
 {
     char left[BUFFER_SIZE];
     struct listnode *mysubs, *ln, *temp;

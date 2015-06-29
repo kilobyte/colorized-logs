@@ -75,7 +75,7 @@ struct session *if_command(char *line, struct session *ses)
 }
 
 
-int do_inline(char *line,int *res,struct session *ses)
+static int do_inline(char *line,int *res,struct session *ses)
 {
     char command[BUFFER_SIZE],*ptr;
 
