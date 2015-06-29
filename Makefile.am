@@ -19,6 +19,10 @@ EXTRA_DIST=KBtin_help.in commands make_commands $(man_MANS) help2ansi fixmanual 
 CLEANFILES=$(BUILT_SOURCES) KBtin_help.gz manual.html
 DISTCLEANFILES=_stdint.h
 
+QUIET_PROTO = $(QUIET_PROTO_@AM_V@)
+QUIET_PROTO_ = $(QUIET_PROTO_@AM_DEFAULT_V@)
+QUIET_PROTO_0 = @echo '  PROTO   ' $@;
+
 #kludge to prevent $(BUILT_SOURCES) from being distributed
 dist-hook:
 	for x in $(BUILT_SOURCES);do rm -f "$(distdir)/$$x";done
@@ -56,7 +60,7 @@ profinit.h: $(KBtin_C_FILES) prof_init
 
 if SANE_MAKE
 $(KBtin_C_FILES:%.c=protos/%.h): protos/%.h: %.c make_protos
-	$(srcdir)/make_protos $(srcdir) $*.c
+	$(QUIET_PROTO)$(srcdir)/make_protos $(srcdir) $*.c
 else
 include $(srcdir)/Makefile.protos
 endif
@@ -68,7 +72,7 @@ Makefile.protos: Makefile.am
 	for x in $(KBtin_C_FILES); \
 	  do \
 	    echo "protos/$${x%c}h: $$x make_protos" >>Makefile.protos; \
-	    echo -e "\t$$DIR/make_protos $$DIR $$x" >>Makefile.protos; \
+	    echo -e "\t\$$(QUIET_PROTOS)$$DIR/make_protos $$DIR $$x" >>Makefile.protos; \
 	  done
 
 KBtin_help.gz: KBtin_help.in
