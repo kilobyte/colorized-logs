@@ -1700,11 +1700,10 @@ static void usertty_passwd(int x)
 
 static void usertty_title(char *fmt,...)
 {
+#ifdef XTERM_TITLE
     va_list ap;
     char buf[BUFFER_SIZE];
-#ifndef XTERM_TITLE
     if (!xterm)
-#endif
         return;
 
     va_start(ap, fmt);
@@ -1716,6 +1715,7 @@ static void usertty_title(char *fmt,...)
     utf8_to_mb(&tbuf, buf, &outstate);
     *tbuf++='\007';
     term_commit();
+#endif
 }
 
 static void usertty_beep(void)
