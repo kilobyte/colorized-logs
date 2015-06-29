@@ -529,7 +529,7 @@ static void b_canceldraft(void)
         {
             b_current--;
             tbuf+=sprintf(tbuf,"\033[A\033[2K");
-            assert(tbuf-term_buf < sizeof(term_buf));
+            assert(tbuf-term_buf < (ssize_t)sizeof(term_buf));
         };
         tbuf+=sprintf(tbuf,"\r"COLORCODE(o_lastcolor));
         tbuf+=sprintf(tbuf,"\0337");

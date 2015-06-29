@@ -249,7 +249,7 @@ static struct listnode* merge_lists(struct listnode* a, struct listnode* b)
 /**************************************************************************/
 struct listnode* hash2list(struct hashtable *h, char *pat)
 {
-#define NBITS (sizeof(void*)*8)
+#define NBITS ((int)sizeof(void*)*8)
     struct listnode *p[NBITS];     /* polynomial sort, O(n*log(n)) */
     struct listnode *l;
     int i,j;
