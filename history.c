@@ -10,7 +10,7 @@
 #include "protos/parse.h"
 #include "protos/utils.h"
 
-static void insert_history(char *buffer, struct session *ses);
+static void insert_history(char *buffer);
 
 extern char *history[HISTORY_SIZE];
 
@@ -72,13 +72,13 @@ void do_history(char *buffer, struct session *ses)
 
         }
     }
-    insert_history(buffer, ses);
+    insert_history(buffer);
 }
 
 /***********************************************/
 /* insert buffer into a session`s history list */
 /***********************************************/
-static void insert_history(char *buffer, struct session *ses)
+static void insert_history(char *buffer)
 {
     int i;
 
