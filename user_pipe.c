@@ -1,11 +1,10 @@
 #include "tintin.h"
 #include "ui.h"
+#include "protos/colors.h"
+#include "protos/unicode.h"
 #include "protos/utils.h"
 
 
-extern int wc_to_utf8(char *d, const wchar_t *s, int n, int maxb);
-extern int getcolor(char **ptr,int *color,const int flag);
-extern int one_utf8_to_mb(char **d, char **s, mbstate_t *cs);
 mbstate_t outstate;
 #define OUTSTATE &outstate
 extern void user_illegal();

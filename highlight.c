@@ -1,5 +1,6 @@
 #include "tintin.h"
 #include "protos/action.h"
+#include "protos/colors.h"
 #include "protos/glob.h"
 #include "protos/llist.h"
 #include "protos/print.h"
@@ -8,8 +9,6 @@
 #include "protos/variables.h"
 
 extern int hinum;
-extern int getcolor(char **ptr,int *color,const int flag);
-extern int setcolor(char *txt,int c);
 extern int puts_echoing;
 
 static struct colordef
