@@ -1,4 +1,5 @@
-#define _XOPEN_SOURCE
+#define _XOPEN_SOURCE 500
+#define __EXTENSIONS__
 #include "tintin.h"
 #include <fcntl.h>
 #include <sys/ioctl.h>
@@ -8,6 +9,7 @@
 # include <termios.h>
 #endif
 #ifdef HAVE_GRANTPT
+# include <stdlib.h>
 # ifdef HAVE_STROPTS_H
 #  include <stropts.h>
 # endif
