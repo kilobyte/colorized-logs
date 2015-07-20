@@ -21,6 +21,19 @@ Installation
 	  of your choice.
 		to install to another place
 
+
+Dependencies
+============
+
+While KBtin will compile with nothing but the compiler and make, there are
+optional libraries that enable certain features:
+* gnutls: SSL connectivity
+* zlib: on-the-wire compression on most MUDs
+* glib: some speed-up
+On Debian systems, the relevant packages are named: libgnutls28-dev,
+libz-dev, libglib2.0-dev.
+
+
 Cross-compiling notes
 =====================
 
