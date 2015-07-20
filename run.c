@@ -17,6 +17,9 @@
 #ifdef HAVE_PTY_H
 # include <pty.h>
 #endif
+#if defined(HAVE_FORKPTY) && defined(HAVE_LIBUTIL_H)
+# include <libutil.h>
+#endif
 #include "ui.h"
 
 extern char **environ;
