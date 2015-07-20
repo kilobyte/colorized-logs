@@ -58,22 +58,8 @@ load_commands.h: commands make_commands commands.h
 profinit.h: $(KBtin_C_FILES) prof_init
 	$(srcdir)/prof_init $(srcdir) $(KBtin_C_FILES)
 
-if SANE_MAKE
 $(KBtin_C_FILES:%.c=protos/%.h): protos/%.h: %.c make_protos
 	$(QUIET_PROTO)$(srcdir)/make_protos $(srcdir) $*.c
-else
-include $(srcdir)/Makefile.protos
-endif
-
-# For *BSD, Solaris and other necrocomputing pieces of trash.
-Makefile.protos: Makefile.am
-	rm -f Makefile.protos
-	DIR='$$(srcdir)'; \
-	for x in $(KBtin_C_FILES); \
-	  do \
-	    echo "protos/$${x%c}h: $$x make_protos" >>Makefile.protos; \
-	    echo -e "\t\$$(QUIET_PROTOS)$$DIR/make_protos $$DIR $$x" >>Makefile.protos; \
-	  done
 
 KBtin_help.gz: KBtin_help.in
 	gzip -n9 <$(srcdir)/KBtin_help.in >KBtin_help.gz

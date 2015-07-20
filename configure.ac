@@ -63,8 +63,6 @@ BSD: cd /usr/ports/converters/libiconv && make install
 ])
 fi
 
-AM_CONDITIONAL(SANE_MAKE, make -v >/dev/null 2>/dev/null)
-
 AC_PTYRANGES
 AC_DEV_PTMX
 AC_LBL_LIBRARY_NET

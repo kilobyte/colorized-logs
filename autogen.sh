@@ -1,7 +1,6 @@
 #!/bin/sh
 set -e
 
-touch -t 197101010100 Makefile.protos
 aclocal
 autoheader
 if [ ! -e config.rpath ]
