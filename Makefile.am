@@ -76,7 +76,7 @@ Makefile.protos: Makefile.am
 	  done
 
 KBtin_help.gz: KBtin_help.in
-	gzip -9 <$(srcdir)/KBtin_help.in >KBtin_help.gz
+	gzip -n9 <$(srcdir)/KBtin_help.in >KBtin_help.gz
 
 # convert the help file to html
 manual.html: KBtin_help.in help2ansi ansi2html fixmanual
