@@ -79,7 +79,11 @@
 #define DEFAULT_VERBATIM_CHAR '\\'        /* if an input starts with this
                                              char, it will be sent 'as is'
                                              to the MUD */
+#ifdef __FreeBSD__
+#define MAX_RECURSION 64
+#else
 #define MAX_RECURSION 128
+#endif
 #ifndef DEFAULT_FILE_DIR
 #define DEFAULT_FILE_DIR "." /* Path to Tintin files, or HOME */
 #endif
