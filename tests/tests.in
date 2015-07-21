@@ -269,7 +269,7 @@ act: a06z
 #hook close {#showme FIN;#end}
 #act {foo} {#showme <foo>}
 #promptact {fo} {#showme <fo...>}
-#run a {sh -c "echo -n 'fo';sleep 2;echo 'o'"}
+#run a {sh -c "printf 'fo';sleep 2;echo 'o'"}
 >>>
 <fo...>
 <fo...>
