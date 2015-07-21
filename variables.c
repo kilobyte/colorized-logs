@@ -613,10 +613,10 @@ static void simplify_list(char **beg, char **end, int flag, struct session *ses)
     /* remember: we do not check arguments (e.g. if they are not NULL) */
 
     /* removing spaces */
-    /* we use 'isspace' because 'space_out' does */
-    while ((**beg) && ((*beg) < (*end)) && isspace(**beg))
+    /* we use 'isaspace' because 'space_out' does */
+    while ((**beg) && ((*beg) < (*end)) && isaspace(**beg))
         (*beg)++;
-    while (((*end) > (*beg)) && isspace(*(*end - 1)))
+    while (((*end) > (*beg)) && isaspace(*(*end - 1)))
         (*end)--;
 
 #ifdef REMOVE_ONEELEM_BRACES

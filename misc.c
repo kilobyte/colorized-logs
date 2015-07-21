@@ -975,7 +975,7 @@ int isnotblank(char *line,int flag)
             else
                 line++;
         else
-            if (isspace(*line))
+            if (isaspace(*line))
                 line++;
             else
                return 1;
@@ -994,7 +994,7 @@ int iscompleteprompt(char *line)
                 ch='~';
         }
         else
-            if (!isspace(*line))
+            if (!isaspace(*line))
                 ch=*line;
     return strchr("?:>.*$#]&)",ch) && !((c==-1)?0:c&0x70);
 }

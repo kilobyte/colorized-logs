@@ -598,7 +598,7 @@ struct session* do_read(FILE *myfile, char *filename, struct session *ses)
         for (cptr = line; *cptr && *cptr != '\n' && *cptr!='\r'; cptr++) ;
         *cptr = '\0';
 
-        if (isspace(*line) && *buffer && (*buffer==tintin_char))
+        if (isaspace(*line) && *buffer && (*buffer==tintin_char))
         {
             cptr=space_out(line);
             if (ignore_lines || (strlen(cptr)+strlen(buffer) >= BUFFER_SIZE/2))

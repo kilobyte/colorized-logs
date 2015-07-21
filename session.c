@@ -161,7 +161,7 @@ static struct session *socket_session(char *arg, struct session *ses, int ssl)
     }
 
     port=host;
-    while (*port && !isspace(*port))
+    while (*port && !isaspace(*port))
         port++;
     if (*port)
     {

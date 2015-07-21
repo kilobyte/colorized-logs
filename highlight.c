@@ -129,7 +129,7 @@ void highlight_command(char *arg, struct session *ses)
             tmp2++;
             while (*tmp2 != ',' && *tmp2 != '\0')
                 tmp2++;
-            while (isspace(*tmp1))
+            while (isaspace(*tmp1))
                 tmp1++;
             strncpy(tmp3, tmp1, tmp2 - tmp1);
             tmp3[tmp2 - tmp1] = '\0';

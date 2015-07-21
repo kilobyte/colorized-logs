@@ -661,7 +661,7 @@ static char* get_command(char *s, char *arg)
 /*********************************************/
 char* space_out(char *s)
 {
-    while (isspace(*s))
+    while (isaspace(*s))
         s++;
     return s;
 }
