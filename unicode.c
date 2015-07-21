@@ -135,7 +135,7 @@ int utf8_to_wc(wchar_t *d, char *s, int n)
                     cnt=5, tc=ic&0x01;
                 else
                 {
-                    OUTC(0xFFFD,);
+                    OUTC(0xFFFD, s++);
                     cnt=0;
                 }
                 continue;
