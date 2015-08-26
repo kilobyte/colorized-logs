@@ -24,7 +24,7 @@ while(<STDIN>)
                 = stat($ARGV[0]);
             # GMT is unfriendly, but we don't know the timezone of last change
             # vs the timezone of build machine.
-            print "Last modified: ".gmtime($mtime)." GMT" if (defined $mtime && $mtime);
+            print "Last modified: ".gmtime($mtime)." GMT" if $mtime;
         }
         print "</body></html>\n";
         exit;
