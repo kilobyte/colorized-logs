@@ -317,6 +317,7 @@ int run(char *command)
 #ifndef PTY_ECHO_HACK
     struct termios ta;
     struct winsize ws;
+    int res;
 
     pty_makeraw(&ta);
 
@@ -324,9 +325,9 @@ int run(char *command)
     ws.ws_col=COLS;
     ws.ws_xpixel=0;
     ws.ws_ypixel=0;
-    int res = forkpty(&fd,0,&ta,(LINES>1 && COLS>0)?&ws:0);
+    res = forkpty(&fd,0,&ta,(LINES>1 && COLS>0)?&ws:0);
 #else
-    int res = forkpty(&fd,0,0,0);
+    res = forkpty(&fd,0,0,0);
 #endif
 
 #if defined(__FreeBSD_kernel__) && defined(__GLIBC__)

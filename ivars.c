@@ -453,8 +453,9 @@ static int do_one_inside(int begin, int end)
         }
         else
         {
+            int next;
             assert(loc >= 0);
-            int next = stacks[loc][0];
+            next = stacks[loc][0];
             if (ploc == -1 || stacks[next][0] == 0 || stacks[next][1] != 15)
                 return 0;
             if (stacks[ploc][1] != 15)
