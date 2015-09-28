@@ -1,6 +1,7 @@
 1.0.16:
 *	#initvar
 *	bugfix: xterm titles were ignored
+*	processing speed in #info
 
 1.0.15:
 *	#loginputformat

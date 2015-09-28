@@ -953,6 +953,10 @@ void info_command(char *arg, struct session *ses)
         tintin_printf(ses, "Not logging");
     if (ses->debuglogfile)
         tintin_printf(ses, "Debuglog: {%s}", ses->debuglogname);
+    if (ses->line_time.tv_sec||ses->line_time.tv_usec)
+        tintin_printf(ses, "Line processing time: %d.%06ds (%1.1f per second)",
+            ses->line_time.tv_sec, ses->line_time.tv_usec,
+            1/(ses->line_time.tv_sec+ses->line_time.tv_usec*0.000001));
     if (ses->closing)
         tintin_printf(ses, "The session has it's closing mark set to %d!", ses->closing);
     prompt(ses);

@@ -865,7 +865,10 @@ static void do_one_line(char *line,int nl,struct session *ses)
 {
     int isnb;
     char ubuf[BUFFER_SIZE];
+    struct timeval t1,t2;
 
+    if (nl)
+        gettimeofday(&t1,0);
     PROFPUSH("conv: remote->utf8");
     convert(&ses->c_io, ubuf, line, -1);
 # define line ubuf
@@ -941,6 +944,24 @@ static void do_one_line(char *line,int nl,struct session *ses)
     PROFPOP;
     _=0;
 #undef line
+
+    if (nl)
+    {
+        gettimeofday(&t2,0);
+        t2.tv_sec-=t1.tv_sec;
+        t2.tv_usec-=t1.tv_usec;
+        if (ses->line_time.tv_sec || ses->line_time.tv_usec)
+        {
+            /* A dragged average: every new line counts for 10% of the value.
+              The weight of any old line decays with half-life around 6.5. */
+            int64_t t=(int64_t)(ses->line_time.tv_sec*9+t2.tv_sec)*100000
+                              +(ses->line_time.tv_usec*9+t2.tv_usec)/10;
+            ses->line_time.tv_sec =t/1000000;
+            ses->line_time.tv_usec=t%1000000;
+        }
+        else
+            ses->line_time=t2;
+    }
 }
 
 /**********************************************************/
