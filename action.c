@@ -553,7 +553,7 @@ static int match_a_string(char *line, char *mask)
 
     lptr = line;
     mptr = mask;
-    while (*lptr && *mptr && !(*mptr == '%' && isdigit(*(mptr + 1))))
+    while (*lptr && *mptr && !(*mptr == '%' && isadigit(*(mptr + 1))))
         if (*lptr++ != *mptr++)
             return -1;
     if (!*mptr || (*mptr == '%' && isdigit(*(mptr + 1))))
