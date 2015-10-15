@@ -208,8 +208,8 @@ an alias, this means that:
 ~getitem
 
 #getitem <dest.var> <index> {list}
-Returns item <index> from the {list} and stores it into <dest.var>.
-If not found, <dest.var> becomes empty.
+Returns <index>th item from the {list} and stores it into <dest.var>.
+If not found, <dest.var> becomes empty.  The index is 1-based.
 
 Example:
 #getitem result 3 {a b c d e}         -> result = "c"
