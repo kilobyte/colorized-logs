@@ -930,9 +930,9 @@ static int usertty_process_kbd(struct session *ses, WC ch)
         {
             state=TS_NORMAL;
             /* answer from ESC [>c */
-            if (val[0]==0 && val[1]==115 /* konsole */
-                || val[0]==1             /* libvte, mlterm, aterm, termit */
-                || val[0]==41            /* xterm, terminology */
+            if ((val[0]==0 && val[1]==115) /* konsole */
+                || val[0]==1               /* libvte, mlterm, aterm, termit */
+                || val[0]==41              /* xterm, terminology */
                )
             {
                 bind_xterm(1);
