@@ -65,8 +65,10 @@ static char *KEYNAMES[]=
     "ESCOQ",        "KpadDivide",
     "ESCOR",        "KpadMultiply",
     "ESCOS",        "KpadMinus",
+    "ESCOj",        "KpadMultiply",
     "ESCOk",        "KpadPlus",
     "ESCOl",        "KpadPlus",
+    "ESCOm",        "KpadMinus",
     "ESCOn",        "KpadDot",
     "ESCOo",        "KpadMinus",
     "ESCOp",        "Kpad0",
@@ -79,6 +81,26 @@ static char *KEYNAMES[]=
     "ESCOw",        "Kpad7",
     "ESCOx",        "Kpad8",
     "ESCOy",        "Kpad9",
+    "",             "",
+};
+
+static char *NORMAL_KEYNAMES[]=
+{
+    "ESCOP",        "KpadNumLock",
+    "ESCOQ",        "KpadDivide",
+    "ESCOR",        "KpadMultiply",
+    "ESCOS",        "KpadMinus",
+    "ESCOo",        "KpadMinus",
+    "",             "",
+};
+
+static char *XTERM_KEYNAMES[]=
+{
+    "ESCOP",        "F1",
+    "ESCOQ",        "F2",
+    "ESCOR",        "F3",
+    "ESCOS",        "F4",
+    "ESCOm",        "KpadMinus",
     "",             "",
 };
 
@@ -165,4 +187,19 @@ void init_bind(void)
         return;
     for (n=KEYNAMES;**n;n+=2)
         set_hash(keynames,n[0],n[1]);
+}
+
+void bind_xterm(int xterm)
+{
+    char**n;
+    switch (xterm)
+    {
+    case 1:
+        for (n=XTERM_KEYNAMES;**n;n+=2)
+            set_hash(keynames,n[0],n[1]);
+        break;
+    default:
+        for (n=NORMAL_KEYNAMES;**n;n+=2)
+            set_hash(keynames,n[0],n[1]);
+    }
 }

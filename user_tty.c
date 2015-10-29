@@ -681,11 +681,13 @@ static enum
     TS_ESC_S,
     TS_ESC_S_S,
     TS_ESC_O,
+    TS_ESC_S_G,
 #if 0
     TS_VERBATIM,
 #endif
 } state=TS_NORMAL;
-static int val=0;
+#define MAXNVAL 10
+static int val[MAXNVAL], nval;
 static int usertty_process_kbd(struct session *ses, WC ch)
 {
     char txt[16];
@@ -736,7 +738,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
         state=TS_NORMAL;
         if (isadigit(ch))
         {
-            val=val*10+(ch-'0');
+            val[nval]=val[nval]*10+(ch-'0');
             state=TS_ESC_S;
         }
         else if (ch>='A' && ch <='Z')
@@ -837,7 +839,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
         else if (ch=='[')
             state=TS_ESC_S_S;
         else if (ch=='~')
-            switch (val)
+            switch (val[0])
             {
             case 5:         /* [PgUp] */
                 if (b_screenb>b_first+LINES-(isstatus?3:2))
@@ -908,21 +910,48 @@ static int usertty_process_kbd(struct session *ses, WC ch)
                 if (b_bottom!=b_screenb)
                     b_scroll(b_bottom);
                 {
-                    sprintf(txt,"ESC[%i~",val);
+                    sprintf(txt,"ESC[%i~",val[0]);
                     find_bind(txt,1,ses);
                     break;
                 }
-            };
+            }
+        else if (ch=='>')
+            state=TS_ESC_S_G;
+        break;
+    case TS_ESC_S_G:            /* ESC [ > */
+        if (isadigit(ch))
+            val[nval]=val[nval]*10+(ch-'0');
+        else if (ch==';')
+        {
+            if (nval<MAXNVAL)
+                val[++nval]=0;
+        }
+        else if (ch=='c')
+        {
+            state=TS_NORMAL;
+            /* answer from ESC [>c */
+            if (val[0]==0 && val[1]==115 /* konsole */
+                || val[0]==1             /* libvte, mlterm, aterm, termit */
+                || val[0]==41            /* xterm, terminology */
+               )
+            {
+                bind_xterm(1);
+            }
+            else
+                bind_xterm(0);
+        }
+        else
+            state=TS_NORMAL;
         break;
     case TS_ESC:                /* ESC */
         if (ch=='[')
         {
-            state=TS_ESC_S; val=0;
+            state=TS_ESC_S; val[nval=0]=0;
             break;
         };
         if (ch=='O')
         {
-            state=TS_ESC_O; val=0;
+            state=TS_ESC_O; val[nval=0]=0;
             break;
         };
 #ifndef BARE_ESC
@@ -1607,6 +1636,7 @@ static void usertty_init(void)
     o_lastcolor=7;
 
     tbuf+=sprintf(tbuf,"\033[1;1f\0337");
+    tbuf+=sprintf(tbuf,"\033[>c"); /* query the terminal type */
 
     sprintf(done_input,"~12~KB~3~tin ~7~%s by ~11~kilobyte@angband.pl~9~\n",VERSION);
     usertty_textout(done_input);

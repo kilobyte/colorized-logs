@@ -2,6 +2,7 @@
 *	#initvar
 *	bugfix: xterm titles were ignored
 *	processing speed in #info
+*	bugfix: proper F1-F4 and KpadMinus on xterm/gnome-terminal/konsole
 
 1.0.15:
 *	#loginputformat
