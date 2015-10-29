@@ -363,6 +363,8 @@ static struct session *new_session(char *name, char *address, int sock, int isso
     if (!new_conv(&newsession->c_io, newsession->charset, 0))
         tintin_eprintf(0, "#Warning: can't open charset: %s", newsession->charset);
     nullify_conv(&newsession->c_log);
+    newsession->line_time.tv_sec=0;
+    newsession->line_time.tv_usec=0;
 #ifdef HAVE_GNUTLS
     newsession->ssl=ssl;
 #endif
