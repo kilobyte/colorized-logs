@@ -264,12 +264,11 @@ static void redraw_in(void)
     };
     if (k_scrl+COLS-2<k_len)
         tbuf+=sprintf(tbuf,"\033[1m>");
+    else if (!putty)
+        tbuf+=sprintf(tbuf,"\033[0K");
     else
-        if (!putty)
-            tbuf+=sprintf(tbuf,"\033[0K");
-        else
-            for (i=l;i<COLS-!!k_scrl;i++)
-                *tbuf++=' ';
+        for (i=l;i<COLS-!!k_scrl;i++)
+            *tbuf++=' ';
     scr_curs=(k_scrl!=0)+k_pos-k_scrl;
     redraw_cursor();
     term_commit();
@@ -357,11 +356,10 @@ static void b_scroll(int b_to)
             tbuf+=sprintf(tbuf,"\033[%d;1f",scr_len+y-b_to);
             if (y<b_current)
                 draw_out(b_output[y%B_LENGTH]);
+            else if (y==b_current)
+                draw_out(out_line);
             else
-                if (y==b_current)
-                    draw_out(out_line);
-                else
-                    tbuf+=sprintf(tbuf,"\033[2K");
+                tbuf+=sprintf(tbuf,"\033[2K");
             term_commit();
         };
     tbuf+=sprintf(tbuf,"\0337");
@@ -431,16 +429,15 @@ static inline void print_char(const WC ch)
         tbuf+=sprintf(tbuf,"\033[0;37;40m\r\n\033[2K");
         b_addline();
     }
-    else    /* b_addline already updates the color */
-        if (o_oldcolor!=o_color)
-        {
-            if ((o_color&15)==((o_color&0x70)>>4))
-                o_color=(o_color&0xf0)|((o_color&7)?0:7);
-            o_len+=setcolor(out_line+o_len,o_color);
-            if (b_screenb==b_bottom)
-                tbuf+=sprintf(tbuf,COLORCODE(o_color));
-            o_oldcolor=o_color;
-        };
+    else if (o_oldcolor!=o_color) /* b_addline already updates the color */
+    {
+        if ((o_color&15)==((o_color&0x70)>>4))
+            o_color=(o_color&0xf0)|((o_color&7)?0:7);
+        o_len+=setcolor(out_line+o_len,o_color);
+        if (b_screenb==b_bottom)
+            tbuf+=sprintf(tbuf,COLORCODE(o_color));
+        o_oldcolor=o_color;
+    };
     clen=wcrtomb(tbuf, ch, &outstate);
     if (clen!=-1)
         tbuf+=clen;
@@ -732,184 +729,181 @@ static int usertty_process_kbd(struct session *ses, WC ch)
             val=val*10+(ch-'0');
             state=2;
         }
-        else
-            if (iswupper(ch))
+        else if (iswupper(ch))
+        {
+            switch (ch)
             {
-                switch (ch)
-                {
 
-                prev_history:
-                case 'A':       /* up arrow */
-                    if (ret(0))
-                        redraw_in();
-                    if (b_bottom!=b_screenb)
-                        b_scroll(b_bottom);
-                    if (!ses)
-                        break;
-                    if (hist_num==HISTORY_SIZE-1)
-                        break;
-                    if (!history[hist_num+1])
-                        break;
-                    if (hist_num==-1)
-                        WCcpy(kh_input, k_input);
-                    TO_WC(k_input, history[++hist_num]);
-                    countpos();
+            prev_history:
+            case 'A':       /* up arrow */
+                if (ret(0))
                     redraw_in();
+                if (b_bottom!=b_screenb)
+                    b_scroll(b_bottom);
+                if (!ses)
                     break;
-                next_history:
-                case 'B':       /* down arrow */
-                    if (ret(0))
-                        redraw_in();
-                    if (b_bottom!=b_screenb)
-                        b_scroll(b_bottom);
-                    if (!ses)
-                        break;
-                    if (hist_num==-1)
-                        break;
-                    do --hist_num;
-                    while ((hist_num>0)&&!(history[hist_num]));
-                    if (hist_num==-1)
-                        WCcpy(k_input, kh_input);
-                    else
-                        TO_WC(k_input, history[hist_num]);
-                    countpos();
+                if (hist_num==HISTORY_SIZE-1)
+                    break;
+                if (!history[hist_num+1])
+                    break;
+                if (hist_num==-1)
+                    WCcpy(kh_input, k_input);
+                TO_WC(k_input, history[++hist_num]);
+                countpos();
+                redraw_in();
+                break;
+            next_history:
+            case 'B':       /* down arrow */
+                if (ret(0))
                     redraw_in();
+                if (b_bottom!=b_screenb)
+                    b_scroll(b_bottom);
+                if (!ses)
                     break;
-                key_cursor_left:
-                case 'D':       /* left arrow */
-                    if (b_bottom!=b_screenb)
-                        b_scroll(b_bottom);
-                    if (ret(1))
-                       redraw_in();
-                    if (k_pos==0)
-                        break;
-                    --k_pos;
-                    if (k_pos && k_input[k_pos]==EMPTY_CHAR)
-                        --k_pos;
-                    if (k_pos>=k_scrl)
-                    {
-                        scr_curs=k_pos-k_scrl+(k_scrl!=0);
-                        redraw_cursor();
-                        term_commit();
-                    }
-                    else
-                        redraw_in();
+                if (hist_num==-1)
                     break;
-                key_cursor_right:
-                case 'C':       /* right arrow */
-                    if (b_bottom!=b_screenb)
-                        b_scroll(b_bottom);
-                    if (ret(1))
-                       redraw_in();
-                    if (k_pos==k_len)
-                        break;
-                    ++k_pos;
-                    if (k_pos<k_len && k_input[k_pos]==EMPTY_CHAR)
-                        ++k_pos;
-                    if (k_pos<=k_scrl+COLS-2)
-                    {
-                        scr_curs=k_pos-k_scrl+(k_scrl!=0);
-                        redraw_cursor();
-                        term_commit();
-                    }
-                    else
-                        redraw_in();
-                    break;
-                case 'H':
-                    goto key_home;
-                case 'F':
-                    goto key_end;
-                default:
-                    if (b_bottom!=b_screenb)
-                        b_scroll(b_bottom);
-                    {
-                        sprintf(txt, "ESC["WCC, (WCI)ch);
-                        find_bind(txt,1,ses);
-                        break;
-                    };
-                }
-            }
-            else
-                if (ch=='[')
-                    state=3;
+                do --hist_num;
+                while ((hist_num>0)&&!(history[hist_num]));
+                if (hist_num==-1)
+                    WCcpy(k_input, kh_input);
                 else
-                    if (ch=='~')
-                        switch (val)
-                        {
-                        case 5:         /* [PgUp] */
-                            if (b_screenb>b_first+LINES-(isstatus?3:2))
-                                b_scroll(b_screenb+(isstatus?3:2)-LINES);
-                            else
-                                write_stdout("\007",1);
-                            break;
-                        case 6:         /* [PgDn] */
-                            if (b_screenb<b_bottom)
-                                b_scroll(b_screenb+LINES-(isstatus?3:2));
-                            else
-                                write_stdout("\007",1);
-                            break;
-                        key_home:
-                        case 1:         /* [Home] */
-                        case 7:
-                            if (b_bottom!=b_screenb)
-                                b_scroll(b_bottom);
-                            if (ret(1))
-                                redraw_in();
-                            if (!k_pos)
-                                break;
-                            k_pos=0;
-                            if (k_pos>=k_scrl)
-                            {
-                                scr_curs=k_pos-k_scrl+(k_scrl!=0);
-                                redraw_cursor();
-                                term_commit();
-                            }
-                            else
-                                redraw_in();
-                            break;
-                        key_end:
-                        case 4:         /* [End] */
-                        case 8:
-                            if (b_bottom!=b_screenb)
-                                b_scroll(b_bottom);
-                            if (ret(1))
-                                redraw_in();
-                            if (k_pos==k_len)
-                                break;
-                            k_pos=k_len;
-                            if (k_pos<=k_scrl+COLS-2)
-                            {
-                                scr_curs=k_pos-k_scrl+(k_scrl!=0);
-                                redraw_cursor();
-                                term_commit();
-                            }
-                            else
-                                redraw_in();
-                            break;
-                        key_del:
-                        case 3:         /* [Del] */
-                            ret(0);
-                            if (b_bottom!=b_screenb)
-                                b_scroll(b_bottom);
-                            if (k_pos!=k_len)
-                            {
-                                for (i=k_pos;i<=k_len;++i)
-                                k_input[i]=k_input[i+1];
-                                --k_len;
-                            }
-                            if (k_pos!=k_len && k_input[k_pos]==EMPTY_CHAR)
-                                goto key_del;
-                            redraw_in();
-                            break;
-                        default:
-                            if (b_bottom!=b_screenb)
-                                b_scroll(b_bottom);
-                            {
-                                sprintf(txt,"ESC[%i~",val);
-                                find_bind(txt,1,ses);
-                                break;
-                            }
-                        };
+                    TO_WC(k_input, history[hist_num]);
+                countpos();
+                redraw_in();
+                break;
+            key_cursor_left:
+            case 'D':       /* left arrow */
+                if (b_bottom!=b_screenb)
+                    b_scroll(b_bottom);
+                if (ret(1))
+                   redraw_in();
+                if (k_pos==0)
+                    break;
+                --k_pos;
+                if (k_pos && k_input[k_pos]==EMPTY_CHAR)
+                    --k_pos;
+                if (k_pos>=k_scrl)
+                {
+                    scr_curs=k_pos-k_scrl+(k_scrl!=0);
+                    redraw_cursor();
+                    term_commit();
+                }
+                else
+                    redraw_in();
+                break;
+            key_cursor_right:
+            case 'C':       /* right arrow */
+                if (b_bottom!=b_screenb)
+                    b_scroll(b_bottom);
+                if (ret(1))
+                   redraw_in();
+                if (k_pos==k_len)
+                    break;
+                ++k_pos;
+                if (k_pos<k_len && k_input[k_pos]==EMPTY_CHAR)
+                    ++k_pos;
+                if (k_pos<=k_scrl+COLS-2)
+                {
+                    scr_curs=k_pos-k_scrl+(k_scrl!=0);
+                    redraw_cursor();
+                    term_commit();
+                }
+                else
+                    redraw_in();
+                break;
+            case 'H':
+                goto key_home;
+            case 'F':
+                goto key_end;
+            default:
+                if (b_bottom!=b_screenb)
+                    b_scroll(b_bottom);
+                {
+                    sprintf(txt, "ESC["WCC, (WCI)ch);
+                    find_bind(txt,1,ses);
+                    break;
+                };
+            }
+        }
+        else if (ch=='[')
+            state=3;
+        else if (ch=='~')
+            switch (val)
+            {
+            case 5:         /* [PgUp] */
+                if (b_screenb>b_first+LINES-(isstatus?3:2))
+                    b_scroll(b_screenb+(isstatus?3:2)-LINES);
+                else
+                    write_stdout("\007",1);
+                break;
+            case 6:         /* [PgDn] */
+                if (b_screenb<b_bottom)
+                    b_scroll(b_screenb+LINES-(isstatus?3:2));
+                else
+                    write_stdout("\007",1);
+                break;
+            key_home:
+            case 1:         /* [Home] */
+            case 7:
+                if (b_bottom!=b_screenb)
+                    b_scroll(b_bottom);
+                if (ret(1))
+                    redraw_in();
+                if (!k_pos)
+                    break;
+                k_pos=0;
+                if (k_pos>=k_scrl)
+                {
+                    scr_curs=k_pos-k_scrl+(k_scrl!=0);
+                    redraw_cursor();
+                    term_commit();
+                }
+                else
+                    redraw_in();
+                break;
+            key_end:
+            case 4:         /* [End] */
+            case 8:
+                if (b_bottom!=b_screenb)
+                    b_scroll(b_bottom);
+                if (ret(1))
+                    redraw_in();
+                if (k_pos==k_len)
+                    break;
+                k_pos=k_len;
+                if (k_pos<=k_scrl+COLS-2)
+                {
+                    scr_curs=k_pos-k_scrl+(k_scrl!=0);
+                    redraw_cursor();
+                    term_commit();
+                }
+                else
+                    redraw_in();
+                break;
+            key_del:
+            case 3:         /* [Del] */
+                ret(0);
+                if (b_bottom!=b_screenb)
+                    b_scroll(b_bottom);
+                if (k_pos!=k_len)
+                {
+                    for (i=k_pos;i<=k_len;++i)
+                    k_input[i]=k_input[i+1];
+                    --k_len;
+                }
+                if (k_pos!=k_len && k_input[k_pos]==EMPTY_CHAR)
+                    goto key_del;
+                redraw_in();
+                break;
+            default:
+                if (b_bottom!=b_screenb)
+                    b_scroll(b_bottom);
+                {
+                    sprintf(txt,"ESC[%i~",val);
+                    find_bind(txt,1,ses);
+                    break;
+                }
+            };
         break;
     case 1:                     /* ESC */
         if (ch=='[')
@@ -1547,13 +1541,12 @@ static void usertty_show_status(void)
         isstatus=st;
         usertty_resize();
     }
-    else
-        if (st)
-        {
-            redraw_status();
-            redraw_cursor();
-            term_commit();
-        }
+    else if (st)
+    {
+        redraw_status();
+        redraw_cursor();
+        term_commit();
+    }
 }
 
 static void usertty_init(void)
