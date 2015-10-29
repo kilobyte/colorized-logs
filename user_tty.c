@@ -674,7 +674,17 @@ static int ret(int r)
     return 1;
 }
 
-static int state=0;
+static enum
+{
+    TS_NORMAL,
+    TS_ESC,
+    TS_ESC_S,
+    TS_ESC_S_S,
+    TS_ESC_O,
+#if 0
+    TS_VERBATIM,
+#endif
+} state=TS_NORMAL;
 static int val=0;
 static int usertty_process_kbd(struct session *ses, WC ch)
 {
@@ -684,13 +694,13 @@ static int usertty_process_kbd(struct session *ses, WC ch)
     switch (state)
     {
 #if 0
-    case 5:
-        state=0;
+    case TS_VERBATIM:
+        state=TS_NORMAL;
         goto insert_verbatim;
         break;
 #endif
-    case 4:                     /* ESC O */
-        state=0;
+    case TS_ESC_O:              /* ESC O */
+        state=TS_NORMAL;
         switch (ch)
         {
         case 'A':
@@ -713,8 +723,8 @@ static int usertty_process_kbd(struct session *ses, WC ch)
             find_bind(txt,1,ses);
         };
         break;
-    case 3:                     /* ESC [ [ */
-        state=0;
+    case TS_ESC_S_S:            /* ESC [ [ */
+        state=TS_NORMAL;
         if (b_bottom!=b_screenb)
             b_scroll(b_bottom);
         {
@@ -722,12 +732,12 @@ static int usertty_process_kbd(struct session *ses, WC ch)
             find_bind(txt,1,ses);
         };
         break;
-    case 2:                     /* ESC [ */
-        state=0;
+    case TS_ESC_S:              /* ESC [ */
+        state=TS_NORMAL;
         if (isadigit(ch))
         {
             val=val*10+(ch-'0');
-            state=2;
+            state=TS_ESC_S;
         }
         else if (iswupper(ch))
         {
@@ -826,7 +836,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
             }
         }
         else if (ch=='[')
-            state=3;
+            state=TS_ESC_S_S;
         else if (ch=='~')
             switch (val)
             {
@@ -905,19 +915,19 @@ static int usertty_process_kbd(struct session *ses, WC ch)
                 }
             };
         break;
-    case 1:                     /* ESC */
+    case TS_ESC:                /* ESC */
         if (ch=='[')
         {
-            state=2; val=0;
+            state=TS_ESC_S; val=0;
             break;
         };
         if (ch=='O')
         {
-            state=4; val=0;
+            state=TS_ESC_O; val=0;
             break;
         };
 #ifndef BARE_ESC
-        state=0;
+        state=TS_NORMAL;
         if (ch==127)
             sprintf(txt,"Alt-Backspace");
         else if ((unsigned char)ch>32)
@@ -1117,7 +1127,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
     break;
 #else
         /* [Esc] */
-        state=0;
+        state=TS_NORMAL;
         ret(0);
         tbuf+=sprintf(tbuf,"\0335n");
         if (b_bottom!=b_screenb)
@@ -1129,7 +1139,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
         redraw_in();
         /* fallthrough */
 #endif
-    case 0:
+    case TS_NORMAL:
         switch (ch)
         {
         case '\n':
@@ -1257,7 +1267,7 @@ key_alt_tab:
         case 17:                /* ^[Q] */
             if (find_bind("^Q",0,ses))
                 break;
-            state=5;
+            state=TS_VERBATIM;
             break;
 #endif
         case 20:                /* ^[T] */
@@ -1295,7 +1305,7 @@ key_alt_tab:
         case 22:                /* ^[V] */
             if (find_bind("^V",0,ses))
                 break;
-            state=5;
+            state=TS_VERBATIM;
             break;
 #endif
         case 23:                /* ^[W] */
@@ -1344,7 +1354,7 @@ key_alt_tab:
             redraw_in();
             break;
         case 27:        /* [Esc] or a control sequence */
-            state=1;
+            state=TS_ESC;
             break;
         case EMPTY_CHAR:
             break;
