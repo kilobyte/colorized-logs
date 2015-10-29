@@ -24,7 +24,6 @@ int wcswidth(const WC *pwcs, size_t n);
 #define OUT_WC(d,s,n) (memcpy(d,s,n),n)
 #define FLATlen strlen
 #define iswalnum(x) isalnum(x)
-#define iswupper(x) isupper(x)
 #define towupper(x) toupper(x)
 #define towlower(x) tolower(x)
 #endif

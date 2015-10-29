@@ -739,11 +739,10 @@ static int usertty_process_kbd(struct session *ses, WC ch)
             val=val*10+(ch-'0');
             state=TS_ESC_S;
         }
-        else if (iswupper(ch))
+        else if (ch>='A' && ch <='Z')
         {
             switch (ch)
             {
-
             prev_history:
             case 'A':       /* up arrow */
                 if (ret(0))
