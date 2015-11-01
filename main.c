@@ -953,7 +953,7 @@ static void do_one_line(char *line,int nl,struct session *ses)
         t2.tv_sec-=t1.tv_sec;
         t2.tv_usec-=t1.tv_usec;
         if (t2.tv_usec<0)
-            t2.tv_usec+=1000000, t2.tv_sec++;
+            t2.tv_usec+=1000000, t2.tv_sec--;
         if (ses->line_time.tv_sec || ses->line_time.tv_usec)
         {
             /* A dragged average: every new line counts for 10% of the value.
