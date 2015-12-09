@@ -111,3 +111,7 @@
 
 1.0.15:
 * #loginputformat allows decorating input data in logs.
+
+1.0.16:
+* #initvar for one-time variable initialization
+* #info includes processing speed.

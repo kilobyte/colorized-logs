@@ -3,6 +3,9 @@
 *	bugfix: xterm titles were ignored
 *	processing speed in #info
 *	bugfix: proper F1-F4 and KpadMinus on xterm/gnome-terminal/konsole
+*	TCP keepalives every 30 seconds rather than 5 minutes
+*	bugfix: ansi2html rendered white as black
+*	dropped support for non-GNU make
 
 1.0.15:
 *	#loginputformat
