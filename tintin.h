@@ -247,6 +247,15 @@
 # include <gnutls/gnutls.h>
 # include <gnutls/x509.h>
 #endif
+#ifndef HAVE_SNPRINTF
+int snprintf(char *str, int len, char *fmt, ...);
+#endif
+#ifndef HAVE_VSNPRINTF
+int vsnprintf(char *str, int len, char *fmt, va_list ap);
+#endif
+#ifndef HAVE_STRLCPY
+size_t strlcpy(char *dst, const char *src, size_t n);
+#endif
 
 /************************ structures *********************/
 struct listnode
