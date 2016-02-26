@@ -1153,8 +1153,8 @@ Executes <command> using /bin/sh.
 
 The command is executed _synchronously_, this means TinTin is suspended
 during the execution of your command.  The command's input is /dev/null,
-while the output is piped to TinTin -- because of this way, running full-
-screen programs using #system is not a good idea.  Use #shell for that.
+while the output is piped to TinTin -- because of this, running full-screen
+programs using #system is not a good idea.  Use #shell for that.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~shell
 
