@@ -416,7 +416,7 @@ as a shortcut for "n;w;n;n;n;n;e;u;n".
 
 Notes:
 - if your MUD sometimes uses diagonal directions (nw, ne, sw, se) but they
-  happen _very_ rarely (Duris for example), you can still use speedwalks.
+  happen ~15::4~very~-1~ rarely (Duris for example), you can still use speedwalks.
   Just type "\nw" in case such an exit happens.
 - the "news" command found on some MUDs accidentally happens to consist of
   only legal speedwalking letters... Again, you have to type "\news".
@@ -622,7 +622,7 @@ Shows all available color names.
 From now, all occurrences of <pattern> will be colored <color>.
 
 <pattern> can contain * as wildcards (not %n as it was the case with
-substitutes).  Highlight is _the_only_ KBtin command which ignores color
+substitutes).  Highlight is ~15::4~the only~-1~ KBtin command which ignores color
 codes in the input text.  This means, you can highlight "~6~le~2~av~10~es~6~-co~10~ve~6~re~2~d~-1~"
 by typing "#hi <color> leaves-covered".
 You can use standard KBtin color-codes (without the ~s), or english color
@@ -1025,7 +1025,7 @@ Example:
 #remove <pattern>
 #unevent <pattern>
 #undelay <pattern>
-Kills all timed events which _command_ (not delay!) matches <pattern>.
+Kills all timed events which ~15::4~command~-1~ (not delay!) matches <pattern>.
 
 Example:
 #action {~~-1~7~%1 leaves } {#unevent {counter $1}}
@@ -1151,7 +1151,7 @@ Type 'fg' to return.
 #system <command>
 Executes <command> using /bin/sh.
 
-The command is executed _synchronously_, this means TinTin is suspended
+The command is executed ~15::4~synchronously~-1~, this means TinTin is suspended
 during the execution of your command.  The command's input is /dev/null,
 while the output is piped to TinTin -- because of this, running full-screen
 programs using #system is not a good idea.  Use #shell for that.
@@ -1474,7 +1474,7 @@ a>b>c (length=15) is shorter than a>d>c (length=23).
 
 #route [<a> [<b>]]
 Lists all routes, all routes going from <a>, or the route from <a> to <b>.
-Hint: if you want all the routes going _to_ b, type "#route * b".  You may
+Hint: if you want all the routes going ~15::4~to~-1~ b, type "#route * b".  You may
 also want to take a look at #dogoto, to check non-direct routes too.
 
 #route <a> <b> <commands> [<distance> [{condition}]]
@@ -1532,7 +1532,7 @@ Do nothing.  Use these commands as comments.
 Adds <dir> to the end of your current path, if there exists a pathdir for
 <dir>.  If there is no such pathdir, nothing happens.
 
-Don't use this command to follow the way _you_ go.  This is already done as
+Don't use this command to follow the way ~15::4~you~-1~ go.  This is already done as
 long as your movement commands are among your #pathdirs.  Use it in case of
 following a leader, victim, etc.
 
