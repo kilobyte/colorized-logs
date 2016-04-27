@@ -113,7 +113,6 @@ void action_command(char *arg, struct session *ses)
         while ((myactions = search_node_with_wild(myactions, left)) != NULL)
             if (strcmp(myactions->left,K_ACTION_MAGIC))
                 shownode_list_action(myactions), flag++;
-            prompt(ses);
         if (!flag && ses->mesvar[1])
             tintin_printf(ses,"#That action (%s) is not defined.",left);
         prompt(ses);
@@ -157,7 +156,6 @@ void promptaction_command(char *arg, struct session *ses)
         while ((myprompts = search_node_with_wild(myprompts, left)))
             if (strcmp(myprompts->left,K_ACTION_MAGIC))
                 shownode_list_action(myprompts), flag++;
-            prompt(ses);
         if (!flag && ses->mesvar[1])
             tintin_printf(ses,"#That promptaction (%s) is not defined.",left);
         prompt(ses);
