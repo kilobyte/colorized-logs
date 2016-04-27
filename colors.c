@@ -177,7 +177,7 @@ again:
                                 ccolor=(ccolor&0x38f)|(colors[tok[i]-40]<<4);
                             /* ignore unknown attributes */
                         }
-                        out+=setcolor(out,ccolor);
+                    out+=setcolor(out,ccolor);
                     break;
                 case 'C':
                     if (tok[0]<0)     /* sanity check */
