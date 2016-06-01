@@ -1,4 +1,3 @@
-/* Autoconf patching by David Hedbor, neotron@lysator.liu.se */
 /*********************************************************************/
 /* file: history.c - functions for the history stuff                 */
 /*                             TINTIN III                            */

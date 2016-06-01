@@ -1,4 +1,3 @@
-/* Autoconf patching by David Hedbor, neotron@lysator.liu.se */
 /*********************************************************************/
 /* file: net.c - do all the net stuff                                */
 /*                             TINTIN III                            */

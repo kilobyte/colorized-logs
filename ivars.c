@@ -1,4 +1,3 @@
-/* Autoconf patching by David Hedbor, neotron@lysator.liu.se */
 #include "tintin.h"
 #include "assert.h"
 #include "protos/action.h"

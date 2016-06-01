@@ -1,4 +1,3 @@
-/* Autoconf patching by David Hedbor, neotron@lysator.liu.se */
 /*********************************************************************/
 /* file: path.c - stuff for the path feature                         */
 /*                             TINTIN III                            */

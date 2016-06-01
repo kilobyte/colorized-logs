@@ -1,4 +1,3 @@
-/* Autoconf patching by David Hedbor, neotron@lysator.liu.se */
 /*********************************************************************/
 /* file: files.c - funtions for logfile and reading/writing comfiles */
 /*                             TINTIN + +                            */

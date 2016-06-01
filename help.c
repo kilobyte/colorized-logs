@@ -1,8 +1,5 @@
-/* Autoconf patching by David Hedbor, neotron@lysator.liu.se */
 /*****************************************************************/
 /* functions for the #help command                               */
-/* Some small patches by David Hedbor (neotron@lysator.liu.se)   */
-/* to make it work better.                                       */
 /*****************************************************************/
 #include "tintin.h"
 #include "protos/print.h"

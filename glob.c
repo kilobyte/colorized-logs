@@ -1,4 +1,3 @@
-/* Autoconf patching by David Hedbor, neotron@lysator.liu.se */
 /*
  * match -- returns 1 if `string' satisfised `regex' and 0 otherwise
  * stolen from Spencer Sun: only recognizes * and \ as special characters

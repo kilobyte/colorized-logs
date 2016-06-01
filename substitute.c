@@ -1,4 +1,3 @@
-/* Autoconf patching by David Hedbor, neotron@lysator.liu.se */
 /*********************************************************************/
 /* file: substitute.c - functions related to the substitute command  */
 /*                             TINTIN III                            */

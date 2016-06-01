@@ -1,4 +1,3 @@
-/* Autoconf patching by David Hedbor, neotron@lysator.liu.se */
 /*********************************************************************/
 /* file: alias.c - funtions related the the alias command            */
 /*                             TINTIN III                            */

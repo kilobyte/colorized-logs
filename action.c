@@ -1,4 +1,3 @@
-/* Autoconf patching by David Hedbor, neotron@lysator.liu.se */
 /*********************************************************************/
 /* file: action.c - funtions related to the action command           */
 /*                             TINTIN III                            */

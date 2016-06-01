@@ -1,4 +1,3 @@
-/* Autoconf patching by David Hedbor, neotron@lysator.liu.se */
 /*********************************************************************/
 /* file: ticks.c - functions for the ticker stuff                    */
 /*                             TINTIN III                            */

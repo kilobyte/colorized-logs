@@ -1,4 +1,3 @@
-/* Autoconf patching by David Hedbor, neotron@lysator.liu.se */
 /*********************************************************************/
 /* file: llist.c - linked-list datastructure                         */
 /*                             TINTIN III                            */
