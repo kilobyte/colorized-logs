@@ -101,6 +101,15 @@ void do_in_MUD_colors(char *txt,int quotetype)
             if (*(txt+1)=='[')
             {
                 back=txt++;
+                if (*(txt+1)=='?')
+                {
+                    txt++;
+                    txt++;
+                    while (*txt==';'||(*txt>='0'&&*txt<='9'))
+                        txt++;
+                    break;
+                }
+
                 tok[0]=nt=0;
 again:
                 switch (*++txt)

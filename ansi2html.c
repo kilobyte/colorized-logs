@@ -189,6 +189,9 @@ esc:
 csi:
     switch (ch)
     {
+    case '?':
+        ch=getchar();
+        goto csiopt;
     case ';':
         if (++ntok>=10)
             goto normal;        /* too many tokens, something is fishy */
@@ -271,4 +274,13 @@ csi:
     case EOF:
         goto normal;
     }
+/****************************************************************************/
+csiopt:
+    if (ch==';'||(ch>='0'&&ch<='9'))
+    {
+        ch=getchar();
+        goto csiopt;
+    }
+    ch=getchar();
+    goto normal;
 }
