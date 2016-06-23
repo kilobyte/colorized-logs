@@ -5,9 +5,6 @@
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#if HAVE_TERMIOS_H
-# include <termios.h>
-#endif
 #ifdef HAVE_GRANTPT
 # include <stdlib.h>
 # ifdef HAVE_STROPTS_H
@@ -139,10 +136,9 @@ static char TtyProto[] = "/dev/ttyXY";
 # endif
 
 
-static int forkpty(int *amaster,char *dummy,struct termios *termp, struct winsize *wp)
+int openpty(int *amaster, int *aslave, char *dummy, struct termios *termp, struct winsize *wp)
 {
     int master,slave;
-    int pid;
 
 #ifdef HAVE__GETPTY
     int filedes[2];
@@ -248,7 +244,22 @@ ok:
         tcsetattr(master, TCSANOW, termp);
     if (wp)
         ioctl(master,TIOCSWINSZ,wp);
-    /* let's ignore errors on this ioctl silently */
+    /* let's ignore errors on these ioctls silently */
+
+    if (amaster)
+        *amaster=master;
+    if (aslave)
+        *aslave=slave;
+    return 0;
+}
+
+static int forkpty(int *amaster, char *dummy, struct termios *termp, struct winsize *wp)
+{
+    int master,slave;
+    int pid;
+
+    if (openpty(&master, &slave, 0, termp, wp))
+        return -1;
 
     pid=fork();
     switch (pid)
