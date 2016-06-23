@@ -225,7 +225,7 @@ struct session *run_command(char *arg,struct session *ses)
     };
 
     utf8_to_local(ustr, right);
-    if ((sock=run(ustr)) == -1)
+    if ((sock=run(ustr, COLS, LINES-1, TERM)) == -1)
     {
         tintin_eprintf(ses, "#forkpty() FAILED: %s", strerror(errno));
         return ses;

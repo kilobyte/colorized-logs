@@ -253,7 +253,7 @@ void write_line_mud(char *line, struct session *ses)
         PROFPUSH("conv: utf8->remote");
         convert(&ses->c_io, rstr, line, 1);
         PROFPOP;
-        pty_write_line(rstr, ses);
+        pty_write_line(rstr, ses->socket);
     }
     do_hook(ses, HOOK_SEND, line, 1);
 }

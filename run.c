@@ -20,7 +20,6 @@
 #if defined(HAVE_FORKPTY) && defined(HAVE_LIBUTIL_H)
 # include <libutil.h>
 #endif
-#include "ui.h"
 
 extern char **environ;
 extern void syserr(char *msg, ...);
@@ -300,7 +299,7 @@ static void pty_makeraw(struct termios *ta)
     ta->c_cc[VTIME]=0;
 }
 
-int run(char *command)
+int run(const char *command, int sx, int sy, const char *term)
 {
     int fd;
 
@@ -321,11 +320,11 @@ int run(char *command)
 
     pty_makeraw(&ta);
 
-    ws.ws_row=LINES-1;
-    ws.ws_col=COLS;
+    ws.ws_row=sy;
+    ws.ws_col=sx;
     ws.ws_xpixel=0;
     ws.ws_ypixel=0;
-    res = forkpty(&fd,0,&ta,(LINES>1 && COLS>0)?&ws:0);
+    res = forkpty(&fd,0,&ta,(sy>0 && sx>0)?&ws:0);
 #else
     res = forkpty(&fd,0,0,0);
 #endif
@@ -350,7 +349,8 @@ int run(char *command)
             argv[1]="-c";
             argv[2]=cmd;
             argv[3]=0;
-            putenv("TERM=" TERM); /* TERM=KBtin.  Or should we lie? */
+            if (term)
+                setenv("TERM",term,1); /* TERM=KBtin.  Or should we lie? */
             execve("/bin/sh",argv,environ);
             fprintf(stderr,"#ERROR: Couldn't exec `%s'\n",command);
             exit(127);
@@ -414,35 +414,35 @@ FILE* mypopen(char *command, int wr)
     }
 }
 
-void pty_write_line(char *line, struct session *ses)
+void pty_write_line(char *line, int pty)
 {
     char out[4*BUFFER_SIZE+1];
     int len;
 #ifdef PTY_ECHO_HACK
     struct termios ta, oldta;
 
-    tcgetattr(ses->socket, &oldta);
+    tcgetattr(pty, &oldta);
     memcpy(&ta, &oldta, sizeof(ta));
     pty_makeraw(&ta);
     ta.c_cc[VMIN]=0x7fffffff;
-    tcsetattr(ses->socket, TCSANOW, &ta);
+    tcsetattr(pty, TCSANOW, &ta);
 #else
 # ifdef RESET_RAW
     struct termios ta;
 
     memset(&ta, 0, sizeof(ta));
     pty_makeraw(&ta);
-    tcsetattr(ses->socket, TCSANOW, &ta);
+    tcsetattr(pty, TCSANOW, &ta);
 # endif
 #endif
 
     len=sprintf(out, "%s\n", line);
-    if (write(ses->socket, out, len) == -1)
+    if (write(pty, out, len) == -1)
         syserr("write in pty_write_line()");
 
 #ifdef PTY_ECHO_HACK
     /* FIXME: if write() blocks, they'll act in raw mode */
-    tcsetattr(ses->socket, TCSANOW, &oldta);
+    tcsetattr(pty, TCSANOW, &oldta);
     sleep(0);   /* let'em act */
 #endif
 }
