@@ -25,27 +25,6 @@ extern char **environ;
 extern void syserr(char *msg, ...);
 
 
-#ifndef HAVE_FORKPTY
-# if !(defined(HAVE__GETPTY) || defined(HAVE_GRANTPT) && (defined(HAVE_GETPT) || defined(HAVE_DEV_PTMX)))
-/*
- * if no PTYRANGE[01] is in the config file, we pick a default
- */
-#  ifndef PTYRANGE0
-#   define PTYRANGE0 "qpr"
-#  endif
-#  ifndef PTYRANGE1
-#   define PTYRANGE1 "0123456789abcdef"
-#  endif
-#  ifdef M_UNIX
-static char PtyProto[] = "/dev/ptypXY";
-static char TtyProto[] = "/dev/ttypXY";
-#  else
-static char PtyProto[] = "/dev/ptyXY";
-static char TtyProto[] = "/dev/ttyXY";
-#  endif
-# endif
-
-
 #ifdef TERM_DEBUG
 static void print_stty(int fd)
 {
@@ -135,6 +114,27 @@ void termdebug_command(char *arg, struct session *ses)
     print_stty(ses->socket);
 }
 #endif
+
+
+#ifndef HAVE_FORKPTY
+# if !(defined(HAVE__GETPTY) || defined(HAVE_GRANTPT) && (defined(HAVE_GETPT) || defined(HAVE_DEV_PTMX)))
+/*
+ * if no PTYRANGE[01] is in the config file, we pick a default
+ */
+#  ifndef PTYRANGE0
+#   define PTYRANGE0 "qpr"
+#  endif
+#  ifndef PTYRANGE1
+#   define PTYRANGE1 "0123456789abcdef"
+#  endif
+#  ifdef M_UNIX
+static char PtyProto[] = "/dev/ptypXY";
+static char TtyProto[] = "/dev/ttypXY";
+#  else
+static char PtyProto[] = "/dev/ptyXY";
+static char TtyProto[] = "/dev/ttyXY";
+#  endif
+# endif
 
 
 static int forkpty(int *amaster,char *dummy,struct termios *termp, struct winsize *wp)
