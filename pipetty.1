@@ -1,0 +1,31 @@
+.TH pipetty 1 2016-06-25 KBtin KBtin
+.SH NAME
+pipetty \- a tool to pipe from a pseudoterminal
+.SH SYNOPSIS
+.B pipetty
+.I command
+[
+.I args...
+]
+.SH DESCRIPTION
+.B pipetty
+lets you make a program unaware that its output is being redirected.
+This is usually useful for tools that detect whether they're run from a
+terminal and modify their output, typically colorizing it only when run
+interactively.
+.P
+Usually, disabling colors when redirected is a good thing as most tools
+can't cope with ANSI codes.  Use
+.B pipetty
+when you do want colors, like when you're going to feed that output to
+.B ansi2html
+or
+.B less -R
+.R .
+.SH CAVEATS
+Certain programs, such as
+.B bash
+, don't quite like their stdin to be on a different terminal than stdout.
+.SH "SEE ALSO"
+.BR ansi2html ,
+.BR less .
