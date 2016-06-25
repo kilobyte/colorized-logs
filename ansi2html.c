@@ -7,7 +7,7 @@
 #define BLINK        0x100000
 #define INVERSE      0x200000
 
-static int fg,bg,fl,b,cl;
+static int fg,bg,fl,b,cl,frgb,brgb;
 
 static char *cols[]={"BLK","RED","GRN","YEL","BLU","MAG","CYN","WHI",
                      "HIK","HIR","HIG","HIY","HIB","HIM","HIC","HIW"};
@@ -26,9 +26,9 @@ static void class()
 
 static void span()
 {
-    int tmp, _fg=fg, _bg=bg;
+    int tmp, _fg=fg, _bg=bg, _frgb=frgb, _brgb=brgb;
 
-    if (fg==-1 && bg==-1 && !fl)
+    if (fg==-1 && bg==-1 && frgb==-1 && brgb==-1 && !fl)
         return;
     printf("<b");
     cl=0;
@@ -39,6 +39,7 @@ static void span()
         if (_bg==-1)
             _bg=0;
         tmp=_fg; _fg=_bg; _bg=tmp;
+        tmp=_frgb; _frgb=_brgb; _brgb=tmp;
     }
     if (fl&DIM)
         fg=8;
@@ -63,6 +64,17 @@ static void span()
 
     if (cl)
         printf("\"");
+
+    if (_frgb!=-1 || _brgb!=-1)
+    {
+        printf(" style=\"");
+        if (_frgb!=-1)
+            printf("color:#%06x;",_frgb);
+        if (_brgb!=-1)
+            printf("background-color:#%06x",_brgb);
+        printf("\"");
+    }
+
     printf(">");
     b=1;
 }
@@ -73,6 +85,49 @@ static void unspan()
     if (b)
         printf("</b>");
     b=0;
+}
+
+
+typedef unsigned char u8;
+struct rgb { u8 r; u8 g; u8 b; };
+
+
+struct rgb rgb_from_256(int i)
+{
+   struct rgb c;
+   if (i < 8)
+   {   /* Standard colours. */
+       c.r = i&1 ? 0xaa : 0x00;
+       c.g = i&2 ? 0xaa : 0x00;
+       c.b = i&4 ? 0xaa : 0x00;
+   }
+   else if (i < 16)
+   {
+       c.r = i&1 ? 0xff : 0x55;
+       c.g = i&2 ? 0xff : 0x55;
+       c.b = i&4 ? 0xff : 0x55;
+   }
+   else if (i < 232)
+   {   /* 6x6x6 colour cube. */
+       c.r = (i - 16) / 36 * 85 / 2;
+       c.g = (i - 16) / 6 % 6 * 85 / 2;
+       c.b = (i - 16) % 6 * 85 / 2;
+   }
+   else/* Grayscale ramp. */
+      c.r = c.g = c.b = i * 10 - 2312;
+   return c;
+}
+
+
+static void rgb_foreground(struct rgb c)
+{
+    frgb=(int)c.r<<16|(int)c.g<<8|(int)c.b;
+}
+
+
+static void rgb_background(struct rgb c)
+{
+    brgb=(int)c.r<<16|(int)c.g<<8|(int)c.b;
 }
 
 
@@ -134,6 +189,7 @@ int main()
     fg=bg=-1;
     fl=0;
     b=0;
+    frgb=brgb=-1;
     ch=getchar();
 normal:
     switch (ch)
@@ -210,6 +266,7 @@ csi:
             case 0:
                 fg=bg=-1;
                 fl=0;
+                frgb=brgb=-1;
                 break;
             case 1:
                 fl|=BOLD;
@@ -252,16 +309,65 @@ csi:
             case 30: case 31: case 32: case 33:
             case 34: case 35: case 36: case 37:
                 fg=tok[i]-30;
+                frgb=-1;
+                break;
+            case 38:
+                i++;
+                if (i>ntok)
+                    break;
+                if (tok[i]==5 && i<ntok)
+                {   /* 256 colours */
+                    i++;
+                    rgb_foreground(rgb_from_256(tok[i]));
+                }
+                else if (tok[i]==2 && i<=ntok+3)
+                {   /* 24 bit */
+                    struct rgb c =
+                    {
+                        .r = tok[i+1],
+                        .g = tok[i+2],
+                        .b = tok[i+3],
+                    };
+                    rgb_foreground(c);
+                    i+=3;
+                }
+                /* Subcommands 3 (CMY) and 4 (CMYK) are so insane
+                 * there's no point in supporting them.
+                 */
                 break;
             case 39:
                 fg=-1;
+                frgb=-1;
                 break;
             case 40: case 41: case 42: case 43:
             case 44: case 45: case 46: case 47:
                 bg=tok[i]-40;
+                brgb=-1;
+                break;
+            case 48:
+                i++;
+                if (i>ntok)
+                    break;
+                if (tok[i]==5 && i<ntok)
+                {   /* 256 colours */
+                    i++;
+                    rgb_background(rgb_from_256(tok[i]));
+                }
+                else if (tok[i]==2 && i<=ntok+3)
+                {   /* 24 bit */
+                    struct rgb c =
+                    {
+                        .r = tok[i+1],
+                        .g = tok[i+2],
+                        .b = tok[i+3],
+                    };
+                    rgb_background(c);
+                    i+=3;
+                }
                 break;
             case 49:
                 bg=-1;
+                brgb=-1;
             }
         unspan();
         span();
