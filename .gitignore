@@ -37,6 +37,7 @@ manual.html
 *.orig
 *~
 package.m4
+pipetty
 profinit.h
 protos
 protos.h

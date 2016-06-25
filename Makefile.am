@@ -1,4 +1,4 @@
-bin_PROGRAMS=KBtin ansi2html ansi2txt ttyrec2ansi
+bin_PROGRAMS=KBtin ansi2html ansi2txt ttyrec2ansi pipetty
 helpdir = $(pkgdatadir)
 help_DATA= NEWS KBtin_help.gz
 AM_CPPFLAGS = -DDATA_PATH=\"$(helpdir)\"
@@ -13,6 +13,8 @@ AM_CFLAGS=@GLIB_CFLAGS@ -Wall
 
 ansi2html_SOURCES=ansi2html.c
 ansi2txt_SOURCES=ansi2txt.c
+pipetty_SOURCES=pipetty.c
+pipetty_LDADD=run.o
 
 KBtin_DOCS=BUGS OLDNEWS KEYPAD FAQ
 EXTRA_DIST=KBtin_help.in commands make_commands $(man_MANS) help2ansi fixmanual terminfo.src prof_init kbtin.ico make_protos $(KBtin_DOCS) autogen.sh
