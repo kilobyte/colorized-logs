@@ -236,8 +236,31 @@ normal:
     }
 /****************************************************************************/
 esc:
-    if (ch!='[')
+    switch (ch)
+    {
+    case '[':
+        break;
+    case ']':
+        ch=getchar();
+        if (ch<'0'||ch>'9')
+            goto normal;
+        for (;;ch=getchar())
+            switch (ch)
+            {
+            case 27:
+                ch=getchar();
+            case 7:
+                ch=getchar();
+            case EOF:
+                goto normal;
+            }
+    case '%':
+        ch=getchar();
+    default:
+        ch=getchar();
         goto normal;
+    }
+    /* [ */
     ch=getchar();
     ntok=0;
     tok[0]=0;
