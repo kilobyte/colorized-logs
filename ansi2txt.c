@@ -5,14 +5,24 @@ int main()
     int ch;
     do
     {
-        if ((ch=getchar())=='\n')
-            putchar('\n');
-        else
-        if ((ch>=32)&&(ch<127))
+        if ((ch=getchar())==13)
+            ;
+        else if (ch==27)
+            if ((ch=getchar())=='[')
+                while ((ch=getchar())==';'||(ch>='0'&&ch<='9')||ch=='?');
+            else if (ch==']'&&(ch=getchar())>=0&&ch<='9')
+                for (;;)
+                {
+                    if ((ch=getchar())==EOF||ch==7)
+                        break;
+                    else if (ch==27)
+                        {ch=getchar(); break;}
+                }
+            else if (ch=='%')
+                ch=getchar();
+            else {}
+        else if (ch!=EOF)
             putchar(ch);
-        else
-        if (ch==27)
-            while ((ch=getchar())=='['||ch==','||(ch>='0'&&ch<='9')||ch==';'||ch=='?');
     }
     while (ch!=EOF);
     return 0;
