@@ -999,7 +999,7 @@ int iscompleteprompt(char *line)
         else
             if (!isaspace(*line))
                 ch=*line;
-    return strchr("?:>.*$#]&)",ch) && !((c==-1)?0:c&0x70);
+    return strchr("?:>.*$#]&)",ch) && (c==-1||!(c&0x70));
 }
 
 
