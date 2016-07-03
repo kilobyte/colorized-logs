@@ -359,8 +359,7 @@ int read_buffer_mud(char *buffer, struct session *ses)
             ses->mccp_more=0;
             break;
         default:
-            if (ses->debuglogfile)
-                debuglog(ses, "COMPRESSION ERROR: %d", i);
+            debuglog(ses, "COMPRESSION ERROR: %d", i);
             tintin_eprintf(ses, "#COMPRESSION ERROR");
             ses->mccp_more=0;
             return -1;

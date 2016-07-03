@@ -419,8 +419,7 @@ void check_all_actions(char *line, struct session *ses)
                 prepare_actionalias(ln->right, buffer, ses);
                 tintin_printf(ses,"[ACTION: %s]", buffer);
             }
-            if (ses->debuglogfile)
-                debuglog(ses, "ACTION: {%s}->{%s}", line, ln->right);
+            debuglog(ses, "ACTION: {%s}->{%s}", line, ln->right);
             parse_input(ln->right,1,ses);
             recursion=0;
             pvars = lastpvars;
@@ -457,8 +456,7 @@ void check_all_promptactions(char *line, struct session *ses)
                 prepare_actionalias(ln->right, buffer, ses);
                 tintin_printf(ses, "[PROMPT-ACTION: %s]", buffer);
             }
-            if (ses->debuglogfile)
-                debuglog(ses, "PROMPTACTION: {%s}->{%s}", line, ln->right);
+            debuglog(ses, "PROMPTACTION: {%s}->{%s}", line, ln->right);
             parse_input(ln->right,1,ses);
             recursion=0;
             pvars=lastpvars;
