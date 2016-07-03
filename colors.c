@@ -313,6 +313,8 @@ error:
             else if (*(txt+1)==']')
             {
                 txt+=2;
+                if (!isadigit(*txt)) /* malformed */
+                    break;
                 while (*txt && *txt!=7 && *txt!=27)
                     txt++;
                 if (*txt==27)
