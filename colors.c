@@ -310,6 +310,14 @@ error:
             }
             else if (*(txt+1)=='%' && *(txt+2)=='G')
                 txt+=2;
+            else if (*(txt+1)==']')
+            {
+                txt+=2;
+                while (*txt && *txt!=7 && *txt!=27)
+                    txt++;
+                if (*txt==27)
+                    txt++;
+            }
             break;
         case '~':
             back=txt;
