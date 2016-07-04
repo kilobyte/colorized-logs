@@ -666,3 +666,15 @@ x
 >>>
 #TOO DEEP RECURSION.
 ===
+
+### #hook title
+<<<
+#hook close {#showme FIN;#end}
+#hook title {#showme {TITLE: %1}}
+#rem [[[ (m4 quirk)
+#run a {sh -c 'printf "\033]0;good beer is good\033\\\\\033]1;junk\033\\\\\033]0;meow\a"'}
+>>>
+TITLE: good beer is good
+TITLE: meow
+FIN
+===
