@@ -3,6 +3,7 @@
 #include "protos/misc.h"
 #include "protos/parse.h"
 #include "protos/utils.h"
+#include "protos/hooks.h"
 
 extern struct session *nullsession;
 
@@ -139,7 +140,7 @@ static int rgb_background(struct rgb c)
 
 #define MAXTOK 10
 
-void do_in_MUD_colors(char *txt,int quotetype)
+void do_in_MUD_colors(char *txt,int quotetype,struct session *ses)
 {
     static int ccolor=7;
     /* worst case: buffer full of FormFeeds, with color=1023 */
@@ -315,10 +316,30 @@ error:
                 txt+=2;
                 if (!isadigit(*txt)) /* malformed */
                     break;
+                nt=0;
+                while (isadigit(*txt))
+                    nt=nt*10+*txt++-'0';
+                if (*txt!=';')
+                    break;
+                back=++txt;
                 while (*txt && *txt!=7 && *txt!=27)
                     txt++;
                 if (*txt==27)
-                    txt++;
+                    *txt++=0;
+                else if (*txt==7)
+                    *txt=0;
+                else
+                    break;
+                switch (nt)
+                {
+                case 0: /* set window title */
+                    if (!ses)
+                        break;
+                    if (back-TXT<=ses->lastintitle)
+                        break;
+                    ses->lastintitle=back-TXT;
+                    do_hook(ses, HOOK_TITLE, back, 1);
+                }
             }
             break;
         case '~':

@@ -823,6 +823,7 @@ static void read_mud(struct session *ses)
         {
             *cpdest = '\0';
             do_one_line(linebuffer,1,ses);
+            ses->lastintitle=0;
 
             cpsource++;
             cpdest=linebuffer;
@@ -840,7 +841,10 @@ static void read_mud(struct session *ses)
             }
             *cpdest=0;
             if (cpdest!=linebuffer)
+            {
                 do_one_line(linebuffer,0,ses);
+                ses->lastintitle=0;
+            }
             cpdest=linebuffer;
         }
         else
@@ -850,6 +854,7 @@ static void read_mud(struct session *ses)
     {
         *cpdest=0;
         do_one_line(linebuffer,1,ses);
+        ses->lastintitle=0;
         cpdest=linebuffer;
     }
     *cpdest = '\0';
@@ -896,7 +901,7 @@ static void do_one_line(char *line,int nl,struct session *ses)
     };
     _=line;
     PROF("processing incoming colors");
-    do_in_MUD_colors(line,0);
+    do_in_MUD_colors(line,0,ses);
     isnb=isnotblank(line,0);
     PROF("promptactions");
     if (!ses->ignore && (nl||isnb))

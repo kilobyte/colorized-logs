@@ -547,7 +547,10 @@ static void usertty_textout(char *txt)
         {
             o_draftlen=0;                              /* accept the draft */
             if (lastdraft)
+            {
                 lastdraft->last_line[0]=0;
+                lastdraft->lastintitle=0;
+            }
             lastdraft=0;
         }
         else

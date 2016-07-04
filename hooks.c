@@ -20,6 +20,7 @@ char *hook_names[]=
     "send",
     "activate",
     "deactivate",
+    "title",
 };
 
 /*********************/

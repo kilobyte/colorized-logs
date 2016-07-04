@@ -595,6 +595,7 @@ void system_command(char *arg,struct session *ses)
     FILE *output;
     char buf[BUFFER_SIZE],ustr[BUFFER_SIZE];
     mbstate_t cs;
+    int save_lastintitle;
 
     get_arg(arg, arg, 1, ses);
     if (*arg)
@@ -610,12 +611,15 @@ void system_command(char *arg,struct session *ses)
         };
         memset(&cs, 0, sizeof(cs));
 
+        save_lastintitle=ses->lastintitle;
         while (fgets(buf,BUFFER_SIZE,output))
         {
-            do_in_MUD_colors(buf,1);
+            ses->lastintitle=0;
+            do_in_MUD_colors(buf,1,ses);
             local_to_utf8(ustr, buf, BUFFER_SIZE, &cs);
             user_textout(ustr);
         }
+        ses->lastintitle=save_lastintitle;
         fclose(output);
         if (ses->mesvar[9])
             tintin_puts1("#OK COMMAND EXECUTED.", ses);

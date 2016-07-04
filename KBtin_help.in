@@ -515,6 +515,7 @@ end                      KBtin shuts down
 send                     %1 just got sent to the MUD
 activate                 Session is being switched to
 deactivate               Session is being switched from
+title                    The MUD tried to set window title to %1
 
 Examples:
 #hook close {#write myconfig}

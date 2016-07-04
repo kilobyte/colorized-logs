@@ -339,6 +339,7 @@ static struct session *new_session(char *name, char *address, int sock, int isso
     newsession->nagle=0;
     newsession->halfcr_in=0;
     newsession->halfcr_log=0;
+    newsession->lastintitle=0;
     newsession->debuglogfile=0;
     newsession->debuglogname=0;
     newsession->partial_line_marker = mystrdup(ses->partial_line_marker);
@@ -402,7 +403,7 @@ void cleanup_session(struct session *ses)
         user_textout_draft(0, 0);
         sprintf(buf,"%s\n",ses->last_line);
         convert(&ses->c_io, ses->last_line, buf, -1);
-        do_in_MUD_colors(ses->last_line,0);
+        do_in_MUD_colors(ses->last_line,0,0);
         user_textout(ses->last_line);
     };
     sprintf(buf, "#SESSION '%s' DIED.", ses->name);

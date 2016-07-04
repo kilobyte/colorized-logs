@@ -199,7 +199,8 @@
 #define HOOK_SEND       4
 #define HOOK_ACTIVATE   5
 #define HOOK_DEACTIVATE 6
-#define NHOOKS          7
+#define HOOK_TITLE      7
+#define NHOOKS          8
 
 /************************ includes *********************/
 #define _GNU_SOURCE
@@ -347,6 +348,7 @@ struct session
     int closing;
     int nagle;
     int halfcr_in, halfcr_log; /* \r at the end of a packet */
+    int lastintitle;
     char *charset, *logcharset;
     struct charset_conv c_io,c_log;
 #ifdef HAVE_ZLIB
