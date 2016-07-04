@@ -1,4 +1,7 @@
 1.0.17
+*	pipetty, a new tool to fool isatty()
+*	256/24-bit color support, full in ansi2html, shoehorned to 16/8 colors
+	in KBtin
 *	#hook title
 
 1.0.16:
