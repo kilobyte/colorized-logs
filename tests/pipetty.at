@@ -1,0 +1,17 @@
+AT_SETUP([[pipetty]])
+
+AT_DATA([isatty], [
+test -t 0
+printf 'isatty(0): %d\n' $?
+test -t 1
+printf 'isatty(1): %d\n' $?
+test -t 2
+printf 'isatty(2): %d\n' $?
+])
+AT_DATA([expout], [isatty(0): 1
+isatty(1): 0
+isatty(2): 0
+])
+AT_CHECK([pipetty </dev/null sh isatty],,[expout])
+
+AT_CLEANUP

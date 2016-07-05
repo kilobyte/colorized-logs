@@ -11,3 +11,5 @@ dnl ===
 m4_include([version.at])
 m4_include([tests.at])
 m4_include([run.at])
+
+m4_include([pipetty.at])
