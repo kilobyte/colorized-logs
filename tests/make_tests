@@ -1,4 +1,5 @@
-#!/usr/bin/perl -w
+#!/usr/bin/env perl
+use warnings;
 
 $#ARGV==0 or die "Usage: $0 tests.in\n";
 
