@@ -38,6 +38,13 @@ int main(int argc, const char **argv)
     if (master>31)
         errno=0, syserr("bad fd from openpty(): %d", master);
 
+    struct termios ti;
+    if (!tcgetattr(slave, &ti))
+    {
+        cfmakeraw(&ti);
+        tcsetattr(slave, TCSANOW, &ti);
+    }
+
     int pid=fork();
     if (pid==-1)
         syserr("fork failed");
