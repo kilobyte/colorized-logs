@@ -7,7 +7,7 @@
 #define BLINK        0x100000
 #define INVERSE      0x200000
 
-static int fg,bg,fl,b,cl,frgb,brgb;
+static int fg,bg,fl,b,cl,frgb,brgb,use_span;
 
 static char *cols[]={"BLK","RED","GRN","YEL","BLU","MAG","CYN","WHI",
                      "HIK","HIR","HIG","HIY","HIB","HIM","HIC","HIW"};
@@ -30,8 +30,6 @@ static void span()
 
     if (fg==-1 && bg==-1 && frgb==-1 && brgb==-1 && !fl)
         return;
-    printf("<b");
-    cl=0;
     if (fl&INVERSE)
     {
         if (_fg==-1)
@@ -43,6 +41,12 @@ static void span()
     }
     if (fl&DIM)
         _fg=8;
+
+    if (use_span)
+        goto do_span;
+
+    printf("<b");
+    cl=0;
     if (_fg!=-1)
     {
         if (fl&BOLD)
@@ -77,13 +81,51 @@ static void span()
 
     printf(">");
     b=1;
+    return;
+
+do_span:
+    printf("<span style=\"");
+    if (_frgb!=-1)
+    {
+        printf("color:#%06x",_frgb);
+        if (fl&BOLD)
+            printf(";font-weight:bold");
+    }
+    else if (_fg!=-1)
+    {
+        if (fl&BOLD)
+            printf("color:#%c%c%c",_fg&1?'f':'5',_fg&2?'f':'5',_fg&4?'f':'5');
+        else
+            printf("color:#%c%c%c",_fg&1?'a':'0',_fg&2?'a':'0',_fg&4?'a':'0');
+    }
+    else if (fl&BOLD)
+        printf("font-weight:bold");
+
+    if (_brgb!=-1)
+        printf(";background-color:#%06x",_brgb);
+    else if (_bg!=-1)
+        printf(";background-color:#%c%c%c",_bg&1?'a':'0',_bg&2?'a':'0',_bg&4?'a':'0');
+
+    if (fl&ITALIC)
+        printf(";font-style:italic");
+    if (fl&UNDERLINE)
+    {
+        printf(";text-decoration:underline");
+        if (fl&BLINK)
+            printf(" blink");
+    }
+    else if (fl&BLINK)
+        printf(";text-decoration:blink");
+
+    printf("\">");
+    b=1;
 }
 
 
 static void unspan()
 {
     if (b)
-        printf("</b>");
+        printf(use_span?"</span>":"</b>");
     b=0;
 }
 
@@ -134,13 +176,22 @@ static void rgb_background(struct rgb c)
 int main()
 {
     int i;
+    use_span=1;
 
     printf(
 "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\n"
 "\t\"http://www.w3.org/TR/html4/strict.dtd\">\n"
 "<html>\n"
 "<head>\n"
-"<!--<title></title>-->\n"
+"<!--<title></title>-->\n");
+
+    if (use_span)
+        printf(
+"</head>\n"
+"<body style=\"background-color:black\">\n"
+"<pre style=\"color:#bbb;white-space:pre-wrap:word-wrap:break-word\">");
+    else
+        printf(
 "<style type=\"text/css\">\n"
 "body {background-color: black;}\n"
 "pre {\n"
