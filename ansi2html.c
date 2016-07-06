@@ -42,7 +42,7 @@ static void span()
         tmp=_frgb; _frgb=_brgb; _brgb=tmp;
     }
     if (fl&DIM)
-        fg=8;
+        _fg=8;
     if (_fg!=-1)
     {
         if (fl&BOLD)
