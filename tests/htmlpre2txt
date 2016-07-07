@@ -1,0 +1,15 @@
+#!/usr/bin/env perl
+use warnings;
+
+# Unfit for general use, of course.
+undef $/;
+$_=<>;
+s|.*<pre|<|s;
+s|</pre>.*||s;
+s,\n<hr>\n,\l,sg;
+s,<(?:[^>"]|"[^"]*")*>,,g;
+s,&iexcl;,\a,g;
+s,&lt;,<,g;
+s,&gt;,>,g;
+s,&amp;,&,g;
+print;

@@ -1,0 +1,18 @@
+AT_SETUP([[ansi2html]])
+
+AT_DATA([testin], [[
+foo\e[1mbar\e[0m\n
+\e[?2004l
+\e]0;title1\e\\
+\e]4;16;rgb:0/0/0\e\\
+\e]0;title2\a
+\n
+\f\n
+]])
+AT_DATA([expout], [foobar
+
+
+])
+AT_CHECK([unescape <testin|ansi2html|htmlpre2txt],,[expout])
+
+AT_CLEANUP

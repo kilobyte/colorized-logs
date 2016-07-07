@@ -14,3 +14,4 @@ m4_include([run.at])
 
 m4_include([pipetty.at])
 m4_include([ansi2txt.at])
+m4_include([ansi2html.at])

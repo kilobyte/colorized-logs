@@ -9,6 +9,7 @@ while(<>)
     s/\\n/\n/g;
     s/\\e/\e/g;
     s/\\a/\a/g;
+    s/\\f/\f/g;
     s/\\\\/\\/g;
     print;
 }
