@@ -9,8 +9,8 @@
 
 static int fg,bg,fl,b,cl,frgb,brgb,use_span;
 
-static char *cols[]={"BLK","RED","GRN","YEL","BLU","MAG","CYN","WHI",
-                     "HIK","HIR","HIG","HIY","HIB","HIM","HIC","HIW"};
+static const char *cols[]={"BLK","RED","GRN","YEL","BLU","MAG","CYN","WHI",
+                           "HIK","HIR","HIG","HIY","HIB","HIM","HIC","HIW"};
 
 static int ntok, tok[10];
 static int ch;
