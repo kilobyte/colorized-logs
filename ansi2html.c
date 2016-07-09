@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 #define BOLD         0x010000
 #define DIM          0x020000
@@ -7,7 +8,8 @@
 #define BLINK        0x100000
 #define INVERSE      0x200000
 
-static int fg,bg,fl,b,cl,frgb,brgb,use_span;
+static int use_span=0, use_headers=1;
+static int fg,bg,fl,b,cl,frgb,brgb;
 
 static const char *cols[]={"BLK","RED","GRN","YEL","BLU","MAG","CYN","WHI",
                            "HIK","HIR","HIG","HIY","HIB","HIM","HIC","HIW"};
@@ -173,22 +175,34 @@ static void rgb_background(struct rgb c)
 }
 
 
-int main()
+int main(int argc, const char **argv)
 {
     int i;
-    use_span=1;
+    for (i=1; i<argc; ++i)
+        if (!strcmp(argv[i], "-n") || !strcmp(argv[i], "--no-header"))
+            use_span=1, use_headers=0;
+        else
+            return fprintf(stderr, "%s: Unknown argument '%s'.\n", argv[0],
+                           argv[i]), 1;
 
-    printf(
+    if (use_headers)
+        printf(
 "<!DOCTYPE html>\n"
 "<html>\n"
 "<head>\n"
 "<!--<title></title>-->\n");
 
     if (use_span)
-        printf(
+    {
+        if (use_headers)
+            printf(
 "</head>\n"
 "<body style=\"background-color:black\">\n"
 "<pre style=\"color:#bbb;white-space:pre-wrap:word-wrap:break-word\">");
+        else
+            printf(
+"<pre style=\"background-color:black;color:#bbb;white-space:pre-wrap:word-wrap:break-word\">");
+    }
     else
         printf(
 "<style type=\"text/css\">\n"
@@ -246,7 +260,9 @@ normal:
     {
     case EOF:
         unspan();
-        printf("</pre>\n</body>\n</html>\n");
+        printf("</pre>\n");
+        if (use_headers)
+            printf("</body>\n</html>\n");
         return 0;
     case 0:  case 1:  case 2:  case 3:  case 4:  case 5:  case 6:
     case 8:                    case 11:                   case 14: case 15:

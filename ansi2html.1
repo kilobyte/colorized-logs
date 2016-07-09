@@ -3,6 +3,8 @@
 ansi2html \- ansi to HTML converter
 .SH SYNOPSIS
 .B ansi2html
+.RI [ -n ]
+.I
 <
 .I log
 >
@@ -16,6 +18,12 @@ this does not include xterm-only extensions.
 Since version 1.0.10, ansi2html no longer tries to change blinking text into
 something else.  On most browsers it will show properly, on Links, Internet
 Explorer and possibly others it won't blink.
+.SH OPTIONS
+.TP
+.B -n
+Don't produce a HTML header.  This allows including the log into a web page
+you make some other way.  Shouldn't be used for standalone viewing: there
+will be an unsightly white margin.
 .SH CAVEATS
 ANSI codes other than color codes are ignored; possibly causing misformatted
 output.
