@@ -462,6 +462,16 @@ csi:
         span();
         ch=getchar();
         goto normal;
+    case 'C':
+        ntok=tok[0];
+        if (ntok<=0)
+            ntok=1;
+        else if (ntok>512) /* sanity */
+            ntok=512;
+        for (i=0;i<ntok;++i)
+            printf(" ");
+        ch=getchar();
+        goto normal;
     case 'J':
         goto formfeed;
     default:
