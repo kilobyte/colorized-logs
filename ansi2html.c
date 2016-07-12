@@ -473,6 +473,15 @@ csi:
             case 49:
                 bg=-1;
                 brgb=-1;
+                break;
+            case 90: case 91: case 92: case 93:
+            case 94: case 95: case 96: case 97:
+                frgb=rgb_to_int(rgb_from_256(tok[i]-82));
+                break;
+            case 100: case 101: case 102: case 103:
+            case 104: case 105: case 106: case 107:
+                brgb=rgb_to_int(rgb_from_256(tok[i]-92));
+                break;
             }
         unspan();
         span();
