@@ -7,6 +7,7 @@
 #define UNDERLINE    0x080000
 #define BLINK        0x100000
 #define INVERSE      0x200000
+#define STRIKE       0x400000
 
 static int use_span=0, use_headers=1;
 static int fg,bg,fl,b,cl,frgb,brgb;
@@ -64,9 +65,9 @@ static void span()
     if (fl&ITALIC)
         class(),printf("ITA");
     if (fl&UNDERLINE)
-        class(),printf((fl&BLINK)?"UNDBLI":"UND");
-    else if (fl&BLINK)
-        class(),printf("BLI");
+        class(),printf((fl&STRIKE)?"UNDSTR":"UND");
+    else if (fl&STRIKE)
+        class(),printf("STR");
 
     if (cl)
         printf("\"");
@@ -110,14 +111,16 @@ do_span:
 
     if (fl&ITALIC)
         printf(";font-style:italic");
-    if (fl&UNDERLINE)
+    if (fl&(UNDERLINE|BLINK|STRIKE))
     {
-        printf(";text-decoration:underline");
+        printf(";text-decoration:");
+        if (fl&UNDERLINE)
+            printf(" underline");
         if (fl&BLINK)
             printf(" blink");
+        if (fl&STRIKE)
+            printf(" line-through");
     }
-    else if (fl&BLINK)
-        printf(";text-decoration:blink");
 
     printf("\">");
     b=1;
@@ -244,8 +247,8 @@ int main(int argc, const char **argv)
 "b.BWHI {background-color: #aaa}\n"
 "b.ITA {font-style: italic}\n"
 "b.UND {text-decoration: underline}\n"
-"b.BLI {text-decoration: blink}\n"
-"b.UNDBLI {text-decoration: underline blink}\n"
+"b.STR {text-decoration: line-through}\n"
+"b.UNDSTR {text-decoration: underline line-through}\n"
 "</style>\n"
 "</head>\n"
 "<body>\n"
@@ -377,6 +380,9 @@ csi:
             case 7:
                 fl|=INVERSE;
                 break;
+            case 9:
+                fl|=STRIKE;
+                break;
             case 21:
                 fl&=~(BOLD|DIM);
                 break;
@@ -394,6 +400,9 @@ csi:
                 break;
             case 27:
                 fl&=~INVERSE;
+                break;
+            case 29:
+                fl&=~STRIKE;
                 break;
             case 30: case 31: case 32: case 33:
             case 34: case 35: case 36: case 37:
