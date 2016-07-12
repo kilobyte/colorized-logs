@@ -49,6 +49,12 @@ struct rgb rgb_from_256(int i)
 }
 
 
+static int rgb_to_int(struct rgb c)
+{
+    return (int)c.r<<16|(int)c.g<<8|(int)c.b;
+}
+
+
 static void class()
 {
     if (!cl)
@@ -163,18 +169,6 @@ static void unspan()
     if (b)
         printf(use_span?"</span>":"</b>");
     b=0;
-}
-
-
-static void rgb_foreground(struct rgb c)
-{
-    frgb=(int)c.r<<16|(int)c.g<<8|(int)c.b;
-}
-
-
-static void rgb_background(struct rgb c)
-{
-    brgb=(int)c.r<<16|(int)c.g<<8|(int)c.b;
 }
 
 
@@ -416,7 +410,7 @@ csi:
                 if (tok[i]==5 && i<ntok)
                 {   /* 256 colours */
                     i++;
-                    rgb_foreground(rgb_from_256(tok[i]));
+                    frgb=rgb_to_int(rgb_from_256(tok[i]));
                 }
                 else if (tok[i]==2 && i<=ntok+3)
                 {   /* 24 bit */
@@ -426,7 +420,7 @@ csi:
                         .g = tok[i+2],
                         .b = tok[i+3],
                     };
-                    rgb_foreground(c);
+                    frgb=rgb_to_int(c);
                     i+=3;
                 }
                 /* Subcommands 3 (CMY) and 4 (CMYK) are so insane
@@ -449,7 +443,7 @@ csi:
                 if (tok[i]==5 && i<ntok)
                 {   /* 256 colours */
                     i++;
-                    rgb_background(rgb_from_256(tok[i]));
+                    brgb=rgb_to_int(rgb_from_256(tok[i]));
                 }
                 else if (tok[i]==2 && i<=ntok+3)
                 {   /* 24 bit */
@@ -459,7 +453,7 @@ csi:
                         .g = tok[i+2],
                         .b = tok[i+3],
                     };
-                    rgb_background(c);
+                    brgb=rgb_to_int(c);
                     i+=3;
                 }
                 break;
