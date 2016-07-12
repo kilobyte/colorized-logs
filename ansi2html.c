@@ -10,7 +10,7 @@
 #define STRIKE       0x400000
 
 static int use_span=0, use_headers=1;
-static int fg,bg,fl,b,cl,frgb,brgb;
+static int fg,bg,fl,b,frgb,brgb;
 
 static const char *cols[]={"BLK","RED","GRN","YEL","BLU","MAG","CYN","WHI",
                            "HIK","HIR","HIG","HIY","HIB","HIM","HIC","HIW"};
@@ -55,18 +55,10 @@ static int rgb_to_int(struct rgb c)
 }
 
 
-static void class()
-{
-    if (!cl)
-        printf(" class=\"");
-    else
-        printf(" ");
-    cl=1;
-}
-
 static void span()
 {
     int tmp, _fg=fg, _bg=bg, _frgb=frgb, _brgb=brgb;
+    char clbuf[32], *cl=clbuf;
 
     if (fg==-1 && bg==-1 && frgb==-1 && brgb==-1 && !fl)
         return;
@@ -102,28 +94,33 @@ static void span()
         goto do_span;
 
     printf("<b");
-    cl=0;
     if (_fg!=-1)
     {
         if (fl&BOLD)
             _fg|=8;
-        class();printf("%s", cols[_fg]);
+        cl+=sprintf(cl," %s", cols[_fg]);
     }
     else if (fl&BOLD)
-        class(),printf("BOLD");
+        cl+=sprintf(cl," BOLD");
 
     if (_bg!=-1)
-        class(),printf("B%s", cols[_bg]);
+        cl+=sprintf(cl," B%s", cols[_bg]);
 
     if (fl&ITALIC)
-        class(),printf("ITA");
+        cl+=sprintf(cl," ITA");
     if (fl&UNDERLINE)
-        class(),printf((fl&STRIKE)?"UNDSTR":"UND");
+        cl+=sprintf(cl,(fl&STRIKE)?" UNDSTR":" UND");
     else if (fl&STRIKE)
-        class(),printf("STR");
+        cl+=sprintf(cl," STR");
 
-    if (cl)
-        printf("\"");
+    if (cl>clbuf)
+    {
+        *cl=0;
+        if (cl>=clbuf+5) /* implies no spaces */
+            printf(" class=\"%s\"", clbuf+1);
+        else
+            printf(" class=%s", clbuf+1);
+    }
 
     if (_frgb!=-1 || _brgb!=-1)
     {
