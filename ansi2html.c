@@ -18,6 +18,37 @@ static const char *cols[]={"BLK","RED","GRN","YEL","BLU","MAG","CYN","WHI",
 static int ntok, tok[10];
 static int ch;
 
+typedef unsigned char u8;
+struct rgb { u8 r; u8 g; u8 b; };
+
+
+struct rgb rgb_from_256(int i)
+{
+   struct rgb c;
+   if (i < 8)
+   {   /* Standard colours. */
+       c.r = i&1 ? 0xaa : 0x00;
+       c.g = i&2 ? 0xaa : 0x00;
+       c.b = i&4 ? 0xaa : 0x00;
+   }
+   else if (i < 16)
+   {
+       c.r = i&1 ? 0xff : 0x55;
+       c.g = i&2 ? 0xff : 0x55;
+       c.b = i&4 ? 0xff : 0x55;
+   }
+   else if (i < 232)
+   {   /* 6x6x6 colour cube. */
+       c.r = (i - 16) / 36 * 85 / 2;
+       c.g = (i - 16) / 6 % 6 * 85 / 2;
+       c.b = (i - 16) % 6 * 85 / 2;
+   }
+   else/* Grayscale ramp. */
+      c.r = c.g = c.b = i * 10 - 2312;
+   return c;
+}
+
+
 static void class()
 {
     if (!cl)
@@ -132,37 +163,6 @@ static void unspan()
     if (b)
         printf(use_span?"</span>":"</b>");
     b=0;
-}
-
-
-typedef unsigned char u8;
-struct rgb { u8 r; u8 g; u8 b; };
-
-
-struct rgb rgb_from_256(int i)
-{
-   struct rgb c;
-   if (i < 8)
-   {   /* Standard colours. */
-       c.r = i&1 ? 0xaa : 0x00;
-       c.g = i&2 ? 0xaa : 0x00;
-       c.b = i&4 ? 0xaa : 0x00;
-   }
-   else if (i < 16)
-   {
-       c.r = i&1 ? 0xff : 0x55;
-       c.g = i&2 ? 0xff : 0x55;
-       c.b = i&4 ? 0xff : 0x55;
-   }
-   else if (i < 232)
-   {   /* 6x6x6 colour cube. */
-       c.r = (i - 16) / 36 * 85 / 2;
-       c.g = (i - 16) / 6 % 6 * 85 / 2;
-       c.b = (i - 16) % 6 * 85 / 2;
-   }
-   else/* Grayscale ramp. */
-      c.r = c.g = c.b = i * 10 - 2312;
-   return c;
 }
 
 
