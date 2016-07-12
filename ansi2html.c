@@ -79,6 +79,22 @@ static void span()
         tmp=_fg; _fg=_bg; _bg=tmp;
         tmp=_frgb; _frgb=_brgb; _brgb=tmp;
     }
+    if (fl&BLINK)
+    {
+        struct rgb c;
+        if (_frgb==-1)
+            _frgb=_fg==-1?0xaaaaaa:rgb_to_int(rgb_from_256(_fg));
+        c.r=(_frgb>>16&0xff)*3/4+0x60;
+        c.g=(_frgb>> 8&0xff)*3/4+0x60;
+        c.b=(_frgb    &0xff)*3/4+0x60;
+        _frgb=rgb_to_int(c);
+        if (_brgb==-1)
+            _brgb=_bg==-1?0x000000:rgb_to_int(rgb_from_256(_bg));
+        c.r=(_brgb>>16&0xff)*3/4+0x60;
+        c.g=(_brgb>> 8&0xff)*3/4+0x60;
+        c.b=(_brgb    &0xff)*3/4+0x60;
+        _brgb=rgb_to_int(c);
+    }
     if (fl&DIM)
         _fg=8;
 
