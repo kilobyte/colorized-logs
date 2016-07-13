@@ -5,9 +5,11 @@ int main()
     int ch;
     do
     {
-        if ((ch=getchar())==13)
-            ;
-        else if (ch==27)
+        ch=getchar();
+        while (ch==13)
+            if ((ch=getchar())!=10)
+                putchar(13); /* suppress \r only when followed by \n */
+        if (ch==27)
             if ((ch=getchar())=='[')
                 while ((ch=getchar())==';'||(ch>='0'&&ch<='9')||ch=='?');
             else if (ch==']'&&(ch=getchar())>=0&&ch<='9')
