@@ -290,6 +290,12 @@ normal:
         unspan();
         printf("\n<hr>\n");
         goto normal;
+    case 13:
+        ch=getchar();
+        unspan();
+        if (ch!=10)
+            printf("&crarr;");
+        goto normal;
     case 27:                    /* ESC */
         ch=getchar();
         goto esc;
