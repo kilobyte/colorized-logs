@@ -193,7 +193,7 @@
 
 0.4.4:                                           Sep  2 22:25 CET 2002
 * #dogoto <from> <to> [<distvar> <locvar> <pathvar>] [#else ...] will
-  run an simulated #goto and retrieve the path length, visited locations
+  run a simulated #goto and retrieve the path length, visited locations
   and on-path commands.  Or, you can use "#dogoto <from> <to>" to display
   the path.
 * ansi2txt and ansi2html have been moved into the main tarball

@@ -220,7 +220,7 @@ struct session *run_command(char *arg,struct session *ses)
 
     if (!*right)
     {
-        tintin_eprintf(ses, "#run: HEY! SPECIFY AN COMMAND, WILL YOU?");
+        tintin_eprintf(ses, "#run: HEY! SPECIFY A COMMAND, WILL YOU?");
         return ses;
     };
 

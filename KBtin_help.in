@@ -576,7 +576,7 @@ Removes all aliases whose name matches <pattern>.
 Lists all substitutes and gags matching the pattern.
 
 #substitute <pattern> <new text>
-Defines an substitution for text incoming from the MUD.  It can be used to
+Defines a substitution for text incoming from the MUD.  It can be used to
 highlight stuff, remind you about items stats, etc.
 <pattern> can include positional variables %0..%9, which can be used in <new
 text> as well.
