@@ -19,7 +19,6 @@ static int ntok, tok[10];
 static int ch;
 
 typedef unsigned char u8;
-struct rgb { u8 r; u8 g; u8 b; };
 
 
 static int rgb_from_256(int i)
@@ -43,9 +42,9 @@ static int rgb_from_256(int i)
 }
 
 
-static int rgb_to_int(struct rgb c)
+static inline int rgb_to_int(u8 r, u8 g, u8 b)
 {
-    return (int)c.r<<16|(int)c.g<<8|(int)c.b;
+    return (int)r<<16|(int)g<<8|(int)b;
 }
 
 
@@ -67,19 +66,16 @@ static void span()
     }
     if (fl&BLINK)
     {
-        struct rgb c;
         if (_frgb==-1)
             _frgb=_fg==-1?0xaaaaaa:rgb_from_256(_fg);
-        c.r=(_frgb>>16&0xff)*3/4+0x60;
-        c.g=(_frgb>> 8&0xff)*3/4+0x60;
-        c.b=(_frgb    &0xff)*3/4+0x60;
-        _frgb=rgb_to_int(c);
+        _frgb=rgb_to_int((_frgb>>16&0xff)*3/4,
+                         (_frgb>> 8&0xff)*3/4,
+                         (_frgb    &0xff)*3/4)+0x606060;
         if (_brgb==-1)
             _brgb=_bg==-1?0x000000:rgb_from_256(_bg);
-        c.r=(_brgb>>16&0xff)*3/4+0x60;
-        c.g=(_brgb>> 8&0xff)*3/4+0x60;
-        c.b=(_brgb    &0xff)*3/4+0x60;
-        _brgb=rgb_to_int(c);
+        _brgb=rgb_to_int((_brgb>>16&0xff)*3/4,
+                         (_brgb>> 8&0xff)*3/4,
+                         (_brgb    &0xff)*3/4)+0x606060;
     }
     if (fl&DIM)
         _fg=8;
@@ -427,13 +423,7 @@ csi:
                 }
                 else if (tok[i]==2 && i<=ntok+3)
                 {   /* 24 bit */
-                    struct rgb c =
-                    {
-                        .r = tok[i+1],
-                        .g = tok[i+2],
-                        .b = tok[i+3],
-                    };
-                    frgb=rgb_to_int(c);
+                    frgb=rgb_to_int(tok[i+1], tok[i+2], tok[i+3]);
                     i+=3;
                 }
                 /* Subcommands 3 (CMY) and 4 (CMYK) are so insane
@@ -460,13 +450,7 @@ csi:
                 }
                 else if (tok[i]==2 && i<=ntok+3)
                 {   /* 24 bit */
-                    struct rgb c =
-                    {
-                        .r = tok[i+1],
-                        .g = tok[i+2],
-                        .b = tok[i+3],
-                    };
-                    brgb=rgb_to_int(c);
+                    brgb=rgb_to_int(tok[i+1], tok[i+2], tok[i+3]);
                     i+=3;
                 }
                 break;
