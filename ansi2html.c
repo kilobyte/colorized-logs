@@ -22,30 +22,24 @@ typedef unsigned char u8;
 struct rgb { u8 r; u8 g; u8 b; };
 
 
-struct rgb rgb_from_256(int i)
+static int rgb_from_256(int i)
 {
-    struct rgb c;
-    if (i < 8)
+    if (i < 16)
     {   /* Standard colours. */
-        c.r = i&1 ? 0xaa : 0x00;
-        c.g = i&2 ? 0xaa : 0x00;
-        c.b = i&4 ? 0xaa : 0x00;
-    }
-    else if (i < 16)
-    {
-        c.r = i&1 ? 0xff : 0x55;
-        c.g = i&2 ? 0xff : 0x55;
-        c.b = i&4 ? 0xff : 0x55;
+        int c = (i&1 ? 0xaa0000 : 0x000000)
+              | (i&2 ? 0x00aa00 : 0x000000)
+              | (i&4 ? 0x0000aa : 0x000000);
+        return i<8 ? c : c+0x555555;
     }
     else if (i < 232)
     {   /* 6x6x6 colour cube. */
-        c.r = (i - 16) / 36 * 85 / 2;
-        c.g = (i - 16) / 6 % 6 * 85 / 2;
-        c.b = (i - 16) % 6 * 85 / 2;
+        i-=16;
+        return (i / 36 * 85 / 2) << 16|
+               (i / 6 % 6 * 85 / 2) << 8|
+               (i % 6 * 85 / 2);
     }
     else/* Grayscale ramp. */
-        c.r = c.g = c.b = i * 10 - 2312;
-    return c;
+        return i*0xa0a0a-((232*10-8)*0x10101);
 }
 
 
@@ -75,13 +69,13 @@ static void span()
     {
         struct rgb c;
         if (_frgb==-1)
-            _frgb=_fg==-1?0xaaaaaa:rgb_to_int(rgb_from_256(_fg));
+            _frgb=_fg==-1?0xaaaaaa:rgb_from_256(_fg);
         c.r=(_frgb>>16&0xff)*3/4+0x60;
         c.g=(_frgb>> 8&0xff)*3/4+0x60;
         c.b=(_frgb    &0xff)*3/4+0x60;
         _frgb=rgb_to_int(c);
         if (_brgb==-1)
-            _brgb=_bg==-1?0x000000:rgb_to_int(rgb_from_256(_bg));
+            _brgb=_bg==-1?0x000000:rgb_from_256(_bg);
         c.r=(_brgb>>16&0xff)*3/4+0x60;
         c.g=(_brgb>> 8&0xff)*3/4+0x60;
         c.b=(_brgb    &0xff)*3/4+0x60;
@@ -429,7 +423,7 @@ csi:
                 if (tok[i]==5 && i<ntok)
                 {   /* 256 colours */
                     i++;
-                    frgb=rgb_to_int(rgb_from_256(tok[i]));
+                    frgb=rgb_from_256(tok[i]);
                 }
                 else if (tok[i]==2 && i<=ntok+3)
                 {   /* 24 bit */
@@ -462,7 +456,7 @@ csi:
                 if (tok[i]==5 && i<ntok)
                 {   /* 256 colours */
                     i++;
-                    brgb=rgb_to_int(rgb_from_256(tok[i]));
+                    brgb=rgb_from_256(tok[i]);
                 }
                 else if (tok[i]==2 && i<=ntok+3)
                 {   /* 24 bit */
@@ -482,11 +476,11 @@ csi:
                 break;
             case 90: case 91: case 92: case 93:
             case 94: case 95: case 96: case 97:
-                frgb=rgb_to_int(rgb_from_256(tok[i]-82));
+                frgb=rgb_from_256(tok[i]-82);
                 break;
             case 100: case 101: case 102: case 103:
             case 104: case 105: case 106: case 107:
-                brgb=rgb_to_int(rgb_from_256(tok[i]-92));
+                brgb=rgb_from_256(tok[i]-92);
                 break;
             }
         unspan();
