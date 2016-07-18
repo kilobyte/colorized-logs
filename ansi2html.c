@@ -9,7 +9,7 @@
 #define INVERSE      0x200000
 #define STRIKE       0x400000
 
-static int use_span=0, use_headers=1;
+static int use_span=0, use_headers=1, white=0;
 static int fg,bg,fl,b,frgb,brgb;
 
 static const char *cols[]={"BLK","RED","GRN","YEL","BLU","MAG","CYN","WHI",
@@ -58,21 +58,21 @@ static void span()
     if (fl&INVERSE)
     {
         if (_fg==-1)
-            _fg=7;
+            _fg=white?0:7;
         if (_bg==-1)
-            _bg=0;
+            _bg=white?7:0;
         tmp=_fg; _fg=_bg; _bg=tmp;
         tmp=_frgb; _frgb=_brgb; _brgb=tmp;
     }
     if (fl&BLINK)
     {
         if (_frgb==-1)
-            _frgb=_fg==-1?0xaaaaaa:rgb_from_256(_fg);
+            _frgb=_fg==-1?white?0x000000:0xaaaaaa:rgb_from_256(_fg);
         _frgb=rgb_to_int((_frgb>>16&0xff)*3/4,
                          (_frgb>> 8&0xff)*3/4,
                          (_frgb    &0xff)*3/4)+0x606060;
         if (_brgb==-1)
-            _brgb=_bg==-1?0x000000:rgb_from_256(_bg);
+            _brgb=_bg==-1?white?0xaaaaaa:0x000000:rgb_from_256(_bg);
         _brgb=rgb_to_int((_brgb>>16&0xff)*3/4,
                          (_brgb>> 8&0xff)*3/4,
                          (_brgb    &0xff)*3/4)+0x606060;
@@ -181,6 +181,10 @@ int main(int argc, const char **argv)
     for (i=1; i<argc; ++i)
         if (!strcmp(argv[i], "-n") || !strcmp(argv[i], "--no-header"))
             use_span=1, use_headers=0;
+        else if (!strcmp(argv[i], "-w") || !strcmp(argv[i], "--white"))
+            white=1;
+        else if (!strcmp(argv[i], "-nw") || !strcmp(argv[i], "-wn"))
+            use_span=white=1, use_headers=0;
         else
             return fprintf(stderr, "%s: Unknown argument '%s'.\n", argv[0],
                            argv[i]), 1;
@@ -194,22 +198,22 @@ int main(int argc, const char **argv)
 
     if (use_span)
     {
-        if (use_headers)
-            printf(
+        printf(use_headers?
 "</head>\n"
-"<body style=\"background-color:black\">\n"
-"<pre style=\"color:#bbb;white-space:pre-wrap:word-wrap:break-word\">");
-        else
-            printf(
-"<pre style=\"background-color:black;color:#bbb;white-space:pre-wrap:word-wrap:break-word\">");
+"<body style=\"background-color:%s\">\n"
+"<pre style=\"color:#%s;white-space:pre-wrap:word-wrap:break-word\">"
+                :
+"<pre style=\"background-color:%s;color:#%s;white-space:pre-wrap:word-wrap:break-word\">",
+                white?"white":"black",
+                white?"000":"bbb");
     }
     else
         printf(
 "<style type=\"text/css\">\n"
-"body {background-color: black;}\n"
+"body {background-color: %s;}\n"
 "pre {\n"
 "\tfont-weight: normal;\n"
-"\tcolor: #bbb;\n"
+"\tcolor: #%s;\n"
 "\twhite-space: -moz-pre-wrap;\n"
 "\twhite-space: -o-pre-wrap;\n"
 "\twhite-space: -pre-wrap;\n"
@@ -233,7 +237,7 @@ int main(int argc, const char **argv)
 "b.HIM {color: #f5f}\n"
 "b.HIY {color: #ff5}\n"
 "b.HIW {color: #fff}\n"
-"b.BOLD {color: #fff}\n"
+"b.BOLD {color: #%s}\n"
 "b.BBLK {background-color: #000}\n"
 "b.BBLU {background-color: #00a}\n"
 "b.BGRN {background-color: #0a0}\n"
@@ -249,7 +253,10 @@ int main(int argc, const char **argv)
 "</style>\n"
 "</head>\n"
 "<body>\n"
-"<pre>");
+"<pre>",
+                white?"white":"black",
+                white?"000":"bbb",
+                white?"000;font-weight:bold":"fff");
     fg=bg=-1;
     fl=0;
     b=0;

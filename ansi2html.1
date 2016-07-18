@@ -4,10 +4,9 @@ ansi2html \- ansi to HTML converter
 .SH SYNOPSIS
 .B ansi2html
 .RB [ -n ]
-.B <
-.I log
-.B >
-.I outfile
+.RB [ -w ]
+.BI < log
+.BI > outfile
 .SH DESCRIPTION
 .B ansi2html
 will convert the ANSI log into a pretty HTML page, converting ANSI color
@@ -23,6 +22,14 @@ Explorer and possibly others it won't blink.
 Don't produce a HTML header.  This allows including the log into a web page
 you make some other way.  Shouldn't be used for standalone viewing: there
 will be an unsightly white margin.
+.TP
+.B -w
+Make the background white.  This is contrary to most terminals but matches
+most webpages.  Text requested to be bolded (normally bright white) will be
+turned bold black, but explicit bright white
+.I will not
+be changed, becoming invisible (just like explicit black is invisible in the
+normal on-black mode).
 .SH CAVEATS
 ANSI codes other than color codes are ignored; possibly causing misformatted
 output.
