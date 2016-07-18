@@ -9,7 +9,7 @@
 #define INVERSE      0x200000
 #define STRIKE       0x400000
 
-static int use_span=0, use_headers=1, white=0;
+static int no_header=0, white=0;
 static int fg,bg,fl,b,frgb,brgb;
 
 static const char *cols[]={"BLK","RED","GRN","YEL","BLU","MAG","CYN","WHI",
@@ -80,7 +80,7 @@ static void span()
     if (fl&DIM)
         _fg=8;
 
-    if (use_span)
+    if (no_header)
         goto do_span;
 
     printf("<b");
@@ -170,7 +170,7 @@ do_span:
 static void unspan()
 {
     if (b)
-        printf(use_span?"</span>":"</b>");
+        printf(no_header?"</span>":"</b>");
     b=0;
 }
 
@@ -180,35 +180,28 @@ int main(int argc, const char **argv)
     int i;
     for (i=1; i<argc; ++i)
         if (!strcmp(argv[i], "-n") || !strcmp(argv[i], "--no-header"))
-            use_span=1, use_headers=0;
+            no_header=1;
         else if (!strcmp(argv[i], "-w") || !strcmp(argv[i], "--white"))
             white=1;
         else if (!strcmp(argv[i], "-nw") || !strcmp(argv[i], "-wn"))
-            use_span=white=1, use_headers=0;
+            no_header=white=1;
         else
             return fprintf(stderr, "%s: Unknown argument '%s'.\n", argv[0],
                            argv[i]), 1;
 
-    if (use_headers)
-        printf(
-"<!DOCTYPE html>\n"
-"<html>\n"
-"<head>\n"
-"<!--<title></title>-->\n");
-
-    if (use_span)
+    if (no_header)
     {
-        printf(use_headers?
-"</head>\n"
-"<body style=\"background-color:%s\">\n"
-"<pre style=\"color:#%s;white-space:pre-wrap:word-wrap:break-word\">"
-                :
+        printf(
 "<pre style=\"background-color:%s;color:#%s;white-space:pre-wrap:word-wrap:break-word\">",
                 white?"white":"black",
                 white?"000":"bbb");
     }
     else
         printf(
+"<!DOCTYPE html>\n"
+"<html>\n"
+"<head>\n"
+"<!--<title></title>-->\n"
 "<style type=\"text/css\">\n"
 "body {background-color: %s;}\n"
 "pre {\n"
@@ -268,7 +261,7 @@ normal:
     case EOF:
         unspan();
         printf("</pre>\n");
-        if (use_headers)
+        if (!no_header)
             printf("</body>\n</html>\n");
         return 0;
     case 0:  case 1:  case 2:  case 3:  case 4:  case 5:  case 6:
