@@ -284,7 +284,7 @@ normal:
         ch=getchar();
         unspan();
         if (ch!=10)
-            printf("&crarr;");
+            printf("&crarr;\n");
         goto normal;
     case 27:                    /* ESC */
         ch=getchar();
