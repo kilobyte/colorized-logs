@@ -283,6 +283,10 @@ again:
                                 ccolor=(ccolor&0x3f8)|colors[tok[i]-30];
                             else if (tok[i]>=40 && tok[i]<48)
                                 ccolor=(ccolor&0x38f)|(colors[tok[i]-40]<<4);
+                            else if (tok[i]>=90 && tok[i]<98)
+                                ccolor=(ccolor&0x3f8)|8|colors[tok[i]-90];
+                            else if (tok[i]>=100 && tok[i]<108) /* not bright */
+                                ccolor=(ccolor&0x38f)|(colors[tok[i]-100]<<4);
                             /* ignore unknown attributes */
                         }
                     out+=setcolor(out,ccolor);
