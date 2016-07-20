@@ -1,4 +1,4 @@
-.TH ansi2html 1 2007-09-04 KBtin KBtin
+.TH ansi2html 1 2016-07-21 KBtin KBtin
 .SH NAME
 ansi2html \- ansi to HTML converter
 .SH SYNOPSIS
@@ -9,28 +9,27 @@ ansi2html \- ansi to HTML converter
 .BI > outfile
 .SH DESCRIPTION
 .B ansi2html
-will convert the ANSI log into a pretty HTML page, converting ANSI color
-codes into HTML tags.  All standard colors and attributes are supported;
-this does not include xterm-only extensions.
+will convert the ANSI log into a HTML page, converting ANSI color codes into
+appropriate tags.  All standard colors and attributes are supported.
 .SH OPTIONS
 .TP
 .B -n
 Don't produce a HTML header.  This allows including the log into a web page
 you make some other way.  You are responsible for setting background color
-appropriately -- to black or something dark in the default on-black mode,
+appropriately \(em to black or something dark in the default on-black mode,
 or to white/light when \fB-w\fR is used.  Fancy-schmancy background images
 are fine.
 .TP
 .B -w
 Make the background white.  This is contrary to most terminals but matches
 most webpages.  Text requested to be bolded (normally bright white) will be
-turned bold black, but explicit bright white
-.I will not
-be changed, becoming invisible (just like explicit black is invisible in the
-normal on-black mode).
+turned bold black, but explicit bright white \fIwill not\fR be changed,
+becoming invisible (just like explicit black is invisible in the normal
+on-black mode), same as on real terminals.
 .SH CAVEATS
-ANSI codes other than color codes are ignored; possibly causing misformatted
-output.
+Most ANSI codes other than color codes are ignored; possibly causing
+misformatted output.  In general, anything unfit for a hardcopy terminal
+won't work.
 .SH "SEE ALSO"
 .BR ansi2txt ,
 .BR ansi2html ,
