@@ -192,8 +192,7 @@ int main(int argc, const char **argv)
     if (no_header)
     {
         printf(
-"<pre style=\"background-color:%s;color:#%s;white-space:pre-wrap:word-wrap:break-word\">",
-                white?"white":"black",
+"<pre style=\"color:#%s;white-space:pre-wrap:word-wrap:break-word\">",
                 white?"000":"bbb");
     }
     else

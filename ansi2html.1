@@ -16,8 +16,10 @@ this does not include xterm-only extensions.
 .TP
 .B -n
 Don't produce a HTML header.  This allows including the log into a web page
-you make some other way.  Shouldn't be used for standalone viewing: there
-will be an unsightly white margin.
+you make some other way.  You are responsible for setting background color
+appropriately -- to black or something dark in the default on-black mode,
+or to white/light when \fB-w\fR is used.  Fancy-schmancy background images
+are fine.
 .TP
 .B -w
 Make the background white.  This is contrary to most terminals but matches
