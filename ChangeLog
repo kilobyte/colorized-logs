@@ -2,6 +2,8 @@
 *	pipetty, a new tool to fool isatty()
 *	256/24-bit color support, full in ansi2html, shoehorned to 16/8 colors
 	in KBtin
+*	ansi2html: massively improved support for other attributes
+*	ansi2html -n (headerless), -w (on white)
 *	#hook title
 
 1.0.16:
