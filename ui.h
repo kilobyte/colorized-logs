@@ -12,7 +12,7 @@ char done_input[BUFFER_SIZE];
 int color,lastcolor;
 
 extern int colors[];
-extern const char *attribs[8];
+extern const char *attribs[16];
 #ifdef GRAY2
 extern const char *fcolors[16];
 extern const char *bcolors[8];

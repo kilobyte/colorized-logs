@@ -27,7 +27,7 @@ int getcolor(char **ptr,int *color,const int flag)
     if (isdigit(*txt))
     {
         fg=strtol(txt,&txt,10);
-        if (fg>0x3ff)
+        if (fg>0x7ff)
             return 0;
     }
     else
@@ -62,7 +62,7 @@ int getcolor(char **ptr,int *color,const int flag)
     if (isdigit(*++txt))
     {
         blink=strtol(txt,&txt,10);
-        if (blink>7)
+        if (blink>15)
             return 0;
     }
     else
@@ -209,6 +209,9 @@ again:
                             ccolor=(ccolor&~0x77)|(ccolor&0x70>>4)|(ccolor&7);
                             /* inverse should propagate... oh well */
                             break;
+                        case 9:
+                            ccolor|=0x400;
+                            break;
                         case 21:
                             ccolor&=~8;
                             break;
@@ -225,6 +228,9 @@ again:
                             break;
                         case 25:
                             ccolor&=~0x80;
+                            break;
+                        case 29:
+                            ccolor&=~0x400;
                             break;
                         case 38:
                             i++;
