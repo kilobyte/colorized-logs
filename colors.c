@@ -27,12 +27,12 @@ int getcolor(char **ptr,int *color,const int flag)
     if (isdigit(*txt))
     {
         fg=strtol(txt,&txt,10);
-        if (fg>1023)
+        if (fg>0x3ff)
             return 0;
     }
     else
     if (*txt==':')
-        fg=(*color==-1)? 7 : ((*color)&15);
+        fg=(*color==-1)? 7 : ((*color)&0xf);
     else
         return 0;
     if (*txt=='~')
@@ -80,9 +80,9 @@ int setcolor(char *txt,int c)
         return sprintf(txt,"~-1~");
     if (c<16)
         return sprintf(txt,"~%d~",c);
-    if (c<128)
-        return sprintf(txt,"~%d:%d~",c&15,(c&0x70)>>4);
-    return sprintf(txt,"~%d:%d:%d~",c&15,(c&0x70)>>4,c>>7);
+    if (c<0x80)
+        return sprintf(txt,"~%d:%d~",c&0xf,(c&0x70)>>4);
+    return sprintf(txt,"~%d:%d:%d~",c&0xf,(c&0x70)>>4,c>>7);
 }
 
 typedef unsigned char u8;
@@ -197,13 +197,13 @@ again:
                             ccolor=(ccolor&~0x0f)|8;
                             break;
                         case 3:
-                            ccolor|=256;
+                            ccolor|=0x100;
                             break;
                         case 4:
-                            ccolor|=512;
+                            ccolor|=0x200;
                             break;
                         case 5:
-                            ccolor|=128;
+                            ccolor|=0x80;
                             break;
                         case 7:
                             ccolor=(ccolor&~0x77)|(ccolor&0x70>>4)|(ccolor&7);
@@ -214,17 +214,17 @@ again:
                             break;
                         case 22:
                             ccolor&=~8;
-                            if (!(ccolor&15))
+                            if (!(ccolor&0xf))
                                 ccolor|=7;
                             break;
                         case 23:
-                            ccolor&=~256;
+                            ccolor&=~0x100;
                             break;
                         case 24:
-                            ccolor&=~512;
+                            ccolor&=~0x200;
                             break;
                         case 25:
-                            ccolor&=~128;
+                            ccolor&=~0x80;
                             break;
                         case 38:
                             i++;
@@ -398,8 +398,8 @@ color:
         case 2:
             break;
         case 1:
-            strcpy(txt,MUDcolors[c&15]);
-            txt+=strlen(MUDcolors[c&15]);
+            strcpy(txt,MUDcolors[c&0xf]);
+            txt+=strlen(MUDcolors[c&0xf]);
         }
     };
     *txt=0;
