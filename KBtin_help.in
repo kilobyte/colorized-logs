@@ -88,13 +88,13 @@ Note: use #verbatim to turn all parsing off.
 The color codes for KBtin are enclosed by tilde (~) chars.  The general
 syntax is: ~foreground[:background[:attr]]~
 Foreground colors:
- 0 - ~0~black~-1~       4 - ~4~red~-1~       8 - ~8~dark gray~-1~    12 - ~12~lt. red~-1~
- 1 - ~1~blue~-1~        5 - ~5~magenta~-1~   9 - ~9~lt. blue~-1~     13 - ~13~pink~-1~
- 2 - ~2~green~-1~       6 - ~6~brown~-1~    10 - ~10~lt. green~-1~    14 - ~14~yellow~-1~
- 3 - ~3~cyan~-1~        7 - ~7~lt. gray~-1~ 11 - ~11~aqua~-1~         15 - ~15~white~-1~
+ 0 - ~0~black~-1~       4 - ~4~red~-1~         8 - ~8~dark gray~-1~  12 - ~12~lt. red~-1~
+ 1 - ~1~blue~-1~        5 - ~5~magenta~-1~     9 - ~9~lt. blue~-1~   13 - ~13~pink~-1~
+ 2 - ~2~green~-1~       6 - ~6~brown~-1~      10 - ~10~lt. green~-1~  14 - ~14~yellow~-1~
+ 3 - ~3~cyan~-1~        7 - ~7~lt. gray~-1~   11 - ~11~aqua~-1~       15 - ~15~white~-1~
 Background colors:
- 0 - ~0:0~black~-1~       2 - ~0:2~green~-1~     4 - ~0:4~red~-1~           6 - ~0:6~brown~-1~
- 1 - ~0:1~blue~-1~        3 - ~0:3~cyan~-1~      5 - ~0:5~magenta~-1~       7 - ~0:7~lt. gray~-1~
+ 0 - ~0:0~black~-1~       2 - ~0:2~green~-1~       4 - ~0:4~red~-1~         6 - ~0:6~brown~-1~
+ 1 - ~0:1~blue~-1~        3 - ~0:3~cyan~-1~        5 - ~0:5~magenta~-1~     7 - ~0:7~lt. gray~-1~
 Attributes:
  0 - normal text 1 - ~::1~blinking~-1~  2 - ~::2~italic~-1~        4 - ~::4~underline~-1~
  or a sum of the above: 7 for ~::7~blinking, italic and underlined~7~ text
