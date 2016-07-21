@@ -206,7 +206,7 @@ again:
                             ccolor|=128;
                             break;
                         case 7:
-                            ccolor=(ccolor&0x388)|(ccolor&0x70>>4)|(ccolor&7);
+                            ccolor=(ccolor&~0x77)|(ccolor&0x70>>4)|(ccolor&7);
                             /* inverse should propagate... oh well */
                             break;
                         case 21:
@@ -280,13 +280,13 @@ again:
                             break;
                         default:
                             if (tok[i]>=30 && tok[i]<38)
-                                ccolor=(ccolor&0x3f8)|colors[tok[i]-30];
+                                ccolor=(ccolor&~0x07)|colors[tok[i]-30];
                             else if (tok[i]>=40 && tok[i]<48)
-                                ccolor=(ccolor&0x38f)|(colors[tok[i]-40]<<4);
+                                ccolor=(ccolor&~0x70)|(colors[tok[i]-40]<<4);
                             else if (tok[i]>=90 && tok[i]<98)
-                                ccolor=(ccolor&0x3f8)|8|colors[tok[i]-90];
+                                ccolor=(ccolor&~0x07)|8|colors[tok[i]-90];
                             else if (tok[i]>=100 && tok[i]<108) /* not bright */
-                                ccolor=(ccolor&0x38f)|(colors[tok[i]-100]<<4);
+                                ccolor=(ccolor&~0x70)|(colors[tok[i]-100]<<4);
                             /* ignore unknown attributes */
                         }
                     out+=setcolor(out,ccolor);
