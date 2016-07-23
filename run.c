@@ -317,7 +317,7 @@ static void pty_makeraw(struct termios *ta)
 
 int run(const char *command, int sx, int sy, const char *term)
 {
-    int fd;
+    int fd, res;
 
 #if defined(__FreeBSD_kernel__) && defined(__GLIBC__)
     /* Work around a kfreebsd 9.x bug.  If the handler for SIGCHLD is anything
@@ -332,7 +332,6 @@ int run(const char *command, int sx, int sy, const char *term)
 #ifndef PTY_ECHO_HACK
     struct termios ta;
     struct winsize ws;
-    int res;
 
     pty_makeraw(&ta);
 
