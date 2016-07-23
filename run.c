@@ -22,6 +22,9 @@
 #  include <util.h>
 # endif
 #endif
+#ifdef HAVE_SYS_SYSLIMITS_H
+# include <sys/syslimits.h>
+#endif
 
 extern char **environ;
 extern void syserr(char *msg, ...);
@@ -439,7 +442,7 @@ void pty_write_line(char *line, int pty)
     tcgetattr(pty, &oldta);
     memcpy(&ta, &oldta, sizeof(ta));
     pty_makeraw(&ta);
-    ta.c_cc[VMIN]=0x7fffffff;
+    ta.c_cc[VMIN]=MAX_INPUT;
     tcsetattr(pty, TCSANOW, &ta);
 #else
 # ifdef RESET_RAW
