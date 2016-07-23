@@ -31,7 +31,8 @@ optional libraries that enable certain features:
 * zlib: on-the-wire compression on most MUDs
 * glib: some speed-up
 On Debian systems, the relevant packages are named: libgnutls28-dev,
-libz-dev, libglib2.0-dev.
+libz-dev, libglib2.0-dev.  If your system puts them in some weird place,
+installing pkg-config may help.
 
 
 Cross-compiling notes

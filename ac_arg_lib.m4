@@ -4,6 +4,11 @@ AC_DEFUN([AC_ARG_LIB], [
 AC_ARG_ENABLE([$1], [])
 if [[ "X$enable_$1" != "Xno" ]]
   then
+    # Missing pkg-config is ok.
+    ac_save_CFLAGS="$CFLAGS"
+    CFLAGS="$CFLAGS $(pkg-config 2>/dev/null --cflags $2)"
+    ac_save_LDFLAGS="$LDFLAGS"
+    LDFLAGS="$LDFLAGS $(pkg-config 2>/dev/null --libs $2)"
     ac_$2_is_there=yes
     AC_CHECK_HEADER([$4], , [ac_$2_is_there=no])
     AC_CHECK_LIB([$5], [$6], [:], [ac_$2_is_there=no])
@@ -15,6 +20,8 @@ if [[ "X$enable_$1" != "Xno" ]]
         AC_MSG_ERROR([
 $2 doesn't appear to be available.
 $7])
+	CFLAGS="$ac_save_CFLAGS"
+	LDFLAGS="$ac_save_LDFLAGS"
     fi
 fi
 AC_SUBST([$3_LIBS])

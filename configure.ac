@@ -16,11 +16,6 @@ AC_PROG_EGREP
 # Checks for libraries.
 
 # Checks for header files.
-if uname|grep -q -i bsd
-  then
-    export C_INCLUDE_PATH=/usr/local/include
-    export LIBRARY_PATH=/usr/local/lib
-fi
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CREATE_STDINT_H
