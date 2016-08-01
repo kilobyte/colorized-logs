@@ -230,6 +230,9 @@ static void alarm_func(int k)
 void write_line_mud(char *line, struct session *ses)
 {
     char rstr[BUFFER_SIZE];
+    PROFPUSH("conv: utf8->remote");
+    convert(&ses->c_io, rstr, line, 1);
+    PROFPOP;
 
     if (*line)
         ses->idle_since=time(0);
@@ -241,20 +244,12 @@ void write_line_mud(char *line, struct session *ses)
                 sizeof(ses->nagle));
             ses->nagle=1;
         }
-        PROFPUSH("conv: utf8->remote");
-        convert(&ses->c_io, rstr, line, 1);
-        PROFPOP;
         telnet_write_line(rstr, ses);
     }
     else if (ses==nullsession)
         tintin_eprintf(ses, "#spurious output: %s", line);  /* CHANGE ME */
     else
-    {
-        PROFPUSH("conv: utf8->remote");
-        convert(&ses->c_io, rstr, line, 1);
-        PROFPOP;
         pty_write_line(rstr, ses->socket);
-    }
     do_hook(ses, HOOK_SEND, line, 1);
 }
 
