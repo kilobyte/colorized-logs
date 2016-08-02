@@ -369,7 +369,7 @@ nego_too_long:
     return 2; /* we leave everything but IAC SB */
 }
 
-void telnet_write_line(char *line, struct session *ses)
+void telnet_write_line(char *line, struct session *ses, int nl)
 {
     char outtext[6*BUFFER_SIZE + 2],*out;
 
@@ -380,8 +380,8 @@ void telnet_write_line(char *line, struct session *ses)
             *out++=255;
         *out++=*line++;
     }
-    *out++='\r';
-    *out++='\n';
+    if (nl)
+        *out++='\r', *out++='\n';
     *out=0;
 
     if (write_socket(ses, outtext, out-outtext) == -1)

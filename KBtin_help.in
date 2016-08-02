@@ -9,7 +9,7 @@ Session management:
 Input/output:
    verbatim    char        echo        history     cr          mudcolors
    blank       speedwalk   showme      status      margins     bell
-   send        charset
+   send        sendchar    charset
 Aliases:
    alias       unalias
 Triggers:
@@ -319,6 +319,18 @@ Notes:
 Passes <line> to the MUD without almost any parsing, with just variables
 subsituted.  Useful for overriding KBtin aliases, like:
 #alias w {#math x {$x-1};#send w}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~sendchar
+
+#sendchar <escapes>
+Passes one or more <escapes> to the MUD without any parsing, and currently
+without logging (this may change).  Not even a newline is added.
+Valid codes:
+- ^C       Ctrl-letter
+- \a       C-like escapes
+- \033     octal codes
+- \x1b     hex codes
+- U+1234   an Unicode character
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~char
 

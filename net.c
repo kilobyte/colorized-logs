@@ -26,6 +26,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #endif
+#include <assert.h>
 
 
 static void alarm_func(int);
@@ -244,13 +245,57 @@ void write_line_mud(char *line, struct session *ses)
                 sizeof(ses->nagle));
             ses->nagle=1;
         }
-        telnet_write_line(rstr, ses);
+        telnet_write_line(rstr, ses, 1);
     }
     else if (ses==nullsession)
         tintin_eprintf(ses, "#spurious output: %s", line);  /* CHANGE ME */
     else
         pty_write_line(rstr, ses->socket);
     do_hook(ses, HOOK_SEND, line, 1);
+}
+
+/******************************************/
+/* write control chars, without a newline */
+/******************************************/
+void write_raw_mud(char *line, int len, struct session *ses)
+{
+    char *lp=line, *rp, rstr[BUFFER_SIZE];
+    int ret;
+
+    /* not updating $idle, it's most likely not a command */
+    if (ses->issocket && !ses->nagle)
+    {
+        setsockopt(ses->socket, IPPROTO_TCP, TCP_NODELAY, &ses->nagle,
+            sizeof(ses->nagle));
+        ses->nagle=1;
+    }
+
+    assert(line[len]==0);
+    /* convert a string with zero bytes, guaranteed zero past len */
+    while (lp < line+len)
+    {
+        if (*lp)
+        {
+            convert(&ses->c_io, rstr, lp, 1);
+            while (*lp)
+                lp++;
+            rp=rstr;
+            while (*rp)
+                rp++;
+
+            if (ses->issocket)
+                *rp=ret=0, telnet_write_line(rstr, ses, 0);
+            else
+                ret=write(ses->socket, rstr, rp-rstr);
+        }
+        else
+        {
+            lp++;
+            ret=write(ses->socket, "", 1);
+        }
+        if (ret<0)
+            tintin_eprintf(ses, "#error writing to session: %s", strerror(errno));
+    }
 }
 
 void flush_socket(struct session *ses)
