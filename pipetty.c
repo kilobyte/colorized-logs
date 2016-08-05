@@ -55,6 +55,8 @@ int main(int argc, const char **argv)
         dup2(slave, 1);
         dup2(slave, 2);
         close(slave);
+        int zero=0;
+        ioctl(1, TIOCSCTTY, &zero);
         execvp(argv[1], (char*const*)argv+1);
         syserr("%s", argv[1]);
         return 127;
