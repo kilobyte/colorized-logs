@@ -264,13 +264,17 @@ normal:
             printf("</body>\n</html>\n");
         return 0;
     case 0:  case 1:  case 2:  case 3:  case 4:  case 5:  case 6:
-    case 8:                    case 11:                   case 14: case 15:
+                               case 11:                   case 14: case 15:
     case 16: case 17: case 18: case 19: case 20: case 21: case 22: case 23:
     case 24: case 25: case 26:          case 28: case 29: case 30: case 31:
         ch=getchar();
         goto normal;
     case 7:
         printf("&iexcl;");      /* bell */
+        ch=getchar();
+        goto normal;
+    case 8:
+        printf("&#x232B;");     /* backspace */
         ch=getchar();
         goto normal;
     case 12:                    /* form feed */
@@ -298,6 +302,10 @@ normal:
         goto normal;
     case '&':
         printf("&amp;");
+        ch=getchar();
+        goto normal;
+    case 127:
+        printf("&#x2326;");     /* delete */
         ch=getchar();
         goto normal;
     default:
