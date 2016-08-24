@@ -271,7 +271,7 @@ normal:
         ch=getchar();
         goto normal;
     case 7:
-        printf("&iexcl;");      /* bell */
+        printf("&#x266A;");     /* bell */
         ch=getchar();
         goto normal;
     case 8:
