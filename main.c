@@ -289,7 +289,8 @@ static void init_nullses(void)
     nullsession->antisubs = init_list();
     nullsession->binds = init_hash();
     nullsession->next = 0;
-    nullsession->sessionstart=nullsession->idle_since=time(0);
+    nullsession->sessionstart=nullsession->idle_since=
+        nullsession->server_idle_since=time(0);
     nullsession->debuglogfile=0;
     nullsession->debuglogname=0;
     for (i=0;i<HISTORY_SIZE;i++)

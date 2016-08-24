@@ -1717,6 +1717,7 @@ special properties (they can still be restored by #unvar).
 * COLS, LINES      - screen size
 * PATH             - the current path
 * IDLETIME         - time since last text has been sent to the MUD
+* SERVERIDLE       - time since last text has been received
 * SESSION          - the current session
 * ASESSION         - the foreground (active) session
 * SESSIONS         - a list of all sessions defined

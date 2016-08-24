@@ -262,7 +262,7 @@ void write_raw_mud(char *line, int len, struct session *ses)
     char *lp=line, *rp, rstr[BUFFER_SIZE];
     int ret;
 
-    /* not updating $idle, it's most likely not a command */
+    /* not updating $IDLETIME, it's most likely not a command */
     if (ses->issocket && !ses->nagle)
     {
         setsockopt(ses->socket, IPPROTO_TCP, TCP_NODELAY, &ses->nagle,
@@ -358,6 +358,7 @@ int read_buffer_mud(char *buffer, struct session *ses)
         didget=read(ses->socket, buffer, INPUT_CHUNK);
         if (didget<=0)
             return -1;
+        ses->server_idle_since=time(0);
         ses->more_coming=(didget==INPUT_CHUNK);
         buffer[didget]=0;
         return didget;
@@ -422,6 +423,7 @@ int read_buffer_mud(char *buffer, struct session *ses)
     tintin_printf(ses,"~8~text:[%s]~-1~",tmpbuf);
 #endif
 
+    ses->server_idle_since=time(0);
     if ((didget+=len) == INPUT_CHUNK)
         ses->more_coming = 1;
     else

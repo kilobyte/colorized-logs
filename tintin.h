@@ -342,7 +342,7 @@ struct session
     int verbose,blank,echo,speedwalk,togglesubs,presub,verbatim;
     char *partial_line_marker;
     int mesvar[MAX_MESVAR+1];
-    time_t idle_since;
+    time_t idle_since, server_idle_since;
     int sessionstart;
     char *hooks[NHOOKS];
     int closing;

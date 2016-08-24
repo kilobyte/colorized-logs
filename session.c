@@ -335,7 +335,8 @@ static struct session *new_session(char *name, char *address, int sock, int isso
     newsession->togglesubs = ses->togglesubs;
     newsession->presub = ses->presub;
     newsession->verbatim = ses->verbatim;
-    newsession->sessionstart=newsession->idle_since=time(0);
+    newsession->sessionstart=newsession->idle_since=
+        newsession->server_idle_since=time(0);
     newsession->nagle=0;
     newsession->halfcr_in=0;
     newsession->halfcr_log=0;
