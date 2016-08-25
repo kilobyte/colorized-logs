@@ -25,6 +25,7 @@
 #ifdef HAVE_SYS_SYSLIMITS_H
 # include <sys/syslimits.h>
 #endif
+#include "protos/print.h"
 
 extern char **environ;
 extern void syserr(char *msg, ...);
