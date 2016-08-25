@@ -56,7 +56,9 @@ static void print_stty(int fd)
         battr(cflag,CSTOPB,"cstopb");
         battr(cflag,CREAD,"cread");
         battr(cflag,CLOCAL,"clocal");
+#ifdef CRTSCTS
         battr(cflag,CRTSCTS,"crtscts");
+#endif
         tintin_printf(0,"%s",buf);
         bptr=buf+sprintf(buf," ~3~[%x]~7~:",ta.c_iflag);
         battr(iflag,IGNBRK,"ignbrk");
@@ -70,9 +72,15 @@ static void print_stty(int fd)
         battr(iflag,ICRNL,"icrnl");
         battr(iflag,IXON,"ixon");
         battr(iflag,IXOFF,"ixoff");
+#ifdef IUCLC
         battr(iflag,IUCLC,"iuclc");
+#endif
+#ifdef IXANY
         battr(iflag,IXANY,"ixany");
+#endif
+#ifdef IMAXBEL
         battr(iflag,IMAXBEL,"imaxbel");
+#endif
         tintin_printf(0,"%s",buf);
         bptr=buf+sprintf(buf," ~3~[%x]~7~:",ta.c_oflag);
         battr(oflag,OPOST,"opost");
@@ -81,8 +89,12 @@ static void print_stty(int fd)
         battr(oflag,ONLCR,"onlcr");
         battr(oflag,ONOCR,"onocr");
         battr(oflag,ONLRET,"onlret");
+#ifdef OFILL
         battr(oflag,OFILL,"ofill");
+#endif
+#ifdef OFDEL
         battr(oflag,OFDEL,"ofdel");
+#endif
 /*
         battr(oflag,NL0,"nl0");
         battr(oflag,CR0,"cr0");
@@ -101,11 +113,19 @@ static void print_stty(int fd)
         battr(lflag,ECHOK,"echok");
         battr(lflag,ECHONL,"echonl");
         battr(lflag,NOFLSH,"noflsh");
+#ifdef XCASE
         battr(lflag,XCASE,"xcase");
+#endif
         battr(lflag,TOSTOP,"tostop");
+#ifdef ECHOPRT
         battr(lflag,ECHOPRT,"echoprt");
+#endif
+#ifdef ECHOCTL
         battr(lflag,ECHOCTL,"echoctl");
+#endif
+#ifdef ECHOKE
         battr(lflag,ECHOKE,"echoke");
+#endif
         tintin_printf(0,"%s",buf);
     }
     if (ioctl(fd,TIOCGWINSZ,&ws))
