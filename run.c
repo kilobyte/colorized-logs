@@ -327,7 +327,6 @@ void pty_resize(int fd,int sx,int sy)
 
 static void pty_makeraw(struct termios *ta)
 {
-    memset(ta, 0, sizeof(*ta));
     ta->c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP
                     |INLCR|IGNCR|ICRNL|IXON);
     ta->c_oflag &= ~OPOST;
@@ -357,6 +356,7 @@ int run(const char *command, int sx, int sy, const char *term)
     struct termios ta;
     struct winsize ws;
 
+    memset(&ta, 0, sizeof(ta));
     pty_makeraw(&ta);
 
     ws.ws_row=sy;
@@ -469,7 +469,7 @@ void pty_write_line(char *line, int pty)
 # ifdef RESET_RAW
     struct termios ta;
 
-    memset(&ta, 0, sizeof(ta));
+    tcgetattr(pty, &ta);
     pty_makeraw(&ta);
     tcsetattr(pty, TCSANOW, &ta);
 # endif
