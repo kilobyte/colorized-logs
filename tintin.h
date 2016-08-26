@@ -244,9 +244,6 @@
 #if GWINSZ_IN_SYS_IOCTL
 # include <sys/ioctl.h>
 #endif
-#if HAVE_TERMIOS_H
-# include <termios.h>
-#endif
 #ifdef HAVE_GNUTLS
 # include <gnutls/gnutls.h>
 # include <gnutls/x509.h>

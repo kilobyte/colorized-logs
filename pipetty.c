@@ -8,7 +8,7 @@
 #include <sys/wait.h>
 #include <sys/ioctl.h>
 #include <termios.h>
-#include "protos/run.h"
+#include "protos/pty.h"
 
 #define PN "pipetty"
 
