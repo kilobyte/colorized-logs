@@ -168,17 +168,13 @@ int run(const char *command, int sx, int sy, const char *term)
 #endif
 
 #ifndef PTY_ECHO_HACK
-    struct termios ta;
     struct winsize ws;
-
-    memset(&ta, 0, sizeof(ta));
-    pty_makeraw(&ta);
 
     ws.ws_row=sy;
     ws.ws_col=sx;
     ws.ws_xpixel=0;
     ws.ws_ypixel=0;
-    res = forkpty(&fd,0,&ta,(sy>0 && sx>0)?&ws:0);
+    res = forkpty(&fd,0,0,(sy>0 && sx>0)?&ws:0);
 #else
     res = forkpty(&fd,0,0,0);
 #endif
@@ -195,8 +191,13 @@ int run(const char *command, int sx, int sy, const char *term)
         return -1;
     case 0:
         {
+            struct termios ta;
             char *argv[4];
             char cmd[BUFFER_SIZE+5];
+
+            tcgetattr(1, &ta);
+            pty_makeraw(&ta);
+            tcsetattr(1, TCSANOW, &ta);
 
             sprintf(cmd, "exec %s", command);
             argv[0]="sh";
