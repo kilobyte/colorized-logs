@@ -203,3 +203,18 @@ int forkpty(int *amaster, char *dummy, struct termios *termp, struct winsize *wp
     }
 }
 #endif
+
+#ifndef HAVE_CFMAKERAW
+void cfmakeraw(struct termios *ta)
+{
+    ta->c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP
+                    |INLCR|IGNCR|ICRNL|IXON);
+    ta->c_oflag &= ~OPOST;
+    ta->c_lflag &= ~(ECHO|ECHONL|ICANON|ISIG|IEXTEN);
+    ta->c_cflag &= ~(CSIZE|PARENB);
+    ta->c_cflag |= CS8;
+
+    ta->c_cc[VMIN]=1;
+    ta->c_cc[VTIME]=0;
+}
+#endif

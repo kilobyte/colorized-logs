@@ -140,19 +140,6 @@ void pty_resize(int fd,int sx,int sy)
     }
 }
 
-static void pty_makeraw(struct termios *ta)
-{
-    ta->c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP
-                    |INLCR|IGNCR|ICRNL|IXON);
-    ta->c_oflag &= ~OPOST;
-    ta->c_lflag &= ~(ECHO|ECHONL|ICANON|ISIG|IEXTEN);
-    ta->c_cflag &= ~(CSIZE|PARENB);
-    ta->c_cflag |= CS8;
-
-    ta->c_cc[VMIN]=1;
-    ta->c_cc[VTIME]=0;
-}
-
 int run(const char *command, int sx, int sy, const char *term)
 {
     int fd, res;
@@ -196,7 +183,7 @@ int run(const char *command, int sx, int sy, const char *term)
             char cmd[BUFFER_SIZE+5];
 
             tcgetattr(1, &ta);
-            pty_makeraw(&ta);
+            cfmakeraw(&ta);
             tcsetattr(1, TCSANOW, &ta);
 
             sprintf(cmd, "exec %s", command);
@@ -278,7 +265,7 @@ void pty_write_line(char *line, int pty)
 
     tcgetattr(pty, &oldta);
     memcpy(&ta, &oldta, sizeof(ta));
-    pty_makeraw(&ta);
+    cfmakeraw(&ta);
     ta.c_cc[VMIN]=MAX_INPUT;
     tcsetattr(pty, TCSANOW, &ta);
 #else
@@ -286,7 +273,7 @@ void pty_write_line(char *line, int pty)
     struct termios ta;
 
     tcgetattr(pty, &ta);
-    pty_makeraw(&ta);
+    cfmakeraw(&ta);
     tcsetattr(pty, TCSANOW, &ta);
 # endif
 #endif
