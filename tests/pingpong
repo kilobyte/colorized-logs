@@ -1,0 +1,9 @@
+#!/bin/sh
+
+while read x
+  do
+    case "$x" in
+      ping*) y=$(( ${x##ping }+1 ));echo "pong $y";;
+      *) echo 'Not a ping!';exit 1;;
+    esac
+  done

@@ -180,6 +180,22 @@ abc𠀧𠀀𠀁𠀂
 FIN
 ===
 
+### two-way communication in #run
+<<<
+#hook close {#showme FIN;#end}
+#run a pingpong
+#act {pong %1} {#if {$1>=10} {exit} #else {#math x {$1+1};ping $x}}
+ping 1
+>>>
+pong 2
+pong 4
+pong 6
+pong 8
+pong 10
+Not a ping!
+FIN
+===
+
 ### #goto
 <<<
 #route a b {#showme A>B}
