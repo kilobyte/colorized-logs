@@ -115,3 +115,12 @@
 1.0.16:
 * #initvar for one-time variable initialization
 * #info includes processing speed.
+
+1.0.17:
+* a new tool: pipetty to redirect colors of programs that use color only on
+  terminals
+* massive improvements to ansi2html
+* support for overstrike and some color codes
+* #hook title for when a program/MUD tries to set window title
+* #sendchar for sending some special characters like ^C
+* $SERVERIDLE pseudovar: time since last output from the server
