@@ -11,7 +11,7 @@ const int colors[8]={0,4,2,6,1,5,3,7};
 static int mudcolors=3;    /* 0=disabled, 1=on, 2=null, 3=null+warning */
 static char *MUDcolors[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
-int getcolor(char **ptr,int *color,const int flag)
+int getcolor(char **ptr,int *restrict color,const int flag)
 {
     int fg,bg,blink;
     char *txt=*ptr;
@@ -146,7 +146,7 @@ void do_in_MUD_colors(char *txt,int quotetype,struct session *ses)
     /* worst case: buffer full of FormFeeds, with color=1023 */
     /* TODO: not anymore, it's much shorter now */
     char OUT[BUFFER_SIZE*20],*out,*back,*TXT=txt;
-    int tok[MAXTOK],nt,i;
+    int tok[MAXTOK],nt,dummy=0;
 
     for (out=OUT;*txt;txt++)
         switch (*txt)
@@ -184,7 +184,7 @@ again:
                         nt++;
                     else
                         ccolor=7;
-                    for (i=0;i<nt;i++)
+                    for (int i=0;i<nt;i++)
                         switch (tok[i])
                         {
                         case 0:
@@ -302,7 +302,7 @@ again:
                         break;
                     if (out-OUT+tok[0]>INPUT_CHUNK*2)
                         break;       /* something fishy is going on */
-                    for (i=0;i<tok[0];i++)
+                    for (int i=0;i<tok[0];i++)
                         *out++=' ';
                     break;
                 case 'D': /* this interpretation is badly invalid... */
@@ -354,7 +354,7 @@ error:
             break;
         case '~':
             back=txt;
-            if (getcolor(&txt,&i,1))
+            if (getcolor(&txt,&dummy,1))
             {
                 if (quotetype)
                 {
