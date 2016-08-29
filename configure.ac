@@ -1,5 +1,5 @@
 # When releasing: remember to update ChangeLog and NEWS.
-AC_INIT([KBtin], [1.0.16], [kilobyte@angband.pl])
+AC_INIT([KBtin], [1.0.17], [kilobyte@angband.pl])
 AM_INIT_AUTOMAKE([-Wall dist-xz no-dist-gzip])
 AC_CONFIG_SRCDIR([action.c])
 AC_CONFIG_HEADERS([config.h])
