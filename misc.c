@@ -1057,6 +1057,12 @@ void info_command(char *arg, struct session *ses)
         tintin_printf(ses, "Not logging");
     if (ses->debuglogfile)
         tintin_printf(ses, "Debuglog: {%s}", ses->debuglogname);
+    if (ses!=nullsession)
+    {
+        time_t now=time(0);
+        tintin_printf(ses, "Idle time: %d, server idle: %d",
+            now-ses->idle_since, now-ses->server_idle_since);
+    }
     if (ses->line_time.tv_sec||ses->line_time.tv_usec)
         tintin_printf(ses, "Line processing time: %d.%06ds (%1.1f per second)",
             ses->line_time.tv_sec, ses->line_time.tv_usec,
