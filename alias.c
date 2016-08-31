@@ -15,7 +15,7 @@
 extern int alnum;
 
 
-void show_hashlist(struct session *ses, struct hashtable *h, char *pat, const char *msg_all, const char *msg_none)
+void show_hashlist(struct session *ses, struct hashtable *h, const char *pat, const char *msg_all, const char *msg_none)
 {
     struct listnode *templist;
 
@@ -33,7 +33,7 @@ void show_hashlist(struct session *ses, struct hashtable *h, char *pat, const ch
     prompt(ses);
 }
 
-void delete_hashlist(struct session *ses, struct hashtable *h, char *pat, const char *msg_ok, const char *msg_none)
+void delete_hashlist(struct session *ses, struct hashtable *h, const char *pat, const char *msg_ok, const char *msg_none)
 {
     struct listnode *templist, *ln;
 
@@ -68,7 +68,7 @@ void delete_hashlist(struct session *ses, struct hashtable *h, char *pat, const 
 /**********************/
 /* the #alias command */
 /**********************/
-void alias_command(char *arg, struct session *ses)
+void alias_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE], *ch;
 
@@ -99,7 +99,7 @@ void alias_command(char *arg, struct session *ses)
 /************************/
 /* the #unalias command */
 /************************/
-void unalias_command(char *arg, struct session *ses)
+void unalias_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE];
 

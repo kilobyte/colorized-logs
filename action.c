@@ -21,16 +21,16 @@ extern int term_echoing;
 extern char tintin_char;
 extern int acnum;
 extern int in_alias;
-int var_len[10];
-char *var_ptr[10];
+static int var_len[10];
+static const char *var_ptr[10];
 extern int aborting, recursion;
 
 int inActions=0;
 int deletedActions=0;
-char *match_start,*match_end;
+const char *match_start,*match_end;
 
-extern struct session *if_command(char *arg, struct session *ses);
-static int check_a_action(char *line, char *action, int inside, struct session *ses);
+extern struct session *if_command(const char *arg, struct session *ses);
+static int check_a_action(const char *line, const char *action, int inside, struct session *ses);
 
 static int kill_action(struct listnode *head,struct listnode *nptr)
 {
@@ -87,7 +87,7 @@ static void zap_actions(struct session *ses)
 
 /*  Priority code added by Joann Ellsworth 2/2/94 */
 
-void action_command(char *arg, struct session *ses)
+void action_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
     char pr[BUFFER_SIZE];
@@ -130,7 +130,7 @@ void action_command(char *arg, struct session *ses)
 /*****************************/
 /* the #promptaction command */
 /*****************************/
-void promptaction_command(char *arg, struct session *ses)
+void promptaction_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
     char pr[BUFFER_SIZE];
@@ -173,7 +173,7 @@ void promptaction_command(char *arg, struct session *ses)
 /*************************/
 /* the #unaction command */
 /*************************/
-void unaction_command(char *arg, struct session *ses)
+void unaction_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE];
     struct listnode **ptr,*ln;
@@ -221,7 +221,7 @@ void unaction_command(char *arg, struct session *ses)
 /*******************************/
 /* the #unpromptaction command */
 /*******************************/
-void unpromptaction_command(char *arg, struct session *ses)
+void unpromptaction_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE];
     struct listnode **ptr,*ln;
@@ -270,7 +270,7 @@ void unpromptaction_command(char *arg, struct session *ses)
 /* run through each of the commands on the right side of an alias/action  */
 /* expression, call substitute_text() for all commands but #alias/#action */
 /**************************************************************************/
-void prepare_actionalias(char *string, char *result, struct session *ses)
+void prepare_actionalias(const char *string, char *result, struct session *ses)
 {
     char arg[BUFFER_SIZE];
 
@@ -282,11 +282,12 @@ void prepare_actionalias(char *string, char *result, struct session *ses)
 /* copy the arg text into the result-space, but substitute the variables */
 /* %0..%9 with the real variables                                        */
 /*************************************************************************/
-void substitute_vars(char *arg, char *result)
+void substitute_vars(const char *arg, char *result)
 {
     int nest = 0;
     int numands, n;
-    char *ptr,*ARG=arg;
+    char *ptr;
+    const char *ARG=arg;
     int valuelen,len=strlen(arg);
 
     if (!pvars)
@@ -398,7 +399,7 @@ novar2:
 /**********************************************/
 /* check actions from a sessions against line */
 /**********************************************/
-void check_all_actions(char *line, struct session *ses)
+void check_all_actions(const char *line, struct session *ses)
 {
     struct listnode *ln;
     pvars_t vars,*lastpvars;
@@ -435,7 +436,7 @@ void check_all_actions(char *line, struct session *ses)
 /**********************************************/
 /* check actions from a sessions against line */
 /**********************************************/
-void check_all_promptactions(char *line, struct session *ses)
+void check_all_promptactions(const char *line, struct session *ses)
 {
     struct listnode *ln;
     pvars_t vars,*lastpvars;
@@ -472,7 +473,7 @@ void check_all_promptactions(char *line, struct session *ses)
 /**********************/
 /* the #match command */
 /**********************/
-void match_command(char *arg, struct session *ses)
+void match_command(const char *arg, struct session *ses)
 {
     pvars_t vars,*lastpvars;
     char left[BUFFER_SIZE], line[BUFFER_SIZE], right[BUFFER_SIZE],
@@ -524,7 +525,7 @@ void match_command(char *arg, struct session *ses)
 /*********************/
 /* the #match inline */
 /*********************/
-int match_inline(char *arg, struct session *ses)
+int match_inline(const char *arg, struct session *ses)
 {
     pvars_t vars;
     char left[BUFFER_SIZE], line[BUFFER_SIZE];
@@ -542,9 +543,9 @@ int match_inline(char *arg, struct session *ses)
 }
 
 
-static int match_a_string(char *line, char *mask)
+static int match_a_string(const char *line, const char *mask)
 {
-    char *lptr, *mptr;
+    const char *lptr, *mptr;
 
     lptr = line;
     mptr = mask;
@@ -556,7 +557,7 @@ static int match_a_string(char *line, char *mask)
     return -1;
 }
 
-int check_one_action(char *line, char *action, pvars_t *vars, int inside, struct session *ses)
+int check_one_action(const char *line, const char *action, pvars_t *vars, int inside, struct session *ses)
 {
     int i;
 
@@ -582,10 +583,11 @@ int check_one_action(char *line, char *action, pvars_t *vars, int inside, struct
 /* check if a text triggers an action and fill into the variables */
 /* return TRUE if triggered                                       */
 /******************************************************************/
-static int check_a_action(char *line, char *action, int inside, struct session *ses)
+static int check_a_action(const char *line, const char *action, int inside, struct session *ses)
 {
     char result[BUFFER_SIZE];
-    char *temp2, *tptr, *lptr, *lptr2;
+    char *temp2, *tptr;
+    const char *lptr, *lptr2;
     int i, flag_anchor, len;
 
     for (i = 0; i < 10; i++)
@@ -674,7 +676,7 @@ static int check_a_action(char *line, char *action, int inside, struct session *
 }
 
 
-void doactions_command(char *arg, struct session *ses)
+void doactions_command(const char *arg, struct session *ses)
 {
     char line[BUFFER_SIZE];
 
@@ -685,7 +687,7 @@ void doactions_command(char *arg, struct session *ses)
 }
 
 
-void dopromptactions_command(char *arg, struct session *ses)
+void dopromptactions_command(const char *arg, struct session *ses)
 {
     char line[BUFFER_SIZE];
 

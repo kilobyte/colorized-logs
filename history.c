@@ -9,14 +9,14 @@
 #include "protos/parse.h"
 #include "protos/utils.h"
 
-static void insert_history(char *buffer);
+static void insert_history(const char *buffer);
 
 extern char *history[HISTORY_SIZE];
 
 /************************/
 /* the #history command */
 /************************/
-void history_command(char *arg, struct session *ses)
+void history_command(const char *arg, struct session *ses)
 {
     int i;
 
@@ -30,7 +30,8 @@ void history_command(char *arg, struct session *ses)
 
 void do_history(char *buffer, struct session *ses)
 {
-    char result[BUFFER_SIZE], *cptr;
+    char result[BUFFER_SIZE];
+    const char *cptr;
 
     if (!ses->verbatim && *(cptr=space_out(buffer)))
     {
@@ -77,7 +78,7 @@ void do_history(char *buffer, struct session *ses)
 /***********************************************/
 /* insert buffer into a session`s history list */
 /***********************************************/
-static void insert_history(char *buffer)
+static void insert_history(const char *buffer)
 {
     int i;
 
@@ -94,7 +95,7 @@ static void insert_history(char *buffer)
 /************************************************************/
 /* do all the parse stuff for !XXXX history commands        */
 /************************************************************/
-struct session* parse_history(char *command, char *arg, struct session *ses)
+struct session* parse_history(const char *command, const char *arg, struct session *ses)
 {
     if ((*(command + 1) == '!' || !*(command + 1)) && history[0])
         return parse_input(history[0],1,ses); /* we're already not in verbatim */

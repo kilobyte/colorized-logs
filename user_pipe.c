@@ -23,15 +23,16 @@ static void userpipe_init(void)
     memset(&outstate, 0, sizeof(outstate));
 }
 
-static void userpipe_textout(char *txt)
+static void userpipe_textout(const char *txt)
 {
-    char buf[BUFFER_SIZE],*a,*b;
+    const char *a;
+    char buf[BUFFER_SIZE],*b;
 
     for (a=txt,b=buf; *a; )
         switch (*a)
         {
         case '~':
-            if (getcolor(&a,&color,1))
+            if (getcolor(&a, &color, 1))
             {
                 if (color==-1)
                     color=lastcolor;

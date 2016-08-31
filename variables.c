@@ -30,9 +30,9 @@ extern char tintin_char;
 extern time_t time0;
 extern int utime0;
 
-extern struct session *if_command(char *arg, struct session *ses);
+extern struct session *if_command(const char *arg, struct session *ses);
 
-void set_variable(char *left,char *right,struct session *ses)
+void set_variable(const char *left, const char *right, struct session *ses)
 {
     set_hash(ses->myvars, left, right);
     varnum++;       /* we don't care for exactness of this */
@@ -53,7 +53,7 @@ void set_variable(char *left,char *right,struct session *ses)
 /*       internal counter) provided no variable named 'secstotick'       */
 /*       already exists                                                  */
 /*************************************************************************/
-void substitute_myvars(char *arg,char *result,struct session *ses)
+void substitute_myvars(const char *arg, char *result, struct session *ses)
 {
     char varname[BUFFER_SIZE], value[BUFFER_SIZE], *v;
     int nest = 0, counter, varlen, valuelen;
@@ -230,7 +230,7 @@ novar:
 /*************************/
 /* the #variable command */
 /*************************/
-void variable_command(char *arg,struct session *ses)
+void variable_command(const char *arg,struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
     int r;
@@ -252,7 +252,7 @@ void variable_command(char *arg,struct session *ses)
 /**********************/
 /* the #unvar command */
 /**********************/
-void unvariable_command(char *arg,struct session *ses)
+void unvariable_command(const char *arg,struct session *ses)
 {
     char left[BUFFER_SIZE];
 
@@ -273,7 +273,7 @@ void unvariable_command(char *arg,struct session *ses)
 /*       Ex:  #listl {listlength} {smile {say Hi!} flip bounce}  */
 /*            -> listlength = 4                                  */
 /*****************************************************************/
-void listlength_command(char *arg,struct session *ses)
+void listlength_command(const char *arg,struct session *ses)
 {
     char left[BUFFER_SIZE], list[BUFFER_SIZE],
     temp[BUFFER_SIZE];
@@ -300,7 +300,7 @@ void listlength_command(char *arg,struct session *ses)
 /**************************/
 /* the #listlength inline */
 /**************************/
-int listlength_inline(char *arg,struct session *ses)
+int listlength_inline(const char *arg,struct session *ses)
 {
     char list[BUFFER_SIZE],temp[BUFFER_SIZE];
     int  i;
@@ -316,7 +316,7 @@ int listlength_inline(char *arg,struct session *ses)
 }
 
 
-static int find_item(char *item,char *list)
+static int find_item(const char *item, const char *list)
 {
     char temp[BUFFER_SIZE];
     int i;
@@ -337,7 +337,7 @@ static int find_item(char *item,char *list)
 /*************************/
 /* the #finditem command */
 /*************************/
-void finditem_command(char *arg,struct session *ses)
+void finditem_command(const char *arg,struct session *ses)
 {
     char left[BUFFER_SIZE], list[BUFFER_SIZE], item[BUFFER_SIZE];
 
@@ -356,7 +356,7 @@ void finditem_command(char *arg,struct session *ses)
 /************************/
 /* the #finditem inline */
 /************************/
-int finditem_inline(char *arg,struct session *ses)
+int finditem_inline(const char *arg,struct session *ses)
 {
     char list[BUFFER_SIZE], item[BUFFER_SIZE];
 
@@ -377,7 +377,7 @@ int finditem_inline(char *arg,struct session *ses)
 /*       Ex:  #geti {dothis} {2} {smile {say Hi!} flip bounce}      */
 /*            -> dothis = say Hi!                                   */
 /********************************************************************/
-void getitem_command(char *arg,struct session *ses)
+void getitem_command(const char *arg,struct session *ses)
 {
     char destvar[BUFFER_SIZE], itemnrtxt[BUFFER_SIZE],
     list[BUFFER_SIZE], temp1[BUFFER_SIZE];
@@ -440,7 +440,7 @@ void getitem_command(char *arg,struct session *ses)
 /* First we have function which does necessary stuff */
 /* Argument: after all substitutions, with unnecessary surrounding */
 /*           spaces removed (e.g. ' {atom}' is _not_ an atom */
-int isatom(char *arg)
+int isatom(const char *arg)
 {
     int last = strlen(arg);
     if ((arg[0]    == DEFAULT_OPEN) &&
@@ -460,7 +460,7 @@ int isatom(char *arg)
 /***********************/
 /* the #isatom command */
 /***********************/
-void isatom_command(char *line,struct session *ses)
+void isatom_command(const char *line,struct session *ses)
 {
     /* char left[BUFFER_SIZE], right[BUFFER_SIZE], arg2[BUFFER_SIZE], */
     char left[BUFFER_SIZE], right[BUFFER_SIZE], temp[8];
@@ -482,7 +482,7 @@ void isatom_command(char *line,struct session *ses)
 /**********************/
 /* the #isatom inline */
 /**********************/
-int isatom_inline(char *arg,struct session *ses)
+int isatom_inline(const char *arg,struct session *ses)
 {
     char list[BUFFER_SIZE];
 
@@ -536,7 +536,7 @@ static char* get_split_pos(char *list, int head_length)
     if (head_length > 0)
     { /* modified #getitemnr code */
         do {
-            list = get_arg_in_braces(list, temp, STOP_AT_SPACES);
+            list = (char*)get_arg_in_braces(list, temp, STOP_AT_SPACES);
             i++;
         } while (i != head_length);
 
@@ -554,7 +554,7 @@ static char* get_split_pos(char *list, int head_length)
 /* RESULT:    TRUE if list is braced atom e.g. '{atom}'               */
 /*            i.e. whole list begins with DEFAULT_OPEN end ends with  */
 /*            DEFAULT_CLOSE and whole is inside group (inside braces) */
-static int is_braced_atom_2(char *beg,char *end,struct session *ses)
+static int is_braced_atom_2(const char *beg,const char *end,struct session *ses)
 {
     /* we define where list ends */
 #define AT_END(beg,end) (((*beg) == '\0') || (beg >= end))
@@ -682,7 +682,7 @@ static void split_list(char *head,char *tail,char *list,int head_length,struct s
 /**************************/
 /* the #splitlist command */
 /**************************/
-void splitlist_command(char *arg,struct session *ses)
+void splitlist_command(const char *arg,struct session *ses)
 {
     /* command arguments */
     char headvar[BUFFER_SIZE], tailvar[BUFFER_SIZE];
@@ -740,7 +740,7 @@ void splitlist_command(char *arg,struct session *ses)
 /****************************/
 /* the #deleteitems command */
 /****************************/
-void deleteitems_command(char *arg,struct session *ses)
+void deleteitems_command(const char *arg,struct session *ses)
 {
     char left[BUFFER_SIZE], list[BUFFER_SIZE], item[BUFFER_SIZE],
     temp[BUFFER_SIZE], right[BUFFER_SIZE], *lpos, *rpos;
@@ -782,9 +782,10 @@ void deleteitems_command(char *arg,struct session *ses)
 /**************************/
 /* the #foreach command   */
 /**************************/
-struct session *foreach_command(char *arg,struct session *ses)
+struct session *foreach_command(const char *arg,struct session *ses)
 {
-    char *list, temp[BUFFER_SIZE], left[BUFFER_SIZE], right[BUFFER_SIZE], *p;
+    char temp[BUFFER_SIZE], left[BUFFER_SIZE], right[BUFFER_SIZE];
+    const char *p, *list;
     pvars_t vars,*lastvars;
     int i;
 
@@ -811,7 +812,7 @@ struct session *foreach_command(char *arg,struct session *ses)
     return ses;
 }
 
-struct session *forall_command(char *arg,struct session *ses)
+struct session *forall_command(const char *arg,struct session *ses)
 {
     return foreach_command(arg, ses);
 }
@@ -824,7 +825,7 @@ static int compar(const void *a,const void *b)
 /***************************/
 /* the #sortlist command   */
 /***************************/
-void sortlist_command(char *arg,struct session *ses)
+void sortlist_command(const char *arg,struct session *ses)
 {
     char *list, temp[BUFFER_SIZE], left[BUFFER_SIZE], right[BUFFER_SIZE];
     int i,n;
@@ -839,10 +840,10 @@ void sortlist_command(char *arg,struct session *ses)
     }
 
     n=0;
-    list = right;
-    while (*list)
+    arg = right;
+    while (*arg)
     {
-        list = get_arg_in_braces(list, temp, 0);
+        arg = get_arg_in_braces(arg, temp, 0);
         tab[n++]=mystrdup(temp);
     };
     qsort(tab,n,sizeof(char*),compar);
@@ -863,7 +864,7 @@ void sortlist_command(char *arg,struct session *ses)
 /************************/
 /* the #tolower command */
 /************************/
-void tolower_command(char *arg,struct session *ses)
+void tolower_command(const char *arg,struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
     WC *p,txt[BUFFER_SIZE];
@@ -885,7 +886,7 @@ void tolower_command(char *arg,struct session *ses)
 /************************/
 /* the #toupper command */
 /************************/
-void toupper_command(char *arg,struct session *ses)
+void toupper_command(const char *arg,struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
     WC *p,txt[BUFFER_SIZE];
@@ -907,7 +908,7 @@ void toupper_command(char *arg,struct session *ses)
 /***************************/
 /* the #firstupper command */
 /***************************/
-void firstupper_command(char *arg,struct session *ses)
+void firstupper_command(const char *arg,struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
     WC *p,txt[BUFFER_SIZE];
@@ -930,7 +931,7 @@ void firstupper_command(char *arg,struct session *ses)
 /***********************/
 /* the #strlen command */
 /***********************/
-void strlen_command(char *arg, struct session *ses)
+void strlen_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
 
@@ -948,7 +949,7 @@ void strlen_command(char *arg, struct session *ses)
 /**********************/
 /* the #strlen inline */
 /**********************/
-int strlen_inline(char *arg, struct session *ses)
+int strlen_inline(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE];
 
@@ -987,7 +988,7 @@ static WC* revstr(WC *dest, WC *src)
 /************************/
 /* the #reverse command */
 /************************/
-void reverse_command(char *arg,struct session *ses)
+void reverse_command(const char *arg,struct session *ses)
 {
     char destvar[BUFFER_SIZE], strvar[BUFFER_SIZE];
     WC origstring[BUFFER_SIZE], revstring[BUFFER_SIZE];
@@ -1010,7 +1011,7 @@ void reverse_command(char *arg,struct session *ses)
 /************************/
 /* the #explode command */
 /************************/
-void explode_command(char *arg, struct session *ses)
+void explode_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], del[BUFFER_SIZE], right[BUFFER_SIZE],
          *p, *n, *r,
@@ -1056,10 +1057,11 @@ void explode_command(char *arg, struct session *ses)
 /************************/
 /* the #implode command */
 /************************/
-void implode_command(char *arg, struct session *ses)
+void implode_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], del[BUFFER_SIZE], right[BUFFER_SIZE],
-         *p, res[BUFFER_SIZE], temp[BUFFER_SIZE], *r;
+         res[BUFFER_SIZE], temp[BUFFER_SIZE], *r;
+    const char *p;
     int len,dellen;
 
     arg = get_arg(arg, left, 0, ses);
@@ -1091,10 +1093,11 @@ void implode_command(char *arg, struct session *ses)
 /************************/
 /* the #collate command */
 /************************/
-void collate_command(char *arg,struct session *ses)
+void collate_command(const char *arg,struct session *ses)
 {
     char left[BUFFER_SIZE], list[BUFFER_SIZE],
-         cur[BUFFER_SIZE], last[BUFFER_SIZE], out[BUFFER_SIZE], *outptr;
+         cur[BUFFER_SIZE], last[BUFFER_SIZE], out[BUFFER_SIZE],
+         *outptr, *err;
     int i,j;
 
     arg = get_arg(arg, left,0,ses);
@@ -1111,7 +1114,7 @@ void collate_command(char *arg,struct session *ses)
         {
             arg=space_out(arg);
             if (isdigit(*arg))
-                j=strtol(arg, &arg, 10);
+                j=strtol(arg, &err, 10), arg=err;
             else
                 j=1;
             if (!*arg || *arg==' ')
@@ -1164,10 +1167,10 @@ void collate_command(char *arg,struct session *ses)
 /***********************/
 /* the #expand command */
 /***********************/
-void expand_command(char *arg,struct session *ses)
+void expand_command(const char *arg,struct session *ses)
 {
     char left[BUFFER_SIZE], list[BUFFER_SIZE],
-         cur[BUFFER_SIZE], out[BUFFER_SIZE], *outptr;
+         cur[BUFFER_SIZE], out[BUFFER_SIZE], *outptr, *err;
     int i,j;
 
     arg = get_arg(arg, left,0,ses);
@@ -1183,7 +1186,7 @@ void expand_command(char *arg,struct session *ses)
         {
             arg=space_out(arg);
             if (isdigit(*arg))
-                j=strtol(arg, &arg, 10);
+                j=strtol(arg, &err, 10), arg=err;
             else
                 j=1;
             if (!*arg || *arg==' ')
@@ -1212,7 +1215,7 @@ void expand_command(char *arg,struct session *ses)
 /***********************/
 /* the #random command */
 /***********************/
-void random_command(char *arg,struct session *ses)
+void random_command(const char *arg,struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE], dummy;
     int low, high, number;
@@ -1244,7 +1247,7 @@ void random_command(char *arg,struct session *ses)
 /**********************/
 /* the #random inline */
 /**********************/
-int random_inline(char *arg, struct session *ses)
+int random_inline(const char *arg, struct session *ses)
 {
     char right[BUFFER_SIZE];
     int low, high, tmp;
@@ -1300,7 +1303,7 @@ static int cutws(WC *str, int len, WC **rstr)
 /* length. Pads with spaces at the end if the text   */
 /* isn't long enough.                                */
 /*****************************************************/
-void postpad_command(char *arg,struct session *ses)
+void postpad_command(const char *arg,struct session *ses)
 {
     char destvar[BUFFER_SIZE], lengthstr[BUFFER_SIZE], astr[BUFFER_SIZE], *aptr;
     WC bstr[BUFFER_SIZE], *bptr;
@@ -1339,7 +1342,7 @@ void postpad_command(char *arg,struct session *ses)
 /* length. Pads with spaces at the start if the text */
 /* isn't long enough.                                */
 /*****************************************************/
-void prepad_command(char *arg,struct session *ses)
+void prepad_command(const char *arg,struct session *ses)
 {
     char destvar[BUFFER_SIZE], astr[BUFFER_SIZE], lengthstr[BUFFER_SIZE], *aptr;
     WC bstr[BUFFER_SIZE], *bptr;
@@ -1374,9 +1377,8 @@ void prepad_command(char *arg,struct session *ses)
 /************************************************************/
 /* parse time, return # of seconds or INVALID_TIME on error */
 /************************************************************/
-static int time2secs(char *tt,struct session *ses)
+static int time2secs(const char *tt, struct session *ses)
 {
-    char *oldtt;
     int w,t=0;
 
     if (!*tt)
@@ -1389,9 +1391,11 @@ bad:
     t=0;
     for (;;)
     {
-        w=strtol(oldtt=tt,&tt,10);
-        if (tt==oldtt)
+        char *err;
+        w=strtol(tt, &err, 10);
+        if (tt==err)
             goto bad;
+        tt=err;
         while (*tt==' ')
             tt++;
         switch (tolower(*tt))
@@ -1432,7 +1436,7 @@ bad:
 /**********************/
 /* the #ctime command */
 /**********************/
-void ctime_command(char *arg,struct session *ses)
+void ctime_command(const char *arg,struct session *ses)
 {
     char left[BUFFER_SIZE], arg2[BUFFER_SIZE], *ct, *p;
     time_t tt;
@@ -1465,7 +1469,7 @@ void ctime_command(char *arg,struct session *ses)
 /*********************/
 /* the #time command */
 /*********************/
-void time_command(char *arg,struct session *ses)
+void time_command(const char *arg,struct session *ses)
 {
     char left[BUFFER_SIZE], ct[BUFFER_SIZE];
 
@@ -1489,7 +1493,7 @@ void time_command(char *arg,struct session *ses)
 /**************************/
 /* the #localtime command */
 /**************************/
-void localtime_command(char *arg,struct session *ses)
+void localtime_command(const char *arg,struct session *ses)
 {
     char left[BUFFER_SIZE], ct[BUFFER_SIZE];
     time_t t;
@@ -1520,7 +1524,7 @@ void localtime_command(char *arg,struct session *ses)
 /***********************/
 /* the #gmtime command */
 /***********************/
-void gmtime_command(char *arg,struct session *ses)
+void gmtime_command(const char *arg,struct session *ses)
 {
     char left[BUFFER_SIZE], ct[BUFFER_SIZE];
     time_t t;
@@ -1552,7 +1556,7 @@ void gmtime_command(char *arg,struct session *ses)
 /**************************/
 /* the #substring command */
 /**************************/
-void substring_command(char *arg,struct session *ses)
+void substring_command(const char *arg,struct session *ses)
 {
     char left[BUFFER_SIZE], mid[BUFFER_SIZE], right[BUFFER_SIZE], *p;
     WC buf[BUFFER_SIZE],*lptr,*rptr;
@@ -1611,7 +1615,7 @@ void substring_command(char *arg,struct session *ses)
 /***********************/
 /* the #strcmp command */
 /***********************/
-struct session *strcmp_command(char *line, struct session *ses)
+struct session *strcmp_command(const char *line, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE], cmd[BUFFER_SIZE];
 
@@ -1650,7 +1654,7 @@ struct session *strcmp_command(char *line, struct session *ses)
 /**********************/
 /* the #strcmp inline */
 /**********************/
-int strcmp_inline(char *line, struct session *ses)
+int strcmp_inline(const char *line, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
 
@@ -1665,7 +1669,7 @@ int strcmp_inline(char *line, struct session *ses)
 /***************************************/
 /* (mainstream tintin++ compatibility) */
 /***************************************/
-struct session *ifstrequal_command(char *line, struct session *ses)
+struct session *ifstrequal_command(const char *line, struct session *ses)
 {
     return strcmp_command(line,ses);
 }
@@ -1673,7 +1677,7 @@ struct session *ifstrequal_command(char *line, struct session *ses)
 /*************************/
 /* the #ifexists command */
 /*************************/
-struct session *ifexists_command(char *line, struct session *ses)
+struct session *ifexists_command(const char *line, struct session *ses)
 {
     char left[BUFFER_SIZE],cmd[BUFFER_SIZE];
 
@@ -1709,7 +1713,7 @@ struct session *ifexists_command(char *line, struct session *ses)
 /*********************/
 /* the #ctoi command */
 /*********************/
-void ctoi_command(char* arg, struct session* ses)
+void ctoi_command(const char* arg, struct session* ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
 
@@ -1728,7 +1732,7 @@ void ctoi_command(char* arg, struct session* ses)
 /*****************************/
 /* the #initvariable command */
 /*****************************/
-void initvariable_command(char* arg, struct session* ses)
+void initvariable_command(const char* arg, struct session* ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
 

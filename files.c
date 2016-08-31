@@ -19,8 +19,8 @@
 #include "protos/variables.h"
 #include <pwd.h>
 
-static void prepare_for_write(char *command, char *left, char *right, char *pr, char *result);
-extern void char_command(char *arg,struct session *ses);
+static void prepare_for_write(const char *command, const char *left, const char *right, const char *pr, char *result);
+extern void char_command(const char *arg,struct session *ses);
 
 extern struct session *nullsession;
 
@@ -28,7 +28,7 @@ extern int puts_echoing;
 extern int alnum, acnum, subnum, hinum, varnum, antisubnum, routnum, bindnum, pdnum, hooknum;
 extern char tintin_char;
 extern int recursion;
-extern char *hook_names[];
+extern const char *hook_names[];
 extern int keypad, retain;
 extern int real_quiet;
 extern int ui_sep_input;
@@ -41,7 +41,7 @@ int in_read=0;
 /********************************************/
 /* result must be at least BUFFER_SIZE long */
 /********************************************/
-static void expand_filename(char *arg, char *result, char *lstr)
+static void expand_filename(const char *arg, char *result, char *lstr)
 {
     char *r0=result;
 
@@ -72,7 +72,7 @@ static void expand_filename(char *arg, char *result, char *lstr)
 /****************************************/
 /* convert charsets and write to a file */
 /****************************************/
-static void cfputs(char *s, FILE *f)
+static void cfputs(const char *s, FILE *f)
 {
     char lstr[BUFFER_SIZE*8];
 
@@ -80,7 +80,7 @@ static void cfputs(char *s, FILE *f)
     fputs(lstr, f);
 }
 
-static void cfprintf(FILE *f, char *fmt, ...)
+static void cfprintf(FILE *f, const char *fmt, ...)
 {
     char lstr[BUFFER_SIZE*8], buf[BUFFER_SIZE*4];
     va_list ap;
@@ -97,10 +97,10 @@ static void cfprintf(FILE *f, char *fmt, ...)
 /**********************************/
 /* load a completion file         */
 /**********************************/
-void read_complete(char *arg, struct session *ses)
+void read_complete(const char *arg, struct session *ses)
 {
     FILE *myfile;
-    char buffer[BUFFER_SIZE], *cptr;
+    char buffer[BUFFER_SIZE];
     int flag;
     struct completenode *tcomplete, *tcomp2;
 
@@ -115,7 +115,7 @@ void read_complete(char *arg, struct session *ses)
 
     if ((myfile = fopen("tab.txt", "r")) == NULL)
     {
-        if ((cptr = (char *)getenv("HOME")))
+        if (const char *cptr = getenv("HOME"))
         {
             strcpy(buffer, cptr);
             strcat(buffer, "/.tab.txt");
@@ -129,6 +129,7 @@ void read_complete(char *arg, struct session *ses)
     }
     while (fgets(buffer, sizeof(buffer), myfile))
     {
+        char *cptr;
         for (cptr = buffer; *cptr && *cptr != '\n'; cptr++) ;
         *cptr = '\0';
         if ((tcomp2 = (struct completenode *)(malloc(sizeof(struct completenode)))) == NULL)
@@ -160,7 +161,7 @@ void read_complete(char *arg, struct session *ses)
 /*******************************/
 /* remove file from filesystem */
 /*******************************/
-void unlink_command(char *arg, struct session *ses)
+void unlink_command(const char *arg, struct session *ses)
 {
     char file[BUFFER_SIZE], temp[BUFFER_SIZE], lstr[BUFFER_SIZE];
 
@@ -180,7 +181,7 @@ void unlink_command(char *arg, struct session *ses)
 /*************************/
 /* the #deathlog command */
 /*************************/
-void deathlog_command(char *arg, struct session *ses)
+void deathlog_command(const char *arg, struct session *ses)
 {
     FILE *fh;
     char fname[BUFFER_SIZE], text[BUFFER_SIZE], temp[BUFFER_SIZE], lfname[BUFFER_SIZE];
@@ -225,7 +226,7 @@ static inline void ttyrec_timestamp(struct ttyrec_header *th)
 }
 
 /* charset is always UTF-8 */
-void write_logf(struct session *ses, char *txt, char *prefix, char *suffix)
+void write_logf(struct session *ses, const char *txt, const char *prefix, const char *suffix)
 {
     char buf[BUFFER_SIZE*2],lbuf[BUFFER_SIZE*2];
     int len;
@@ -257,7 +258,7 @@ void write_logf(struct session *ses, char *txt, char *prefix, char *suffix)
 }
 
 /* charset is always {remote} */
-void write_log(struct session *ses, char *txt, int n)
+void write_log(struct session *ses, const char *txt, int n)
 {
     struct ttyrec_header th;
     char ubuf[BUFFER_SIZE*2],lbuf[BUFFER_SIZE*2];
@@ -292,7 +293,7 @@ void write_log(struct session *ses, char *txt, int n)
 /***************************/
 /* the #logcomment command */
 /***************************/
-void logcomment_command(char *arg, struct session *ses)
+void logcomment_command(const char *arg, struct session *ses)
 {
     char text[BUFFER_SIZE];
 
@@ -313,7 +314,7 @@ void logcomment_command(char *arg, struct session *ses)
 /*******************************/
 /* the #loginputformat command */
 /*******************************/
-void loginputformat_command(char *arg, struct session *ses)
+void loginputformat_command(const char *arg, struct session *ses)
 {
     char text[BUFFER_SIZE];
 
@@ -328,7 +329,7 @@ void loginputformat_command(char *arg, struct session *ses)
             ses->loginputprefix, ses->loginputsuffix);
 }
 
-static FILE* open_logfile(struct session *ses, char *name, const char *filemsg, const char *appendmsg, const char *pipemsg)
+static FILE* open_logfile(struct session *ses, const char *name, const char *filemsg, const char *appendmsg, const char *pipemsg)
 {
     char temp[BUFFER_SIZE],fname[BUFFER_SIZE],lfname[BUFFER_SIZE];
     FILE *f;
@@ -414,7 +415,7 @@ static FILE* open_logfile(struct session *ses, char *name, const char *filemsg, 
 /************************/
 /* the #condump command */
 /************************/
-void condump_command(char *arg, struct session *ses)
+void condump_command(const char *arg, struct session *ses)
 {
     FILE *fh;
     char fname[BUFFER_SIZE], temp[BUFFER_SIZE];
@@ -447,7 +448,7 @@ void condump_command(char *arg, struct session *ses)
 /********************/
 /* the #log command */
 /********************/
-void log_command(char *arg, struct session *ses)
+void log_command(const char *arg, struct session *ses)
 {
     char fname[BUFFER_SIZE], temp[BUFFER_SIZE];
 
@@ -493,7 +494,7 @@ void log_command(char *arg, struct session *ses)
 /*************************/
 /* the #debuglog command */
 /*************************/
-void debuglog_command(char *arg, struct session *ses)
+void debuglog_command(const char *arg, struct session *ses)
 {
     char fname[BUFFER_SIZE], temp[BUFFER_SIZE];
 
@@ -551,7 +552,7 @@ void debuglog(struct session *ses, const char *format, ...)
 }
 
 
-struct session* do_read(FILE *myfile, char *filename, struct session *ses)
+struct session* do_read(FILE *myfile, const char *filename, struct session *ses)
 {
     char line[BUFFER_SIZE], buffer[BUFFER_SIZE], lstr[BUFFER_SIZE], *cptr, *eptr;
     int flag,nl,ignore_lines;
@@ -599,7 +600,7 @@ struct session* do_read(FILE *myfile, char *filename, struct session *ses)
 
         if (isaspace(*line) && *buffer && (*buffer==tintin_char))
         {
-            cptr=space_out(line);
+            cptr=(char*)space_out(line);
             if (ignore_lines || (strlen(cptr)+strlen(buffer) >= BUFFER_SIZE/2))
             {
                 puts_echoing=1;
@@ -664,15 +665,15 @@ struct session* do_read(FILE *myfile, char *filename, struct session *ses)
 /*********************/
 /* the #read command */
 /*********************/
-struct session* read_command(char *filename, struct session *ses)
+struct session* read_command(const char *filename, struct session *ses)
 {
     FILE *myfile;
-    char buffer[BUFFER_SIZE], lfname[BUFFER_SIZE];
+    char buffer[BUFFER_SIZE], fname[BUFFER_SIZE], lfname[BUFFER_SIZE];
 
     get_arg_in_braces(filename, buffer, 1);
-    substitute_vars(buffer, filename);
-    substitute_myvars(filename, buffer, ses);
-    expand_filename(buffer, filename, lfname);
+    substitute_vars(buffer, fname);
+    substitute_myvars(fname, buffer, ses);
+    expand_filename(buffer, fname, lfname);
     if (!*filename)
     {
         tintin_eprintf(ses, "#Syntax: #read filename");
@@ -681,12 +682,12 @@ struct session* read_command(char *filename, struct session *ses)
     }
     if ((myfile = fopen(lfname, "r")) == NULL)
     {
-        tintin_eprintf(ses, "#ERROR - COULDN'T OPEN FILE {%s}.", filename);
+        tintin_eprintf(ses, "#ERROR - COULDN'T OPEN FILE {%s}.", fname);
         prompt(NULL);
         return ses;
     }
 
-    return do_read(myfile, filename, ses);
+    return do_read(myfile, fname, ses);
 }
 
 
@@ -700,18 +701,18 @@ struct session* read_command(char *filename, struct session *ses)
 /**********************/
 /* the #write command */
 /**********************/
-void write_command(char *filename, struct session *ses)
+void write_command(const char *filename, struct session *ses)
 {
     FILE *myfile;
-    char buffer[BUFFER_SIZE*4], num[32], lfname[BUFFER_SIZE];
+    char buffer[BUFFER_SIZE*4], num[32], fname[BUFFER_SIZE], lfname[BUFFER_SIZE];
     struct listnode *nodeptr, *templist;
     struct routenode *rptr;
     int nr;
 
     get_arg_in_braces(filename, buffer, 1);
-    substitute_vars(buffer, filename);
-    substitute_myvars(filename, buffer, ses);
-    expand_filename(buffer, filename, lfname);
+    substitute_vars(buffer, fname);
+    substitute_myvars(fname, buffer, ses);
+    expand_filename(buffer, fname, lfname);
     if (*filename == '\0')
     {
         tintin_eprintf(ses, "#ERROR: syntax is: #write <filename>");
@@ -720,7 +721,7 @@ void write_command(char *filename, struct session *ses)
     }
     if ((myfile = fopen(lfname, "w")) == NULL)
     {
-        tintin_eprintf(ses, "#ERROR - COULDN'T OPEN FILE {%s}.", filename);
+        tintin_eprintf(ses, "#ERROR - COULDN'T OPEN FILE {%s}.", fname);
         prompt(NULL);
         return;
     }
@@ -847,7 +848,7 @@ void write_command(char *filename, struct session *ses)
 }
 
 
-static int route_exists(char *A,char *B,char *path,int dist,char *cond, struct session *ses)
+static int route_exists(const char *A, const char *B, const char *path, int dist, const char *cond, struct session *ses)
 {
     int a,b;
     struct routenode *rptr;
@@ -874,10 +875,10 @@ static int route_exists(char *A,char *B,char *path,int dist,char *cond, struct s
 /*****************************/
 /* the #writesession command */
 /*****************************/
-void writesession_command(char *filename, struct session *ses)
+void writesession_command(const char *filename, struct session *ses)
 {
     FILE *myfile;
-    char buffer[BUFFER_SIZE*4], *val, num[32], lfname[BUFFER_SIZE];
+    char buffer[BUFFER_SIZE*4], *val, num[32], fname[BUFFER_SIZE], lfname[BUFFER_SIZE];
     struct listnode *nodeptr,*onptr;
     struct routenode *rptr;
     int nr;
@@ -889,18 +890,18 @@ void writesession_command(char *filename, struct session *ses)
     }
 
     get_arg_in_braces(filename, buffer, 1);
-    substitute_vars(buffer, filename);
-    substitute_myvars(filename, buffer, ses);
-    expand_filename(buffer, filename, lfname);
+    substitute_vars(buffer, fname);
+    substitute_myvars(fname, buffer, ses);
+    expand_filename(buffer, fname, lfname);
     if (*filename == '\0')
     {
-        tintin_eprintf(ses, "#ERROR - COULDN'T OPEN FILE {%s}.", filename);
+        tintin_eprintf(ses, "#ERROR - COULDN'T OPEN FILE {%s}.", fname);
         prompt(NULL);
         return;
     }
     if ((myfile = fopen(lfname, "w")) == NULL)
     {
-        tintin_eprintf(ses, "#ERROR - COULDN'T OPEN FILE {%s}.", filename);
+        tintin_eprintf(ses, "#ERROR - COULDN'T OPEN FILE {%s}.", fname);
         prompt(NULL);
         return;
     }
@@ -1060,7 +1061,7 @@ void writesession_command(char *filename, struct session *ses)
 }
 
 
-static void prepare_for_write(char *command, char *left, char *right, char *pr, char *result)
+static void prepare_for_write(const char *command, const char *left, const char *right, const char *pr, char *result)
 {
     /* Achtung: "result" must be long enough or we're fucked */
     *result = tintin_char;
@@ -1088,7 +1089,7 @@ static void prepare_for_write(char *command, char *left, char *right, char *pr, 
 /**********************************/
 /* load a file for input to mud.  */
 /**********************************/
-void textin_command(char *arg, struct session *ses)
+void textin_command(const char *arg, struct session *ses)
 {
     FILE *myfile;
     char buffer[BUFFER_SIZE], filename[BUFFER_SIZE], *cptr, lfname[BUFFER_SIZE];
@@ -1124,7 +1125,7 @@ void textin_command(char *arg, struct session *ses)
     prompt(ses);
 }
 
-char *logtypes[]=
+const char *logtypes[]=
 {
     "raw",
     "lf",
@@ -1134,7 +1135,7 @@ char *logtypes[]=
 /************************/
 /* the #logtype command */
 /************************/
-void logtype_command(char *arg, struct session *ses)
+void logtype_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE];
     unsigned t;
@@ -1159,29 +1160,31 @@ void logtype_command(char *arg, struct session *ses)
 /***************************/
 /* the #logcharset command */
 /***************************/
-void logcharset_command(char *arg, struct session *ses)
+void logcharset_command(const char *arg, struct session *ses)
 {
+    char what[BUFFER_SIZE], *cset;
     struct charset_conv nc;
 
-    get_arg(arg, arg, 1, ses);
+    get_arg(arg, what, 1, ses);
+    cset=what;
 
-    if (!*arg)
+    if (!*cset)
     {
         tintin_printf(ses, "#Log charset: %s", logcs_name(ses->logcharset));
         return;
     }
-    if (!strcasecmp(arg, "local"))
-        arg=LOGCS_LOCAL;
-    else if (!strcasecmp(arg, "remote"))
-        arg=LOGCS_REMOTE;
-    if (!new_conv(&nc, logcs_charset(arg), 1))
+    if (!strcasecmp(cset, "local"))
+        cset=LOGCS_LOCAL;
+    else if (!strcasecmp(cset, "remote"))
+        cset=LOGCS_REMOTE;
+    if (!new_conv(&nc, logcs_charset(cset), 1))
     {
-        tintin_eprintf(ses, "#No such charset: {%s}", logcs_charset(arg));
+        tintin_eprintf(ses, "#No such charset: {%s}", logcs_charset(cset));
         return;
     }
     if (!logcs_is_special(ses->logcharset))
         SFREE(ses->logcharset);
-    ses->logcharset=logcs_is_special(arg) ? arg : mystrdup(arg);
+    ses->logcharset=logcs_is_special(cset) ? cset : mystrdup(cset);
     if (ses!=nullsession && ses->logfile)
     {
         cleanup_conv(&ses->c_log);
@@ -1190,5 +1193,5 @@ void logcharset_command(char *arg, struct session *ses)
     else
         cleanup_conv(&nc);
     if (ses->mesvar[MSG_LOG])
-        tintin_printf(ses, "#Log charset set to %s", logcs_name(arg));
+        tintin_printf(ses, "#Log charset set to %s", logcs_name(cset));
 }

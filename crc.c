@@ -105,7 +105,7 @@ static unsigned int cr3tab[] =
 
 #define UPDC32(b, c) (cr3tab[((unsigned char)c) ^ (unsigned char)(b)] ^ (c >> 8))
 
-int crc32s(char *str)
+int crc32s(const char *str)
 {
     register unsigned int c=0xffffffff;
     for (;*str;str++)

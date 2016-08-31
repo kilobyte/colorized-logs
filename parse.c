@@ -18,39 +18,39 @@
 #include "protos/variables.h"
 
 #include "commands.h"
-typedef void (*t_command)(char*, struct session*);
-typedef struct session *(*t_c_command)(char*, struct session*);
+typedef void (*t_command)(const char*, struct session*);
+typedef struct session *(*t_c_command)(const char*, struct session*);
 
-static struct session *parse_tintin_command(char *command, char *arg,struct session *ses);
-static void do_speedwalk(char *cp, struct session *ses);
-static int do_goto(char *txt, struct session *ses);
-static inline char *get_arg_with_spaces(char *s, char *arg);
-static char* get_command(char *s, char *arg);
-static void write_com_arg_mud(char *command, char *argument, int nsp, struct session *ses);
-extern void end_command(char *arg, struct session *ses);
-extern void unlink_command(char *arg, struct session *ses);
+static struct session *parse_tintin_command(const char *command, const char *arg, struct session *ses);
+static void do_speedwalk(const char *cp, struct session *ses);
+static int do_goto(const char *txt, struct session *ses);
+static inline const char *get_arg_with_spaces(const char *s, char *arg);
+static const char* get_command(const char *s, char *arg);
+static void write_com_arg_mud(const char *command, const char *argument, int nsp, struct session *ses);
+extern void end_command(const char *arg, struct session *ses);
+extern void unlink_command(const char *arg, struct session *ses);
 
-static inline int is_speedwalk_dirs(char *cp);
+static inline int is_speedwalk_dirs(const char *cp);
 
 extern struct session *sessionlist, *activesession, *nullsession;
 extern pvars_t *pvars; /* the %0, %1, %2,....%9 variables */
 extern char tintin_char, verbatim_char;
 extern int term_echoing;
-static inline char *get_arg_stop_spaces(char *s, char *arg);
-static char *get_arg_all(char *s, char *arg);
+static inline const char *get_arg_stop_spaces(const char *s, char *arg);
+static const char *get_arg_all(const char *s, char *arg);
 int in_alias=0;
 extern int in_read;
 extern int aborting;
 struct hashtable *commands, *c_commands;
 int recursion;
 #ifdef PROFILING
-extern char *prof_area;
+extern const char *prof_area;
 #endif
 
 /**************************************************************************/
 /* parse input, check for TINTIN commands and aliases and send to session */
 /**************************************************************************/
-struct session* parse_input(char *input,int override_verbatim,struct session *ses)
+struct session* parse_input(const char *input,int override_verbatim,struct session *ses)
 {
     char command[BUFFER_SIZE], arg[BUFFER_SIZE], result[BUFFER_SIZE], *al;
     int nspaces;
@@ -184,9 +184,9 @@ struct session* parse_input(char *input,int override_verbatim,struct session *se
             ses = parse_tintin_command(command + 1, arg, ses);
         else if ((al = get_hash(ses->aliases, command)))
         {
-            int i;
-            char *cpsource;
+            const char *cpsource;
             pvars_t vars,*lastpvars;
+            int i;
 
             strcpy(vars[0], arg);
 
@@ -221,7 +221,7 @@ struct session* parse_input(char *input,int override_verbatim,struct session *se
 /************************************************************************/
 /* return TRUE if commands only consists of lowercase letters N,S,E ... */
 /************************************************************************/
-static inline int is_speedwalk_dirs(char *cp)
+static inline int is_speedwalk_dirs(const char *cp)
 {
     int flag;
 
@@ -241,10 +241,10 @@ static inline int is_speedwalk_dirs(char *cp)
 /**************************/
 /* do the speedwalk thing */
 /**************************/
-static void do_speedwalk(char *cp, struct session *ses)
+static void do_speedwalk(const char *cp, struct session *ses)
 {
     char sc[2];
-    char *loc;
+    const char *loc;
     int multflag, loopcnt, i;
 
     strcpy(sc, "x");
@@ -279,7 +279,7 @@ static void do_speedwalk(char *cp, struct session *ses)
 }
 
 
-static int do_goto(char *txt, struct session *ses)
+static int do_goto(const char *txt, struct session *ses)
 {
     char *ch;
 
@@ -310,10 +310,11 @@ static int do_goto(char *txt, struct session *ses)
 /*************************************/
 /* parse most of the tintin-commands */
 /*************************************/
-static struct session* parse_tintin_command(char *command, char *arg,struct session *ses)
+static struct session* parse_tintin_command(const char *command, const char *arg, struct session *ses)
 {
     struct session *sesptr;
-    char *func, *a, *b, cmd[BUFFER_SIZE];
+    const char *func, *a;
+    char *b, cmd[BUFFER_SIZE], right[BUFFER_SIZE];
 #ifdef PROFILING
     char *oldprof=prof_area;
     PROF("executing commands");
@@ -324,8 +325,8 @@ static struct session* parse_tintin_command(char *command, char *arg,struct sess
         {
             if (*arg)
             {
-                get_arg_in_braces(arg, arg, 1);
-                parse_input(arg,1, sesptr);     /* was: #sessioname commands */
+                get_arg_in_braces(arg, right, 1);
+                parse_input(right, 1, sesptr);     /* was: #sessioname commands */
                 PPOP;
                 return ses;
             }
@@ -351,9 +352,9 @@ static struct session* parse_tintin_command(char *command, char *arg,struct sess
 
         if (i > 0)
         {
-            get_arg_in_braces(arg, arg, 1);
+            get_arg_in_braces(arg, right, 1);
             while (i-- > 0)
-                ses = parse_input(arg,1, ses);
+                ses = parse_input(right, 1, ses);
         }
         else
         {
@@ -383,7 +384,7 @@ static struct session* parse_tintin_command(char *command, char *arg,struct sess
     return ses;
 }
 
-static void add_command(struct hashtable *h, char *command, t_command func)
+static void add_command(struct hashtable *h, const char *command, t_command func)
 {
     char cmd[BUFFER_SIZE];
     int n;
@@ -415,7 +416,7 @@ void init_parse()
 /**********************************************/
 /* get all arguments - don't remove "s and \s */
 /**********************************************/
-static char* get_arg_all(char *s, char *arg)
+static const char* get_arg_all(const char *s, char *arg)
 {
     /* int inside=FALSE; */
     int nest = 0;
@@ -455,7 +456,7 @@ static char* get_arg_all(char *s, char *arg)
 /****************************************************/
 /* get an inline command - terminated with 0 or ')' */
 /****************************************************/
-char* get_inline(char *s, char *arg)
+const char* get_inline(const char *s, char *arg)
 {
     /* int inside=FALSE; */
     int nest = 0;
@@ -495,7 +496,7 @@ char* get_inline(char *s, char *arg)
 /* In: "this is it" way way hmmm;     */
 /* Out: this is it way way hmmm       */
 /**************************************/
-static inline char* get_arg_with_spaces(char *s, char *arg)
+static inline const char* get_arg_with_spaces(const char *s, char *arg)
 {
     int nest = 0;
 
@@ -529,10 +530,10 @@ static inline char* get_arg_with_spaces(char *s, char *arg)
     return s;
 }
 
-char* get_arg_in_braces(char *s,char *arg,int flag)
+const char* get_arg_in_braces(const char *s,char *arg,int flag)
 {
     int nest = 0;
-    char *ptr;
+    const char *ptr;
 
     s = space_out(s);
     ptr = s;
@@ -569,7 +570,7 @@ char* get_arg_in_braces(char *s,char *arg,int flag)
 /* get one arg, stop at spaces                */
 /* remove quotes                              */
 /**********************************************/
-static inline char* get_arg_stop_spaces(char *s, char *arg)
+static inline const char* get_arg_stop_spaces(const char *s, char *arg)
 {
     int inside = FALSE;
 
@@ -598,13 +599,12 @@ static inline char* get_arg_stop_spaces(char *s, char *arg)
 }
 
 
-char* get_arg(char *s,char *arg,int flag,struct session *ses)
+const char* get_arg(const char *s,char *arg,int flag,struct session *ses)
 {
-    char tmp[BUFFER_SIZE],*cptr;
-
-    cptr=get_arg_in_braces(s,arg,flag);
-    if (*s)
+    const char *cptr=get_arg_in_braces(s,arg,flag);
+    if (*arg)
     {
+        char tmp[BUFFER_SIZE];
         substitute_vars(arg,tmp);
         substitute_myvars(tmp,arg,ses);
     }
@@ -615,7 +615,7 @@ char* get_arg(char *s,char *arg,int flag,struct session *ses)
 /* get the command, stop at spaces            */
 /* remove quotes                              */
 /**********************************************/
-static char* get_command(char *s, char *arg)
+static const char* get_command(const char *s, char *arg)
 {
     int inside = FALSE;
 
@@ -652,7 +652,7 @@ static char* get_command(char *s, char *arg)
 /* spaceout - advance ptr to next none-space */
 /* return: ptr to the first none-space       */
 /*********************************************/
-char* space_out(char *s)
+const char* space_out(const char *s)
 {
     while (isaspace(*s))
         s++;
@@ -662,7 +662,7 @@ char* space_out(char *s)
 /************************************/
 /* send command+argument to the mud */
 /************************************/
-static void write_com_arg_mud(char *command, char *argument, int nsp, struct session *ses)
+static void write_com_arg_mud(const char *command, const char *argument, int nsp, struct session *ses)
 {
     char outtext[BUFFER_SIZE];
     int i;

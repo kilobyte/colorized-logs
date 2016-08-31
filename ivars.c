@@ -11,7 +11,7 @@
 #include "protos/variables.h"
 
 static int stacks[100][4];
-static int conv_to_ints(char *arg,struct session *ses);
+static int conv_to_ints(char *arg, struct session *ses);
 static int do_one_inside(int begin, int end);
 
 extern char tintin_char;
@@ -19,7 +19,7 @@ extern char tintin_char;
 /*********************/
 /* the #math command */
 /*********************/
-void math_command(char *line, struct session *ses)
+void math_command(const char *line, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE], temp[BUFFER_SIZE];
     int i;
@@ -39,7 +39,7 @@ void math_command(char *line, struct session *ses)
 /*******************/
 /* the #if command */
 /*******************/
-struct session *if_command(char *line, struct session *ses)
+struct session *if_command(const char *line, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
 
@@ -74,7 +74,7 @@ struct session *if_command(char *line, struct session *ses)
 }
 
 
-static int do_inline(char *line,int *res,struct session *ses)
+static int do_inline(const char *line,int *res,struct session *ses)
 {
     char command[BUFFER_SIZE],*ptr;
 
@@ -114,7 +114,7 @@ static int do_inline(char *line,int *res,struct session *ses)
 }
 
 
-int eval_expression(char *arg,struct session *ses)
+int eval_expression(char *arg, struct session *ses)
 {
     if (!conv_to_ints(arg,ses))
         return 0;
@@ -160,7 +160,7 @@ int eval_expression(char *arg,struct session *ses)
     }
 }
 
-static int conv_to_ints(char *arg,struct session *ses)
+static int conv_to_ints(char *arg, struct session *ses)
 {
     int i, flag, result;
     int m; /* =0 should match, =1 should differ */
@@ -178,7 +178,7 @@ static int conv_to_ints(char *arg,struct session *ses)
         else if (*ptr == tintin_char)
             /* inline commands */
         {
-            ptr=get_inline(ptr+1,temp)-1;
+            ptr=(char*)get_inline(ptr+1,temp)-1;
             if (!do_inline(temp,&(stacks[i][2]),ses))
                 return 0;
             stacks[i][1]=15;
@@ -265,7 +265,7 @@ static int conv_to_ints(char *arg,struct session *ses)
             stacks[i][2] = 0;
             if (*(++ptr)=='{')
             {
-                ptr=get_arg_in_braces(ptr,temp,0);
+                ptr=(char*)get_arg_in_braces(ptr,temp,0);
             }
             else
             {

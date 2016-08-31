@@ -45,8 +45,8 @@ extern struct session *sessionlist;
 #define MAX_SUBNEGO_LENGTH 64
 
 #ifdef TELNET_DEBUG
-static char *will_names[4]={"WILL", "WONT", "DO", "DONT"};
-static char *option_names[]=
+static const char *will_names[4]={"WILL", "WONT", "DO", "DONT"};
+static const char *option_names[]=
     {
         "Binary Transmission",
         "Echo",
@@ -181,9 +181,9 @@ void telnet_resize_all(void)
         }
 }
 
-int do_telnet_protocol(char *data, int nb, struct session *ses)
+int do_telnet_protocol(const char *data, int nb, struct session *ses)
 {
-    unsigned char *cp = (unsigned char*)data+1;
+    const unsigned char *cp = (const unsigned char*)data+1;
     unsigned char wt;
     unsigned char answer[3];
     unsigned char nego[128],*np;
@@ -369,7 +369,7 @@ nego_too_long:
     return 2; /* we leave everything but IAC SB */
 }
 
-void telnet_write_line(char *line, struct session *ses, int nl)
+void telnet_write_line(const char *line, struct session *ses, int nl)
 {
     char outtext[6*BUFFER_SIZE + 2],*out;
 

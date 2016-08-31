@@ -9,7 +9,7 @@
 extern char tintin_char;
 extern pvars_t *pvars;  /* the %0, %1, %2,....%9 variables */
 
-extern struct session *if_command(char *arg, struct session *ses);
+extern struct session *if_command(const char *arg, struct session *ses);
 
 static int check_regexp(char *line, char *action, pvars_t *vars, int inside, struct session *ses)
 {
@@ -46,7 +46,7 @@ static int check_regexp(char *line, char *action, pvars_t *vars, int inside, str
 /*********************/
 /* the #grep command */
 /*********************/
-void grep_command(char *arg, struct session *ses)
+void grep_command(const char *arg, struct session *ses)
 {
     pvars_t vars,*lastpvars;
     char left[BUFFER_SIZE], line[BUFFER_SIZE], right[BUFFER_SIZE];
@@ -95,7 +95,7 @@ void grep_command(char *arg, struct session *ses)
 /********************/
 /* the #grep inline */
 /********************/
-int grep_inline(char *arg, struct session *ses)
+int grep_inline(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], line[BUFFER_SIZE];
 

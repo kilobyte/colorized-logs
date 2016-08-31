@@ -2,7 +2,7 @@
 
 rm -f commands.h
 rm -f load_commands.h
-ARGS="_command(char *arg, struct session *ses)"
+ARGS="_command(const char *arg, struct session *ses)"
 while read FUNC
     do
         if [ -z "$FUNC" ]

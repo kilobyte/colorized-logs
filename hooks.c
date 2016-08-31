@@ -11,7 +11,7 @@ extern int in_alias;
 
 static int magic_close_hook=1;
 
-char *hook_names[]=
+const char *hook_names[]=
 {
     "open",
     "close",
@@ -26,7 +26,7 @@ char *hook_names[]=
 /*********************/
 /* the #hook command */
 /*********************/
-void hooks_command(char *arg, struct session *ses)
+void hooks_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
     int t, flag;
@@ -67,7 +67,7 @@ void hooks_command(char *arg, struct session *ses)
 /***********************/
 /* the #unhook command */
 /***********************/
-void unhook_command(char *arg, struct session *ses)
+void unhook_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE];
     int t, flag;
@@ -100,7 +100,7 @@ void unhook_command(char *arg, struct session *ses)
     tintin_eprintf(ses, "#Invalid hook: {%s}", left);
 }
 
-struct session* do_hook(struct session *ses, int t, char *data, int blockzap)
+struct session* do_hook(struct session *ses, int t, const char *data, int blockzap)
 {
     pvars_t vars,*lastvars;
     int i, oldclos=oldclos;

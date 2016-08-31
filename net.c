@@ -33,16 +33,16 @@ static void alarm_func(int);
 
 extern struct session *sessionlist, *activesession, *nullsession;
 #ifdef PROFILING
-extern char *prof_area;
+extern const char *prof_area;
 #endif
 #ifdef HAVE_ZLIB
-static int init_mccp(struct session *ses, int cplen, char *cpsrc);
+static int init_mccp(struct session *ses, int cplen, const char *cpsrc);
 #endif
 
 static int abort_connect;
 
 #ifdef HAVE_GETADDRINFO
-static char* afstr(int af)
+static const char* afstr(int af)
 {
     static char msg[19];
 
@@ -68,7 +68,7 @@ static char* afstr(int af)
 /* try connect to the mud specified by the args   */
 /* return fd on success / 0 on failure            */
 /**************************************************/
-int connect_mud(char *host, char *port, struct session *ses)
+int connect_mud(const char *host, const char *port, struct session *ses)
 {
     int err, val;
     struct addrinfo *ai, hints, *addr;
@@ -150,7 +150,7 @@ int connect_mud(char *host, char *port, struct session *ses)
     return 0;
 }
 #else
-int connect_mud(char *host, char *port, struct session *ses)
+int connect_mud(const char *host, const char *port, struct session *ses)
 {
     int sock, val;
     struct sockaddr_in sockaddr;
@@ -228,7 +228,7 @@ static void alarm_func(int k)
 /********************************************************************/
 /* write line to the mud ses is connected to - add \n or \r\n first */
 /********************************************************************/
-void write_line_mud(char *line, struct session *ses)
+void write_line_mud(const char *line, struct session *ses)
 {
     char rstr[BUFFER_SIZE];
     PROFPUSH("conv: utf8->remote");
@@ -257,9 +257,10 @@ void write_line_mud(char *line, struct session *ses)
 /******************************************/
 /* write control chars, without a newline */
 /******************************************/
-void write_raw_mud(char *line, int len, struct session *ses)
+void write_raw_mud(const char *line, int len, struct session *ses)
 {
-    char *lp=line, *rp, rstr[BUFFER_SIZE];
+    const char *lp=line;
+    char *rp, rstr[BUFFER_SIZE];
     int ret;
 
     /* not updating $IDLETIME, it's most likely not a command */
@@ -437,7 +438,7 @@ int read_buffer_mud(char *buffer, struct session *ses)
     i = didget;
     while (i > 0)
     {
-        switch (*(unsigned char *)cpsource)
+        switch (*(const unsigned char *)cpsource)
         {
         case 0:
             i--;
@@ -493,7 +494,7 @@ int read_buffer_mud(char *buffer, struct session *ses)
 }
 
 #ifdef HAVE_ZLIB
-static int init_mccp(struct session *ses, int cplen, char *cpsrc)
+static int init_mccp(struct session *ses, int cplen, const char *cpsrc)
 {
     if (ses->mccp)
         return 0;

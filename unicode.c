@@ -6,7 +6,7 @@
 #include "protos/wcwidth.h"
 
 #ifdef PROFILING
-extern char *prof_area;
+extern const char *prof_area;
 #endif
 
 int user_charset;
@@ -14,7 +14,7 @@ char *user_charset_name;
 
 
 /* get the length of an UTF-8 string */
-int utf8_len(char *s)
+int utf8_len(const char *s)
 {
     int l=0;
 
@@ -60,9 +60,9 @@ char* utf8_seek(char *s, int n)
 
 /* copy up to n (no check for 0, -1 = inf) wide chars, return n of bytes consumed */
 /* d must be able to hold at least n+1 WChars */
-int utf8_to_wc(wchar_t *d, char *s, int n)
+int utf8_to_wc(wchar_t *d, const char *s, int n)
 {
-    char *s0;
+    const char *s0;
     unsigned char ic;
     int tc,c,cnt,surrogate;
 
@@ -213,7 +213,7 @@ char translit(wchar_t ch)
     return tlits[ch-TRANSLIT_MIN];
 }
 
-int one_utf8_to_mb(char **d, char **s, mbstate_t *cs)
+int one_utf8_to_mb(char **d, const char **s, mbstate_t *cs)
 {
     wchar_t u[2];
     int len,len2;
@@ -231,12 +231,12 @@ int one_utf8_to_mb(char **d, char **s, mbstate_t *cs)
     return len;
 }
 
-void utf8_to_mb(char **d, char *s, mbstate_t *cs)
+void utf8_to_mb(char **d, const char *s, mbstate_t *cs)
 {
     while (*s && one_utf8_to_mb(d, &s, cs));
 }
 
-int wc_to_mb(char *d, wchar_t *s, int n, mbstate_t *cs)
+int wc_to_mb(char *d, const wchar_t *s, int n, mbstate_t *cs)
 {
     int res, len=0;
 
@@ -254,7 +254,7 @@ int wc_to_mb(char *d, wchar_t *s, int n, mbstate_t *cs)
 
 
 /* do an entire buffer at once */
-void utf8_to_local(char *d, char *s)
+void utf8_to_local(char *d, const char *s)
 {
     mbstate_t cs;
 
@@ -265,7 +265,7 @@ void utf8_to_local(char *d, char *s)
     PROFPOP;
 }
 
-void local_to_utf8(char *d, char *s, int maxb, mbstate_t *cs)
+void local_to_utf8(char *d, const char *s, int maxb, mbstate_t *cs)
 {
     mbstate_t cs0;
     int len,n;
@@ -321,7 +321,7 @@ void init_locale()
         user_charset=0;
 }
 
-int new_conv(struct charset_conv *conv, char *name, int dir)
+int new_conv(struct charset_conv *conv, const char *name, int dir)
 {
     memset(conv, 0, sizeof(struct charset_conv));
     conv->name=name;
@@ -361,7 +361,7 @@ void cleanup_conv(struct charset_conv *conv)
     conv->mode=-1;
 }
 
-void convert(struct charset_conv *conv, char *outbuf, char *inbuf, int dir)
+void convert(struct charset_conv *conv, char *outbuf, const char *inbuf, int dir)
 {
     wchar_t wbuf[BUFFER_SIZE], *wptr;
     size_t il,ol;
@@ -451,7 +451,7 @@ void convert(struct charset_conv *conv, char *outbuf, char *inbuf, int dir)
         while (il>0)
         {
             if (iconv((dir<0) ? conv->i_in : conv->i_out,
-                &inbuf, &il, &outbuf, &ol))
+                (char**)&inbuf, &il, &outbuf, &ol))
             {
                 if (errno==E2BIG)
                     break;

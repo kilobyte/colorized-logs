@@ -23,11 +23,11 @@ extern const char *bcolors[8];
 
 typedef void (voidfunc)(void);
 typedef void (voidintfunc)(int x);
-typedef void (voidcharpfunc)(char *txt);
-typedef void (voidcharpintfunc)(char *txt, int i);
+typedef void (voidcharpfunc)(const char *txt);
+typedef void (voidcharpintfunc)(const char *txt, int i);
 typedef int (processkbdfunc)(struct session *ses, WC ch);
 typedef void (voidFILEpfunc)(FILE *f);
-typedef void (printffunc)(char *fmt,...);
+typedef void (printffunc)(const char *fmt, ...);
 
 voidfunc *user_init;
 voidfunc *user_pause;

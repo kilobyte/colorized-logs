@@ -4,9 +4,9 @@
 
 #ifdef HAVE_GNUTLS
 static gnutls_certificate_credentials_t ssl_cred=0;
-static int ssl_check_cert(gnutls_session_t sslses, char *host, struct session *oldses);
+static int ssl_check_cert(gnutls_session_t sslses, const char *host, struct session *oldses);
 
-gnutls_session_t ssl_negotiate(int sock, char *host, struct session *oldses)
+gnutls_session_t ssl_negotiate(int sock, const char *host, struct session *oldses)
 {
     gnutls_session_t sslses;
     int ret;
@@ -39,7 +39,7 @@ gnutls_session_t ssl_negotiate(int sock, char *host, struct session *oldses)
 }
 
 
-static int cert_file(char *name, char *respath)
+static int cert_file(const char *name, char *respath)
 {
     char fname[BUFFER_SIZE], *fn, *home;
 
@@ -72,7 +72,7 @@ static int cert_file(char *name, char *respath)
 }
 
 
-static void load_cert(gnutls_x509_crt_t *cert, char *name)
+static void load_cert(gnutls_x509_crt_t *cert, const char *name)
 {
 #   define BIGBUFSIZE 65536
     char buf[BIGBUFSIZE];
@@ -96,7 +96,7 @@ static void load_cert(gnutls_x509_crt_t *cert, char *name)
 }
 
 
-static void save_cert(gnutls_x509_crt_t cert, char *name, int new, struct session *oldses)
+static void save_cert(gnutls_x509_crt_t cert, const char *name, int new, struct session *oldses)
 {
     char *home, fname[BUFFER_SIZE], buf[BIGBUFSIZE];
     FILE *f;
@@ -158,7 +158,7 @@ static int diff_certs(gnutls_x509_crt_t c1, gnutls_x509_crt_t c2)
 }
 
 
-static int ssl_check_cert(gnutls_session_t sslses, char *host, struct session *oldses)
+static int ssl_check_cert(gnutls_session_t sslses, const char *host, struct session *oldses)
 {
     char fname[BUFFER_SIZE], buf2[BUFFER_SIZE], *bptr;
     time_t t;

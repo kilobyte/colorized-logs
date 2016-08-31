@@ -149,7 +149,7 @@ struct listnode* copy_list(struct listnode *sourcelist,int mode)
 /* strings generally sort in ASCIIbetical order, however numbers  */
 /* sort according to their numerical values.                      */
 /******************************************************************/
-static int prioritycmp(char *a, char *b)
+static int prioritycmp(const char *a, const char *b)
 {
     int res;
 
@@ -189,7 +189,7 @@ not_numeric:
 /* into the list - in lexicographical order, or by numerical     */
 /* priority (dependent on mode) - Mods by Joann Ellsworth 2/2/94 */
 /*****************************************************************/
-void insertnode_list(struct listnode *listhead, char *ltext, char *rtext, char *prtext, int mode)
+void insertnode_list(struct listnode *listhead, const char *ltext, const char *rtext, const char *prtext, int mode)
 {
     struct listnode *nptr, *nptrlast, *newnode;
     int lo,ln;
@@ -385,7 +385,7 @@ struct listnode* search_node_with_wild(struct listnode *listhead, char *cptr)
 /* create a node containing the ltext, rtext fields and place at the */
 /* end of a list - as insertnode_list(), but not alphabetical        */
 /*********************************************************************/
-void addnode_list(struct listnode *listhead, char *ltext, char *rtext, char *prtext)
+void addnode_list(struct listnode *listhead, const char *ltext, const char *rtext, const char *prtext)
 {
     struct listnode *newnode;
 

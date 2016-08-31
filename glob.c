@@ -6,9 +6,10 @@
 #include "tintin.h"
 #include <assert.h>
 
-int match(char *regex, char *string)
+int match(const char *regex, const char *string)
 {
-    char *rp = regex, *sp = string, ch, *save;
+    const char *rp = regex, *sp = string, *save;
+    char ch;
 
     while (*rp != '\0')
     {
@@ -54,15 +55,16 @@ int match(char *regex, char *string)
 }
 
 
-int is_literal(char *txt)
+int is_literal(const char *txt)
 {
     return !strchr(txt, '*');
 }
 
 
-int find(char *text,char *pat,int *from,int *to,char *fastener)
+int find(const char *text, const char *pattern, int *from, int *to, const char *fastener)
 {
-    char *a,*b,*txt,m1[BUFFER_SIZE],m2[BUFFER_SIZE];
+    const char *txt;
+    char *a, *b, *pat, m1[BUFFER_SIZE], m2[BUFFER_SIZE];
     int i;
 
     if (fastener)
@@ -71,7 +73,7 @@ int find(char *text,char *pat,int *from,int *to,char *fastener)
         if (!txt)
             return 0;
         *from=txt-text;
-        if (strchr(pat,'*'))
+        if (strchr(pattern, '*'))
             *to=strlen(text)-1;
         else
             *to=*from+strlen(fastener)-1;
@@ -79,37 +81,37 @@ int find(char *text,char *pat,int *from,int *to,char *fastener)
     }
 
     txt=text;
-    if (*pat=='^')
+    if (*pattern=='^')
     {
-        for (pat++;(*pat)&&(*pat!='*');)
-            if (*(pat++)!=*(txt++))
+        for (pattern++;(*pattern)&&(*pattern!='*');)
+            if (*(pattern++)!=*(txt++))
                 return 0;
-        if (!*pat)
+        if (!*pattern)
         {
             *from=0;
             *to=txt-text-1;
             return 1;
         };
-        strcpy(m1,pat);
+        strcpy(m1,pattern);
         pat=m1;
         goto start;
     };
-    if (!(b=strchr(pat,'*')))
+    if (!(b=strchr(pattern,'*')))
     {
-        a=strstr(txt,pat);
+        a=strstr(txt,pattern);
         if (a)
         {
             *from=a-text;
-            *to=*from+strlen(pat)-1;
+            *to=*from+strlen(pattern)-1;
             return 1;
         }
         else
             return 0;
     };
-    i=b-pat;
-    strcpy(m1,pat);
+    i=b-pattern;
+    strcpy(m1,pattern);
+    m1[i]=0;
     pat=m1;
-    pat[i]=0;
     txt=strstr(txt,pat);
     if (!txt)
     {
@@ -161,9 +163,9 @@ start:
 }
 
 
-char* get_fastener(char *txt, char *mbl)
+char* get_fastener(const char *txt, char *mbl)
 {
-    char *m;
+    const char *m;
 
     if (*txt=='^')
         return 0;

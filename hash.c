@@ -81,7 +81,7 @@ static inline void rehash(struct hashtable *h, int s)
 /********************************************************************/
 /* add a (key,value) pair to the hash table, rehashing if necessary */
 /********************************************************************/
-void set_hash(struct hashtable *h, char *key, char *value)
+void set_hash(struct hashtable *h, const char *key, const char *value)
 {
     int i,j;
 
@@ -114,7 +114,7 @@ void set_hash(struct hashtable *h, char *key, char *value)
 }
 
 
-void set_hash_nostring(struct hashtable *h, char *key, char *value)
+void set_hash_nostring(struct hashtable *h, const char *key, char *value)
 {
     int i,j;
 
@@ -150,7 +150,7 @@ void set_hash_nostring(struct hashtable *h, char *key, char *value)
 /****************************************************/
 /* get the value for a given key, or 0 if not found */
 /****************************************************/
-char* get_hash(struct hashtable *h, char *key)
+char* get_hash(struct hashtable *h, const char *key)
 {
     int i;
 
@@ -173,7 +173,7 @@ char* get_hash(struct hashtable *h, char *key)
 /****************************************************/
 /* delete the key and its value from the hash table */
 /****************************************************/
-int delete_hash(struct hashtable *h, char *key)
+int delete_hash(struct hashtable *h, const char *key)
 {
     int i;
 
@@ -247,7 +247,7 @@ static struct listnode* merge_lists(struct listnode* a, struct listnode* b)
 /* deleting from a list, we should show the entries in a sorted order,    */
 /* however screen output is slow anyways, so we can sort it on the fly.   */
 /**************************************************************************/
-struct listnode* hash2list(struct hashtable *h, char *pat)
+struct listnode* hash2list(struct hashtable *h, const char *pat)
 {
 #define NBITS ((int)sizeof(void*)*8)
     struct listnode *p[NBITS];     /* polynomial sort, O(n*log(n)) */

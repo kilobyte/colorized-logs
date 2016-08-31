@@ -13,13 +13,13 @@
 
 extern pvars_t *pvars;
 extern int subnum;
-extern char *match_start,*match_end;
+extern const char *match_start,*match_end;
 extern char *_;
 
 /***************************/
 /* the #substitute command */
 /***************************/
-static void parse_sub(char *arg,int gag,struct session *ses)
+static void parse_sub(const char *arg,int gag,struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
     struct listnode *mysubs, *ln;
@@ -76,12 +76,12 @@ static void parse_sub(char *arg,int gag,struct session *ses)
     }
 }
 
-void substitute_command(char *arg, struct session *ses)
+void substitute_command(const char *arg, struct session *ses)
 {
     parse_sub(arg, 0, ses);
 }
 
-void gag_command(char *arg, struct session *ses)
+void gag_command(const char *arg, struct session *ses)
 {
     char temp[BUFFER_SIZE];
 
@@ -99,7 +99,7 @@ void gag_command(char *arg, struct session *ses)
 /*****************************/
 /* the #unsubstitute command */
 /*****************************/
-static void unsub(char *arg, int gag, struct session *ses)
+static void unsub(const char *arg, int gag, struct session *ses)
 {
     char left[BUFFER_SIZE];
     struct listnode *mysubs, *ln, *temp;
@@ -131,12 +131,12 @@ static void unsub(char *arg, int gag, struct session *ses)
         tintin_printf(ses,"#THAT SUBSTITUTE (%s) IS NOT DEFINED.",left);
 }
 
-void unsubstitute_command(char *arg, struct session *ses)
+void unsubstitute_command(const char *arg, struct session *ses)
 {
     unsub(arg, 0, ses);
 }
 
-void ungag_command(char *arg, struct session *ses)
+void ungag_command(const char *arg, struct session *ses)
 {
     unsub(arg, 1, ses);
 }
@@ -150,7 +150,8 @@ void do_all_sub(char *line, struct session *ses)
 {
     struct listnode *ln;
     pvars_t vars,*lastpvars;
-    char result[BUFFER_SIZE],tmp1[BUFFER_SIZE],tmp2[BUFFER_SIZE],*l;
+    char result[BUFFER_SIZE],tmp1[BUFFER_SIZE],tmp2[BUFFER_SIZE];
+    const char *l;
     int rlen,len;
 
     lastpvars=pvars;
@@ -196,7 +197,7 @@ void do_all_sub(char *line, struct session *ses)
     pvars=lastpvars;
 }
 
-void changeto_command(char *arg, struct session *ses)
+void changeto_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], temp[BUFFER_SIZE];
 
@@ -212,7 +213,7 @@ void changeto_command(char *arg, struct session *ses)
     strcpy(_, left);
 }
 
-void gagthis_command(char *arg, struct session *ses)
+void gagthis_command(const char *arg, struct session *ses)
 {
     if (!_)
     {

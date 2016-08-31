@@ -1,6 +1,6 @@
 ; KBtin's list of commands.  All entries depend on functions declared as:
-;   void XXX_command(char *arg, struct session *ses)
-;   struct session *XXX_command(char *arg, struct session *ses)
+;   void XXX_command(const char *arg, struct session *ses)
+;   struct session *XXX_command(const char *arg, struct session *ses)
 ; depending on whether the function name is prefixed with an * or not.
 ; The order _does_ matter.  If a partial command is typed which matches
 ; multiple commands, the first one is used.

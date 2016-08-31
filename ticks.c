@@ -20,7 +20,7 @@ int utime0;
 /*********************/
 /* the #tick command */
 /*********************/
-void tick_command(char *arg,struct session *ses)
+void tick_command(const char *arg,struct session *ses)
 {
     if (ses)
     {
@@ -38,7 +38,7 @@ void tick_command(char *arg,struct session *ses)
 /************************/
 /* the #tickoff command */
 /************************/
-void tickoff_command(char *arg,struct session *ses)
+void tickoff_command(const char *arg,struct session *ses)
 {
     if (ses)
     {
@@ -52,7 +52,7 @@ void tickoff_command(char *arg,struct session *ses)
 /***********************/
 /* the #tickon command */
 /***********************/
-void tickon_command(char *arg,struct session *ses)
+void tickon_command(const char *arg,struct session *ses)
 {
     if (ses)
     {
@@ -69,7 +69,7 @@ void tickon_command(char *arg,struct session *ses)
 /*************************/
 /* the #ticksize command */
 /*************************/
-void ticksize_command(char *arg,struct session *ses)
+void ticksize_command(const char *arg,struct session *ses)
 {
     int x;
     char left[BUFFER_SIZE], *err;
@@ -100,7 +100,7 @@ void ticksize_command(char *arg,struct session *ses)
 /************************/
 /* the #pretick command */
 /************************/
-void pretick_command(char *arg,struct session *ses)
+void pretick_command(const char *arg,struct session *ses)
 {
     int x;
     char left[BUFFER_SIZE], *err;
@@ -137,7 +137,7 @@ void pretick_command(char *arg,struct session *ses)
 }
 
 
-void show_pretick_command(char *arg,struct session *ses)
+void show_pretick_command(const char *arg,struct session *ses)
 {
     pretick_command(arg, ses);
 }

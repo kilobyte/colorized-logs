@@ -120,7 +120,7 @@ static void add_doublewidth(WC *right, WC *left, int len)
 }
 
 /* len=-1 for infinite */
-static void zap_doublewidth(WC *right, WC *left, int len)
+static void zap_doublewidth(WC *right, const WC *left, int len)
 {
     int norm=0;
 
@@ -141,7 +141,7 @@ static void zap_doublewidth(WC *right, WC *left, int len)
     *right=0;
 }
 
-static void to_wc(WC *d, char *s)
+static void to_wc(WC *d, const char *s)
 {
     WC buf[BUFFER_SIZE];
 
@@ -149,7 +149,7 @@ static void to_wc(WC *d, char *s)
     add_doublewidth(d, buf, BUFFER_SIZE);
 }
 
-static void wrap_wc(char *d, WC *s)
+static void wrap_wc(char *d, const WC *s)
 {
     WC buf[BUFFER_SIZE];
 
@@ -157,7 +157,7 @@ static void wrap_wc(char *d, WC *s)
     wc_to_utf8(d,buf,-1,BUFFER_SIZE);
 }
 
-static int out_wc(char *d, WC *s, int n)
+static int out_wc(char *d, const WC *s, int n)
 {
     WC buf[BUFFER_SIZE];
 
@@ -279,7 +279,7 @@ static void redraw_in(void)
 /*************************/
 static void redraw_status(void)
 {
-    char *pos;
+    const char *pos;
     int c,color=7;
 
     if (!isstatus)
@@ -320,7 +320,7 @@ static int b_shorten()
 /********************************************/
 /* write a single line to the output window */
 /********************************************/
-static void draw_out(char *pos)
+static void draw_out(const char *pos)
 {
     int c=7;
     while (*pos)
@@ -459,7 +459,7 @@ static void form_feed()
     tbuf+=sprintf(tbuf,"\033[f");
 }
 
-static void b_textout(char *txt)
+static void b_textout(const char *txt)
 {
     wchar_t u[2];
 
@@ -539,7 +539,7 @@ static void b_canceldraft(void)
     o_pos=0;
 }
 
-static void usertty_textout(char *txt)
+static void usertty_textout(const char *txt)
 {
     if (o_draftlen)
     {                  /* text from another source came, we need to either */
@@ -569,7 +569,7 @@ static void usertty_textout(char *txt)
 #endif
 }
 
-static void usertty_textout_draft(char *txt, int flag)
+static void usertty_textout_draft(const char *txt, int flag)
 {
     if (o_draftlen)
         b_canceldraft();
@@ -1479,7 +1479,7 @@ static void b_resize()
     for (i=0;i<src_lines;i++)
     {
         int ncolor=color;
-        char *sp=src[i];
+        const char *sp=src[i];
         if (cont && *sp=='~' && getcolor(&sp,&ncolor,0))
         {
             /* don't insert extra color codes for continuations */
@@ -1686,7 +1686,7 @@ static void usertty_resume(void)
 }
 
 
-static int fwrite_out(FILE *f,char *pos)
+static int fwrite_out(FILE *f, const char *pos)
 {
     int c=dump_color, eol=1;
     char lstr[BUFFER_SIZE], ustr[BUFFER_SIZE], *s=ustr;
@@ -1733,7 +1733,7 @@ static void usertty_passwd(int x)
     redraw_in();
 }
 
-static void usertty_title(char *fmt,...)
+static void usertty_title(const char *fmt,...)
 {
 #ifdef XTERM_TITLE
     va_list ap;

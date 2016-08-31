@@ -119,7 +119,7 @@ static void print_stty(int fd)
             ws.ws_col,ws.ws_row);
 }
 
-void termdebug_command(char *arg, struct session *ses)
+void termdebug_command(const char *arg, struct session *ses)
 {
     print_stty(ses->socket);
 }
@@ -203,7 +203,7 @@ int run(const char *command, int sx, int sy, const char *term)
 }
 
 
-FILE* mypopen(char *command, int wr)
+FILE* mypopen(const char *command, int wr)
 {
     int p[2];
 
@@ -256,7 +256,7 @@ FILE* mypopen(char *command, int wr)
     }
 }
 
-void pty_write_line(char *line, int pty)
+void pty_write_line(const char *line, int pty)
 {
     char out[4*BUFFER_SIZE+1];
     int len;

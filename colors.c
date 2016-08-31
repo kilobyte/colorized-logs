@@ -11,10 +11,10 @@ const int colors[8]={0,4,2,6,1,5,3,7};
 static int mudcolors=3;    /* 0=disabled, 1=on, 2=null, 3=null+warning */
 static char *MUDcolors[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
-int getcolor(char **ptr,int *restrict color,const int flag)
+int getcolor(const char *restrict*restrict ptr, int *restrict color, const int flag)
 {
     int fg,bg,blink;
-    char *txt=*ptr;
+    const char *txt=*ptr;
 
     if (*(txt++)!='~')
         return 0;
@@ -26,9 +26,11 @@ int getcolor(char **ptr,int *restrict color,const int flag)
     };
     if (isdigit(*txt))
     {
-        fg=strtol(txt,&txt,10);
+        char *err;
+        fg=strtol(txt, &err, 10);
         if (fg>0x7ff)
             return 0;
+        txt=err;
     }
     else
     if (*txt==':')
@@ -45,9 +47,11 @@ int getcolor(char **ptr,int *restrict color,const int flag)
         return 0;
     if (isdigit(*++txt))
     {
-        bg=strtol(txt,&txt,10);
+        char *err;
+        bg=strtol(txt, &err, 10);
         if (bg>7)
             return 0;
+        txt=err;
     }
     else
         bg=(*color==-1)? 0 : ((*color&0x70)>>4);
@@ -61,9 +65,11 @@ int getcolor(char **ptr,int *restrict color,const int flag)
         return 0;
     if (isdigit(*++txt))
     {
-        blink=strtol(txt,&txt,10);
+        char *err;
+        blink=strtol(txt, &err, 10);
         if (blink>15)
             return 0;
+        txt=err;
     }
     else
         blink=(*color==-1)? 0 : (*color>>7);
@@ -354,7 +360,7 @@ error:
             break;
         case '~':
             back=txt;
-            if (getcolor(&txt,&dummy,1))
+            if (getcolor((const char**)&txt, &dummy, 1))
             {
                 if (quotetype)
                 {
@@ -391,7 +397,7 @@ void do_out_MUD_colors(char *line)
     for (;*pos;pos++)
     {
         if (*pos=='~')
-            if (getcolor(&pos,&c,0))
+            if (getcolor((const char**)&pos, &c, 0))
                 goto color;
         *txt++=*pos;
         continue;
@@ -415,7 +421,7 @@ color:
 /**************************/
 /* the #mudcolors command */
 /**************************/
-void mudcolors_command(char *arg,struct session *ses)
+void mudcolors_command(const char *arg,struct session *ses)
 {
     char cc[BUFFER_SIZE][16],buf[BUFFER_SIZE];
     int nc;

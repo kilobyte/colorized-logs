@@ -38,9 +38,9 @@
 
 typedef void (*sighandler_t)(int);
 
-extern void end_command(char *arg, struct session *ses);
+extern void end_command(const char *arg, struct session *ses);
 
-static void echo_input(char *txt);
+static void echo_input(const char *txt);
 
 /*************** globals ******************/
 int term_echoing = TRUE;
@@ -80,7 +80,7 @@ char prev_command[BUFFER_SIZE];
 static void tintin(void);
 static void read_mud(struct session *ses);
 static void do_one_line(char *line,int nl,struct session *ses);
-static void snoop(char *buffer, struct session *ses);
+static void snoop(const char *buffer, struct session *ses);
 char status[BUFFER_SIZE];
 
 /************ externs *************/
@@ -92,7 +92,7 @@ extern int utime0;
 static void myquitsig(int);
 extern struct completenode *complete_head;
 #ifdef PROFILING
-extern char *prof_area;
+extern const char *prof_area;
 extern time_t kbd_lag, mud_lag;
 extern int kbd_cnt, mud_cnt;
 extern void setup_prof();
@@ -169,7 +169,7 @@ static int new_news(void)
 /************************/
 /* the #suspend command */
 /************************/
-void suspend_command(char *arg, struct session *ses)
+void suspend_command(const char *arg, struct session *ses)
 {
     tstphandler(SIGTSTP);
 }
@@ -414,8 +414,9 @@ static void parse_options(int argc, char **argv)
 static void apply_options()
 {
     struct listnode *opt;
-    char homepath[BUFFER_SIZE], temp[BUFFER_SIZE], sname[BUFFER_SIZE], *strptr;
+    char homepath[BUFFER_SIZE], temp[BUFFER_SIZE], sname[BUFFER_SIZE];
     char ustr[BUFFER_SIZE];
+    const char *home;
     FILE *f;
 # define DO_INPUT(str,iv) local_to_utf8(ustr,str,BUFFER_SIZE,0);\
                           activesession=parse_input(str,iv,activesession);
@@ -466,8 +467,8 @@ static void apply_options()
         case '-':
             *homepath = '\0';
             if (!strcmp(DEFAULT_FILE_DIR, "HOME"))
-                if ((strptr = (char *)getenv("HOME")))
-                    strcpy(homepath, strptr);
+                if ((home = getenv("HOME")))
+                    strcpy(homepath, home);
                 else
                     *homepath = '\0';
             else
@@ -480,9 +481,9 @@ static void apply_options()
                 activesession = do_read(f, ustr, activesession);
             else
             {
-                if ((strptr = (char *)getenv("HOME")))
+                if ((home = getenv("HOME")))
                 {
-                    strcpy(homepath, strptr);
+                    strcpy(homepath, home);
                     strcpy(temp, homepath);
                     strcat(temp, "/.tintinrc");
                     local_to_utf8(ustr, temp, BUFFER_SIZE, 0);
@@ -977,14 +978,15 @@ static void do_one_line(char *line,int nl,struct session *ses)
 /**********************************************************/
 /* snoop session ses - chop up lines and put'em in buffer */
 /**********************************************************/
-static void snoop(char *buffer, struct session *ses)
+static void snoop(const char *buffer, struct session *ses)
 {
     tintin_printf(0,"%s%% %s\n",ses->name,buffer);
 }
 
-static void echo_input(char *txt)
+static void echo_input(const char *txt)
 {
-    char out[BUFFER_SIZE],*cptr,*optr;
+    const char *cptr;
+    char out[BUFFER_SIZE],*optr;
     static int c=7;
 
     if (ui_own_output)

@@ -13,7 +13,7 @@ extern int recursion;
 
 static struct hashtable *keynames;
 
-static char *KEYNAMES[]=
+static const char *KEYNAMES[]=
 {
     "ESC[[A",       "F1",
     "ESC[[B",       "F2",
@@ -84,7 +84,7 @@ static char *KEYNAMES[]=
     "",             "",
 };
 
-static char *NORMAL_KEYNAMES[]=
+static const char *NORMAL_KEYNAMES[]=
 {
     "ESCOP",        "KpadNumLock",
     "ESCOQ",        "KpadDivide",
@@ -94,7 +94,7 @@ static char *NORMAL_KEYNAMES[]=
     "",             "",
 };
 
-static char *XTERM_KEYNAMES[]=
+static const char *XTERM_KEYNAMES[]=
 {
     "ESCOP",        "F1",
     "ESCOQ",        "F2",
@@ -107,7 +107,7 @@ static char *XTERM_KEYNAMES[]=
 /*********************/
 /* the #bind command */
 /*********************/
-void bind_command(char *arg, struct session *ses)
+void bind_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
 
@@ -135,7 +135,7 @@ void bind_command(char *arg, struct session *ses)
 /***********************/
 /* the #unbind command */
 /***********************/
-void unbind_command(char *arg, struct session *ses)
+void unbind_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], result[BUFFER_SIZE];
 
@@ -153,7 +153,7 @@ void unbind_command(char *arg, struct session *ses)
 }
 
 
-int find_bind(char *key,int msg,struct session *ses)
+int find_bind(const char *key, int msg,struct session *ses)
 {
     char *val;
 
@@ -181,7 +181,7 @@ int find_bind(char *key,int msg,struct session *ses)
 
 void init_bind(void)
 {
-    char**n;
+    const char**n;
     keynames=init_hash();
     if (!ui_keyboard)
         return;
@@ -191,7 +191,7 @@ void init_bind(void)
 
 void bind_xterm(int xterm)
 {
-    char**n;
+    const char**n;
     switch (xterm)
     {
     case 1:

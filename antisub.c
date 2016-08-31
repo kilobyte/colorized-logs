@@ -16,7 +16,7 @@ extern int antisubnum;
 /*******************************/
 /* the #antisubstitute command */
 /*******************************/
-void antisubstitute_command(char *arg, struct session *ses)
+void antisubstitute_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE];
     struct listnode *myantisubs, *ln;
@@ -42,7 +42,7 @@ void antisubstitute_command(char *arg, struct session *ses)
 }
 
 
-void unantisubstitute_command(char *arg, struct session *ses)
+void unantisubstitute_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE];
     struct listnode *myantisubs, *ln, *temp;
@@ -66,7 +66,7 @@ void unantisubstitute_command(char *arg, struct session *ses)
 
 
 
-int do_one_antisub(char *line, struct session *ses)
+int do_one_antisub(const char *line, struct session *ses)
 {
     struct listnode *ln;
     pvars_t vars;

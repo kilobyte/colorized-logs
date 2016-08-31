@@ -249,10 +249,10 @@
 # include <gnutls/x509.h>
 #endif
 #ifndef HAVE_SNPRINTF
-int snprintf(char *str, int len, char *fmt, ...);
+int snprintf(char *str, int len, const char *fmt, ...);
 #endif
 #ifndef HAVE_VSNPRINTF
-int vsnprintf(char *str, int len, char *fmt, va_list ap);
+int vsnprintf(char *str, int len, const char *fmt, va_list ap);
 #endif
 #ifndef HAVE_STRLCPY
 size_t strlcpy(char *dst, const char *src, size_t n);
@@ -303,7 +303,7 @@ struct routenode
 
 struct charset_conv
 {
-    char *name;
+    const char *name;
     int mode; /* 0=8bit, 1=UTF-8, 2=iconv */
     int dir; /* -1=only in, 0=both, 1=only out */
     iconv_t i_in, i_out;

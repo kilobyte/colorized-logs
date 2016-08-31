@@ -11,7 +11,7 @@ extern int routnum;
 extern int varnum;
 extern char tintin_char;
 
-extern struct session *if_command(char *arg, struct session *ses);
+extern struct session *if_command(const char *arg, struct session *ses);
 
 
 static void addroute(struct session *ses,int a,int b,char *way,int dist,char *cond)
@@ -146,7 +146,7 @@ static void show_route(struct session *ses,int a,struct routenode *r)
 /***********************/
 /* the #route command  */
 /***********************/
-void route_command(char *arg,struct session *ses)
+void route_command(const char *arg,struct session *ses)
 {
     char a[BUFFER_SIZE],b[BUFFER_SIZE],way[BUFFER_SIZE],dist[BUFFER_SIZE],cond[BUFFER_SIZE];
     int i,j,d;
@@ -220,8 +220,9 @@ found_i:
 found_j:
     if (*dist)
     {
-        d=strtol(dist,&arg,0);
-        if (*arg)
+        char *err;
+        d=strtol(dist,&err,0);
+        if (*err)
         {
             tintin_eprintf(ses,"#Hey! Route length has to be a number! Got {%s}.",arg);
             kill_unused_locations(ses);
@@ -255,7 +256,7 @@ found_j:
 /*************************/
 /* the #unroute command  */
 /*************************/
-void unroute_command(char *arg,struct session *ses)
+void unroute_command(const char *arg,struct session *ses)
 {
     char a[BUFFER_SIZE],b[BUFFER_SIZE];
     int i;
@@ -305,7 +306,7 @@ void unroute_command(char *arg,struct session *ses)
 /**********************/
 /* the #goto command  */
 /**********************/
-void goto_command(char *arg,struct session *ses)
+void goto_command(const char *arg,struct session *ses)
 {
     char A[BUFFER_SIZE],B[BUFFER_SIZE],tmp[BUFFER_SIZE],cond[BUFFER_SIZE];
     int a,b,i,j,s;
@@ -408,7 +409,7 @@ void goto_command(char *arg,struct session *ses)
 /************************/
 /* the #dogoto command  */
 /************************/
-void dogoto_command(char *arg,struct session *ses)
+void dogoto_command(const char *arg,struct session *ses)
 {
     char A[BUFFER_SIZE],B[BUFFER_SIZE],
         distvar[BUFFER_SIZE],locvar[BUFFER_SIZE],pathvar[BUFFER_SIZE];

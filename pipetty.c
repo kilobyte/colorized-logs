@@ -12,7 +12,7 @@
 
 #define PN "pipetty"
 
-void syserr(char *msg, ...)
+void syserr(const char *msg, ...)
 {
     int err=errno;
     va_list ap;

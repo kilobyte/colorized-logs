@@ -9,7 +9,7 @@
 
 typedef void (*sighandler_t)(int);
 
-char *prof_area;
+const char *prof_area;
 time_t kbd_lag, mud_lag;
 int kbd_cnt, mud_cnt;
 struct hashtable *prof_count;

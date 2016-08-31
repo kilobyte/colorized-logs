@@ -7,12 +7,12 @@
 #include "tintin.h"
 #include "ui.h"
 
-void syserr(char *msg, ...);
+void syserr(const char *msg, ...);
 
 /*********************************************/
 /* return: TRUE if s1 is an abrevation of s2 */
 /*********************************************/
-int is_abrev(char *s1, char *s2)
+int is_abrev(const char *s1, const char *s2)
 {
     return !strncmp(s2, s1, strlen(s1));
 }
@@ -21,7 +21,7 @@ int is_abrev(char *s1, char *s2)
 /* strdup - duplicates a string */
 /* return: address of duplicate */
 /********************************/
-char* mystrdup(char *s)
+char* mystrdup(const char *s)
 {
     char *dup;
 
@@ -37,7 +37,7 @@ char* mystrdup(char *s)
 /*************************************************/
 /* print system call error message and terminate */
 /*************************************************/
-void syserr(char *msg, ...)
+void syserr(const char *msg, ...)
 {
     va_list ap;
 
@@ -57,7 +57,7 @@ void syserr(char *msg, ...)
 
 /* Is any compiler _that_ old still alive? */
 #ifndef HAVE_SNPRINTF
-/* not for protos.h */ int snprintf(char *str, int len, char *fmt, ...)
+/* not for protos.h */ int snprintf(char *str, int len, const char *fmt, ...)
 {
     va_list ap;
 
@@ -68,7 +68,7 @@ void syserr(char *msg, ...)
 #endif
 
 #ifndef HAVE_VSNPRINTF
-/* not for protos.h */ int vsnprintf(char *str, int len, char *fmt, va_list ap);
+/* not for protos.h */ int vsnprintf(char *str, int len, const char *fmt, va_list ap);
 {
     vsprintf(str, fmt, ap);
 }

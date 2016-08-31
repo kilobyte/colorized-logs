@@ -15,7 +15,7 @@ int puts_echoing = TRUE;
 /* output to screen should go through this function */
 /* text gets checked for actions                    */
 /****************************************************/
-void tintin_puts(char *cptr, struct session *ses)
+void tintin_puts(const char *cptr, struct session *ses)
 {
     char line[BUFFER_SIZE];
     strcpy(line,cptr);
@@ -32,7 +32,7 @@ void tintin_puts(char *cptr, struct session *ses)
 /* output to screen should go through this function */
 /* text gets checked for substitutes and actions    */
 /****************************************************/
-void tintin_puts1(char *cptr, struct session *ses)
+void tintin_puts1(const char *cptr, struct session *ses)
 {
     char line[BUFFER_SIZE];
 
@@ -51,11 +51,11 @@ void tintin_puts1(char *cptr, struct session *ses)
     if (isnotblank(line,ses->blank))
         if (ses==activesession)
         {
-            cptr=strchr(line,0);
-            if (cptr-line>=BUFFER_SIZE-2)
-                cptr=line+BUFFER_SIZE-2;
-            cptr[0]='\n';
-            cptr[1]=0;
+            char *cp=strchr(line,0);
+            if (cp-line>=BUFFER_SIZE-2)
+                cp=line+BUFFER_SIZE-2;
+            cp[0]='\n';
+            cp[1]=0;
             user_textout(line);
         }
     _=0;

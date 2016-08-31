@@ -54,16 +54,16 @@ static int highpattern[64];
 static int nhighpattern;
 
 static int highcolor; /* an ugly kludge... */
-static int get_high_num(char *hig)
+static int get_high_num(const char *hig)
 {
     int code;
-    char *sl,tmp[BUFFER_SIZE];
+    char tmp[BUFFER_SIZE];
 
     if (!*hig)
         return -1;
     if (isdigit(*hig))
     {
-        sl=strchr(hig,'/');
+        const char *sl=strchr(hig,'/');
         if (!sl)
             sl=strchr(hig,0);
         sprintf(tmp, "~%.*s~", (int)(sl-hig), hig);
@@ -77,7 +77,7 @@ static int get_high_num(char *hig)
     return -1;
 }
 
-static int get_high(char *hig)
+static int get_high(const char *hig)
 {
     nhighpattern=0;
     if (!*hig)
@@ -98,7 +98,7 @@ static int get_high(char *hig)
 /***************************/
 /* the #highlight command  */
 /***************************/
-void highlight_command(char *arg, struct session *ses)
+void highlight_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
     struct listnode *myhighs, *ln;
@@ -191,7 +191,7 @@ void highlight_command(char *arg, struct session *ses)
 /* the #unhighlight command */
 /*****************************/
 
-void unhighlight_command(char *arg, struct session *ses)
+void unhighlight_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], result[BUFFER_SIZE];
     struct listnode *myhighs, *ln, *temp;
@@ -231,7 +231,7 @@ void do_all_high(char *line,struct session *ses)
     atr=attr;
     for (pos=line;*pos;pos++)
     {
-        if (getcolor(&pos,&d,1))
+        if (getcolor((const char**)&pos, &d, 1))
         {
             c=d;
             goto color;

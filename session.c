@@ -35,7 +35,7 @@ extern int any_closed;
 # define gnutls_session_t int
 #endif
 
-static struct session *new_session(char *name, char *address, int sock, int issocket, gnutls_session_t ssl, struct session *ses);
+static struct session *new_session(const char *name, const char *address, int sock, int issocket, gnutls_session_t ssl, struct session *ses);
 static void show_session(struct session *ses);
 
 static int session_exists(char *name)
@@ -51,15 +51,15 @@ static int session_exists(char *name)
 /* FIXME: use non-ascii letters in generated names */
 
 /* NOTE: basis is in the local charset, not UTF-8 */
-void make_name(char *str, char *basis, int run)
+void make_name(char *str, const char *basis, int run)
 {
     char *t;
     int i,j;
 
     if (run)
-        for (t=basis; (*t=='/')||is7alnum(*t)||(*t=='_'); t++)
-            if (*t=='/')
-                basis=t+1;
+        for (const char *b=basis; (*b=='/')||is7alnum(*b)||(*b=='_'); b++)
+            if (*b=='/')
+                basis=b+1;
     if (!is7alpha(*basis))
         goto noname;
     strcpy(str, basis);
@@ -95,7 +95,7 @@ noname:
     #session {a}        - print info about session a
   (opposed to #session {a} {mud.address.here 666} - starting a new session)
 */
-static int list_sessions(char *arg,struct session *ses,char *left,char *right)
+static int list_sessions(const const char *arg, struct session *ses, char *left, char *right)
 {
     struct session *sesptr;
     arg = get_arg_in_braces(arg, left, 0);
@@ -139,7 +139,7 @@ static int list_sessions(char *arg,struct session *ses,char *left,char *right)
 /*****************************************/
 /* the #session and #sslsession commands */
 /*****************************************/
-static struct session *socket_session(char *arg, struct session *ses, int ssl)
+static struct session *socket_session(const char *arg, struct session *ses, int ssl)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE], host[BUFFER_SIZE];
     int sock;
@@ -165,7 +165,7 @@ static struct session *socket_session(char *arg, struct session *ses, int ssl)
     if (*port)
     {
         *port++ = '\0';
-        port = space_out(port);
+        port = (char*)space_out(port);
     }
 
     if (!*port)
@@ -191,12 +191,12 @@ static struct session *socket_session(char *arg, struct session *ses, int ssl)
 }
 
 
-struct session *session_command(char *arg, struct session *ses)
+struct session *session_command(const char *arg, struct session *ses)
 {
     return socket_session(arg, ses, 0);
 }
 
-struct session *sslsession_command(char *arg, struct session *ses)
+struct session *sslsession_command(const char *arg, struct session *ses)
 {
 #ifdef HAVE_GNUTLS
     return socket_session(arg, ses, 1);
@@ -210,7 +210,7 @@ struct session *sslsession_command(char *arg, struct session *ses)
 /********************/
 /* the #run command */
 /********************/
-struct session *run_command(char *arg,struct session *ses)
+struct session *run_command(const char *arg,struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE], ustr[BUFFER_SIZE];
     int sock;
@@ -280,7 +280,7 @@ struct session *newactive_session(void)
 /**********************/
 /* open a new session */
 /**********************/
-static struct session *new_session(char *name, char *address, int sock, int issocket, gnutls_session_t ssl, struct session *ses)
+static struct session *new_session(const char *name, const char *address, int sock, int issocket, gnutls_session_t ssl, struct session *ses)
 {
     struct session *newsession;
     int i;
