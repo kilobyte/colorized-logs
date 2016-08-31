@@ -169,9 +169,7 @@
 /**************************************************************************/
 #define STOP_AT_SPACES 0
 #define WITH_SPACES 1
-#define ALPHA 1
-#define PRIORITY 0
-#define LENGTH 2
+typedef enum {PRIORITY, ALPHA, LENGTH} llist_mode_t;
 #define CLEAN 0
 #define END 1
 #define K_ACTION_MAGIC "#X~4~~2~~12~[This action is being deleted!]~7~X"

@@ -189,7 +189,7 @@ not_numeric:
 /* into the list - in lexicographical order, or by numerical     */
 /* priority (dependent on mode) - Mods by Joann Ellsworth 2/2/94 */
 /*****************************************************************/
-void insertnode_list(struct listnode *listhead, const char *ltext, const char *rtext, const char *prtext, int mode)
+void insertnode_list(struct listnode *listhead, const char *ltext, const char *rtext, const char *prtext, llist_mode_t mode)
 {
     struct listnode *nptr, *nptrlast, *newnode;
     int lo, ln;
