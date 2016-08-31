@@ -414,7 +414,7 @@ static void parse_options(int argc, char **argv)
 static void apply_options()
 {
     struct listnode *opt;
-    char homepath[BUFFER_SIZE], temp[BUFFER_SIZE], sname[BUFFER_SIZE];
+    char temp[BUFFER_SIZE], sname[BUFFER_SIZE];
     char ustr[BUFFER_SIZE];
     const char *home;
     FILE *f;
@@ -465,16 +465,14 @@ static void apply_options()
                 tintin_eprintf(0, "#FILE NOT FOUND: {%s}", ustr);
             break;
         case '-':
-            *homepath = '\0';
             if (!strcmp(DEFAULT_FILE_DIR, "HOME"))
                 if ((home = getenv("HOME")))
-                    strcpy(homepath, home);
+                    strcpy(temp, home);
                 else
-                    *homepath = '\0';
+                    *temp = '\0';
             else
-                strcpy(homepath, DEFAULT_FILE_DIR);
+                strcpy(temp, DEFAULT_FILE_DIR);
 
-            strcpy(temp, homepath);
             strcat(temp, "/.tintinrc");
             local_to_utf8(ustr, temp, BUFFER_SIZE, 0);
             if ((f=fopen(temp, "r")))
@@ -483,8 +481,7 @@ static void apply_options()
             {
                 if ((home = getenv("HOME")))
                 {
-                    strcpy(homepath, home);
-                    strcpy(temp, homepath);
+                    strcpy(temp, home);
                     strcat(temp, "/.tintinrc");
                     local_to_utf8(ustr, temp, BUFFER_SIZE, 0);
                     if ((f=fopen(temp, "r")))
