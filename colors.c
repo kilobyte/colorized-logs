@@ -8,7 +8,7 @@
 extern struct session *nullsession;
 
 const int colors[8]={0,4,2,6,1,5,3,7};
-static int mudcolors=3;    /* 0=disabled, 1=on, 2=null, 3=null+warning */
+static enum {MUDC_OFF, MUDC_ON, MUDC_NULL, MUDC_NULL_WARN} mudcolors=MUDC_NULL_WARN;
 static char *MUDcolors[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 int getcolor(const char *restrict*restrict ptr, int *restrict color, const int flag)
@@ -404,12 +404,14 @@ void do_out_MUD_colors(char *line)
 color:
         switch (mudcolors)
         {
-        case 3:
+        case MUDC_OFF:
+            abort();
+        case MUDC_NULL_WARN:
             tintin_printf(0, "#Warning: no color codes set, use #mudcolors");
-            mudcolors=2;
-        case 2:
+            mudcolors=MUDC_NULL;
+        case MUDC_NULL:
             break;
-        case 1:
+        case MUDC_ON:
             strcpy(txt, MUDcolors[c&0xf]);
             txt+=strlen(MUDcolors[c&0xf]);
         }
@@ -434,7 +436,7 @@ error_msg:
     }
     if (!yes_no(arg))
     {
-        mudcolors=0;
+        mudcolors=MUDC_OFF;
         tintin_printf(ses, "#outgoing color codes (~n~) are now sent verbatim.");
         return;
     }
@@ -452,7 +454,7 @@ error_msg:
             if ((nc==1)&&!*cc[0])
             {
 null_codes:
-                mudcolors=2;
+                mudcolors=MUDC_NULL;
                 tintin_printf(ses, "#outgoing color codes are now ignored.");
                 return;
             }
@@ -463,7 +465,7 @@ null_codes:
     };
     if (*arg)
         goto error_msg;
-    mudcolors=1;
+    mudcolors=MUDC_ON;
     for (nc=0;nc<16;nc++)
     {
         SFREE(MUDcolors[nc]);
