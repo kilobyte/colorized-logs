@@ -589,7 +589,7 @@ struct session* do_read(FILE *myfile, const char *filename, struct session *ses)
         if (flag)
         {
             puts_echoing = ses->verbose || !real_quiet;
-            if (ispunct(*line) || ((unsigned char)(*line)>127))
+            if (is7punct(*line))
                 char_command(line, ses);
             if (!ses->verbose)
                 puts_echoing = FALSE;

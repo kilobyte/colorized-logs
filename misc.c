@@ -270,7 +270,7 @@ void char_command(const char *arg, struct session *ses)
     char what[BUFFER_SIZE];
     get_arg_in_braces(arg, what, 1);
     /* It doesn't make any sense to use a variable here. */
-    if (ispunct(*what) || ((unsigned char)(*what)>127))
+    if (is7punct(*what))
     {
         tintin_char = *arg;
         tintin_printf(ses, "#OK. TINTIN-CHAR is now {%c}", tintin_char);
