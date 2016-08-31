@@ -53,20 +53,6 @@ void map_command(char *arg,struct session *ses)
         tintin_printf(ses,"#No session active => NO PATH!");
 }
 
-#if 0
-void map_command(char *arg,struct session *ses)
-{
-    if (ses!=nullsession)
-    {
-        get_arg_in_braces(arg, arg, 1);
-        prepare_actionalias(arg, arg, ses);
-        check_insert_path(arg, ses, 1);
-    }
-    else
-        tintin_printf(ses,"#No session active => NO PATH!");
-}
-#endif
-
 void savepath_command(char *arg, struct session *ses)
 {
     if (ses!=nullsession)
