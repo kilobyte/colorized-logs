@@ -13,7 +13,7 @@ static char *MUDcolors[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 int getcolor(const char *restrict*restrict ptr, int *restrict color, const int flag)
 {
-    int fg,bg,blink;
+    int fg, bg, blink;
     const char *txt=*ptr;
 
     if (*(txt++)!='~')
@@ -80,15 +80,15 @@ int getcolor(const char *restrict*restrict ptr, int *restrict color, const int f
     return 1;
 }
 
-int setcolor(char *txt,int c)
+int setcolor(char *txt, int c)
 {
     if (c==-1)
-        return sprintf(txt,"~-1~");
+        return sprintf(txt, "~-1~");
     if (c<16)
-        return sprintf(txt,"~%d~",c);
+        return sprintf(txt, "~%d~", c);
     if (c<0x80)
-        return sprintf(txt,"~%d:%d~",c&0xf,(c&0x70)>>4);
-    return sprintf(txt,"~%d:%d:%d~",c&0xf,(c&0x70)>>4,c>>7);
+        return sprintf(txt, "~%d:%d~", c&0xf, (c&0x70)>>4);
+    return sprintf(txt, "~%d:%d:%d~", c&0xf, (c&0x70)>>4, c>>7);
 }
 
 typedef unsigned char u8;
@@ -146,13 +146,13 @@ static int rgb_background(struct rgb c)
 
 #define MAXTOK 10
 
-void do_in_MUD_colors(char *txt,int quotetype,struct session *ses)
+void do_in_MUD_colors(char *txt, int quotetype, struct session *ses)
 {
     static int ccolor=7;
     /* worst case: buffer full of FormFeeds, with color=1023 */
     /* TODO: not anymore, it's much shorter now */
-    char OUT[BUFFER_SIZE*20],*out,*back,*TXT=txt;
-    int tok[MAXTOK],nt,dummy=0;
+    char OUT[BUFFER_SIZE*20], *out, *back, *TXT=txt;
+    int tok[MAXTOK], nt, dummy=0;
 
     for (out=OUT;*txt;txt++)
         switch (*txt)
@@ -301,7 +301,7 @@ again:
                                 ccolor=(ccolor&~0x70)|(colors[tok[i]-100]<<4);
                             /* ignore unknown attributes */
                         }
-                    out+=setcolor(out,ccolor);
+                    out+=setcolor(out, ccolor);
                     break;
                 case 'C':
                     if (tok[0]<0)     /* sanity check */
@@ -314,7 +314,7 @@ again:
                 case 'D': /* this interpretation is badly invalid... */
                 case 'K':
                     out=OUT;
-                    out+=setcolor(out,ccolor);
+                    out+=setcolor(out, ccolor);
                     break;
                 case 'J':
                     if (tok[0])
@@ -383,13 +383,13 @@ error:
     if (out-OUT>=BUFFER_SIZE) /* can happen only if there's a lot of FFs */
         out=OUT+BUFFER_SIZE-1;
     *out=0;
-    strcpy(TXT,OUT);
+    strcpy(TXT, OUT);
 }
 
 void do_out_MUD_colors(char *line)
 {
     char buf[BUFFER_SIZE];
-    char *txt=buf,*pos=line;
+    char *txt=buf, *pos=line;
     int c=7;
 
     if (!mudcolors)
@@ -405,40 +405,40 @@ color:
         switch (mudcolors)
         {
         case 3:
-            tintin_printf(0,"#Warning: no color codes set, use #mudcolors");
+            tintin_printf(0, "#Warning: no color codes set, use #mudcolors");
             mudcolors=2;
         case 2:
             break;
         case 1:
-            strcpy(txt,MUDcolors[c&0xf]);
+            strcpy(txt, MUDcolors[c&0xf]);
             txt+=strlen(MUDcolors[c&0xf]);
         }
     };
     *txt=0;
-    strcpy(line,buf);
+    strcpy(line, buf);
 }
 
 /**************************/
 /* the #mudcolors command */
 /**************************/
-void mudcolors_command(const char *arg,struct session *ses)
+void mudcolors_command(const char *arg, struct session *ses)
 {
-    char cc[BUFFER_SIZE][16],buf[BUFFER_SIZE];
+    char cc[BUFFER_SIZE][16], buf[BUFFER_SIZE];
     int nc;
 
     if (!*arg)
     {
 error_msg:
-        tintin_eprintf(ses,"#ERROR: valid syntax is: #mudcolors OFF, #mudcolors {} or #mudcolors {c0} {c1} ... {c15}");
+        tintin_eprintf(ses, "#ERROR: valid syntax is: #mudcolors OFF, #mudcolors {} or #mudcolors {c0} {c1} ... {c15}");
         return;
     }
     if (!yes_no(arg))
     {
         mudcolors=0;
-        tintin_printf(ses,"#outgoing color codes (~n~) are now sent verbatim.");
+        tintin_printf(ses, "#outgoing color codes (~n~) are now sent verbatim.");
         return;
     }
-    if (!*get_arg_in_braces(arg,buf,0))
+    if (!*get_arg_in_braces(arg, buf, 0))
     {
         arg=buf;
         if (!*arg)
@@ -453,13 +453,13 @@ error_msg:
             {
 null_codes:
                 mudcolors=2;
-                tintin_printf(ses,"#outgoing color codes are now ignored.");
+                tintin_printf(ses, "#outgoing color codes are now ignored.");
                 return;
             }
             else
                 goto error_msg;
         }
-        arg=get_arg_in_braces(arg,cc[nc],0);
+        arg=get_arg_in_braces(arg, cc[nc], 0);
     };
     if (*arg)
         goto error_msg;
@@ -469,5 +469,5 @@ null_codes:
         SFREE(MUDcolors[nc]);
         MUDcolors[nc]=mystrdup(cc[nc]);
     };
-    tintin_printf(ses,"#outgoing color codes table initialized");
+    tintin_printf(ses, "#outgoing color codes table initialized");
 }

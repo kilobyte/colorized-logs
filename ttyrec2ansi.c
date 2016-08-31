@@ -7,7 +7,7 @@ int main()
 {
     struct ttyrec_header th;
     char buf[BUFFER_SIZE];
-    int s,n,r;
+    int s, n, r;
 
     while (1)
     {

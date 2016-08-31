@@ -28,10 +28,10 @@ void math_command(const char *line, struct session *ses)
     line = get_arg(line, right, 1, ses);
     if (!*left||!*right)
     {
-        tintin_eprintf(ses,"#Syntax: #math <variable> <expression>");
+        tintin_eprintf(ses, "#Syntax: #math <variable> <expression>");
         return;
     };
-    i = eval_expression(right,ses);
+    i = eval_expression(right, ses);
     sprintf(temp, "%d", i);
     set_variable(left, temp, ses);
 }
@@ -49,12 +49,12 @@ struct session *if_command(const char *line, struct session *ses)
 
     if (!*left || !*right)
     {
-        tintin_eprintf(ses,"#ERROR: valid syntax is: if <condition> <command> [#elif <condition> <command>] [...] [#else <command>]");
+        tintin_eprintf(ses, "#ERROR: valid syntax is: if <condition> <command> [#elif <condition> <command>] [...] [#else <command>]");
         return ses;
     }
 
-    if (eval_expression(left,ses))
-        ses=parse_input(right,1,ses);
+    if (eval_expression(left, ses))
+        ses=parse_input(right, 1, ses);
     else
     {
         line = get_arg_in_braces(line, left, 0);
@@ -64,7 +64,7 @@ struct session *if_command(const char *line, struct session *ses)
             if (is_abrev(left + 1, "else"))
             {
                 line = get_arg_in_braces(line, right, 1);
-                ses=parse_input(right,1,ses);
+                ses=parse_input(right, 1, ses);
             }
             if (is_abrev(left + 1, "elif"))
                 ses=if_command(line, ses);
@@ -74,9 +74,9 @@ struct session *if_command(const char *line, struct session *ses)
 }
 
 
-static int do_inline(const char *line,int *res,struct session *ses)
+static int do_inline(const char *line, int *res, struct session *ses)
 {
-    char command[BUFFER_SIZE],*ptr;
+    char command[BUFFER_SIZE], *ptr;
 
     ptr=command;
     while (*line&&(*line!=' '))
@@ -84,29 +84,29 @@ static int do_inline(const char *line,int *res,struct session *ses)
     *ptr=0;
     line=space_out(line);
     /*
-       tintin_printf(ses,"#executing inline command [%c%s] with [%s]",tintin_char,command,line);
+       tintin_printf(ses, "#executing inline command [%c%s] with [%s]", tintin_char, command, line);
     */
-    if (is_abrev(command,"finditem"))
-        *res=finditem_inline(line,ses);
-    else if (is_abrev(command,"isatom"))
-        *res=isatom_inline(line,ses);
-    else if (is_abrev(command,"listlength"))
-        *res=listlength_inline(line,ses);
-    else if (is_abrev(command,"strlen"))
-        *res=strlen_inline(line,ses);
-    else if (is_abrev(command,"random"))
-        *res=random_inline(line,ses);
-    else if (is_abrev(command,"grep"))
-        *res=grep_inline(line,ses);
-    else if (is_abrev(command,"strcmp"))
-        *res=strcmp_inline(line,ses);
-    else if (is_abrev(command,"match"))
-        *res=match_inline(line,ses);
-    else if (is_abrev(command,"ord"))
-        *res=ord_inline(line,ses);
+    if (is_abrev(command, "finditem"))
+        *res=finditem_inline(line, ses);
+    else if (is_abrev(command, "isatom"))
+        *res=isatom_inline(line, ses);
+    else if (is_abrev(command, "listlength"))
+        *res=listlength_inline(line, ses);
+    else if (is_abrev(command, "strlen"))
+        *res=strlen_inline(line, ses);
+    else if (is_abrev(command, "random"))
+        *res=random_inline(line, ses);
+    else if (is_abrev(command, "grep"))
+        *res=grep_inline(line, ses);
+    else if (is_abrev(command, "strcmp"))
+        *res=strcmp_inline(line, ses);
+    else if (is_abrev(command, "match"))
+        *res=match_inline(line, ses);
+    else if (is_abrev(command, "ord"))
+        *res=ord_inline(line, ses);
     else
     {
-        tintin_eprintf(ses,"#Unknown inline command [%c%s]!",tintin_char,command);
+        tintin_eprintf(ses, "#Unknown inline command [%c%s]!", tintin_char, command);
         return 0;
     }
 
@@ -116,7 +116,7 @@ static int do_inline(const char *line,int *res,struct session *ses)
 
 int eval_expression(char *arg, struct session *ses)
 {
-    if (!conv_to_ints(arg,ses))
+    if (!conv_to_ints(arg, ses))
         return 0;
 
     while (1)
@@ -142,7 +142,7 @@ int eval_expression(char *arg, struct session *ses)
         }
         if ((flag && (begin != -1)) || (!flag && (begin == -1)))
         {
-            tintin_eprintf(ses,"#Unmatched parentheses error in {%s}.",arg);
+            tintin_eprintf(ses, "#Unmatched parentheses error in {%s}.", arg);
             return 0;
         }
         if (flag)
@@ -178,8 +178,8 @@ static int conv_to_ints(char *arg, struct session *ses)
         else if (*ptr == tintin_char)
             /* inline commands */
         {
-            ptr=(char*)get_inline(ptr+1,temp)-1;
-            if (!do_inline(temp,&(stacks[i][2]),ses))
+            ptr=(char*)get_inline(ptr+1, temp)-1;
+            if (!do_inline(temp, &(stacks[i][2]), ses))
                 return 0;
             stacks[i][1]=15;
         }
@@ -265,7 +265,7 @@ static int conv_to_ints(char *arg, struct session *ses)
             stacks[i][2] = 0;
             if (*(++ptr)=='{')
             {
-                ptr=(char*)get_arg_in_braces(ptr,temp,0);
+                ptr=(char*)get_arg_in_braces(ptr, temp, 0);
             }
             else
             {
@@ -388,7 +388,7 @@ static int conv_to_ints(char *arg, struct session *ses)
         }
         else
         {
-            tintin_eprintf(ses,"#Error. Invalid expression in #if or #math in {%s}.",arg);
+            tintin_eprintf(ses, "#Error. Invalid expression in #if or #math in {%s}.", arg);
             return 0;
         }
         if (*ptr != ' ')
@@ -515,7 +515,7 @@ static int do_one_inside(int begin, int end)
                 stacks[ploc][2] = (stacks[ploc][2] || stacks[next][2]);
                 break;
             default:
-                tintin_eprintf(0,"#Programming error *slap Bill*");
+                tintin_eprintf(0, "#Programming error *slap Bill*");
                 return 0;
             }
         }

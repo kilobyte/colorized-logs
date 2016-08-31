@@ -13,13 +13,13 @@
 
 extern pvars_t *pvars;
 extern int subnum;
-extern const char *match_start,*match_end;
+extern const char *match_start, *match_end;
 extern char *_;
 
 /***************************/
 /* the #substitute command */
 /***************************/
-static void parse_sub(const char *arg,int gag,struct session *ses)
+static void parse_sub(const char *arg, int gag, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
     struct listnode *mysubs, *ln;
@@ -39,7 +39,7 @@ static void parse_sub(const char *arg,int gag,struct session *ses)
                 if (!strcmp(mysubs->right, EMPTY_LINE))
                 {
                     if (!flag)
-                        tintin_printf(ses,"#THESE GAGS HAVE BEEN DEFINED:");
+                        tintin_printf(ses, "#THESE GAGS HAVE BEEN DEFINED:");
                     tintin_printf(ses, "{%s~7~}", mysubs->left);
                     flag=1;
                 }
@@ -47,13 +47,13 @@ static void parse_sub(const char *arg,int gag,struct session *ses)
             else
             {
                 if (!flag)
-                    tintin_printf(ses,"#THESE SUBSTITUTES HAVE BEEN DEFINED:");
+                    tintin_printf(ses, "#THESE SUBSTITUTES HAVE BEEN DEFINED:");
                 flag=1;
                 shownode_list(mysubs);
             }
         if (!flag && ses->mesvar[2])
         {
-            if (strcmp(left,"*"))
+            if (strcmp(left, "*"))
                 tintin_printf(ses, "#THAT %s IS NOT DEFINED.", gag? "GAG":"SUBSTITUTE");
             else
                 tintin_printf(ses, "#NO %sS HAVE BEEN DEFINED.", gag? "GAG":"SUBSTITUTE");
@@ -111,14 +111,14 @@ static void unsub(const char *arg, int gag, struct session *ses)
     arg = get_arg_in_braces(arg, left, 1);
     while ((ln = search_node_with_wild(temp, left)) != NULL)
     {
-        if (gag && strcmp(ln->right,EMPTY_LINE))
+        if (gag && strcmp(ln->right, EMPTY_LINE))
         {
             temp=ln;
             continue;
         }
         if (ses->mesvar[2])
         {
-            if (!strcmp(ln->right,EMPTY_LINE))
+            if (!strcmp(ln->right, EMPTY_LINE))
                 tintin_printf(ses, "#Ok. {%s} is no longer gagged.", ln->left);
             else
                 tintin_printf(ses, "#Ok. {%s} is no longer substituted.", ln->left);
@@ -128,7 +128,7 @@ static void unsub(const char *arg, int gag, struct session *ses)
         /*  temp=ln; */
     }
     if (!flag && ses->mesvar[2])
-        tintin_printf(ses,"#THAT SUBSTITUTE (%s) IS NOT DEFINED.",left);
+        tintin_printf(ses, "#THAT SUBSTITUTE (%s) IS NOT DEFINED.", left);
 }
 
 void unsubstitute_command(const char *arg, struct session *ses)
@@ -143,16 +143,16 @@ void ungag_command(const char *arg, struct session *ses)
 
 #define APPEND(srch)    if (rlen+len > BUFFER_SIZE-1)           \
                             len=BUFFER_SIZE-1-rlen;             \
-                        memcpy(result+rlen,srch,len);               \
+                        memcpy(result+rlen, srch, len);               \
                         rlen+=len;
 
 void do_all_sub(char *line, struct session *ses)
 {
     struct listnode *ln;
-    pvars_t vars,*lastpvars;
-    char result[BUFFER_SIZE],tmp1[BUFFER_SIZE],tmp2[BUFFER_SIZE];
+    pvars_t vars, *lastpvars;
+    char result[BUFFER_SIZE], tmp1[BUFFER_SIZE], tmp2[BUFFER_SIZE];
     const char *l;
-    int rlen,len;
+    int rlen, len;
 
     lastpvars=pvars;
     pvars=&vars;

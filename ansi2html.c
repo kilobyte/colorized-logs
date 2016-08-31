@@ -10,7 +10,7 @@
 #define STRIKE       0x400000
 
 static int no_header=0, white=0;
-static int fg,bg,fl,b,frgb,brgb;
+static int fg, bg, fl, b, frgb, brgb;
 
 static const char *cols[]={"BLK","RED","GRN","YEL","BLU","MAG","CYN","WHI",
                            "HIK","HIR","HIG","HIY","HIB","HIM","HIC","HIW"};
@@ -88,20 +88,20 @@ static void span()
     {
         if (fl&BOLD)
             _fg|=8;
-        cl+=sprintf(cl," %s", cols[_fg]);
+        cl+=sprintf(cl, " %s", cols[_fg]);
     }
     else if (fl&BOLD)
-        cl+=sprintf(cl," BOLD");
+        cl+=sprintf(cl, " BOLD");
 
     if (_bg!=-1)
-        cl+=sprintf(cl," B%s", cols[_bg]);
+        cl+=sprintf(cl, " B%s", cols[_bg]);
 
     if (fl&ITALIC)
-        cl+=sprintf(cl," ITA");
+        cl+=sprintf(cl, " ITA");
     if (fl&UNDERLINE)
-        cl+=sprintf(cl,(fl&STRIKE)?" UNDSTR":" UND");
+        cl+=sprintf(cl, (fl&STRIKE)?" UNDSTR":" UND");
     else if (fl&STRIKE)
-        cl+=sprintf(cl," STR");
+        cl+=sprintf(cl, " STR");
 
     if (cl>clbuf)
     {
@@ -116,9 +116,9 @@ static void span()
     {
         printf(" style=\"");
         if (_frgb!=-1)
-            printf("color:#%06x;",_frgb);
+            printf("color:#%06x;", _frgb);
         if (_brgb!=-1)
-            printf("background-color:#%06x",_brgb);
+            printf("background-color:#%06x", _brgb);
         printf("\"");
     }
 
@@ -130,24 +130,24 @@ do_span:
     printf("<span style=\"");
     if (_frgb!=-1)
     {
-        printf("color:#%06x",_frgb);
+        printf("color:#%06x", _frgb);
         if (fl&BOLD)
             printf(";font-weight:bold");
     }
     else if (_fg!=-1)
     {
         if (fl&BOLD)
-            printf("color:#%c%c%c",_fg&1?'f':'5',_fg&2?'f':'5',_fg&4?'f':'5');
+            printf("color:#%c%c%c", _fg&1?'f':'5', _fg&2?'f':'5', _fg&4?'f':'5');
         else
-            printf("color:#%c%c%c",_fg&1?'a':'0',_fg&2?'a':'0',_fg&4?'a':'0');
+            printf("color:#%c%c%c", _fg&1?'a':'0', _fg&2?'a':'0', _fg&4?'a':'0');
     }
     else if (fl&BOLD)
         printf("font-weight:bold");
 
     if (_brgb!=-1)
-        printf(";background-color:#%06x",_brgb);
+        printf(";background-color:#%06x", _brgb);
     else if (_bg!=-1)
-        printf(";background-color:#%c%c%c",_bg&1?'a':'0',_bg&2?'a':'0',_bg&4?'a':'0');
+        printf(";background-color:#%c%c%c", _bg&1?'a':'0', _bg&2?'a':'0', _bg&4?'a':'0');
 
     if (fl&ITALIC)
         printf(";font-style:italic");

@@ -69,7 +69,7 @@ int find(const char *text, const char *pattern, int *from, int *to, const char *
 
     if (fastener)
     {
-        txt=strstr(text,fastener);
+        txt=strstr(text, fastener);
         if (!txt)
             return 0;
         *from=txt-text;
@@ -92,13 +92,13 @@ int find(const char *text, const char *pattern, int *from, int *to, const char *
             *to=txt-text-1;
             return 1;
         };
-        strcpy(m1,pattern);
+        strcpy(m1, pattern);
         pat=m1;
         goto start;
     };
-    if (!(b=strchr(pattern,'*')))
+    if (!(b=strchr(pattern, '*')))
     {
-        a=strstr(txt,pattern);
+        a=strstr(txt, pattern);
         if (a)
         {
             *from=a-text;
@@ -109,10 +109,10 @@ int find(const char *text, const char *pattern, int *from, int *to, const char *
             return 0;
     };
     i=b-pattern;
-    strcpy(m1,pattern);
+    strcpy(m1, pattern);
     m1[i]=0;
     pat=m1;
-    txt=strstr(txt,pat);
+    txt=strstr(txt, pat);
     if (!txt)
     {
         return 0;
@@ -145,10 +145,10 @@ start:
     *to=-1;
     do
     {
-        b=strchr(pat,'*');
+        b=strchr(pat, '*');
         if (b)
             *b=0;
-        a=strstr(txt,pat);
+        a=strstr(txt, pat);
         if (!a)
             return 0;
         if (*to==-1)
@@ -157,7 +157,7 @@ start:
         if (b)
             pat=b;
         else
-            pat=strchr(pat,0);
+            pat=strchr(pat, 0);
     } while (*pat);
     return 1;
 }

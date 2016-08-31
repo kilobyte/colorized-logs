@@ -209,7 +209,7 @@ int connect_mud(const char *host, const char *port, struct session *ses)
             tintin_eprintf(ses, "#ERROR - Network unreachable.");
             break;
         default:
-            tintin_eprintf(ses, "#Couldn't connect to %s:%s",host,port);
+            tintin_eprintf(ses, "#Couldn't connect to %s:%s", host, port);
         }
         return 0;
     }
@@ -421,7 +421,7 @@ int read_buffer_mud(char *buffer, struct session *ses)
 
     *(tmpbuf+len+didget)=0;
 #if 0
-    tintin_printf(ses,"~8~text:[%s]~-1~",tmpbuf);
+    tintin_printf(ses, "~8~text:[%s]~-1~", tmpbuf);
 #endif
 
     ses->server_idle_since=time(0);

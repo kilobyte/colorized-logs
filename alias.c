@@ -87,7 +87,7 @@ void alias_command(const char *arg, struct session *ses)
         }
         set_hash(ses->aliases, left, right);
         if (ses->mesvar[0])
-            tintin_printf(ses,"#Ok. {%s} aliases {%s}.", left, right);
+            tintin_printf(ses, "#Ok. {%s} aliases {%s}.", left, right);
         alnum++;
         return;
     }

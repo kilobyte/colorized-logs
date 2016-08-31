@@ -7,9 +7,9 @@ int ui_own_output;
 int ui_tty;
 int ui_drafts;
 
-int LINES,COLS,tty;
+int LINES, COLS, tty;
 char done_input[BUFFER_SIZE];
-int color,lastcolor;
+int color, lastcolor;
 
 extern int colors[];
 extern const char *attribs[16];

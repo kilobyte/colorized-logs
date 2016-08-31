@@ -58,7 +58,7 @@ static char TtyProto[] = "/dev/ttyXY";
 
 int openpty(int *amaster, int *aslave, char *dummy, struct termios *termp, struct winsize *wp)
 {
-    int master,slave;
+    int master, slave;
 
 #ifdef HAVE__GETPTY
     int filedes[2];
@@ -99,11 +99,11 @@ int openpty(int *amaster, int *aslave, char *dummy, struct termios *termp, struc
     if (!(name=ptsname(master)))
         goto close_master;
 # else
-    if (ptsname_r(master,name,80))
+    if (ptsname_r(master, name, 80))
         goto close_master;
 # endif
 
-    slave=open(name,O_RDWR);
+    slave=open(name, O_RDWR);
     if (slave==-1)
         goto close_master;
 
@@ -138,7 +138,7 @@ ok:
     {
         for (d = PTYRANGE1; (p[1] = *d) != '\0'; d++)
         {
-/*          tintin_printf(0,"OpenPTY tries '%s'", PtyName);*/
+/*          tintin_printf(0, "OpenPTY tries '%s'", PtyName);*/
             if ((master = open(PtyName, O_RDWR | O_NOCTTY)) == -1)
                 continue;
             q[0] = *l;
@@ -163,7 +163,7 @@ ok:
     if (termp)
         tcsetattr(master, TCSANOW, termp);
     if (wp)
-        ioctl(master,TIOCSWINSZ,wp);
+        ioctl(master, TIOCSWINSZ, wp);
     /* let's ignore errors on these ioctls silently */
 
     if (amaster)
@@ -175,7 +175,7 @@ ok:
 
 int forkpty(int *amaster, char *dummy, struct termios *termp, struct winsize *wp)
 {
-    int master,slave;
+    int master, slave;
     int pid;
 
     if (openpty(&master, &slave, 0, termp, wp))
@@ -191,9 +191,9 @@ int forkpty(int *amaster, char *dummy, struct termios *termp, struct winsize *wp
     case 0:
         close(master);
         setsid();
-        dup2(slave,0);
-        dup2(slave,1);
-        dup2(slave,2);
+        dup2(slave, 0);
+        dup2(slave, 1);
+        dup2(slave, 2);
         close(slave);
         return 0;
     default:

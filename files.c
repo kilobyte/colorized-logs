@@ -20,7 +20,7 @@
 #include <pwd.h>
 
 static void prepare_for_write(const char *command, const char *left, const char *right, const char *pr, char *result);
-extern void char_command(const char *arg,struct session *ses);
+extern void char_command(const char *arg, struct session *ses);
 
 extern struct session *nullsession;
 
@@ -48,7 +48,7 @@ static void expand_filename(const char *arg, char *result, char *lstr)
     if (*arg=='~')
     {
         if (*(arg+1)=='/')
-            result+=snprintf(result,BUFFER_SIZE,"%s",getenv("HOME")), arg++;
+            result+=snprintf(result, BUFFER_SIZE, "%s", getenv("HOME")), arg++;
         else
         {
             char *p;
@@ -61,7 +61,7 @@ static void expand_filename(const char *arg, char *result, char *lstr)
                 strncpy(name, arg+1, p-arg-1);
                 pwd=getpwnam(name);
                 if (pwd)
-                    result+=snprintf(result,BUFFER_SIZE,"%s",pwd->pw_dir), arg=p;
+                    result+=snprintf(result, BUFFER_SIZE, "%s", pwd->pw_dir), arg=p;
             }
         };
     };
@@ -124,7 +124,7 @@ void read_complete(const char *arg, struct session *ses)
     }
     if (myfile == NULL)
     {
-        tintin_eprintf(0,"no tab.txt file, no completion list");
+        tintin_eprintf(0, "no tab.txt file, no completion list");
         return;
     }
     while (fgets(buffer, sizeof(buffer), myfile))
@@ -151,9 +151,9 @@ void read_complete(const char *arg, struct session *ses)
     }
     tcomplete->next = NULL;
     fclose(myfile);
-    tintin_printf(0,"tab.txt file loaded.");
+    tintin_printf(0, "tab.txt file loaded.");
     prompt(NULL);
-    tintin_printf(0,"");
+    tintin_printf(0, "");
 
 }
 #endif
@@ -228,7 +228,7 @@ static inline void ttyrec_timestamp(struct ttyrec_header *th)
 /* charset is always UTF-8 */
 void write_logf(struct session *ses, const char *txt, const char *prefix, const char *suffix)
 {
-    char buf[BUFFER_SIZE*2],lbuf[BUFFER_SIZE*2];
+    char buf[BUFFER_SIZE*2], lbuf[BUFFER_SIZE*2];
     int len;
 
     sprintf(buf, "%s%s%s%s\n", prefix, txt, suffix, ses->logtype?"":"\r");
@@ -261,7 +261,7 @@ void write_logf(struct session *ses, const char *txt, const char *prefix, const 
 void write_log(struct session *ses, const char *txt, int n)
 {
     struct ttyrec_header th;
-    char ubuf[BUFFER_SIZE*2],lbuf[BUFFER_SIZE*2];
+    char ubuf[BUFFER_SIZE*2], lbuf[BUFFER_SIZE*2];
 
     if (ses->logcharset!=LOGCS_REMOTE && strcasecmp(user_charset_name, ses->charset))
     {
@@ -331,7 +331,7 @@ void loginputformat_command(const char *arg, struct session *ses)
 
 static FILE* open_logfile(struct session *ses, const char *name, const char *filemsg, const char *appendmsg, const char *pipemsg)
 {
-    char temp[BUFFER_SIZE],fname[BUFFER_SIZE],lfname[BUFFER_SIZE];
+    char temp[BUFFER_SIZE], fname[BUFFER_SIZE], lfname[BUFFER_SIZE];
     FILE *f;
     int len;
 
@@ -377,24 +377,24 @@ static FILE* open_logfile(struct session *ses, const char *name, const char *fil
     }
     expand_filename(name, fname, lfname);
     len=strlen(fname);
-    if (len>=4 && !strcmp(fname+len-3,".gz"))
-        if ((f = mypopen(strcat(strcpy(temp,"gzip -9 >"),lfname), 1)))
+    if (len>=4 && !strcmp(fname+len-3, ".gz"))
+        if ((f = mypopen(strcat(strcpy(temp, "gzip -9 >"), lfname), 1)))
         {
             if (ses->mesvar[MSG_LOG])
                 tintin_printf(ses, filemsg, fname);
         }
         else
             tintin_eprintf(ses, "#ERROR: COULDN'T OPEN PIPE: {gzip -9 >%s}.", fname);
-    else if (len>=5 && !strcmp(fname+len-4,".bz2"))
-        if ((f = mypopen(strcat(strcpy(temp,"bzip2 >"),lfname), 1)))
+    else if (len>=5 && !strcmp(fname+len-4, ".bz2"))
+        if ((f = mypopen(strcat(strcpy(temp, "bzip2 >"), lfname), 1)))
         {
             if (ses->mesvar[MSG_LOG])
                 tintin_printf(ses, filemsg, fname);
         }
         else
             tintin_eprintf(ses, "#ERROR: COULDN'T OPEN PIPE: {bzip2 >%s}.", fname);
-    else if (len>=4 && !strcmp(fname+len-3,".xz"))
-        if ((f = mypopen(strcat(strcpy(temp,"xz >"),lfname), 1)))
+    else if (len>=4 && !strcmp(fname+len-3, ".xz"))
+        if ((f = mypopen(strcat(strcpy(temp, "xz >"), lfname), 1)))
         {
             if (ses->mesvar[MSG_LOG])
                 tintin_printf(ses, filemsg, fname);
@@ -430,7 +430,7 @@ void condump_command(const char *arg, struct session *ses)
         arg = get_arg_in_braces(arg, temp, 0);
         substitute_vars(temp, fname);
         substitute_myvars(fname, temp, ses);
-        fh=open_logfile(ses,fname,
+        fh=open_logfile(ses, fname,
             "#DUMPING CONSOLE TO {%s}",
             "#APPENDING CONSOLE DUMP TO {%s}",
             "#PIPING CONSOLE DUMP TO {%s}");
@@ -465,7 +465,7 @@ void log_command(const char *arg, struct session *ses)
             get_arg_in_braces(arg, temp, 1);
             substitute_vars(temp, fname);
             substitute_myvars(fname, temp, ses);
-            ses->logfile=open_logfile(ses,temp,
+            ses->logfile=open_logfile(ses, temp,
                 "#OK. LOGGING TO {%s} .....",
                 "#OK. APPENDING LOG TO {%s} .....",
                 "#OK. PIPING LOG TO {%s} .....");
@@ -512,7 +512,7 @@ void debuglog_command(const char *arg, struct session *ses)
         get_arg_in_braces(arg, temp, 1);
         substitute_vars(temp, fname);
         substitute_myvars(fname, temp, ses);
-            ses->debuglogfile=open_logfile(ses,temp,
+            ses->debuglogfile=open_logfile(ses, temp,
                 "#OK. DEBUGLOG SET TO {%s} .....",
                 "#OK. DEBUGLOG APPENDING TO {%s} .....",
                 "#OK. DEBUGLOG PIPED TO {%s} .....");
@@ -555,7 +555,7 @@ void debuglog(struct session *ses, const char *format, ...)
 struct session* do_read(FILE *myfile, const char *filename, struct session *ses)
 {
     char line[BUFFER_SIZE], buffer[BUFFER_SIZE], lstr[BUFFER_SIZE], *cptr, *eptr;
-    int flag,nl,ignore_lines;
+    int flag, nl, ignore_lines;
     mbstate_t cs;
 
     memset(&cs, 0, sizeof(cs));
@@ -604,7 +604,7 @@ struct session* do_read(FILE *myfile, const char *filename, struct session *ses)
             if (ignore_lines || (strlen(cptr)+strlen(buffer) >= BUFFER_SIZE/2))
             {
                 puts_echoing=1;
-                tintin_eprintf(ses,"#ERROR! LINE %d TOO LONG IN %s, TRUNCATING", nl, filename);
+                tintin_eprintf(ses, "#ERROR! LINE %d TOO LONG IN %s, TRUNCATING", nl, filename);
                 *line=0;
                 ignore_lines=1;
                 puts_echoing=ses->verbose;
@@ -612,22 +612,22 @@ struct session* do_read(FILE *myfile, const char *filename, struct session *ses)
             else
             {
                 if (*cptr &&
-                    !isspace(*(eptr=strchr(buffer,0)-1)) &&
+                    !isspace(*(eptr=strchr(buffer, 0)-1)) &&
                     (*eptr!=';') && (*cptr!=DEFAULT_CLOSE) &&
                     (*cptr!=tintin_char || *eptr!=DEFAULT_OPEN))
-                    strcat(buffer," ");
-                strcat(buffer,cptr);
+                    strcat(buffer, " ");
+                strcat(buffer, cptr);
                 continue;
             }
         }
-        ses = parse_input(buffer,1, ses);
+        ses = parse_input(buffer, 1, ses);
         recursion=0;
         ignore_lines=0;
         strcpy(buffer, line);
     }
     if (*buffer)
     {
-        ses=parse_input(buffer,1,ses);
+        ses=parse_input(buffer, 1, ses);
         recursion=0;
     }
     in_read--;
@@ -691,13 +691,13 @@ struct session* read_command(const char *filename, struct session *ses)
 }
 
 
-#define WFLAG(name,var,org)     if (var!=(org))                                  \
+#define WFLAG(name, var, org)   if (var!=(org))                                 \
                                 {                                               \
                                     sprintf(num, "%d", var);                    \
                                     prepare_for_write(name, num, 0, 0, buffer); \
                                     cfputs(buffer, myfile);                     \
                                 }
-#define SFLAG(name,var,org)     WFLAG(name,ses->var,org)
+#define SFLAG(name, var, org)   WFLAG(name, ses->var, org)
 /**********************/
 /* the #write command */
 /**********************/
@@ -816,7 +816,7 @@ void write_command(const char *filename, struct session *ses)
         if ((rptr=ses->routes[nr]))
             do
             {
-                cfprintf(myfile,(*(rptr->cond))
+                cfprintf(myfile, (*(rptr->cond))
                         ?"%croute {%s} {%s} {%s} %d {%s}\n"
                         :"%croute {%s} {%s} {%s} %d\n",
                         tintin_char,
@@ -850,24 +850,24 @@ void write_command(const char *filename, struct session *ses)
 
 static int route_exists(const char *A, const char *B, const char *path, int dist, const char *cond, struct session *ses)
 {
-    int a,b;
+    int a, b;
     struct routenode *rptr;
 
     for (a=0;a<MAX_LOCATIONS;a++)
-        if (ses->locations[a]&&!strcmp(ses->locations[a],A))
+        if (ses->locations[a]&&!strcmp(ses->locations[a], A))
             break;
     if (a==MAX_LOCATIONS)
         return 0;
     for (b=0;b<MAX_LOCATIONS;b++)
-        if (ses->locations[b]&&!strcmp(ses->locations[b],B))
+        if (ses->locations[b]&&!strcmp(ses->locations[b], B))
             break;
     if (b==MAX_LOCATIONS)
         return 0;
     for (rptr=ses->routes[a];rptr;rptr=rptr->next)
         if ((rptr->dest==b)&&
-                (!strcmp(rptr->path,path))&&
+                (!strcmp(rptr->path, path))&&
                 (rptr->distance==dist)&&
-                (!strcmp(rptr->cond,cond)))
+                (!strcmp(rptr->cond, cond)))
             return 1;
     return 0;
 }
@@ -879,13 +879,13 @@ void writesession_command(const char *filename, struct session *ses)
 {
     FILE *myfile;
     char buffer[BUFFER_SIZE*4], *val, num[32], fname[BUFFER_SIZE], lfname[BUFFER_SIZE];
-    struct listnode *nodeptr,*onptr;
+    struct listnode *nodeptr, *onptr;
     struct routenode *rptr;
     int nr;
 
     if (ses==nullsession)
     {
-        write_command(filename,ses);
+        write_command(filename, ses);
         return;
     }
 
@@ -907,7 +907,7 @@ void writesession_command(const char *filename, struct session *ses)
     }
 
 #undef SFLAG
-#define SFLAG(name,var,dummy) WFLAG(name,ses->var,nullsession->var);
+#define SFLAG(name, var, dummy) WFLAG(name, ses->var, nullsession->var);
     SFLAG("echo", echo, DEFAULT_ECHO);
     SFLAG("ignore", ignore, DEFAULT_IGNORE);
     SFLAG("speedwalk", speedwalk, DEFAULT_SPEEDWALK);
@@ -936,11 +936,11 @@ void writesession_command(const char *filename, struct session *ses)
     if (strcmp(logcs_name(nullsession->logcharset), logcs_name(ses->logcharset)))
         cfprintf(myfile, "%clogcharset {%s}\n", tintin_char, logcs_name(ses->logcharset));
 
-    nodeptr = onptr = hash2list(ses->aliases,"*");
+    nodeptr = onptr = hash2list(ses->aliases, "*");
     while ((nodeptr = nodeptr->next))
     {
         if ((val=get_hash(nullsession->aliases, nodeptr->left)))
-            if (!strcmp(val,nodeptr->right))
+            if (!strcmp(val, nodeptr->right))
                 continue;
         prepare_for_write("alias", nodeptr->left, nodeptr->right, 0, buffer);
         cfputs(buffer, myfile);
@@ -951,8 +951,8 @@ void writesession_command(const char *filename, struct session *ses)
     while ((nodeptr = nodeptr->next))
     {
         if ((onptr=searchnode_list(nullsession->actions, nodeptr->left)))
-            if (!strcmp(onptr->right,nodeptr->right)||
-                    !strcmp(onptr->right,nodeptr->right))
+            if (!strcmp(onptr->right, nodeptr->right)||
+                    !strcmp(onptr->right, nodeptr->right))
                 continue;
         prepare_for_write("action", nodeptr->left, nodeptr->right, nodeptr->pr,
                           buffer);
@@ -963,7 +963,7 @@ void writesession_command(const char *filename, struct session *ses)
     while ((nodeptr = nodeptr->next))
     {
         if ((onptr=searchnode_list(nullsession->antisubs, nodeptr->left)))
-            if (!strcmp(onptr->right,nodeptr->right))
+            if (!strcmp(onptr->right, nodeptr->right))
                 continue;
         prepare_for_write("antisubstitute", nodeptr->left, 0, 0, buffer);
         cfputs(buffer, myfile);
@@ -973,7 +973,7 @@ void writesession_command(const char *filename, struct session *ses)
     while ((nodeptr = nodeptr->next))
     {
         if ((onptr=searchnode_list(nullsession->subs, nodeptr->left)))
-            if (!strcmp(onptr->right,nodeptr->right))
+            if (!strcmp(onptr->right, nodeptr->right))
                 continue;
         if (strcmp( nodeptr->right, EMPTY_LINE))
             prepare_for_write("sub", nodeptr->left, nodeptr->right, 0, buffer);
@@ -982,11 +982,11 @@ void writesession_command(const char *filename, struct session *ses)
         cfputs(buffer, myfile);
     }
 
-    nodeptr = onptr = hash2list(ses->myvars,"*");
+    nodeptr = onptr = hash2list(ses->myvars, "*");
     while ((nodeptr = nodeptr->next))
     {
         if ((val=get_hash(nullsession->myvars, nodeptr->left)))
-            if (!strcmp(val,nodeptr->right))
+            if (!strcmp(val, nodeptr->right))
                 continue;
         prepare_for_write("var", nodeptr->left, nodeptr->right, 0, buffer);
         cfputs(buffer, myfile);
@@ -997,17 +997,17 @@ void writesession_command(const char *filename, struct session *ses)
     while ((nodeptr = nodeptr->next))
     {
         if ((onptr=searchnode_list(nullsession->highs, nodeptr->left)))
-            if (!strcmp(onptr->right,nodeptr->right))
+            if (!strcmp(onptr->right, nodeptr->right))
                 continue;
         prepare_for_write("highlight", nodeptr->right, nodeptr->left, 0, buffer);
         cfputs(buffer, myfile);
     }
 
-    nodeptr = onptr = hash2list(ses->pathdirs,"*");
+    nodeptr = onptr = hash2list(ses->pathdirs, "*");
     while ((nodeptr = nodeptr->next))
     {
         if ((val=get_hash(nullsession->pathdirs, nodeptr->left)))
-            if (!strcmp(val,nodeptr->right))
+            if (!strcmp(val, nodeptr->right))
                 continue;
         prepare_for_write("pathdirs", nodeptr->left, nodeptr->right, 0, buffer);
         cfputs(buffer, myfile);
@@ -1024,7 +1024,7 @@ void writesession_command(const char *filename, struct session *ses)
                                   rptr->distance,
                                   rptr->cond,
                                   nullsession))
-                    cfprintf(myfile,(*(rptr->cond))
+                    cfprintf(myfile, (*(rptr->cond))
                             ?"%croute {%s} {%s} {%s} %d {%s}\n"
                             :"%croute {%s} {%s} {%s} %d\n",
                             tintin_char,
@@ -1035,11 +1035,11 @@ void writesession_command(const char *filename, struct session *ses)
                             rptr->cond);
             } while ((rptr=rptr->next));
 
-    nodeptr = onptr = hash2list(ses->binds,"*");
+    nodeptr = onptr = hash2list(ses->binds, "*");
     while ((nodeptr = nodeptr->next))
     {
         if ((val=get_hash(nullsession->binds, nodeptr->left)))
-            if (!strcmp(val,nodeptr->right))
+            if (!strcmp(val, nodeptr->right))
                 continue;
         prepare_for_write("bind", nodeptr->left, nodeptr->right, 0, buffer);
         cfputs(buffer, myfile);
@@ -1049,7 +1049,7 @@ void writesession_command(const char *filename, struct session *ses)
     for (nr=0;nr<NHOOKS;nr++)
         if (ses->hooks[nr])
             if (!nullsession->hooks[nr] ||
-                strcmp(ses->hooks[nr],nullsession->hooks[nr]))
+                strcmp(ses->hooks[nr], nullsession->hooks[nr]))
                 {
                     prepare_for_write("hook", hook_names[nr], ses->hooks[nr], 0, buffer);
                     cfputs(buffer, myfile);
@@ -1121,7 +1121,7 @@ void textin_command(const char *arg, struct session *ses)
         write_line_mud(lfname, ses);
     }
     fclose(myfile);
-    tintin_printf(ses,"#File read - Success.");
+    tintin_printf(ses, "#File read - Success.");
     prompt(ses);
 }
 

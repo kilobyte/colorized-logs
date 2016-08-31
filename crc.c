@@ -109,6 +109,6 @@ int crc32s(const char *str)
 {
     register unsigned int c=0xffffffff;
     for (;*str;str++)
-        c=UPDC32(*str,c);
+        c=UPDC32(*str, c);
     return c;
 }

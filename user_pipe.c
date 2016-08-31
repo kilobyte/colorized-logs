@@ -26,7 +26,7 @@ static void userpipe_init(void)
 static void userpipe_textout(const char *txt)
 {
     const char *a;
-    char buf[BUFFER_SIZE],*b;
+    char buf[BUFFER_SIZE], *b;
 
     for (a=txt,b=buf; *a; )
         switch (*a)
@@ -37,7 +37,7 @@ static void userpipe_textout(const char *txt)
                 if (color==-1)
                     color=lastcolor;
                 if (tty)
-                    b+=sprintf(b,COLORCODE(color));
+                    b+=sprintf(b, COLORCODE(color));
             }
             else
                 *b++='~';
@@ -48,7 +48,7 @@ static void userpipe_textout(const char *txt)
         default:
             one_utf8_to_mb(&b, &a, &outstate);
         }
-    write_stdout(buf,b-buf);
+    write_stdout(buf, b-buf);
 }
 
 static int userpipe_process_kbd(struct session *ses, WC ch)
@@ -76,7 +76,7 @@ static int userpipe_process_kbd(struct session *ses, WC ch)
 
 static void userpipe_beep(void)
 {
-    write_stdout("\007",1);
+    write_stdout("\007", 1);
     /* should it beep if we're redirected to a pipe? */
 }
 

@@ -17,12 +17,12 @@ static int check_regexp(char *line, char *action, pvars_t *vars, int inside, str
     regmatch_t pmatch[10];
     int i;
 
-    if (regcomp(&preg,action,REG_EXTENDED))
+    if (regcomp(&preg, action, REG_EXTENDED))
     {
-        tintin_eprintf(ses,"#invalid regular expression: {%s}",action);
+        tintin_eprintf(ses, "#invalid regular expression: {%s}", action);
         return 0;
     }
-    if (regexec(&preg,line,vars?10:0,pmatch,inside?REG_NOTBOL:0))
+    if (regexec(&preg, line, vars?10:0, pmatch, inside?REG_NOTBOL:0))
     {
         regfree(&preg);
         return FALSE;
@@ -48,7 +48,7 @@ static int check_regexp(char *line, char *action, pvars_t *vars, int inside, str
 /*********************/
 void grep_command(const char *arg, struct session *ses)
 {
-    pvars_t vars,*lastpvars;
+    pvars_t vars, *lastpvars;
     char left[BUFFER_SIZE], line[BUFFER_SIZE], right[BUFFER_SIZE];
     int flag=0;
 
@@ -58,7 +58,7 @@ void grep_command(const char *arg, struct session *ses)
 
     if (!*left || !*right)
     {
-        tintin_eprintf(ses,"#ERROR: valid syntax is: #grep <pattern> <line> <command> [#else ...]");
+        tintin_eprintf(ses, "#ERROR: valid syntax is: #grep <pattern> <line> <command> [#else ...]");
         return;
     }
 
@@ -66,7 +66,7 @@ void grep_command(const char *arg, struct session *ses)
     {
         lastpvars = pvars;
         pvars = &vars;
-        parse_input(right,1,ses);
+        parse_input(right, 1, ses);
         pvars = lastpvars;
         flag=1;
     }
@@ -77,7 +77,7 @@ void grep_command(const char *arg, struct session *ses)
         {
             get_arg_in_braces(arg, right, 1);
             if (!flag)
-                parse_input(right,1,ses);
+                parse_input(right, 1, ses);
             return;
         }
         if (is_abrev(left + 1, "elif"))
@@ -88,7 +88,7 @@ void grep_command(const char *arg, struct session *ses)
         }
     }
     if (*left)
-        tintin_eprintf(ses,"#ERROR: cruft after #grep: {%s}",left);
+        tintin_eprintf(ses, "#ERROR: cruft after #grep: {%s}", left);
 }
 
 
@@ -104,7 +104,7 @@ int grep_inline(const char *arg, struct session *ses)
 
     if (!*left)
     {
-        tintin_eprintf(ses,"#ERROR: valid syntax is: (#grep <pattern> <line>)");
+        tintin_eprintf(ses, "#ERROR: valid syntax is: (#grep <pattern> <line>)");
         return 0;
     }
     return check_regexp(line, left, 0, 0, ses);

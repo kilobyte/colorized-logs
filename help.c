@@ -23,13 +23,13 @@ static FILE* check_file(char *filestring)
         return 0;
     sprintf(sysfile, "%s %s%s", DEFAULT_EXPANSION_STR, filestring,
         DEFAULT_COMPRESSION_EXT);
-    return mypopen(sysfile,0);
+    return mypopen(sysfile, 0);
 #else
     return (FILE *) fopen(filestring, "r");
 #endif
 }
 
-void help_command(const char *arg,struct session *ses)
+void help_command(const char *arg, struct session *ses)
 {
     FILE *myfile=NULL;
     char text[BUFFER_SIZE], line[BUFFER_SIZE], filestring[BUFFER_SIZE];
@@ -67,7 +67,7 @@ void help_command(const char *arg,struct session *ses)
         tintin_eprintf(0, "#      %s/KBtin_help%s", DATA_PATH,
             DEFAULT_COMPRESSION_EXT);
 #endif
-        tintin_eprintf(0, "#      %s_help%s",tintin_exec,
+        tintin_eprintf(0, "#      %s_help%s", tintin_exec,
             DEFAULT_COMPRESSION_EXT);
         tintin_eprintf(0, "#      %s/KBtin_help%s", getenv("HOME"),
             DEFAULT_COMPRESSION_EXT);
@@ -95,7 +95,7 @@ void help_command(const char *arg,struct session *ses)
                         {
                             *(line + strlen(line) - 1) = '\0';
                             if (*line!='~')
-                                tintin_printf(0,"%s",line);
+                                tintin_printf(0, "%s", line);
                         }
                     }
                 }
@@ -112,11 +112,11 @@ void help_command(const char *arg,struct session *ses)
             {
                 *(line + strlen(line) - 1) = '\0';
                 if (*line!='~')
-                    tintin_printf(0,"%s",line);
+                    tintin_printf(0, "%s", line);
             }
         }
     }
-   tintin_printf(0,"#Sorry, no help on that word.");
+   tintin_printf(0, "#Sorry, no help on that word.");
 end:
     prompt(NULL);
     fclose(myfile);

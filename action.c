@@ -27,34 +27,34 @@ extern int aborting, recursion;
 
 int inActions=0;
 int deletedActions=0;
-const char *match_start,*match_end;
+const char *match_start, *match_end;
 
 extern struct session *if_command(const char *arg, struct session *ses);
 static int check_a_action(const char *line, const char *action, int inside, struct session *ses);
 
-static int kill_action(struct listnode *head,struct listnode *nptr)
+static int kill_action(struct listnode *head, struct listnode *nptr)
 {
     if (inActions)
     {
-        if (!strcmp(nptr->left,K_ACTION_MAGIC))
+        if (!strcmp(nptr->left, K_ACTION_MAGIC))
             return 0;
         SFREE(nptr->left);
         nptr->left=MALLOC(strlen(K_ACTION_MAGIC)+1);
-        strcpy(nptr->left,K_ACTION_MAGIC);
+        strcpy(nptr->left, K_ACTION_MAGIC);
         deletedActions++;
     }
     else
-        deletenode_list(head,nptr);
+        deletenode_list(head, nptr);
     return 1;
 }
 
 static void zap_actions(struct session *ses)
 {
-    struct listnode *l,*ln,*ol;
+    struct listnode *l, *ln, *ol;
 
     ln =(ol=ses->actions)->next;
     while (ln)
-        if (strcmp(ln->left,K_ACTION_MAGIC))
+        if (strcmp(ln->left, K_ACTION_MAGIC))
             ln=(ol=ln)->next;
         else
         {
@@ -67,7 +67,7 @@ static void zap_actions(struct session *ses)
         }
     ln =(ol=ses->prompts)->next;
     while (ln)
-        if (strcmp(ln->left,K_ACTION_MAGIC))
+        if (strcmp(ln->left, K_ACTION_MAGIC))
             ln=(ol=ln)->next;
         else
         {
@@ -102,7 +102,7 @@ void action_command(const char *arg, struct session *ses)
         strcpy(pr, "5"); /* defaults priority to 5 if no value given */
     if (!*left)
     {
-        tintin_printf(ses,"#Defined actions:");
+        tintin_printf(ses, "#Defined actions:");
         show_list_action(myactions);
         prompt(ses);
     }
@@ -110,10 +110,10 @@ void action_command(const char *arg, struct session *ses)
     {
         flag=0;
         while ((myactions = search_node_with_wild(myactions, left)) != NULL)
-            if (strcmp(myactions->left,K_ACTION_MAGIC))
+            if (strcmp(myactions->left, K_ACTION_MAGIC))
                 shownode_list_action(myactions), flag++;
         if (!flag && ses->mesvar[1])
-            tintin_printf(ses,"#That action (%s) is not defined.",left);
+            tintin_printf(ses, "#That action (%s) is not defined.", left);
         prompt(ses);
     }
     else
@@ -122,7 +122,7 @@ void action_command(const char *arg, struct session *ses)
             kill_action(myactions, ln);
         insertnode_list(myactions, left, right, pr, PRIORITY);
         if (ses->mesvar[1])
-            tintin_printf(ses,"#Ok. {%s} now triggers {%s} @ {%s}", left, right, pr);
+            tintin_printf(ses, "#Ok. {%s} now triggers {%s} @ {%s}", left, right, pr);
         acnum++;
     }
 }
@@ -145,7 +145,7 @@ void promptaction_command(const char *arg, struct session *ses)
         strcpy(pr, "5"); /* defaults priority to 5 if no value given */
     if (!*left)
     {
-        tintin_printf(ses,"#Defined prompts:");
+        tintin_printf(ses, "#Defined prompts:");
         show_list_action(myprompts);
         prompt(ses);
     }
@@ -153,10 +153,10 @@ void promptaction_command(const char *arg, struct session *ses)
     {
         flag=0;
         while ((myprompts = search_node_with_wild(myprompts, left)))
-            if (strcmp(myprompts->left,K_ACTION_MAGIC))
+            if (strcmp(myprompts->left, K_ACTION_MAGIC))
                 shownode_list_action(myprompts), flag++;
         if (!flag && ses->mesvar[1])
-            tintin_printf(ses,"#That promptaction (%s) is not defined.",left);
+            tintin_printf(ses, "#That promptaction (%s) is not defined.", left);
         prompt(ses);
     }
     else
@@ -165,7 +165,7 @@ void promptaction_command(const char *arg, struct session *ses)
             kill_action(myprompts, ln);
         insertnode_list(myprompts, left, right, pr, PRIORITY);
         if (ses->mesvar[1])
-            tintin_printf(ses,"#Ok. {%s} now triggers {%s} @ {%s}", left, right, pr);
+            tintin_printf(ses, "#Ok. {%s} now triggers {%s} @ {%s}", left, right, pr);
     }
 }
 
@@ -176,7 +176,7 @@ void promptaction_command(const char *arg, struct session *ses)
 void unaction_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE];
-    struct listnode **ptr,*ln;
+    struct listnode **ptr, *ln;
     int flag;
 
     arg = get_arg_in_braces(arg, left, 1);
@@ -190,16 +190,16 @@ void unaction_command(const char *arg, struct session *ses)
     while (*ptr)
     {
         ln=*ptr;
-        if (strcmp(ln->left,K_ACTION_MAGIC)&&match(left,ln->left))
+        if (strcmp(ln->left, K_ACTION_MAGIC)&&match(left, ln->left))
         {
             flag=1;
             if (ses->mesvar[1])
-                tintin_printf(ses,"#Ok. {%s} is no longer an action.", ln->left);
+                tintin_printf(ses, "#Ok. {%s} is no longer an action.", ln->left);
             SFREE(ln->left);
             if (inActions)
             {
                 ln->left=MALLOC(strlen(K_ACTION_MAGIC)+1);
-                strcpy(ln->left,K_ACTION_MAGIC);
+                strcpy(ln->left, K_ACTION_MAGIC);
                 deletedActions++;
                 ptr=&(*ptr)->next;
             }
@@ -224,7 +224,7 @@ void unaction_command(const char *arg, struct session *ses)
 void unpromptaction_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE];
-    struct listnode **ptr,*ln;
+    struct listnode **ptr, *ln;
     int flag;
 
     arg = get_arg_in_braces(arg, left, 1);
@@ -238,16 +238,16 @@ void unpromptaction_command(const char *arg, struct session *ses)
     while (*ptr)
     {
         ln=*ptr;
-        if (strcmp(ln->left,K_ACTION_MAGIC)&&match(left,ln->left))
+        if (strcmp(ln->left, K_ACTION_MAGIC)&&match(left, ln->left))
         {
             flag=1;
             if (ses->mesvar[1])
-                tintin_printf(ses,"#Ok. {%s} is no longer a promptaction.", ln->left);
+                tintin_printf(ses, "#Ok. {%s} is no longer a promptaction.", ln->left);
             SFREE(ln->left);
             if (inActions)
             {
                 ln->left=MALLOC(strlen(K_ACTION_MAGIC)+1);
-                strcpy(ln->left,K_ACTION_MAGIC);
+                strcpy(ln->left, K_ACTION_MAGIC);
                 deletedActions++;
                 ptr=&(*ptr)->next;
             }
@@ -288,7 +288,7 @@ void substitute_vars(const char *arg, char *result)
     int numands, n;
     char *ptr;
     const char *ARG=arg;
-    int valuelen,len=strlen(arg);
+    int valuelen, len=strlen(arg);
 
     if (!pvars)
     {
@@ -311,7 +311,7 @@ void substitute_vars(const char *arg, char *result)
                     len-=valuelen-numands-1;
                     if (!aborting)
                     {
-                        tintin_eprintf(0,"#ERROR: command+vars too long in {%s}.",ARG);
+                        tintin_eprintf(0, "#ERROR: command+vars too long in {%s}.", ARG);
                         aborting=1;
                     }
                     goto novar1;
@@ -343,7 +343,7 @@ novar1:
                     len-=valuelen-numands-1;
                     if (!aborting)
                     {
-                        tintin_eprintf(0,"#ERROR: command+vars too long in {%s}.",ARG);
+                        tintin_eprintf(0, "#ERROR: command+vars too long in {%s}.", ARG);
                         aborting=1;
                     }
                     goto novar2;
@@ -402,7 +402,7 @@ novar2:
 void check_all_actions(const char *line, struct session *ses)
 {
     struct listnode *ln;
-    pvars_t vars,*lastpvars;
+    pvars_t vars, *lastpvars;
 
     ln = ses->actions;
     inActions=1;
@@ -418,10 +418,10 @@ void check_all_actions(const char *line, struct session *ses)
                 char buffer[BUFFER_SIZE];
 
                 prepare_actionalias(ln->right, buffer, ses);
-                tintin_printf(ses,"[ACTION: %s]", buffer);
+                tintin_printf(ses, "[ACTION: %s]", buffer);
             }
             debuglog(ses, "ACTION: {%s}->{%s}", line, ln->right);
-            parse_input(ln->right,1,ses);
+            parse_input(ln->right, 1, ses);
             recursion=0;
             pvars = lastpvars;
             /*      return;*/    /* KB: we want ALL actions to be done */
@@ -439,7 +439,7 @@ void check_all_actions(const char *line, struct session *ses)
 void check_all_promptactions(const char *line, struct session *ses)
 {
     struct listnode *ln;
-    pvars_t vars,*lastpvars;
+    pvars_t vars, *lastpvars;
 
     ln = ses->prompts;
     inActions=1;
@@ -458,7 +458,7 @@ void check_all_promptactions(const char *line, struct session *ses)
                 tintin_printf(ses, "[PROMPT-ACTION: %s]", buffer);
             }
             debuglog(ses, "PROMPTACTION: {%s}->{%s}", line, ln->right);
-            parse_input(ln->right,1,ses);
+            parse_input(ln->right, 1, ses);
             recursion=0;
             pvars=lastpvars;
             /*      return;*/    /* KB: we want ALL actions to be done */
@@ -475,7 +475,7 @@ void check_all_promptactions(const char *line, struct session *ses)
 /**********************/
 void match_command(const char *arg, struct session *ses)
 {
-    pvars_t vars,*lastpvars;
+    pvars_t vars, *lastpvars;
     char left[BUFFER_SIZE], line[BUFFER_SIZE], right[BUFFER_SIZE],
          temp[BUFFER_SIZE];
     int flag=0;
@@ -488,7 +488,7 @@ void match_command(const char *arg, struct session *ses)
 
     if (!*left || !*right)
     {
-        tintin_eprintf(ses,"#ERROR: valid syntax is: #match <pattern> <line> <command> [#else ...]");
+        tintin_eprintf(ses, "#ERROR: valid syntax is: #match <pattern> <line> <command> [#else ...]");
         return;
     }
 
@@ -496,7 +496,7 @@ void match_command(const char *arg, struct session *ses)
     {
         lastpvars = pvars;
         pvars = &vars;
-        parse_input(right,1,ses);
+        parse_input(right, 1, ses);
         pvars = lastpvars;
         flag=1;
     }
@@ -507,7 +507,7 @@ void match_command(const char *arg, struct session *ses)
         {
             get_arg_in_braces(arg, right, 1);
             if (!flag)
-                parse_input(right,1,ses);
+                parse_input(right, 1, ses);
             return;
         }
         if (is_abrev(left + 1, "elif"))
@@ -518,7 +518,7 @@ void match_command(const char *arg, struct session *ses)
         }
     }
     if (*left)
-        tintin_eprintf(ses,"#ERROR: cruft after #match: {%s}",left);
+        tintin_eprintf(ses, "#ERROR: cruft after #match: {%s}", left);
 }
 
 
@@ -535,7 +535,7 @@ int match_inline(const char *arg, struct session *ses)
 
     if (!*left)
     {
-        tintin_eprintf(ses,"#ERROR: valid syntax is: (#match <pattern> <line>)");
+        tintin_eprintf(ses, "#ERROR: valid syntax is: (#match <pattern> <line>)");
         return 0;
     }
 

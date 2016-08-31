@@ -54,7 +54,7 @@ static int session_exists(char *name)
 void make_name(char *str, const char *basis, int run)
 {
     char *t;
-    int i,j;
+    int i, j;
 
     if (run)
         for (const char *b=basis; (*b=='/')||is7alnum(*b)||(*b=='_'); b++)
@@ -127,7 +127,7 @@ static int list_sessions(const const char *arg, struct session *ses, char *left,
     {
         if (session_exists(left))
         {
-            tintin_eprintf(ses,"#THERE'S A SESSION WITH THAT NAME ALREADY.");
+            tintin_eprintf(ses, "#THERE'S A SESSION WITH THAT NAME ALREADY.");
             prompt(NULL);
             return 1;
         };
@@ -148,14 +148,14 @@ static struct session *socket_session(const char *arg, struct session *ses, int 
     gnutls_session_t sslses;
 #endif
 
-    if (list_sessions(arg,ses,left,right))
+    if (list_sessions(arg, ses, left, right))
         return ses;     /* (!*left)||(!*right) */
 
     strcpy(host, space_out(right));
 
     if (!*host)
     {
-        tintin_eprintf(ses,"#session: HEY! SPECIFY AN ADDRESS WILL YOU?");
+        tintin_eprintf(ses, "#session: HEY! SPECIFY AN ADDRESS WILL YOU?");
         return ses;
     }
 
@@ -210,12 +210,12 @@ struct session *sslsession_command(const char *arg, struct session *ses)
 /********************/
 /* the #run command */
 /********************/
-struct session *run_command(const char *arg,struct session *ses)
+struct session *run_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE], ustr[BUFFER_SIZE];
     int sock;
 
-    if (list_sessions(arg,ses,left,right))
+    if (list_sessions(arg, ses, left, right))
         return ses;     /* (!*left)||(!*right) */
 
     if (!*right)
@@ -350,7 +350,7 @@ static struct session *new_session(const char *name, const char *address, int so
         newsession->routes[i]=0;
         newsession->locations[i]=0;
     };
-    copyroutes(ses,newsession);
+    copyroutes(ses, newsession);
     newsession->last_line[0]=0;
     for (i=0;i<NHOOKS;i++)
         if (ses->hooks[i])
@@ -402,9 +402,9 @@ void cleanup_session(struct session *ses)
     if (ses==activesession)
     {
         user_textout_draft(0, 0);
-        sprintf(buf,"%s\n",ses->last_line);
+        sprintf(buf, "%s\n", ses->last_line);
         convert(&ses->c_io, ses->last_line, buf, -1);
-        do_in_MUD_colors(ses->last_line,0,0);
+        do_in_MUD_colors(ses->last_line, 0, 0);
         user_textout(ses->last_line);
     };
     sprintf(buf, "#SESSION '%s' DIED.", ses->name);
@@ -458,10 +458,10 @@ void seslist(char *result)
                     flag=1;
                 if (isatom(sesptr->name))
                     result+=snprintf(result, BUFFER_SIZE-5+r0-result,
-                        "%s",sesptr->name);
+                        "%s", sesptr->name);
                 else
                     result+=snprintf(result, BUFFER_SIZE-5+r0-result,
-                        "{%s}",sesptr->name);
+                        "{%s}", sesptr->name);
                 if (result-r0>BUFFER_SIZE-10)
                     return; /* pathological session names */
             }

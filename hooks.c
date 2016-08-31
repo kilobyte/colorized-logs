@@ -102,7 +102,7 @@ void unhook_command(const char *arg, struct session *ses)
 
 struct session* do_hook(struct session *ses, int t, const char *data, int blockzap)
 {
-    pvars_t vars,*lastvars;
+    pvars_t vars, *lastvars;
     int i, oldclos=oldclos;
 
     if (!ses->hooks[t])
@@ -127,10 +127,10 @@ struct session* do_hook(struct session *ses, int t, const char *data, int blockz
         char buffer[BUFFER_SIZE];
 
         prepare_actionalias(ses->hooks[t], buffer, ses);
-        tintin_printf(ses,"[HOOK: %s]", buffer);
+        tintin_printf(ses, "[HOOK: %s]", buffer);
     }
     in_alias=1;
-    ses=parse_input(ses->hooks[t],1,ses);
+    ses=parse_input(ses->hooks[t], 1, ses);
     if (blockzap)
         ses->closing=oldclos;
     pvars=lastvars;
@@ -141,8 +141,8 @@ void set_magic_hook(struct session *ses)
 {
     char temp[BUFFER_SIZE];
 
-    sprintf(temp,"%cif {1==%clistlength {$SESSIONS}} %cend",
-        tintin_char,tintin_char,tintin_char);
+    sprintf(temp, "%cif {1==%clistlength {$SESSIONS}} %cend",
+        tintin_char, tintin_char, tintin_char);
     SFREE(ses->hooks[1]);
     ses->hooks[1]=mystrdup(temp);
 }

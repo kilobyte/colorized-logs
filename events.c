@@ -15,7 +15,7 @@ void execute_event(struct eventnode *ev, struct session *ses)
 {
     if (activesession==ses && ses->mesvar[3])
         tintin_printf(ses, "[EVENT: %s]", ev->event);
-    parse_input(ev->event,1,ses);
+    parse_input(ev->event, 1, ses);
     recursion=0;
 }
 
@@ -29,7 +29,7 @@ static void list_events(const char *arg, struct session *ses)
 
     if (!ses)
     {
-        tintin_eprintf(ses,"#NO SESSION ACTIVE => NO EVENTS!");
+        tintin_eprintf(ses, "#NO SESSION ACTIVE => NO EVENTS!");
         return;
     }
 
@@ -39,7 +39,7 @@ static void list_events(const char *arg, struct session *ses)
 
     if (!*left)
     {
-        tintin_printf(ses,"#Defined events:");
+        tintin_printf(ses, "#Defined events:");
         while (ev != NULL)
         {
             tintin_printf(ses, "(%d)\t {%s}", ev->time-ct, ev->event);
@@ -59,7 +59,7 @@ static void list_events(const char *arg, struct session *ses)
             ev = ev->next;
         }
         if (flag == 0)
-            tintin_printf(ses,"#THAT EVENT (%s) IS NOT DEFINED.", left);
+            tintin_printf(ses, "#THAT EVENT (%s) IS NOT DEFINED.", left);
     }
 }
 
@@ -72,7 +72,7 @@ void delay_command(const char *arg, struct session *ses)
 
     if (!ses)
     {
-        tintin_eprintf(ses,"#NO SESSION ACTIVE => NO EVENTS!");
+        tintin_eprintf(ses, "#NO SESSION ACTIVE => NO EVENTS!");
         return;
     }
 
@@ -88,9 +88,9 @@ void delay_command(const char *arg, struct session *ses)
         return;
     }
 
-    if (!*left || (delay=strtol(left,&cptr,10))<0 || *cptr)
+    if (!*left || (delay=strtol(left, &cptr, 10))<0 || *cptr)
     {
-        tintin_eprintf(ses, "#EVENT IGNORED (DELAY={%s}), NEGATIVE DELAY",left);
+        tintin_eprintf(ses, "#EVENT IGNORED (DELAY={%s}), NEGATIVE DELAY", left);
         return;
     }
 
@@ -151,7 +151,7 @@ void undelay_command(const char *arg, struct session *ses)
 
     if (!ses)
     {
-        tintin_eprintf(ses,"#NO SESSION ACTIVE => NO EVENTS!");
+        tintin_eprintf(ses, "#NO SESSION ACTIVE => NO EVENTS!");
         return;
     }
 
@@ -161,7 +161,7 @@ void undelay_command(const char *arg, struct session *ses)
 
     if (!*left)
     {
-        tintin_eprintf(ses,"#ERROR: valid syntax is: #undelay {event pattern}");
+        tintin_eprintf(ses, "#ERROR: valid syntax is: #undelay {event pattern}");
         return;
     }
 
@@ -180,7 +180,7 @@ void undelay_command(const char *arg, struct session *ses)
             ev=&((*ev)->next);
 
     if (flag == 0)
-        tintin_printf(ses,"#THAT EVENT IS NOT DEFINED.");
+        tintin_printf(ses, "#THAT EVENT IS NOT DEFINED.");
 }
 
 void removeevent_command(const char *arg, struct session *ses)

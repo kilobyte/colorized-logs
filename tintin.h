@@ -317,10 +317,10 @@ struct session
     int tickstatus;
     time_t time0;      /* time of last tick (adjusted every tick) */
     time_t time10;
-    int tick_size,pretick;
+    int tick_size, pretick;
     int snoopstatus;
-    FILE *logfile,*debuglogfile;
-    char *logname,*debuglogname;
+    FILE *logfile, *debuglogfile;
+    char *logname, *debuglogname;
     char *loginputprefix, *loginputsuffix;
     int logtype;
     int ignore;
@@ -334,9 +334,9 @@ struct session
     int socket, issocket, naws, ga, gas, last_term_type;
     int server_echo; /* 0=not negotiated, 1=we shouldn't echo, 2=we can echo */
     int more_coming;
-    char last_line[BUFFER_SIZE],telnet_buf[BUFFER_SIZE];
+    char last_line[BUFFER_SIZE], telnet_buf[BUFFER_SIZE];
     int telnet_buflen;
-    int verbose,blank,echo,speedwalk,togglesubs,presub,verbatim;
+    int verbose, blank, echo, speedwalk, togglesubs, presub, verbatim;
     char *partial_line_marker;
     int mesvar[MAX_MESVAR+1];
     time_t idle_since, server_idle_since;
@@ -347,7 +347,7 @@ struct session
     int halfcr_in, halfcr_log; /* \r at the end of a packet */
     int lastintitle;
     char *charset, *logcharset;
-    struct charset_conv c_io,c_log;
+    struct charset_conv c_io, c_log;
 #ifdef HAVE_ZLIB
     int can_mccp;
     z_stream *mccp;
@@ -366,7 +366,7 @@ typedef char pvars_t[10][BUFFER_SIZE];
 # define PROF(x) prof_area=(x)
 # define PROFPUSH(x) {char *prev_prof=prof_area; prof_area=(x)
 # define PROFPOP prof_area=prev_prof;}
-# define PROFSTART struct timeval tvstart,tvend;gettimeofday(&tvstart,0);
+# define PROFSTART struct timeval tvstart, tvend;gettimeofday(&tvstart,0);
 # define PROFEND(x,y) gettimeofday(&tvend,0);(x)+=(tvend.tv_sec-tvstart.tv_sec) \
     *1000000+tvend.tv_usec-tvstart.tv_usec;(y)++;
 #else

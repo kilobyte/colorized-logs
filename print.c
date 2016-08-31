@@ -18,14 +18,14 @@ int puts_echoing = TRUE;
 void tintin_puts(const char *cptr, struct session *ses)
 {
     char line[BUFFER_SIZE];
-    strcpy(line,cptr);
+    strcpy(line, cptr);
     if (ses)
     {
         _=line;
         check_all_actions(line, ses);
         _=0;
     }
-    tintin_printf(ses,line);
+    tintin_printf(ses, line);
 }
 
 /****************************************************/
@@ -36,7 +36,7 @@ void tintin_puts1(const char *cptr, struct session *ses)
 {
     char line[BUFFER_SIZE];
 
-    strcpy(line,cptr);
+    strcpy(line, cptr);
 
     _=line;
     if (!ses->presub && !ses->ignore)
@@ -48,10 +48,10 @@ void tintin_puts1(const char *cptr, struct session *ses)
         check_all_actions(line, ses);
     if (!ses->togglesubs)
         do_all_high(line, ses);
-    if (isnotblank(line,ses->blank))
+    if (isnotblank(line, ses->blank))
         if (ses==activesession)
         {
-            char *cp=strchr(line,0);
+            char *cp=strchr(line, 0);
             if (cp-line>=BUFFER_SIZE-2)
                 cp=line+BUFFER_SIZE-2;
             cp[0]='\n';

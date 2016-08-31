@@ -38,7 +38,7 @@ void setup_prof()
     act.sa_flags=SA_RESTART;
 
     act.sa_handler=(sighandler_t)sigprof;
-    if (sigaction(SIGPROF,&act,0))
+    if (sigaction(SIGPROF, &act, 0))
         syserr("sigaction SIGPROF");
     it.it_interval.tv_sec=0;
     it.it_interval.tv_usec=20000;
@@ -52,10 +52,10 @@ void setup_prof()
 
 void profile_command(struct session *ses, char *arg)
 {
-    struct listnode *hl,*ln;
+    struct listnode *hl, *ln;
 
     tintin_printf(0, "#KBtin profiling data:");
-    hl=hash2list(prof_count,"*");
+    hl=hash2list(prof_count, "*");
     ln=hl;
     while ((ln=ln->next))
         tintin_printf(0, "%-26s %6d", ln->left, (intptr_t)ln->right);

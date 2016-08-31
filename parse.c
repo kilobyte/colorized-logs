@@ -50,7 +50,7 @@ extern const char *prof_area;
 /**************************************************************************/
 /* parse input, check for TINTIN commands and aliases and send to session */
 /**************************************************************************/
-struct session* parse_input(const char *input,int override_verbatim,struct session *ses)
+struct session* parse_input(const char *input, int override_verbatim, struct session *ses)
 {
     char command[BUFFER_SIZE], arg[BUFFER_SIZE], result[BUFFER_SIZE], *al;
     int nspaces;
@@ -92,7 +92,7 @@ struct session* parse_input(const char *input,int override_verbatim,struct sessi
     }
     if ((*input==tintin_char) && is_abrev(input + 1, "verbatim"))
     {
-        verbatim_command("",ses);
+        verbatim_command("", ses);
         debuglog(ses, "%s", input);
         PPOP;
         return ses;
@@ -156,13 +156,13 @@ struct session* parse_input(const char *input,int override_verbatim,struct sessi
                 {
                     if (!aborting)
                     {
-                        tintin_eprintf(ses,"#ERROR: arguments too long in %s %s %s",command,arg,(*pvars)[0]);
+                        tintin_eprintf(ses, "#ERROR: arguments too long in %s %s %s", command, arg, (*pvars)[0]);
                         aborting=1;
                     }
                 }
                 if (*arg)
-                    strcat(arg," ");
-                strcat(arg,(*pvars)[0]);
+                    strcat(arg, " ");
+                strcat(arg, (*pvars)[0]);
             };
             in_alias=0;
         }
@@ -185,26 +185,26 @@ struct session* parse_input(const char *input,int override_verbatim,struct sessi
         else if ((al = get_hash(ses->aliases, command)))
         {
             const char *cpsource;
-            pvars_t vars,*lastpvars;
+            pvars_t vars, *lastpvars;
             int i;
 
             strcpy(vars[0], arg);
 
             PROF("expanding aliases");
             for (i = 1, cpsource = arg; i < 10; i++)
-                cpsource=get_arg_in_braces(cpsource,vars[i],0);
+                cpsource=get_arg_in_braces(cpsource, vars[i], 0);
             in_alias=1;
             lastpvars=pvars;
             pvars=&vars;
             strcpy(arg, al); /* alias can #unalias itself */
-            ses = parse_input(arg,1,ses);
+            ses = parse_input(arg, 1, ses);
             pvars=lastpvars;
         }
         else if (ses->speedwalk && !*arg && is_speedwalk_dirs(command))
             do_speedwalk(command, ses);
         else
 #ifdef GOTO_CHAR
-            if ((*arg)||!do_goto(command,ses))
+            if ((*arg)||!do_goto(command, ses))
 #endif
             {
                 PROF("expanding text being sent");
@@ -283,14 +283,14 @@ static int do_goto(const char *txt, struct session *ses)
 {
     char *ch;
 
-    if (!(ch=strchr(txt,GOTO_CHAR)))
+    if (!(ch=strchr(txt, GOTO_CHAR)))
         return 0;
-    if (ch+1>=strchr(txt,0))
+    if (ch+1>=strchr(txt, 0))
         return 0;
     if (ch!=txt)
     {
         *ch=' ';
-        goto_command(txt,ses);
+        goto_command(txt, ses);
     }
     else
     {
@@ -298,11 +298,11 @@ static int do_goto(const char *txt, struct session *ses)
 
         if (!(ch=get_hash(ses->myvars, "loc"))||(!*ch))
         {
-            tintin_eprintf(ses,"#Cannot goto from $loc, it is not set!");
+            tintin_eprintf(ses, "#Cannot goto from $loc, it is not set!");
             return 1;
         }
-        sprintf(tmp,"{%s} {%s}",ch,txt+1);
-        goto_command(tmp,ses);
+        sprintf(tmp, "{%s} {%s}", ch, txt+1);
+        goto_command(tmp, ses);
     }
     return 1;
 }
@@ -358,7 +358,7 @@ static struct session* parse_tintin_command(const char *command, const char *arg
         }
         else
         {
-            tintin_eprintf(ses,"#Cannot repeat a command a non-positive number of times.");
+            tintin_eprintf(ses, "#Cannot repeat a command a non-positive number of times.");
             prompt(ses);
         }
         PPOP;
@@ -377,7 +377,7 @@ static struct session* parse_tintin_command(const char *command, const char *arg
 
     else
     {
-        tintin_eprintf(ses,"#UNKNOWN TINTIN-COMMAND: [%c%s]",tintin_char,command);
+        tintin_eprintf(ses, "#UNKNOWN TINTIN-COMMAND: [%c%s]", tintin_char, command);
         prompt(ses);
     }
     PPOP;
@@ -530,7 +530,7 @@ static inline const char* get_arg_with_spaces(const char *s, char *arg)
     return s;
 }
 
-const char* get_arg_in_braces(const char *s,char *arg,int flag)
+const char* get_arg_in_braces(const char *s, char *arg, int flag)
 {
     int nest = 0;
     const char *ptr;
@@ -559,7 +559,7 @@ const char* get_arg_in_braces(const char *s,char *arg,int flag)
         *arg++ = *s++;
     }
     if (!*s)
-        tintin_eprintf(0,"#Unmatched braces error! Bad argument is \"%s\".", ptr);
+        tintin_eprintf(0, "#Unmatched braces error! Bad argument is \"%s\".", ptr);
     else
         s++;
     *arg = '\0';
@@ -599,14 +599,14 @@ static inline const char* get_arg_stop_spaces(const char *s, char *arg)
 }
 
 
-const char* get_arg(const char *s,char *arg,int flag,struct session *ses)
+const char* get_arg(const char *s, char *arg, int flag, struct session *ses)
 {
-    const char *cptr=get_arg_in_braces(s,arg,flag);
+    const char *cptr=get_arg_in_braces(s, arg, flag);
     if (*arg)
     {
         char tmp[BUFFER_SIZE];
-        substitute_vars(arg,tmp);
-        substitute_myvars(tmp,arg,ses);
+        substitute_vars(arg, tmp);
+        substitute_myvars(tmp, arg, ses);
     }
     return cptr;
 }
@@ -686,7 +686,7 @@ static void write_com_arg_mud(const char *command, const char *argument, int nsp
                 nsp=1;
             i=BUFFER_SIZE-1-strlen(outtext);
             while (nsp--)
-                strncat(outtext, " ", i),i--;
+                strncat(outtext, " ", i), i--;
             strncat(outtext, argument, i);
         }
         do_out_MUD_colors(outtext);
@@ -703,6 +703,6 @@ void prompt(struct session *ses)
 #if FORCE_PROMPT
     if (ses && !PSEUDO_PROMPT)
         write_line_mud("", ses);
-    else tintin_printf(">",ses);
+    else tintin_printf(">", ses);
 #endif
 }

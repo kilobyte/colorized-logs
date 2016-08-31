@@ -98,7 +98,7 @@ static void insert_history(const char *buffer)
 struct session* parse_history(const char *command, const char *arg, struct session *ses)
 {
     if ((*(command + 1) == '!' || !*(command + 1)) && history[0])
-        return parse_input(history[0],1,ses); /* we're already not in verbatim */
+        return parse_input(history[0], 1, ses); /* we're already not in verbatim */
 
     else if (isadigit(*(command + 1)))
     {
@@ -106,7 +106,7 @@ struct session* parse_history(const char *command, const char *arg, struct sessi
 
         if (i >= 0 && i < HISTORY_SIZE && history[i])
         {
-            return parse_input(history[i],1,ses);
+            return parse_input(history[i], 1, ses);
         }
     }
     tintin_eprintf(ses, "#HISTORY: I DON'T REMEMBER THAT COMMAND.");

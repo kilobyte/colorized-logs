@@ -6,7 +6,7 @@
 #include "protos/net.h"
 #include "protos/utils.h"
 
-extern int LINES,COLS,isstatus;
+extern int LINES, COLS, isstatus;
 extern struct session *sessionlist;
 
 #define EOR 239     /* End of Record */
@@ -109,7 +109,7 @@ static const char *option_names[]=
 
 static void telnet_send_naws(struct session *ses)
 {
-    unsigned char nego[128],*np;
+    unsigned char nego[128], *np;
 
 #define PUTBYTE(b)    if ((b)==255) *np++=255;   *np++=(b);
     np=nego;
@@ -125,7 +125,7 @@ static void telnet_send_naws(struct session *ses)
     write_socket(ses, (char*)nego, np-nego);
 #ifdef TELNET_DEBUG
     {
-        char buf[BUFFER_SIZE],*b=buf;
+        char buf[BUFFER_SIZE], *b=buf;
         int neb=np-nego-2;
         np=nego+3;
         b=buf+sprintf(buf, "IAC SB NAWS ");
@@ -139,7 +139,7 @@ static void telnet_send_naws(struct session *ses)
 
 static void telnet_send_ttype(struct session *ses)
 {
-    char nego[128],*ttype;
+    char nego[128], *ttype;
 
     switch (ses->last_term_type++)
     {
@@ -177,7 +177,7 @@ void telnet_resize_all(void)
             if (sp->issocket)
                 telnet_send_naws(sp);
             else
-                pty_resize(sp->socket,COLS,LINES-1-!!isstatus);
+                pty_resize(sp->socket, COLS, LINES-1-!!isstatus);
         }
 }
 
@@ -186,7 +186,7 @@ int do_telnet_protocol(const char *data, int nb, struct session *ses)
     const unsigned char *cp = (const unsigned char*)data+1;
     unsigned char wt;
     unsigned char answer[3];
-    unsigned char nego[128],*np;
+    unsigned char nego[128], *np;
 
 #define NEXTCH  cp++;                               \
                 if (cp-(unsigned char*)data>=nb)    \
@@ -308,7 +308,7 @@ sbloop:
         nb=cp-(unsigned char*)data;
 #ifdef TELNET_DEBUG
         {
-            char buf[BUFFER_SIZE],*b=buf;
+            char buf[BUFFER_SIZE], *b=buf;
             unsigned int neb=np-nego;
             np=nego;
             b=buf+sprintf(buf, "IAC SB ");
@@ -371,7 +371,7 @@ nego_too_long:
 
 void telnet_write_line(const char *line, struct session *ses, int nl)
 {
-    char outtext[6*BUFFER_SIZE + 2],*out;
+    char outtext[6*BUFFER_SIZE + 2], *out;
 
     out=outtext;
     while (*line)

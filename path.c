@@ -24,7 +24,7 @@ extern struct session *nullsession;
 
 extern char tintin_char;
 extern int pdnum;
-extern int COLS,LINES;
+extern int COLS, LINES;
 
 void mark_command(const char *arg, struct session *ses)
 {
@@ -41,7 +41,7 @@ void mark_command(const char *arg, struct session *ses)
         tintin_puts("#No session active => NO PATH!", ses);
 }
 
-void map_command(const char *arg,struct session *ses)
+void map_command(const char *arg, struct session *ses)
 {
     char cmd[BUFFER_SIZE];
     if (ses!=nullsession)
@@ -51,7 +51,7 @@ void map_command(const char *arg,struct session *ses)
         check_insert_path(cmd, ses, 0);
     }
     else
-        tintin_printf(ses,"#No session active => NO PATH!");
+        tintin_printf(ses, "#No session active => NO PATH!");
 }
 
 void savepath_command(const char *arg, struct session *ses)
@@ -91,13 +91,13 @@ void savepath_command(const char *arg, struct session *ses)
                 }
             }
             strcat(result, "}");
-            parse_input(result,1,ses);
+            parse_input(result, 1, ses);
         }
         else
             tintin_eprintf(ses, "#Syntax: savepath <alias>");
     }
     else
-        tintin_printf(ses,"#No session active => NO PATH TO SAVE!");
+        tintin_printf(ses, "#No session active => NO PATH TO SAVE!");
 }
 
 
@@ -123,7 +123,7 @@ void path2var(char *var, struct session *ses)
             dirlen = strlen(ln->left);
             if (dirlen + len < BUFFER_SIZE - 10)
             {
-                r+=sprintf(r, isatom(ln->left)? "%s" : "{%s}" ,ln->left);
+                r+=sprintf(r, isatom(ln->left)? "%s" : "{%s}" , ln->left);
                 len += dirlen + 1;
                 if (ln->next)
                     *r++=' ';
@@ -138,7 +138,7 @@ void path2var(char *var, struct session *ses)
     }
     else
     {
-        tintin_printf(ses,"#No session active => NO PATH!");
+        tintin_printf(ses, "#No session active => NO PATH!");
         *var=0;
     }
 }
@@ -176,7 +176,7 @@ void path_command(const char *arg, struct session *ses)
         tintin_puts("#No session active => NO PATH!", ses);
 }
 
-void return_command(const char *arg,struct session *ses)
+void return_command(const char *arg, struct session *ses)
 {
     int n;
     char *err, how[BUFFER_SIZE];
@@ -199,11 +199,11 @@ void return_command(const char *arg,struct session *ses)
         if (!*how)
             n=1;
         else
-        if (!strcmp(how,"all") || !strcmp(how,"ALL"))
+        if (!strcmp(how, "all") || !strcmp(how, "ALL"))
             n=ses->path_length;
         else
         {
-            n=strtol(how,&err,10);
+            n=strtol(how, &err, 10);
             if (*err || n<0)
             {
                 tintin_eprintf(ses, "#return [<num>|all], got {%s}", how);
@@ -229,7 +229,7 @@ void return_command(const char *arg,struct session *ses)
                 (ln = ln->next);
             strcpy(command, ln->right);
             return_flag = FALSE; /* temporarily turn off path tracking */
-            parse_input(command,0,ses);
+            parse_input(command, 0, ses);
             return_flag = TRUE;  /* restore path tracking */
             deletenode_list(ses->path, ln);
         }
@@ -281,7 +281,7 @@ void check_insert_path(const char *command, struct session *ses, int force)
         ses->no_return--;
 }
 
-void pathdir_command(const char *arg,struct session *ses)
+void pathdir_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
 
@@ -302,7 +302,7 @@ void pathdir_command(const char *arg,struct session *ses)
         "#That PATHDIR (%s) is not defined.");
 }
 
-void unpathdir_command(const char *arg,struct session *ses)
+void unpathdir_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE];
 

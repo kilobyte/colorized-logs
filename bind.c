@@ -123,7 +123,7 @@ void bind_command(const char *arg, struct session *ses)
     {
         set_hash(ses->binds, left, right);
         if (ses->mesvar[8])
-            tintin_printf(ses,"#Ok. {%s} is now bound to {%s}.", left, right);
+            tintin_printf(ses, "#Ok. {%s} is now bound to {%s}.", left, right);
         bindnum++;
         return;
     }
@@ -153,28 +153,28 @@ void unbind_command(const char *arg, struct session *ses)
 }
 
 
-int find_bind(const char *key, int msg,struct session *ses)
+int find_bind(const char *key, int msg, struct session *ses)
 {
     char *val;
 
-    if ((val=get_hash(ses->binds,key)))
+    if ((val=get_hash(ses->binds, key)))
     {          /* search twice, both for raw key code and key name */
-        parse_input(val,1,ses);
+        parse_input(val, 1, ses);
         recursion=0;
         return 1;
     };
-    if ((val=get_hash(keynames,key)))
+    if ((val=get_hash(keynames, key)))
     {
         key=val;
-        if ((val=get_hash(ses->binds,key)))
+        if ((val=get_hash(ses->binds, key)))
         {
-            parse_input(val,1,ses);
+            parse_input(val, 1, ses);
             recursion=0;
             return 1;
         }
     }
     if (msg)
-        tintin_printf(ses,"#Unbound keycode: %s",key);
+        tintin_printf(ses, "#Unbound keycode: %s", key);
     return 0;
 }
 
@@ -186,7 +186,7 @@ void init_bind(void)
     if (!ui_keyboard)
         return;
     for (n=KEYNAMES;**n;n+=2)
-        set_hash(keynames,n[0],n[1]);
+        set_hash(keynames, n[0], n[1]);
 }
 
 void bind_xterm(int xterm)
@@ -196,10 +196,10 @@ void bind_xterm(int xterm)
     {
     case 1:
         for (n=XTERM_KEYNAMES;**n;n+=2)
-            set_hash(keynames,n[0],n[1]);
+            set_hash(keynames, n[0], n[1]);
         break;
     default:
         for (n=NORMAL_KEYNAMES;**n;n+=2)
-            set_hash(keynames,n[0],n[1]);
+            set_hash(keynames, n[0], n[1]);
     }
 }

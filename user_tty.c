@@ -18,25 +18,25 @@ static mbstate_t outstate;
 #define B_LENGTH CONSOLE_LENGTH
 
 extern char status[BUFFER_SIZE];
-extern int keypad,retain;
+extern int keypad, retain;
 extern struct session *activesession, *lastdraft;
 
-static char out_line[BUFFER_SIZE],b_draft[BUFFER_SIZE];
-static WC k_input[BUFFER_SIZE],kh_input[BUFFER_SIZE],tk_input[BUFFER_SIZE];
+static char out_line[BUFFER_SIZE], b_draft[BUFFER_SIZE];
+static WC k_input[BUFFER_SIZE], kh_input[BUFFER_SIZE], tk_input[BUFFER_SIZE];
 static WC yank_buffer[BUFFER_SIZE];
-static int k_len,k_pos,k_scrl,tk_len,tk_pos,tk_scrl;
-static int o_len,o_pos,o_oldcolor,o_prevcolor,o_draftlen,o_lastprevcolor;
+static int k_len, k_pos, k_scrl, tk_len, tk_pos, tk_scrl;
+static int o_len, o_pos, o_oldcolor, o_prevcolor, o_draftlen, o_lastprevcolor;
 #define o_color color
 #define o_lastcolor lastcolor
-static int b_first,b_current,b_last,b_bottom,b_screenb,o_strongdraft;
+static int b_first, b_current, b_last, b_bottom, b_screenb, o_strongdraft;
 static int b_greeting;
 static char *b_output[B_LENGTH];
-static int scr_len,scr_curs;
+static int scr_len, scr_curs;
 extern int isstatus;
 extern int hist_num;
 extern char *history[HISTORY_SIZE];
 static int in_getpassword;
-extern int margins,marginl,marginr;
+extern int margins, marginl, marginr;
 static struct termios old_tattr;
 static int retaining;
 #ifdef XTERM_TITLE
@@ -46,11 +46,11 @@ static int putty;
 extern int need_resize;
 static int term_width;
 static int dump_color;
-static char term_buf[BUFFER_SIZE*8],*tbuf;
+static char term_buf[BUFFER_SIZE*8], *tbuf;
 
 static void term_commit(void)
 {
-    write_stdout(term_buf,tbuf-term_buf);
+    write_stdout(term_buf, tbuf-term_buf);
     tbuf=term_buf;
 }
 
@@ -60,11 +60,11 @@ static int term_init(void)
 
     if (!(tty=isatty(0)))
     {
-        fprintf(stderr,"Warning! isatty() reports stdin is not a terminal.\n");
+        fprintf(stderr, "Warning! isatty() reports stdin is not a terminal.\n");
         return 0;
     }
 
-    tcgetattr(0,&old_tattr);
+    tcgetattr(0, &old_tattr);
     tattr=old_tattr;
     /* cfmakeraw(&tattr); */
     tattr.c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP
@@ -79,7 +79,7 @@ static int term_init(void)
 #endif
     tattr.c_cc[VMIN]=1;
     tattr.c_cc[VTIME]=0;
-    tcsetattr(0,TCSANOW,&tattr);
+    tcsetattr(0, TCSANOW, &tattr);
 
     return 1;
 }
@@ -87,14 +87,14 @@ static int term_init(void)
 static void term_restore(void)
 {
     tcdrain(0);
-    tcsetattr(0,TCSADRAIN,&old_tattr);
+    tcsetattr(0, TCSADRAIN, &old_tattr);
 }
 
 static void term_getsize(void)
 {
     struct winsize ts;
 
-    if (ioctl(1,TIOCGWINSZ,&ts) || ts.ws_row<=0 || ts.ws_col<=0)
+    if (ioctl(1, TIOCGWINSZ, &ts) || ts.ws_row<=0 || ts.ws_col<=0)
 /*        syserr("ioctl(TIOCGWINSZ)");*/
     {       /* not a terminal or a broken one, let's quietly assume 80x25 */
         LINES=25;
@@ -145,7 +145,7 @@ static void to_wc(WC *d, const char *s)
 {
     WC buf[BUFFER_SIZE];
 
-    utf8_to_wc(buf,s,BUFFER_SIZE-1);
+    utf8_to_wc(buf, s, BUFFER_SIZE-1);
     add_doublewidth(d, buf, BUFFER_SIZE);
 }
 
@@ -154,7 +154,7 @@ static void wrap_wc(char *d, const WC *s)
     WC buf[BUFFER_SIZE];
 
     zap_doublewidth(buf, s, BUFFER_SIZE);
-    wc_to_utf8(d,buf,-1,BUFFER_SIZE);
+    wc_to_utf8(d, buf, -1, BUFFER_SIZE);
 }
 
 static int out_wc(char *d, const WC *s, int n)
@@ -162,36 +162,36 @@ static int out_wc(char *d, const WC *s, int n)
     WC buf[BUFFER_SIZE];
 
     zap_doublewidth(buf, s, n);
-    return wc_to_mb(d,buf,n,OUTSTATE);
+    return wc_to_mb(d, buf, n, OUTSTATE);
 }
 
 #undef TO_WC
 #undef WRAP_WC
 #undef OUT_WC
-#define TO_WC(d,s) to_wc(d,s)
-#define WRAP_WC(d,s) wrap_wc(d,s)
-#define OUT_WC(d,s,n) out_wc(d,s,n)
+#define TO_WC(d, s) to_wc(d, s)
+#define WRAP_WC(d, s) wrap_wc(d, s)
+#define OUT_WC(d, s, n) out_wc(d, s, n)
 
 
 #ifdef USER_DEBUG
 static void debug_info(void)
 {
     char txt[BUFFER_SIZE];
-    sprintf(txt,"b_first=%d, b_current=%d, b_last=%d, b_bottom=%d, b_screenb=%d",
+    sprintf(txt, "b_first=%d, b_current=%d, b_last=%d, b_bottom=%d, b_screenb=%d",
             b_first, b_current, b_last, b_bottom, b_screenb);
-    tbuf+=sprintf(tbuf,"\033[1;%df\033[41;33;1m[\033[41;35m%s\033[41;33m]\033[37;40;0m",
-            COLS-(int)strlen(txt)-1,txt);
-    sprintf(txt,"k_len=%d, strlen(k_input)=%d, k_pos=%d, k_scrl=%d",
+    tbuf+=sprintf(tbuf, "\033[1;%df\033[41;33;1m[\033[41;35m%s\033[41;33m]\033[37;40;0m",
+            COLS-(int)strlen(txt)-1, txt);
+    sprintf(txt, "k_len=%d, strlen(k_input)=%d, k_pos=%d, k_scrl=%d",
             k_len, (int)WClen(k_input), k_pos, k_scrl);
-    tbuf+=sprintf(tbuf,"\033[2;%df\033[41;33;1m[\033[41;35m%s\033[41;33m]\033[37;40;0m",
-            COLS-(int)strlen(txt)-1,txt);
+    tbuf+=sprintf(tbuf, "\033[2;%df\033[41;33;1m[\033[41;35m%s\033[41;33m]\033[37;40;0m",
+            COLS-(int)strlen(txt)-1, txt);
 }
 #endif
 
 
 static void redraw_cursor(void)
 {
-    tbuf+=sprintf(tbuf,"\033[%d;%df",scr_len+1,scr_curs+1);
+    tbuf+=sprintf(tbuf, "\033[%d;%df", scr_len+1, scr_curs+1);
 }
 
 static void countpos(void)
@@ -205,17 +205,17 @@ static void countpos(void)
 /**********************/
 static void redraw_in(void)
 {
-    int i,l,r,k;
+    int i, l, r, k;
 
-    tbuf+=sprintf(tbuf,"\033[%d;1f\033[0;37;4%dm",scr_len+1,INPUT_COLOR);
+    tbuf+=sprintf(tbuf, "\033[%d;1f\033[0;37;4%dm", scr_len+1, INPUT_COLOR);
     if (k_pos<k_scrl)
         k_scrl=k_pos;
     if (k_pos-k_scrl+(k_scrl!=0)>=COLS)
         k_scrl=k_pos+2-COLS;
     if (k_scrl)
-        tbuf+=sprintf(tbuf,"\033[1m<\033[0;4%dm",INPUT_COLOR);
+        tbuf+=sprintf(tbuf, "\033[1m<\033[0;4%dm", INPUT_COLOR);
     if (retaining)
-        tbuf+=sprintf(tbuf,"\033[30;1m");
+        tbuf+=sprintf(tbuf, "\033[30;1m");
     if (in_getpassword)
     {
         l=WClen(&(k_input[k_scrl]));
@@ -240,7 +240,7 @@ static void redraw_in(void)
                 l-=k;
                 k=0;
             };
-            tbuf+=sprintf(tbuf,"\033[4%dm",MARGIN_COLOR);
+            tbuf+=sprintf(tbuf, "\033[4%dm", MARGIN_COLOR);
             k+=marginr-marginl+1;
             if (k>l)
                 k=l;
@@ -250,7 +250,7 @@ static void redraw_in(void)
                 r+=k;
                 l-=k;
             };
-            tbuf+=sprintf(tbuf,"\033[4%dm",INPUT_COLOR);
+            tbuf+=sprintf(tbuf, "\033[4%dm", INPUT_COLOR);
             if (l>0)
                 tbuf+=OUT_WC(tbuf, k_input+r, l);
             k_input[k_len]=0;
@@ -263,9 +263,9 @@ static void redraw_in(void)
         }
     };
     if (k_scrl+COLS-2<k_len)
-        tbuf+=sprintf(tbuf,"\033[1m>");
+        tbuf+=sprintf(tbuf, "\033[1m>");
     else if (!putty)
-        tbuf+=sprintf(tbuf,"\033[0K");
+        tbuf+=sprintf(tbuf, "\033[0K");
     else
         for (i=l;i<COLS-!!k_scrl;i++)
             *tbuf++=' ';
@@ -280,24 +280,24 @@ static void redraw_in(void)
 static void redraw_status(void)
 {
     const char *pos;
-    int c,color=7;
+    int c, color=7;
 
     if (!isstatus)
         return;
-    tbuf+=sprintf(tbuf,"\033[%d;1f\033[0;3%d;4%dm\033[2K\r",LINES,
-                  STATUS_COLOR==COLOR_BLACK?7:0,STATUS_COLOR);
+    tbuf+=sprintf(tbuf, "\033[%d;1f\033[0;3%d;4%dm\033[2K\r", LINES,
+                  STATUS_COLOR==COLOR_BLACK?7:0, STATUS_COLOR);
     if (!*(pos=status))
         goto end;
     while (*pos)
     {
-        if (getcolor(&pos,&color,0))
+        if (getcolor(&pos, &color, 0))
         {
             c=color;
             if (!(c&0x70))
                 c=c|(STATUS_COLOR<<4);
             if ((c&15)==((c>>4)&7))
                 c=(c&0xf0)|(c&7? 0:(STATUS_COLOR==COLOR_BLACK? 7:0));
-            tbuf+=sprintf(tbuf,COLORCODE(c));
+            tbuf+=sprintf(tbuf, COLORCODE(c));
             pos++;
         }
         else
@@ -325,9 +325,9 @@ static void draw_out(const char *pos)
     int c=7;
     while (*pos)
     {
-        if (getcolor(&pos,&c,0))
+        if (getcolor(&pos, &c, 0))
         {
-            tbuf+=sprintf(tbuf,COLORCODE(c));
+            tbuf+=sprintf(tbuf, COLORCODE(c));
             pos++;
             continue;
         }
@@ -348,32 +348,32 @@ static void b_scroll(int b_to)
     int y;
     if (b_screenb==(b_to=(b_to<b_first?b_first:(b_to>b_bottom?b_bottom:b_to))))
         return;
-    tbuf+=sprintf(tbuf,"\033[%d;%df\033[0;37;40m\033[1J",scr_len,COLS);
+    tbuf+=sprintf(tbuf, "\033[%d;%df\033[0;37;40m\033[1J", scr_len, COLS);
     term_commit();
     for (y=b_to-LINES+(isstatus?3:2);y<=b_to;++y)
         if ((y>=1)&&(y>b_first))
         {
-            tbuf+=sprintf(tbuf,"\033[%d;1f",scr_len+y-b_to);
+            tbuf+=sprintf(tbuf, "\033[%d;1f", scr_len+y-b_to);
             if (y<b_current)
                 draw_out(b_output[y%B_LENGTH]);
             else if (y==b_current)
                 draw_out(out_line);
             else
-                tbuf+=sprintf(tbuf,"\033[2K");
+                tbuf+=sprintf(tbuf, "\033[2K");
             term_commit();
         };
-    tbuf+=sprintf(tbuf,"\0337");
+    tbuf+=sprintf(tbuf, "\0337");
 
     if (b_screenb==b_bottom)
     {
         int x;
-        tbuf+=sprintf(tbuf,"\033[%d;1f\033[0;1;37;4%dm\033[2K\033[?25l",
-                scr_len+1,INPUT_COLOR);
+        tbuf+=sprintf(tbuf, "\033[%d;1f\033[0;1;37;4%dm\033[2K\033[?25l",
+                scr_len+1, INPUT_COLOR);
         for (x=0;x<COLS;++x)
             *tbuf++='^';
     }
     else
-        tbuf+=sprintf(tbuf,"\033[?25h");
+        tbuf+=sprintf(tbuf, "\033[?25h");
 #ifdef USER_DEBUG
     debug_info();
 #endif
@@ -389,12 +389,12 @@ static void b_addline(void)
         if (!b_shorten())
             syserr("Out of memory");
     out_line[o_len]=0;
-    strcpy(new,out_line);
+    strcpy(new, out_line);
     if (b_bottom==b_first+B_LENGTH)
         b_shorten();
     b_output[(unsigned int)b_current%(unsigned int)B_LENGTH]=new;
     o_pos=0;
-    o_len=setcolor(out_line,o_oldcolor=o_color);
+    o_len=setcolor(out_line, o_oldcolor=o_color);
     if (b_bottom<++b_current)
     {
         b_bottom=b_current;
@@ -426,16 +426,16 @@ static inline void print_char(const WC ch)
     if (o_pos+dw-1>=COLS)
     {
         out_line[o_len++]='\r';
-        tbuf+=sprintf(tbuf,"\033[0;37;40m\r\n\033[2K");
+        tbuf+=sprintf(tbuf, "\033[0;37;40m\r\n\033[2K");
         b_addline();
     }
     else if (o_oldcolor!=o_color) /* b_addline already updates the color */
     {
         if ((o_color&15)==((o_color&0x70)>>4))
             o_color=(o_color&0xf0)|((o_color&7)?0:7);
-        o_len+=setcolor(out_line+o_len,o_color);
+        o_len+=setcolor(out_line+o_len, o_color);
         if (b_screenb==b_bottom)
-            tbuf+=sprintf(tbuf,COLORCODE(o_color));
+            tbuf+=sprintf(tbuf, COLORCODE(o_color));
         o_oldcolor=o_color;
     };
     clen=wcrtomb(tbuf, ch, &outstate);
@@ -453,10 +453,10 @@ static void form_feed()
 
     for (i=(isstatus?2:1);i<LINES;i++)
     {
-        tbuf+=sprintf(tbuf,"\033[0;37;40m\r\n\033[2K");
+        tbuf+=sprintf(tbuf, "\033[0;37;40m\r\n\033[2K");
         b_addline();
     }
-    tbuf+=sprintf(tbuf,"\033[f");
+    tbuf+=sprintf(tbuf, "\033[f");
 }
 
 static void b_textout(const char *txt)
@@ -464,8 +464,8 @@ static void b_textout(const char *txt)
     wchar_t u[2];
 
     /* warning! terminal output can get discarded! */
-    tbuf+=sprintf(tbuf,"\0338");
-    tbuf+=sprintf(tbuf,COLORCODE(o_color));
+    tbuf+=sprintf(tbuf, "\0338");
+    tbuf+=sprintf(tbuf, COLORCODE(o_color));
     for (;*txt;txt++)
         switch (*txt)
         {
@@ -474,7 +474,7 @@ static void b_textout(const char *txt)
             print_char('[');
             break;
         case 7:
-            write_stdout("\007",1);
+            write_stdout("\007", 1);
             break;
         case 8:
         case 127:
@@ -482,7 +482,7 @@ static void b_textout(const char *txt)
             break;
         case '\n':
             out_line[o_len]=0;
-            tbuf+=sprintf(tbuf,"\033[0;37;40m\r\n\033[2K");
+            tbuf+=sprintf(tbuf, "\033[0;37;40m\r\n\033[2K");
             b_addline();
             break;
         case 9:
@@ -493,7 +493,7 @@ static void b_textout(const char *txt)
             form_feed();
             break;
         case '~':
-            if (getcolor(&txt,&o_color,1))
+            if (getcolor(&txt, &o_color, 1))
             {
                 if (o_color==-1)
                     o_color=o_prevcolor;
@@ -505,7 +505,7 @@ static void b_textout(const char *txt)
             print_char(u[0]);
         };
     out_line[o_len]=0;
-    tbuf+=sprintf(tbuf,"\0337");
+    tbuf+=sprintf(tbuf, "\0337");
 #ifdef USER_DEBUG
     debug_info();
 #endif
@@ -521,21 +521,21 @@ static void b_canceldraft(void)
 {
     if (b_bottom==b_screenb)
     {
-        tbuf+=sprintf(tbuf,"\0338\033[0m\033[2K");
+        tbuf+=sprintf(tbuf, "\0338\033[0m\033[2K");
         while (b_current>b_last)
         {
             b_current--;
-            tbuf+=sprintf(tbuf,"\033[A\033[2K");
+            tbuf+=sprintf(tbuf, "\033[A\033[2K");
             assert(tbuf-term_buf < (ssize_t)sizeof(term_buf));
         };
-        tbuf+=sprintf(tbuf,"\r"COLORCODE(o_lastcolor));
-        tbuf+=sprintf(tbuf,"\0337");
+        tbuf+=sprintf(tbuf, "\r"COLORCODE(o_lastcolor));
+        tbuf+=sprintf(tbuf, "\0337");
     }
     else
         b_current=b_last;
     o_oldcolor=o_color=o_lastcolor;
     o_prevcolor=o_lastprevcolor;
-    o_len=setcolor(out_line,o_lastcolor);
+    o_len=setcolor(out_line, o_lastcolor);
     o_pos=0;
 }
 
@@ -575,9 +575,9 @@ static void usertty_textout_draft(const char *txt, int flag)
         b_canceldraft();
     if (txt)
     {
-        strcpy(b_draft,txt);
+        strcpy(b_draft, txt);
 #ifdef USER_DEBUG
-        strcat(b_draft,"\342\226\240");
+        strcat(b_draft, "\342\226\240");
 #endif
         if ((o_draftlen=strlen(b_draft)))
             b_textout(b_draft);
@@ -629,7 +629,7 @@ static void transpose_chars()
 static int transpose_words()
 {
     WC buf[BUFFER_SIZE];
-    int a1,a2,b1,b2;
+    int a1, a2, b1, b2;
 
     a2=k_pos;
     while (a2<k_len && (k_input[a2]==EMPTY_CHAR || !iswalnum(k_input[a2])))
@@ -725,7 +725,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
             b_scroll(b_bottom);
         {
             sprintf(txt, "ESCO"WCC, (WCI)ch);
-            find_bind(txt,1,ses);
+            find_bind(txt, 1, ses);
         };
         break;
     case TS_ESC_S_S:            /* ESC [ [ */
@@ -734,7 +734,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
             b_scroll(b_bottom);
         {
             sprintf(txt, "ESC[["WCC, (WCI)ch);
-            find_bind(txt,1,ses);
+            find_bind(txt, 1, ses);
         };
         break;
     case TS_ESC_S:              /* ESC [ */
@@ -834,7 +834,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
                     b_scroll(b_bottom);
                 {
                     sprintf(txt, "ESC["WCC, (WCI)ch);
-                    find_bind(txt,1,ses);
+                    find_bind(txt, 1, ses);
                     break;
                 };
             }
@@ -848,13 +848,13 @@ static int usertty_process_kbd(struct session *ses, WC ch)
                 if (b_screenb>b_first+LINES-(isstatus?3:2))
                     b_scroll(b_screenb+(isstatus?3:2)-LINES);
                 else
-                    write_stdout("\007",1);
+                    write_stdout("\007", 1);
                 break;
             case 6:         /* [PgDn] */
                 if (b_screenb<b_bottom)
                     b_scroll(b_screenb+LINES-(isstatus?3:2));
                 else
-                    write_stdout("\007",1);
+                    write_stdout("\007", 1);
                 break;
             key_home:
             case 1:         /* [Home] */
@@ -913,8 +913,8 @@ static int usertty_process_kbd(struct session *ses, WC ch)
                 if (b_bottom!=b_screenb)
                     b_scroll(b_bottom);
                 {
-                    sprintf(txt,"ESC[%i~",val[0]);
-                    find_bind(txt,1,ses);
+                    sprintf(txt, "ESC[%i~", val[0]);
+                    find_bind(txt, 1, ses);
                     break;
                 }
             }
@@ -960,20 +960,20 @@ static int usertty_process_kbd(struct session *ses, WC ch)
 #ifndef BARE_ESC
         state=TS_NORMAL;
         if (ch==127)
-            sprintf(txt,"Alt-Backspace");
+            sprintf(txt, "Alt-Backspace");
         else if ((unsigned char)ch>32)
-            sprintf(txt,"Alt-"WCC,(WCI)ch);
+            sprintf(txt, "Alt-"WCC, (WCI)ch);
         else if (ch==32)
-            sprintf(txt,"Alt-Space");
+            sprintf(txt, "Alt-Space");
         else if (ch==27)
-            sprintf(txt,"Alt-Esc");
+            sprintf(txt, "Alt-Esc");
         else if (ch==13)
-            sprintf(txt,"Alt-Enter");
+            sprintf(txt, "Alt-Enter");
         else if (ch==9)
-            sprintf(txt,"Alt-Tab");
+            sprintf(txt, "Alt-Tab");
         else
-            sprintf(txt,"Alt-^"WCC,(WCI)(ch+64));
-        if (find_bind(txt,0,ses))
+            sprintf(txt, "Alt-^"WCC, (WCI)(ch+64));
+        if (find_bind(txt, 0, ses))
             break;
         switch (ch)
         {
@@ -1153,14 +1153,14 @@ static int usertty_process_kbd(struct session *ses, WC ch)
             redraw_in();
             break;
         default:
-            find_bind(txt,1,ses); /* FIXME: we want just the message */
+            find_bind(txt, 1, ses); /* FIXME: we want just the message */
     }
     break;
 #else
         /* [Esc] */
         state=TS_NORMAL;
         ret(0);
-        tbuf+=sprintf(tbuf,"\0335n");
+        tbuf+=sprintf(tbuf, "\0335n");
         if (b_bottom!=b_screenb)
             b_scroll(b_bottom);
         k_pos=0;
@@ -1194,51 +1194,51 @@ static int usertty_process_kbd(struct session *ses, WC ch)
             }
             redraw_in();
 #if 0
-            tbuf+=sprintf(tbuf,"\033[%d;1f\033[0;37;4%dm\033[2K",scr_len+1,INPUT_COLOR);
+            tbuf+=sprintf(tbuf, "\033[%d;1f\033[0;37;4%dm\033[2K", scr_len+1, INPUT_COLOR);
             if (margins&&(marginl<=COLS))
             {
-                tbuf+=sprintf(tbuf,"\033[%d;%df\033[0;37;4%dm",
-                              scr_len+1,marginl,MARGIN_COLOR);
+                tbuf+=sprintf(tbuf, "\033[%d;%df\033[0;37;4%dm",
+                              scr_len+1, marginl, MARGIN_COLOR);
                 if (marginr<=COLS)
                     i=marginr+1-marginl;
                 else
                     i=COLS+1-marginl;
                 while (i--)
                     *tbuf++=' ';
-                tbuf+=sprintf(tbuf,"\033[1;37;4%dm\033[%d;1f",INPUT_COLOR,scr_len+1);
+                tbuf+=sprintf(tbuf, "\033[1;37;4%dm\033[%d;1f", INPUT_COLOR, scr_len+1);
             };
             scr_curs=0;
             term_commit();
 #endif
             return 1;
         case 1:                 /* ^[A] */
-            if (find_bind("^A",0,ses))
+            if (find_bind("^A", 0, ses))
                 break;
             goto key_home;
         case 2:                 /* ^[B] */
-            if (find_bind("^B",0,ses))
+            if (find_bind("^B", 0, ses))
                 break;
             goto key_cursor_left;
         case 4:                 /* ^[D] */
-            if (find_bind("^D",0,ses))
+            if (find_bind("^D", 0, ses))
                 break;
             if (k_pos||k_len)
                 goto key_del;
             if (ret(0))
                 redraw_in();
             *done_input=0;
-            activesession=zap_command("",ses);
+            activesession=zap_command("", ses);
             return 0;
         case 5:                 /* ^[E] */
-            if (find_bind("^E",0,ses))
+            if (find_bind("^E", 0, ses))
                 break;
             goto key_end;
         case 6:                 /* ^[F] */
-            if (find_bind("^F",0,ses))
+            if (find_bind("^F", 0, ses))
                 break;
             goto key_cursor_right;
         case 8:                 /* ^[H] */
-            if (find_bind("^H",0,ses))
+            if (find_bind("^H", 0, ses))
                 break;
         case 127:               /* [backspace] */
             if (b_bottom!=b_screenb)
@@ -1255,8 +1255,8 @@ static int usertty_process_kbd(struct session *ses, WC ch)
             };
             redraw_in();
             break;
-        case 9:                 /* [Tab],^[I] */
-            if (find_bind("Tab",0,ses)||find_bind("^I",0,ses))
+        case 9:                 /* [Tab], ^[I] */
+            if (find_bind("Tab", 0, ses)||find_bind("^I", 0, ses))
                 break;
             {
                 WC buf[BUFFER_SIZE];
@@ -1272,7 +1272,7 @@ key_alt_tab:
             redraw_in();
             break;
         case 11:                /* ^[K] */
-            if (find_bind("^K",0,ses))
+            if (find_bind("^K", 0, ses))
                 break;
             ret(0);
             if (b_bottom!=b_screenb)
@@ -1287,22 +1287,22 @@ key_alt_tab:
             redraw_in();
             break;
         case 14:                /* ^[N] */
-            if (find_bind("^N",0,ses))
+            if (find_bind("^N", 0, ses))
                 break;
             goto next_history;
         case 16:                /* ^[P] */
-            if (find_bind("^P",0,ses))
+            if (find_bind("^P", 0, ses))
                 break;
             goto prev_history;
 #if 0
         case 17:                /* ^[Q] */
-            if (find_bind("^Q",0,ses))
+            if (find_bind("^Q", 0, ses))
                 break;
             state=TS_VERBATIM;
             break;
 #endif
         case 20:                /* ^[T] */
-            if (find_bind("^T",0,ses))
+            if (find_bind("^T", 0, ses))
                 break;
             ret(1);
             if (b_bottom!=b_screenb)
@@ -1317,7 +1317,7 @@ key_alt_tab:
             redraw_in();
             break;
         case 21:                /* ^[U] */
-            if (find_bind("^U",0,ses))
+            if (find_bind("^U", 0, ses))
                 break;
             ret(0);
             if (b_bottom!=b_screenb)
@@ -1334,13 +1334,13 @@ key_alt_tab:
             break;
 #if 0
         case 22:                /* ^[V] */
-            if (find_bind("^V",0,ses))
+            if (find_bind("^V", 0, ses))
                 break;
             state=TS_VERBATIM;
             break;
 #endif
         case 23:                /* ^[W] */
-            if (find_bind("^W",0,ses))
+            if (find_bind("^W", 0, ses))
                 break;
             ret(0);
             if (b_bottom!=b_screenb)
@@ -1363,7 +1363,7 @@ key_alt_tab:
             redraw_in();
             break;
         case 25:                /* ^[Y] */
-            if (find_bind("^Y",0,ses))
+            if (find_bind("^Y", 0, ses))
                 break;
             ret(0);
             if (b_bottom!=b_screenb)
@@ -1371,7 +1371,7 @@ key_alt_tab:
             if (!*yank_buffer)
             {
                 redraw_in();
-                write_stdout("\007",1);
+                write_stdout("\007", 1);
                 break;
             }
             i=WClen(yank_buffer);
@@ -1396,8 +1396,8 @@ key_alt_tab:
                 b_scroll(b_bottom);
             if ((ch>0)&&(ch<32))
             {
-                sprintf(txt,"^"WCC,(WCI)(ch+64));
-                find_bind(txt,1,ses);
+                sprintf(txt, "^"WCC, (WCI)(ch+64));
+                find_bind(txt, 1, ses);
                 break;
             };
 #if 0
@@ -1405,7 +1405,7 @@ key_alt_tab:
 #endif
             dw=isw2width(ch)?2:1;
             if (k_len+dw==BUFFER_SIZE)
-                write_stdout("\007",1);
+                write_stdout("\007", 1);
             else
             {
                 k_input[k_len+=dw]=0;
@@ -1417,7 +1417,7 @@ key_alt_tab:
                 if ((k_len==k_pos)&&(k_len<COLS))
                 {
                     scr_curs+=dw;
-                    tbuf+=sprintf(tbuf,"\033[0;37;4%dm",
+                    tbuf+=sprintf(tbuf, "\033[0;37;4%dm",
                                   margins&&
                                   (k_len>=marginl)&&(k_len<=marginr)
                                   ? MARGIN_COLOR : INPUT_COLOR);
@@ -1450,8 +1450,8 @@ key_alt_tab:
 static void b_resize()
 {
     char *src[B_LENGTH];
-    int src_lines,i;
-    char line[BUFFER_SIZE],*lp;
+    int src_lines, i;
+    char line[BUFFER_SIZE], *lp;
     int cont;
     int color;
 
@@ -1462,11 +1462,11 @@ static void b_resize()
 
     assert(src_lines<=B_LENGTH);
     if (b_bottom%B_LENGTH > b_first%B_LENGTH)
-        memcpy(src,b_output+(b_first%B_LENGTH),src_lines*sizeof(char*));
+        memcpy(src, b_output+(b_first%B_LENGTH), src_lines*sizeof(char*));
     else
     {
-        memcpy(src,b_output+(b_first%B_LENGTH),(B_LENGTH-b_first%B_LENGTH)*sizeof(char*));
-        memcpy(src+B_LENGTH-b_first%B_LENGTH,b_output,(b_bottom%B_LENGTH)*sizeof(char*));
+        memcpy(src, b_output+(b_first%B_LENGTH), (B_LENGTH-b_first%B_LENGTH)*sizeof(char*));
+        memcpy(src+B_LENGTH-b_first%B_LENGTH, b_output, (b_bottom%B_LENGTH)*sizeof(char*));
     }
     o_len=o_pos=0;
     o_oldcolor=o_prevcolor=o_lastprevcolor=7;
@@ -1480,7 +1480,7 @@ static void b_resize()
     {
         int ncolor=color;
         const char *sp=src[i];
-        if (cont && *sp=='~' && getcolor(&sp,&ncolor,0))
+        if (cont && *sp=='~' && getcolor(&sp, &ncolor, 0))
         {
             /* don't insert extra color codes for continuations */
             if (color!=ncolor)
@@ -1524,15 +1524,15 @@ static void usertty_drawscreen(void)
 
     need_resize=0;
     scr_len=LINES-1-isstatus;
-    tbuf+=sprintf(tbuf,"\033[0;37;40m\033[2J\033[0;37;40m\033[1;%dr\0337",scr_len);
-    tbuf+=sprintf(tbuf,"\033[%d;1f\033[0;37;4%dm",scr_len+1,INPUT_COLOR);
+    tbuf+=sprintf(tbuf, "\033[0;37;40m\033[2J\033[0;37;40m\033[1;%dr\0337", scr_len);
+    tbuf+=sprintf(tbuf, "\033[%d;1f\033[0;37;4%dm", scr_len+1, INPUT_COLOR);
     if (!putty)
-        tbuf+=sprintf(tbuf,"\033[2K");
+        tbuf+=sprintf(tbuf, "\033[2K");
     else
         for (i=0;i<COLS;i++)
             *tbuf++=' ';
     if (isstatus)
-        tbuf+=sprintf(tbuf,"\033[%d;f\033[37;4%dm\033[2K",LINES,STATUS_COLOR);
+        tbuf+=sprintf(tbuf, "\033[%d;f\033[37;4%dm\033[2K", LINES, STATUS_COLOR);
 }
 
 static void usertty_keypad(int k)
@@ -1542,9 +1542,9 @@ static void usertty_keypad(int k)
     otherwise.  It seems to not hurt any other terminal I checked.
     */
     if (k)
-        tbuf+=sprintf(tbuf,"\033=\033[?1051l\033[?1052l\033[?1060l\e[?1061h");
+        tbuf+=sprintf(tbuf, "\033=\033[?1051l\033[?1052l\033[?1060l\e[?1061h");
     else
-        tbuf+=sprintf(tbuf,"\033>\033[?1051l\033[?1052l\033[?1060l\e[?1061l");
+        tbuf+=sprintf(tbuf, "\033>\033[?1051l\033[?1052l\033[?1060l\e[?1061l");
     term_commit();
 }
 
@@ -1576,7 +1576,7 @@ static void usertty_resize(void)
 static void usertty_show_status(void)
 {
     int st;
-    st=!!strcmp(status,EMPTY_LINE);
+    st=!!strcmp(status, EMPTY_LINE);
     if (st!=isstatus)
     {
         isstatus=st;
@@ -1599,11 +1599,11 @@ static void usertty_init(void)
     xterm=getenv("DISPLAY")&&(getenv("WINDOWID")||getenv("KONSOLE_DCOP_SESSION"));
 #endif
     /* screen's support for bg colors is bad */
-    putty=(term=getenv("TERM"))&&!strncasecmp(term,"screen",6);
+    putty=(term=getenv("TERM"))&&!strncasecmp(term, "screen", 6);
     term_getsize();
     term_width=COLS;
     term_init();
-    tbuf=term_buf+sprintf(term_buf,"\033[?7l");
+    tbuf=term_buf+sprintf(term_buf, "\033[?7l");
     usertty_keypad(keypad);
     isstatus=0;
     retaining=0;
@@ -1638,33 +1638,33 @@ static void usertty_init(void)
     o_strongdraft=0;
     o_lastcolor=7;
 
-    tbuf+=sprintf(tbuf,"\033[1;1f\0337");
-    tbuf+=sprintf(tbuf,"\033[>c"); /* query the terminal type */
+    tbuf+=sprintf(tbuf, "\033[1;1f\0337");
+    tbuf+=sprintf(tbuf, "\033[>c"); /* query the terminal type */
 
-    sprintf(done_input,"~12~KB~3~tin ~7~%s by ~11~kilobyte@angband.pl~9~\n",VERSION);
+    sprintf(done_input, "~12~KB~3~tin ~7~%s by ~11~kilobyte@angband.pl~9~\n", VERSION);
     usertty_textout(done_input);
     {
         int i;
         for (i=0;i<COLS;++i)
             done_input[i]='-';
-        sprintf(done_input+COLS,"~7~\n");
+        sprintf(done_input+COLS, "~7~\n");
     };
     usertty_textout(done_input);
 }
 
 static void usertty_done(void)
 {
-    tbuf+=sprintf(tbuf,"\033[1;%dr\033[%d;1f\033[?25h\033[?7h\033[0;37;40m",LINES,LINES);
+    tbuf+=sprintf(tbuf, "\033[1;%dr\033[%d;1f\033[?25h\033[?7h\033[0;37;40m", LINES, LINES);
     usertty_keypad(0);
     term_commit();
     term_restore();
-    write_stdout("\n",1);
+    write_stdout("\n", 1);
 }
 
 static void usertty_pause(void)
 {
     usertty_keypad(0);
-    tbuf+=sprintf(tbuf,"\033[1;%dr\033[%d;1f\033[?25h\033[?7h\033[0;37;40m",LINES,LINES);
+    tbuf+=sprintf(tbuf, "\033[1;%dr\033[%d;1f\033[?25h\033[?7h\033[0;37;40m", LINES, LINES);
     term_commit();
     term_restore();
 }
@@ -1673,7 +1673,7 @@ static void usertty_resume(void)
 {
     term_getsize();
     term_init();
-    tbuf=term_buf+sprintf(term_buf,"\033[?7l");
+    tbuf=term_buf+sprintf(term_buf, "\033[?7l");
     usertty_keypad(keypad);
     usertty_drawscreen();
     b_screenb=-666;     /* impossible value */
@@ -1694,14 +1694,14 @@ static int fwrite_out(FILE *f, const char *pos)
     for (;*pos;pos++)
     {
         if (*pos=='~')
-            if (getcolor(&pos,&c,0))
+            if (getcolor(&pos, &c, 0))
             {
                 if (c==dump_color)
                     continue;
                 if ((c>>4)&7)
-                    s+=sprintf(s,COLORCODE(c));
+                    s+=sprintf(s, COLORCODE(c));
                 else    /* a kludge to make a certain log archive happy */
-                    s+=sprintf(s,"\033[0%s;3%d%sm",((c)&8)?";1":"",colors[(c)&7],attribs[(c)>>7]);
+                    s+=sprintf(s, "\033[0%s;3%d%sm", ((c)&8)?";1":"", colors[(c)&7], attribs[(c)>>7]);
                 dump_color=c;
                 continue;
             };
@@ -1721,9 +1721,9 @@ static void usertty_condump(FILE *f)
     int i;
     dump_color=7;
     for (i = (b_greeting>b_first)?b_greeting:b_first; i<b_current; i++)
-        if (fwrite_out(f,b_output[i%B_LENGTH]))
-            fprintf(f,"\n");
-    fwrite_out(f,out_line);
+        if (fwrite_out(f, b_output[i%B_LENGTH]))
+            fprintf(f, "\n");
+    fwrite_out(f, out_line);
 }
 
 static void usertty_passwd(int x)
@@ -1733,7 +1733,7 @@ static void usertty_passwd(int x)
     redraw_in();
 }
 
-static void usertty_title(const char *fmt,...)
+static void usertty_title(const char *fmt, ...)
 {
 #ifdef XTERM_TITLE
     va_list ap;
@@ -1746,7 +1746,7 @@ static void usertty_title(const char *fmt,...)
         buf[BUFFER_SIZE-3]='>';
     va_end(ap);
 
-    tbuf+=sprintf(tbuf,"\033]0;");
+    tbuf+=sprintf(tbuf, "\033]0;");
     utf8_to_mb(&tbuf, buf, &outstate);
     *tbuf++='\007';
     term_commit();
@@ -1755,7 +1755,7 @@ static void usertty_title(const char *fmt,...)
 
 static void usertty_beep(void)
 {
-    write_stdout("\007",1);
+    write_stdout("\007", 1);
 }
 
 

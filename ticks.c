@@ -20,7 +20,7 @@ int utime0;
 /*********************/
 /* the #tick command */
 /*********************/
-void tick_command(const char *arg,struct session *ses)
+void tick_command(const char *arg, struct session *ses)
 {
     if (ses)
     {
@@ -38,7 +38,7 @@ void tick_command(const char *arg,struct session *ses)
 /************************/
 /* the #tickoff command */
 /************************/
-void tickoff_command(const char *arg,struct session *ses)
+void tickoff_command(const char *arg, struct session *ses)
 {
     if (ses)
     {
@@ -52,7 +52,7 @@ void tickoff_command(const char *arg,struct session *ses)
 /***********************/
 /* the #tickon command */
 /***********************/
-void tickon_command(const char *arg,struct session *ses)
+void tickon_command(const char *arg, struct session *ses)
 {
     if (ses)
     {
@@ -69,12 +69,12 @@ void tickon_command(const char *arg,struct session *ses)
 /*************************/
 /* the #ticksize command */
 /*************************/
-void ticksize_command(const char *arg,struct session *ses)
+void ticksize_command(const char *arg, struct session *ses)
 {
     int x;
     char left[BUFFER_SIZE], *err;
 
-    get_arg(arg,left,1,ses);
+    get_arg(arg, left, 1, ses);
     if (!ses)
     {
         tintin_printf(ses, "#NO SESSION ACTIVE => NO TICKER!");
@@ -85,7 +85,7 @@ void ticksize_command(const char *arg,struct session *ses)
         tintin_eprintf(ses, "#SYNTAX: #ticksize <number>");
         return;
     }
-    x=strtol(left,&err,10);
+    x=strtol(left, &err, 10);
     if (*err || x<1 || x>=0x7fffffff)
     {
         tintin_eprintf(ses, "#TICKSIZE OUT OF RANGE (1..%d)", 0x7fffffff);
@@ -100,12 +100,12 @@ void ticksize_command(const char *arg,struct session *ses)
 /************************/
 /* the #pretick command */
 /************************/
-void pretick_command(const char *arg,struct session *ses)
+void pretick_command(const char *arg, struct session *ses)
 {
     int x;
     char left[BUFFER_SIZE], *err;
 
-    get_arg(arg,left,1,ses);
+    get_arg(arg, left, 1, ses);
     if (!ses)
     {
         tintin_printf(ses, "#NO SESSION ACTIVE => NO TICKER!");
@@ -115,7 +115,7 @@ void pretick_command(const char *arg,struct session *ses)
         x=ses->pretick? 0 : 10;
     else
     {
-        x=strtol(left,&err,10);
+        x=strtol(left, &err, 10);
         if (*err || x<0 || x>=0x7fffffff)
         {
             tintin_eprintf(ses, "#PRETICK VALUE OUT OF RANGE (0..%d)", 0x7fffffff);
@@ -137,7 +137,7 @@ void pretick_command(const char *arg,struct session *ses)
 }
 
 
-void show_pretick_command(const char *arg,struct session *ses)
+void show_pretick_command(const char *arg, struct session *ses)
 {
     pretick_command(arg, ses);
 }
@@ -174,7 +174,7 @@ int check_event(int time, struct session *ses)
     if (tt <= time)
     {
         if (ses->tickstatus)
-            tintin_puts1("#TICK!!!",ses);
+            tintin_puts1("#TICK!!!", ses);
         if (any_closed)
             return -1;
         ses->time0 = time - (time - ses->time0) % ses->tick_size;
@@ -183,7 +183,7 @@ int check_event(int time, struct session *ses)
     else if (ses->tickstatus && tt-ses->pretick==time
             && ses->tick_size>ses->pretick && time!=ses->time10)
     {
-        tintin_puts1("#10 SECONDS TO TICK!!!",ses);
+        tintin_puts1("#10 SECONDS TO TICK!!!", ses);
         if (any_closed)
             return -1;
         ses->time10=time;

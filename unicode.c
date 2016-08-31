@@ -64,7 +64,7 @@ int utf8_to_wc(wchar_t *d, const char *s, int n)
 {
     const char *s0;
     unsigned char ic;
-    int tc,c,cnt,surrogate;
+    int tc, c, cnt, surrogate;
 
 
 #define OUTC(x,y) \
@@ -216,7 +216,7 @@ char translit(wchar_t ch)
 int one_utf8_to_mb(char **d, const char **s, mbstate_t *cs)
 {
     wchar_t u[2];
-    int len,len2;
+    int len, len2;
 
     len=utf8_to_wc(u, *s, 1);
     if (!len)
@@ -268,7 +268,7 @@ void utf8_to_local(char *d, const char *s)
 void local_to_utf8(char *d, const char *s, int maxb, mbstate_t *cs)
 {
     mbstate_t cs0;
-    int len,n;
+    int len, n;
     wchar_t c;
 
     PROFPUSH("conv: local->utf8");
@@ -364,7 +364,7 @@ void cleanup_conv(struct charset_conv *conv)
 void convert(struct charset_conv *conv, char *outbuf, const char *inbuf, int dir)
 {
     wchar_t wbuf[BUFFER_SIZE], *wptr;
-    size_t il,ol;
+    size_t il, ol;
     int cl;
 
 #ifndef NDEBUG

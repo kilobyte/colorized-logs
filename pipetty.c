@@ -66,14 +66,14 @@ int main(int argc, const char **argv)
 
     char buf[16384];
     int r;
-    while ((r=read(master,buf,sizeof(buf)))>0)
+    while ((r=read(master, buf, sizeof(buf)))>0)
     {
-        if (write(1,buf,r)!=r)
+        if (write(1, buf, r)!=r)
             syserr("error writing to stdout");
     }
 
     int ret;
-    if (waitpid(pid,&ret,0)==-1)
+    if (waitpid(pid, &ret, 0)==-1)
         syserr("waitpid failed");
     return WIFEXITED(ret)?WEXITSTATUS(ret):WTERMSIG(ret)+128;
 }

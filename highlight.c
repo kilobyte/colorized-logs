@@ -17,37 +17,37 @@ static struct colordef
     char *name;
 } cNames[]=
     {
-        { 0,"black"},
-        { 1,"blue"},
-        { 2,"green"},
-        { 3,"cyan"},
-        { 4,"red"},
-        { 5,"magenta"},
-        { 5,"violet"},
-        { 6,"brown"},
-        { 7,"grey"},
-        { 7,"gray"},
-        { 7,"normal"},
-        { 8,"faint"},
-        { 8,"charcoal"},
-        { 8,"dark"},
-        { 9,"light blue"},
-        {10,"light green"},
-        {11,"light cyan"},
-        {11,"aqua"},
-        {12,"light red"},
-        {13,"light magenta"},
-        {13,"pink"},
-        {14,"yellow"},
-        {15,"white"},
-        {15,"bold"},
-        {112,"inverse"},
-        {112,"reverse"},
-        {135,"blink"},
-        {519,"underline"},
-        {519,"underlined"},
-        {263,"italic"},
-        {-1,""},
+        { 0, "black"},
+        { 1, "blue"},
+        { 2, "green"},
+        { 3, "cyan"},
+        { 4, "red"},
+        { 5, "magenta"},
+        { 5, "violet"},
+        { 6, "brown"},
+        { 7, "grey"},
+        { 7, "gray"},
+        { 7, "normal"},
+        { 8, "faint"},
+        { 8, "charcoal"},
+        { 8, "dark"},
+        { 9, "light blue"},
+        {10, "light green"},
+        {11, "light cyan"},
+        {11, "aqua"},
+        {12, "light red"},
+        {13, "light magenta"},
+        {13, "pink"},
+        {14, "yellow"},
+        {15, "white"},
+        {15, "bold"},
+        {112, "inverse"},
+        {112, "reverse"},
+        {135, "blink"},
+        {519, "underline"},
+        {519, "underlined"},
+        {263, "italic"},
+        {-1, ""},
     };
 
 static int highpattern[64];
@@ -63,16 +63,16 @@ static int get_high_num(const char *hig)
         return -1;
     if (isdigit(*hig))
     {
-        const char *sl=strchr(hig,'/');
+        const char *sl=strchr(hig, '/');
         if (!sl)
-            sl=strchr(hig,0);
+            sl=strchr(hig, 0);
         sprintf(tmp, "~%.*s~", (int)(sl-hig), hig);
         sl=tmp;
-        if (getcolor(&sl,&highcolor,0))
+        if (getcolor(&sl, &highcolor, 0))
             return highcolor;
     };
     for (code=0;cNames[code].num!=-1;code++)
-        if (is_abrev(hig,cNames[code].name))
+        if (is_abrev(hig, cNames[code].name))
             return highcolor=cNames[code].num;
     return -1;
 }
@@ -87,7 +87,7 @@ static int get_high(const char *hig)
         highcolor=7;
         if ((highpattern[nhighpattern++]=get_high_num(hig))==-1)
             return 0;
-        if ((hig=strchr(hig,'/')))
+        if ((hig=strchr(hig, '/')))
             hig++;
         if (nhighpattern==64)
             return 1;
@@ -116,7 +116,7 @@ void highlight_command(const char *arg, struct session *ses)
     substitute_myvars(tmp3, right, ses);
     if (!*left)
     {
-        tintin_printf(ses,"#THESE HIGHLIGHTS HAVE BEEN DEFINED:");
+        tintin_printf(ses, "#THESE HIGHLIGHTS HAVE BEEN DEFINED:");
         show_list(myhighs);
         prompt(ses);
     }
@@ -141,7 +141,7 @@ void highlight_command(const char *arg, struct session *ses)
             if (!*right)
             {
                 if (ses->mesvar[4] || ses->mesvar[11])
-                    tintin_eprintf(ses,"#Highlight WHAT?");
+                    tintin_eprintf(ses, "#Highlight WHAT?");
                 return;
             }
             if ((ln = searchnode_list(myhighs, right)) != NULL)
@@ -149,7 +149,7 @@ void highlight_command(const char *arg, struct session *ses)
             insertnode_list(myhighs, right, left, get_fastener(right, tmp1), LENGTH);
             hinum++;
             if (ses->mesvar[4])
-                tintin_printf(ses,"#Ok. {%s} is now highlighted %s.", right, left);
+                tintin_printf(ses, "#Ok. {%s} is now highlighted %s.", right, left);
         }
         else
         {
@@ -157,30 +157,30 @@ void highlight_command(const char *arg, struct session *ses)
 
             if (!puts_echoing && ses->mesvar[11])
             {
-                tintin_eprintf(ses,"#Invalid highlighting color: {%s}",left);
+                tintin_eprintf(ses, "#Invalid highlighting color: {%s}", left);
                 return;
             }
 
-            if (strcmp(left,"list"))
-                tintin_printf(ses,"#Invalid highlighting color, valid colors are:");
+            if (strcmp(left, "list"))
+                tintin_printf(ses, "#Invalid highlighting color, valid colors are:");
             tmp3[0]=0;
             tmp1=tmp3;
             for (i=0;cNames[i].num!=-1;i++)
             {
-                sprintf(left,"%s~7~,",cNames[i].name);
+                sprintf(left, "%s~7~, ", cNames[i].name);
                 if (cNames[i].num)
-                    tmp1+=sprintf(tmp1,"~%i~%-20s ",cNames[i].num,left);
+                    tmp1+=sprintf(tmp1, "~%i~%-20s ", cNames[i].num, left);
                 else
-                    tmp1+=sprintf(tmp1,"~7~%-20s ",left);
+                    tmp1+=sprintf(tmp1, "~7~%-20s ", left);
                 if ((i%4)==3)
                 {
-                    tintin_printf(ses,"%s",tmp3);
+                    tintin_printf(ses, "%s", tmp3);
                     tmp3[0]=0;
                     tmp1=tmp3;
                 }
             };
-            strcpy(tmp1,"or 0..15:0..7:0..1");
-            tintin_printf(ses,"%s",tmp3);
+            strcpy(tmp1, "or 0..15:0..7:0..1");
+            tintin_printf(ses, "%s", tmp3);
         }
 
 
@@ -216,14 +216,14 @@ void unhighlight_command(const char *arg, struct session *ses)
 }
 
 
-void do_all_high(char *line,struct session *ses)
+void do_all_high(char *line, struct session *ses)
 {
     char text[BUFFER_SIZE];
     int attr[BUFFER_SIZE];
-    int c,d;
-    char *pos,*txt;
+    int c, d;
+    char *pos, *txt;
     int *atr;
-    int l,r,i;
+    int l, r, i;
     struct listnode *ln;
 
     c=-1;
@@ -248,7 +248,7 @@ color:
     while ((ln=ln->next))
     {
         txt=text;
-        while (*txt&&find(txt,ln->left,&l,&r,ln->pr))
+        while (*txt&&find(txt, ln->left, &l, &r, ln->pr))
         {
             if (!get_high(ln->right))
                 break;
@@ -270,17 +270,17 @@ color:
     while (*txt)
     {
         if (c!=*atr)
-            pos+=setcolor(pos,c=*atr);
+            pos+=setcolor(pos, c=*atr);
         *pos++=*txt++;
         atr++;
         if (pos - line > BUFFER_SIZE - 20)
         {
             while (*txt)
-                txt++,atr++;
+                txt++, atr++;
             break;
         }
     };
     if (c!=*atr)
-        pos+=setcolor(pos,c=*atr);
+        pos+=setcolor(pos, c=*atr);
     *pos=0;
 }

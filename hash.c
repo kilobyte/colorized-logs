@@ -60,7 +60,7 @@ static inline void add_hash_value(struct hashtable *h, char *left, char *right)
 
 static inline void rehash(struct hashtable *h, int s)
 {
-    int i,gs;
+    int i, gs;
     struct hashentry *gt;
 
     gt=h->tab;
@@ -83,7 +83,7 @@ static inline void rehash(struct hashtable *h, int s)
 /********************************************************************/
 void set_hash(struct hashtable *h, const char *key, const char *value)
 {
-    int i,j;
+    int i, j;
 
     if (h->nent*5 > h->size*4)
         rehash(h, h->nval*3);
@@ -116,7 +116,7 @@ void set_hash(struct hashtable *h, const char *key, const char *value)
 
 void set_hash_nostring(struct hashtable *h, const char *key, char *value)
 {
-    int i,j;
+    int i, j;
 
     if (h->nent*5 > h->size*4)
         rehash(h, h->nval*3);
@@ -210,7 +210,7 @@ static struct listnode* merge_lists(struct listnode* a, struct listnode* b)
         return b;
     if (!b)
         return a;
-    if (strcmp(a->left,b->left)<=0)
+    if (strcmp(a->left, b->left)<=0)
     {
         c0=c=a;
         a=a->next;
@@ -221,7 +221,7 @@ static struct listnode* merge_lists(struct listnode* a, struct listnode* b)
         b=b->next;
     }
     while (a && b)
-        if (strcmp(a->left,b->left)<=0)
+        if (strcmp(a->left, b->left)<=0)
         {
             c->next=a;
             c=a;
@@ -252,7 +252,7 @@ struct listnode* hash2list(struct hashtable *h, const char *pat)
 #define NBITS ((int)sizeof(void*)*8)
     struct listnode *p[NBITS];     /* polynomial sort, O(n*log(n)) */
     struct listnode *l;
-    int i,j;
+    int i, j;
 
     for (j=0;j<NBITS;j++)
         p[j]=0;

@@ -20,103 +20,103 @@ static void print_stty(int fd)
 {
     struct termios ta;
     struct winsize ws;
-    char buf[BUFFER_SIZE],*bptr;
-#define battr(c,a,b) bptr+=sprintf(bptr," %s%s~7~",(ta.c_##c&a)?"~9~":"~2~-~4~",b,a);
+    char buf[BUFFER_SIZE], *bptr;
+#define battr(c, a, b) bptr+=sprintf(bptr, " %s%s~7~", (ta.c_##c&a)?"~9~":"~2~-~4~", b, a);
 
-    memset(&ta,0,sizeof(ta));
-    memset(&ws,0,sizeof(ws));
-    tintin_printf(0, "~7~pty attributes (fd=%d):",fd);
+    memset(&ta, 0, sizeof(ta));
+    memset(&ws, 0, sizeof(ws));
+    tintin_printf(0, "~7~pty attributes (fd=%d):", fd);
     if (tcgetattr(fd, &ta))
-        tintin_printf(0," attrs: unknown");
+        tintin_printf(0, " attrs: unknown");
     else
     {
-        tintin_printf(0," attrs: cflag=~3~%x~7~, iflag=~3~%x~7~, oflag=~3~%x~7~, lflag=~3~%x~7~",
+        tintin_printf(0, " attrs: cflag=~3~%x~7~, iflag=~3~%x~7~, oflag=~3~%x~7~, lflag=~3~%x~7~",
             ta.c_cflag, ta.c_iflag, ta.c_oflag, ta.c_lflag);
-        bptr=buf+sprintf(buf," ~3~[%x]~7~:",ta.c_cflag);
-        battr(cflag,PARENB,"parenb");
-        battr(cflag,PARODD,"parodd");
-        battr(cflag,CS8,"cs8");
-        battr(cflag,HUPCL,"hupcl");
-        battr(cflag,CSTOPB,"cstopb");
-        battr(cflag,CREAD,"cread");
-        battr(cflag,CLOCAL,"clocal");
+        bptr=buf+sprintf(buf, " ~3~[%x]~7~:", ta.c_cflag);
+        battr(cflag, PARENB, "parenb");
+        battr(cflag, PARODD, "parodd");
+        battr(cflag, CS8, "cs8");
+        battr(cflag, HUPCL, "hupcl");
+        battr(cflag, CSTOPB, "cstopb");
+        battr(cflag, CREAD, "cread");
+        battr(cflag, CLOCAL, "clocal");
 #ifdef CRTSCTS
-        battr(cflag,CRTSCTS,"crtscts");
+        battr(cflag, CRTSCTS, "crtscts");
 #endif
-        tintin_printf(0,"%s",buf);
-        bptr=buf+sprintf(buf," ~3~[%x]~7~:",ta.c_iflag);
-        battr(iflag,IGNBRK,"ignbrk");
-        battr(iflag,BRKINT,"brkint");
-        battr(iflag,IGNPAR,"ignpar");
-        battr(iflag,PARMRK,"parmrk");
-        battr(iflag,INPCK,"inpck");
-        battr(iflag,ISTRIP,"istrip");
-        battr(iflag,INLCR,"inlcr");
-        battr(iflag,IGNCR,"igncr");
-        battr(iflag,ICRNL,"icrnl");
-        battr(iflag,IXON,"ixon");
-        battr(iflag,IXOFF,"ixoff");
+        tintin_printf(0, "%s", buf);
+        bptr=buf+sprintf(buf, " ~3~[%x]~7~:", ta.c_iflag);
+        battr(iflag, IGNBRK, "ignbrk");
+        battr(iflag, BRKINT, "brkint");
+        battr(iflag, IGNPAR, "ignpar");
+        battr(iflag, PARMRK, "parmrk");
+        battr(iflag, INPCK, "inpck");
+        battr(iflag, ISTRIP, "istrip");
+        battr(iflag, INLCR, "inlcr");
+        battr(iflag, IGNCR, "igncr");
+        battr(iflag, ICRNL, "icrnl");
+        battr(iflag, IXON, "ixon");
+        battr(iflag, IXOFF, "ixoff");
 #ifdef IUCLC
-        battr(iflag,IUCLC,"iuclc");
+        battr(iflag, IUCLC, "iuclc");
 #endif
 #ifdef IXANY
-        battr(iflag,IXANY,"ixany");
+        battr(iflag, IXANY, "ixany");
 #endif
 #ifdef IMAXBEL
-        battr(iflag,IMAXBEL,"imaxbel");
+        battr(iflag, IMAXBEL, "imaxbel");
 #endif
-        tintin_printf(0,"%s",buf);
-        bptr=buf+sprintf(buf," ~3~[%x]~7~:",ta.c_oflag);
-        battr(oflag,OPOST,"opost");
-        battr(oflag,OLCUC,"olcuc");
-        battr(oflag,OCRNL,"ocrnl");
-        battr(oflag,ONLCR,"onlcr");
-        battr(oflag,ONOCR,"onocr");
-        battr(oflag,ONLRET,"onlret");
+        tintin_printf(0, "%s", buf);
+        bptr=buf+sprintf(buf, " ~3~[%x]~7~:", ta.c_oflag);
+        battr(oflag, OPOST, "opost");
+        battr(oflag, OLCUC, "olcuc");
+        battr(oflag, OCRNL, "ocrnl");
+        battr(oflag, ONLCR, "onlcr");
+        battr(oflag, ONOCR, "onocr");
+        battr(oflag, ONLRET, "onlret");
 #ifdef OFILL
-        battr(oflag,OFILL,"ofill");
+        battr(oflag, OFILL, "ofill");
 #endif
 #ifdef OFDEL
-        battr(oflag,OFDEL,"ofdel");
+        battr(oflag, OFDEL, "ofdel");
 #endif
 /*
-        battr(oflag,NL0,"nl0");
-        battr(oflag,CR0,"cr0");
-        battr(oflag,TAB0,"tab0");
-        battr(oflag,BS0,"bs0");
-        battr(oflag,VT0,"vt0");
-        battr(oflag,FF0,"ff0");
+        battr(oflag, NL0, "nl0");
+        battr(oflag, CR0, "cr0");
+        battr(oflag, TAB0, "tab0");
+        battr(oflag, BS0, "bs0");
+        battr(oflag, VT0, "vt0");
+        battr(oflag, FF0, "ff0");
 */
-        tintin_printf(0,"%s",buf);
-        bptr=buf+sprintf(buf," ~3~[%x]~7~:",ta.c_lflag);
-        battr(lflag,ISIG,"isig");
-        battr(lflag,ICANON,"icanon");
-        battr(lflag,IEXTEN,"iexten");
-        battr(lflag,ECHO,"echo");
-        battr(lflag,ECHOE,"echoe");
-        battr(lflag,ECHOK,"echok");
-        battr(lflag,ECHONL,"echonl");
-        battr(lflag,NOFLSH,"noflsh");
+        tintin_printf(0, "%s", buf);
+        bptr=buf+sprintf(buf, " ~3~[%x]~7~:", ta.c_lflag);
+        battr(lflag, ISIG, "isig");
+        battr(lflag, ICANON, "icanon");
+        battr(lflag, IEXTEN, "iexten");
+        battr(lflag, ECHO, "echo");
+        battr(lflag, ECHOE, "echoe");
+        battr(lflag, ECHOK, "echok");
+        battr(lflag, ECHONL, "echonl");
+        battr(lflag, NOFLSH, "noflsh");
 #ifdef XCASE
-        battr(lflag,XCASE,"xcase");
+        battr(lflag, XCASE, "xcase");
 #endif
-        battr(lflag,TOSTOP,"tostop");
+        battr(lflag, TOSTOP, "tostop");
 #ifdef ECHOPRT
-        battr(lflag,ECHOPRT,"echoprt");
+        battr(lflag, ECHOPRT, "echoprt");
 #endif
 #ifdef ECHOCTL
-        battr(lflag,ECHOCTL,"echoctl");
+        battr(lflag, ECHOCTL, "echoctl");
 #endif
 #ifdef ECHOKE
-        battr(lflag,ECHOKE,"echoke");
+        battr(lflag, ECHOKE, "echoke");
 #endif
-        tintin_printf(0,"%s",buf);
+        tintin_printf(0, "%s", buf);
     }
-    if (ioctl(fd,TIOCGWINSZ,&ws))
-        tintin_printf(0," window size: unknown");
+    if (ioctl(fd, TIOCGWINSZ, &ws))
+        tintin_printf(0, " window size: unknown");
     else
-        tintin_printf(0," window size: %dx%d",
-            ws.ws_col,ws.ws_row);
+        tintin_printf(0, " window size: %dx%d",
+            ws.ws_col, ws.ws_row);
 }
 
 void termdebug_command(const char *arg, struct session *ses)
@@ -126,7 +126,7 @@ void termdebug_command(const char *arg, struct session *ses)
 #endif
 
 
-void pty_resize(int fd,int sx,int sy)
+void pty_resize(int fd, int sx, int sy)
 {
     struct winsize ws;
 
@@ -136,7 +136,7 @@ void pty_resize(int fd,int sx,int sy)
         ws.ws_col=sx;
         ws.ws_xpixel=0;
         ws.ws_ypixel=0;
-        ioctl(fd,TIOCSWINSZ,&ws);
+        ioctl(fd, TIOCSWINSZ, &ws);
     }
 }
 
@@ -161,9 +161,9 @@ int run(const char *command, int sx, int sy, const char *term)
     ws.ws_col=sx;
     ws.ws_xpixel=0;
     ws.ws_ypixel=0;
-    res = forkpty(&fd,0,0,(sy>0 && sx>0)?&ws:0);
+    res = forkpty(&fd, 0, 0, (sy>0 && sx>0)?&ws:0);
 #else
-    res = forkpty(&fd,0,0,0);
+    res = forkpty(&fd, 0, 0, 0);
 #endif
 
 #if defined(__FreeBSD_kernel__) && defined(__GLIBC__)
@@ -192,9 +192,9 @@ int run(const char *command, int sx, int sy, const char *term)
             argv[2]=cmd;
             argv[3]=0;
             if (term)
-                setenv("TERM",term,1); /* TERM=KBtin.  Or should we lie? */
-            execve("/bin/sh",argv,environ);
-            fprintf(stderr,"#ERROR: Couldn't exec `%s'\n",command);
+                setenv("TERM", term, 1); /* TERM=KBtin.  Or should we lie? */
+            execve("/bin/sh", argv, environ);
+            fprintf(stderr, "#ERROR: Couldn't exec `%s'\n", command);
             exit(127);
         }
     default:
@@ -223,9 +223,9 @@ FILE* mypopen(const char *command, int wr)
             {
                 close(p[0]);
                 close(0);
-                open("/dev/null",O_RDONLY);
-                dup2(p[1],1);
-                dup2(p[1],2);
+                open("/dev/null", O_RDONLY);
+                dup2(p[1], 1);
+                dup2(p[1], 2);
                 close(p[1]);
             }
             else
@@ -233,9 +233,9 @@ FILE* mypopen(const char *command, int wr)
                 close(p[1]);
                 close(1);
                 close(2);
-                open("/dev/null",O_WRONLY);
-                dup2(1,2);
-                dup2(p[0],0);
+                open("/dev/null", O_WRONLY);
+                dup2(1, 2);
+                dup2(p[0], 0);
                 close(p[0]);
                 signal(SIGINT, SIG_IGN);
                 signal(SIGHUP, SIG_IGN);
@@ -246,8 +246,8 @@ FILE* mypopen(const char *command, int wr)
             argv[1]="-c";
             argv[2]=cmd;
             argv[3]=0;
-            execve("/bin/sh",argv,environ);
-            fprintf(stderr,"#ERROR: Couldn't exec `%s'\n",command);
+            execve("/bin/sh", argv, environ);
+            fprintf(stderr, "#ERROR: Couldn't exec `%s'\n", command);
             exit(127);
         }
     default:

@@ -101,12 +101,12 @@ void kill_all(struct session *ses, int mode)
             kill_hash(ses->pathdirs);
             ses->pathdirs = init_hash();
             kill_routes(ses);
-            tintin_printf(ses,"#Lists cleared.");
+            tintin_printf(ses, "#Lists cleared.");
             prompt(NULL);
         }
         else
         {       /* can't happen */
-            tintin_printf(0,"#Can't clean the common lists (yet).");
+            tintin_printf(0, "#Can't clean the common lists (yet).");
             prompt(NULL);
         }
         break;
@@ -132,7 +132,7 @@ void kill_all(struct session *ses, int mode)
 /***********************************************/
 /* make a copy of a list - return: ptr to copy */
 /***********************************************/
-struct listnode* copy_list(struct listnode *sourcelist,int mode)
+struct listnode* copy_list(struct listnode *sourcelist, int mode)
 {
     struct listnode *resultlist;
 
@@ -192,7 +192,7 @@ not_numeric:
 void insertnode_list(struct listnode *listhead, const char *ltext, const char *rtext, const char *prtext, int mode)
 {
     struct listnode *nptr, *nptrlast, *newnode;
-    int lo,ln;
+    int lo, ln;
 
     if ((newnode = (TALLOC(struct listnode))) == NULL)
         syserr("couldn't malloc listhead");
@@ -363,7 +363,7 @@ void show_list(struct listnode *listhead)
 void show_list_action(struct listnode *listhead)
 {
     while ((listhead = listhead->next))
-        if (strcmp(listhead->left,K_ACTION_MAGIC))
+        if (strcmp(listhead->left, K_ACTION_MAGIC))
             shownode_list_action(listhead);
 }
 
