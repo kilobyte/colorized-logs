@@ -79,6 +79,7 @@
 #define DEFAULT_VERBATIM_CHAR '\\'        /* if an input starts with this
                                              char, it will be sent 'as is'
                                              to the MUD */
+#define MAX_SESNAME_LENGTH 512 /* don't accept session names longer than this */
 #ifdef __FreeBSD__
 #define MAX_RECURSION 64
 #else

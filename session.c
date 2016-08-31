@@ -61,7 +61,7 @@ void make_name(char *str, const char *basis)
             basis=b+1;
     if (!is7alpha(*basis))
         goto noname;
-    strcpy(str, basis);
+    strlcpy(str, basis, MAX_SESNAME_LENGTH);
     for (t=str; is7alnum(*t)||(*t=='_'); t++);
     *t=0;
     if (!session_exists(str))
@@ -124,6 +124,12 @@ static int list_sessions(const const char *arg, struct session *ses, char *left,
     }
     else
     {
+        if (strlen(left) > MAX_SESNAME_LENGTH)
+        {
+            tintin_eprintf(ses, "#SESSION NAME TOO LONG.");
+            prompt(NULL);
+            return 1;
+        }
         if (session_exists(left))
         {
             tintin_eprintf(ses, "#THERE'S A SESSION WITH THAT NAME ALREADY.");
