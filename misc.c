@@ -629,34 +629,32 @@ void messages_command(const char *arg, struct session *ses)
 /**********************/
 void snoop_command(const char *arg, struct session *ses)
 {
+    if (ses==nullsession)
+        return tintin_printf(ses, "#NO SESSION ACTIVE => NO SNOOPING");
+
     struct session *sesptr = ses;
 
-    if (ses)
+    char what[BUFFER_SIZE];
+    get_arg(arg, what, 1, ses);
+    if (*what)
     {
-        char what[BUFFER_SIZE];
-        get_arg(arg, what, 1, ses);
-        if (*what)
+        for (sesptr = sessionlist; sesptr && strcmp(sesptr->name, what); sesptr = sesptr->next) ;
+        if (!sesptr)
         {
-            for (sesptr = sessionlist; sesptr && strcmp(sesptr->name, what); sesptr = sesptr->next) ;
-            if (!sesptr)
-            {
-                tintin_eprintf(ses, "#There is no session named {%s}!", what);
-                return;
-            }
-        }
-        if (sesptr->snoopstatus)
-        {
-            sesptr->snoopstatus = FALSE;
-            tintin_printf(ses, "#UNSNOOPING SESSION '%s'", sesptr->name);
-        }
-        else
-        {
-            sesptr->snoopstatus = TRUE;
-            tintin_printf(ses, "#SNOOPING SESSION '%s'", sesptr->name);
+            tintin_eprintf(ses, "#There is no session named {%s}!", what);
+            return;
         }
     }
+    if (sesptr->snoopstatus)
+    {
+        sesptr->snoopstatus = FALSE;
+        tintin_printf(ses, "#UNSNOOPING SESSION '%s'", sesptr->name);
+    }
     else
-        tintin_printf(ses, "#NO SESSION ACTIVE => NO SNOOPING");
+    {
+        sesptr->snoopstatus = TRUE;
+        tintin_printf(ses, "#SNOOPING SESSION '%s'", sesptr->name);
+    }
 }
 
 /**************************/
