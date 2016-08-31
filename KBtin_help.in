@@ -52,7 +52,7 @@ Misc:
    killall     timecommand
 Paths:
    map         mark        path        unmap       pathdir     return
-   savepath    unpathdir   unpath
+   savepath    unpathdir
 
 General info topics (not commands):
    syntax      colorcodes  keys
