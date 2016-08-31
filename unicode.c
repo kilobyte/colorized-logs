@@ -327,19 +327,19 @@ int new_conv(struct charset_conv *conv, const char *name, int dir)
     conv->name=name;
     conv->dir=dir;
     if (!strcasecmp(name, "UTF-8") || !strcasecmp(name, "UTF8"))
-        conv->mode=1;
+        conv->mode=CM_UTF8;
     else if (!strcasecmp(name, "ANSI_X3.4-1968")
           || !strcasecmp(name, "ISO-8859-1")
           || !strcasecmp(name, "ISO8859-1"))
-        conv->mode=0;
+        conv->mode=CM_ISO8859_1;
     else if (!strcasecmp(name, "ASCII"))
-        conv->mode=3;
+        conv->mode=CM_ASCII;
     else
     {
         if ((dir<=0 && (conv->i_in=iconv_open("UTF-8", name))==(iconv_t)-1) ||
             (dir>=0 && (conv->i_out=iconv_open(name, "UTF-8"))==(iconv_t)-1))
             return 0;
-        conv->mode=2;
+        conv->mode=CM_ICONV;
     }
     return 1;
 }
@@ -351,14 +351,14 @@ void nullify_conv(struct charset_conv *conv)
 
 void cleanup_conv(struct charset_conv *conv)
 {
-    if (conv->mode==2)
+    if (conv->mode==CM_ICONV)
     {
         if (conv->dir<=0)
             iconv_close(conv->i_in);
         if (conv->dir>=0)
             iconv_close(conv->i_out);
     }
-    conv->mode=-1;
+    conv->mode=CM_ISO8859_1;
 }
 
 void convert(struct charset_conv *conv, char *outbuf, const char *inbuf, int dir)
@@ -384,7 +384,7 @@ void convert(struct charset_conv *conv, char *outbuf, const char *inbuf, int dir
 
     switch (conv->mode)
     {
-    case 3:             /* ASCII => UTF-8 */
+    case CM_ASCII:    /* ASCII => UTF-8 */
         if (dir<0)
         {
             while (*inbuf)
@@ -405,7 +405,7 @@ void convert(struct charset_conv *conv, char *outbuf, const char *inbuf, int dir
             *outbuf=0;
             return;
         }
-    case 0:
+    case CM_ISO8859_1:
         if (dir<0)      /* ISO-8859-1 => UTF-8 */
         {
             wptr=wbuf;
@@ -431,7 +431,7 @@ void convert(struct charset_conv *conv, char *outbuf, const char *inbuf, int dir
             *outbuf=0;
             return;
         }
-    case 1:     /* UTF-8 => UTF-8 */
+    case CM_UTF8:       /* UTF-8 => UTF-8 */
         if (dir<0)      /* input: sanitize it */
         {
             utf8_to_wc(wbuf, inbuf, BUFFER_SIZE-1);
@@ -445,7 +445,7 @@ void convert(struct charset_conv *conv, char *outbuf, const char *inbuf, int dir
             *outbuf++=0;
         }
         return;
-    case 2:
+    case CM_ICONV:
         il=strlen(inbuf);
         ol=BUFFER_SIZE-1;
         while (il>0)

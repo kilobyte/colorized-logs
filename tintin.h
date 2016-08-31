@@ -302,10 +302,12 @@ struct routenode
     char *cond;
 };
 
+typedef enum { CM_ISO8859_1, CM_UTF8, CM_ICONV, CM_ASCII } conv_mode_t;
+
 struct charset_conv
 {
     const char *name;
-    int mode; /* 0=8bit, 1=UTF-8, 2=iconv */
+    conv_mode_t mode;
     int dir; /* -1=only in, 0=both, 1=only out */
     iconv_t i_in, i_out;
 };
