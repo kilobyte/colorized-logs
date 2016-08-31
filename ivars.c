@@ -314,7 +314,7 @@ static int conv_to_ints(char *arg, struct session *ses)
             {
                 tptr = ptr;
                 ptr++;
-                while (isdigit(*ptr))
+                while (isadigit(*ptr))
                     ptr++;
                 sscanf(tptr, "%d", &stacks[i][2]);
                 stacks[i][1] = 15;
@@ -367,11 +367,11 @@ static int conv_to_ints(char *arg, struct session *ses)
             if (*(ptr + 1) == '|')
                 ptr++;
         }
-        else if (isdigit(*ptr))
+        else if (isadigit(*ptr))
         {
             stacks[i][1] = 15;
             tptr = ptr;
-            while (isdigit(*ptr))
+            while (isadigit(*ptr))
                 ptr++;
             sscanf(tptr, "%d", &stacks[i][2]);
             ptr--;

@@ -61,7 +61,7 @@ static int get_high_num(const char *hig)
 
     if (!*hig)
         return -1;
-    if (isdigit(*hig))
+    if (isadigit(*hig))
     {
         const char *sl=strchr(hig, '/');
         if (!sl)

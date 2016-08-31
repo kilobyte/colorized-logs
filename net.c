@@ -155,7 +155,7 @@ int connect_mud(const char *host, const char *port, struct session *ses)
     int sock, val;
     struct sockaddr_in sockaddr;
 
-    if (isdigit(*host))         /* interpret host part */
+    if (isadigit(*host))         /* interpret host part */
         sockaddr.sin_addr.s_addr = inet_addr(host);
     else
     {
@@ -169,7 +169,7 @@ int connect_mud(const char *host, const char *port, struct session *ses)
         memcpy((char *)&sockaddr.sin_addr, hp->h_addr, sizeof(sockaddr.sin_addr));
     }
 
-    if (isdigit(*port))
+    if (isadigit(*port))
         sockaddr.sin_port = htons(atoi(port));  /* intepret port part */
     else
     {

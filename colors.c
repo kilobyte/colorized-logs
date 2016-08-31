@@ -24,7 +24,7 @@ int getcolor(const char *restrict*restrict ptr, int *restrict color, const int f
         *ptr+=3;
         return 1;
     };
-    if (isdigit(*txt))
+    if (isadigit(*txt))
     {
         char *err;
         fg=strtol(txt, &err, 10);
@@ -45,7 +45,7 @@ int getcolor(const char *restrict*restrict ptr, int *restrict color, const int f
     };
     if (*txt!=':')
         return 0;
-    if (isdigit(*++txt))
+    if (isadigit(*++txt))
     {
         char *err;
         bg=strtol(txt, &err, 10);
@@ -63,7 +63,7 @@ int getcolor(const char *restrict*restrict ptr, int *restrict color, const int f
     };
     if (*txt!=':')
         return 0;
-    if (isdigit(*++txt))
+    if (isadigit(*++txt))
     {
         char *err;
         blink=strtol(txt, &err, 10);

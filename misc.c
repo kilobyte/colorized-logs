@@ -1200,7 +1200,7 @@ void atoi_command(const char *arg, struct session *ses)
     {
         if (*(a=right)=='-')
             a++;
-        for (;isdigit(*a);a++);
+        for (; isadigit(*a); a++);
         *a=0;
         if ((a==right+1) && (*right=='-'))
             *right=0;

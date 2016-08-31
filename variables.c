@@ -77,7 +77,7 @@ void substitute_myvars(const char *arg, char *result, struct session *ses)
                 specvar = FALSE;
                 while (isalpha(*(arg+varlen+counter))||
                        (*(arg+varlen+counter)=='_')||
-                       isdigit(*(arg+varlen+counter)))
+                       isadigit(*(arg+varlen+counter)))
                     varlen++;
                 if (varlen>0)
                     strncpy(varname, arg+counter, varlen);
@@ -1113,7 +1113,7 @@ void collate_command(const char *arg, struct session *ses)
         while (*arg)
         {
             arg=space_out(arg);
-            if (isdigit(*arg))
+            if (isadigit(*arg))
                 j=strtol(arg, &err, 10), arg=err;
             else
                 j=1;
@@ -1185,7 +1185,7 @@ void expand_command(const char *arg, struct session *ses)
         while (*arg)
         {
             arg=space_out(arg);
-            if (isdigit(*arg))
+            if (isadigit(*arg))
                 j=strtol(arg, &err, 10), arg=err;
             else
                 j=1;

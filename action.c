@@ -302,7 +302,7 @@ void substitute_vars(const char *arg, char *result)
             numands = 1;        /* at least one */
             while (*(arg + numands) == '%')
                 numands++;
-            if (isdigit(*(arg + numands)) && numands == (nest + 1))
+            if (isadigit(*(arg + numands)) && numands == (nest + 1))
             {
                 n = *(arg + numands) - '0';
                 valuelen=strlen((*pvars)[n]);
@@ -334,7 +334,7 @@ novar1:
             numands = 1;        /* at least one */
             while (*(arg + numands) == '$')
                 numands++;
-            if (isdigit(*(arg + numands)) && numands == (nest + 1))
+            if (isadigit(*(arg + numands)) && numands == (nest + 1))
             {
                 n = *(arg + numands) - '0';
                 valuelen=strlen((*pvars)[n]);
@@ -552,7 +552,7 @@ static int match_a_string(const char *line, const char *mask)
     while (*lptr && *mptr && !(*mptr == '%' && isadigit(*(mptr + 1))))
         if (*lptr++ != *mptr++)
             return -1;
-    if (!*mptr || (*mptr == '%' && isdigit(*(mptr + 1))))
+    if (!*mptr || (*mptr == '%' && isadigit(*(mptr + 1))))
         return (int)(lptr - line);
     return -1;
 }
@@ -662,7 +662,7 @@ static int check_a_action(const char *line, const char *action, int inside, stru
         else
             return FALSE;
     }
-    if ((*tptr=='%')&&isdigit(*(tptr+1)))
+    if ((*tptr=='%')&&isadigit(*(tptr+1)))
     {
         var_len[*(tptr+1)-48]=0;
         var_ptr[*(tptr+1)-48]=lptr;

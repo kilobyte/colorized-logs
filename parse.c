@@ -229,9 +229,9 @@ static inline int is_speedwalk_dirs(const char *cp)
     while (*cp)
     {
         if (*cp != 'n' && *cp != 'e' && *cp != 's' && *cp != 'w' && *cp != 'u' && *cp != 'd' &&
-                !isdigit(*cp))
+                !isadigit(*cp))
             return FALSE;
-        if (!isdigit(*cp))
+        if (!isadigit(*cp))
             flag = TRUE;
         cp++;
     }
@@ -252,7 +252,7 @@ static void do_speedwalk(const char *cp, struct session *ses)
     {
         loc = cp;
         multflag = FALSE;
-        while (isdigit(*cp))
+        while (isadigit(*cp))
         {
             cp++;
             multflag = TRUE;
@@ -346,7 +346,7 @@ static struct session* parse_tintin_command(const char *command, const char *arg
         *b++=tolower(*a++);
     *b=0;
 
-    if (isdigit(*command))
+    if (isadigit(*command))
     {
         int i = atoi(command);
 

@@ -80,7 +80,7 @@ void ticksize_command(const char *arg, struct session *ses)
         tintin_printf(ses, "#NO SESSION ACTIVE => NO TICKER!");
         return;
     }
-    if (!*left || !isdigit(*left))
+    if (!*left || !isadigit(*left))
     {
         tintin_eprintf(ses, "#SYNTAX: #ticksize <number>");
         return;
