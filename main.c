@@ -434,21 +434,21 @@ static void apply_options()
             break;
         case 'r':
             set_magic_hook(activesession);
-            make_name(sname, opt->right, 1);
+            make_name(sname, opt->right);
             snprintf(temp, BUFFER_SIZE,
                 "%crun %s {%s}", tintin_char, sname, opt->right);
             DO_INPUT(temp, 1);
             break;
         case 's':
             set_magic_hook(activesession);
-            make_name(sname, opt->right, 1);
+            make_name(sname, opt->right);
             snprintf(temp, BUFFER_SIZE,
                 "%cses %s {%s %s}", tintin_char, sname, opt->right, opt->pr);
             DO_INPUT(temp, 1);
             break;
         case 'S':
             set_magic_hook(activesession);
-            make_name(sname, opt->right, 1);
+            make_name(sname, opt->right);
             snprintf(temp, BUFFER_SIZE,
                 "%csslses %s {%s %s}", tintin_char, sname, opt->right, opt->pr);
             DO_INPUT(temp, 1);

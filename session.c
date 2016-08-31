@@ -51,15 +51,14 @@ static int session_exists(char *name)
 /* FIXME: use non-ascii letters in generated names */
 
 /* NOTE: basis is in the local charset, not UTF-8 */
-void make_name(char *str, const char *basis, int run)
+void make_name(char *str, const char *basis)
 {
     char *t;
     int i, j;
 
-    if (run)
-        for (const char *b=basis; (*b=='/')||is7alnum(*b)||(*b=='_'); b++)
-            if (*b=='/')
-                basis=b+1;
+    for (const char *b=basis; (*b=='/')||is7alnum(*b)||(*b=='_'); b++)
+        if (*b=='/')
+            basis=b+1;
     if (!is7alpha(*basis))
         goto noname;
     strcpy(str, basis);
