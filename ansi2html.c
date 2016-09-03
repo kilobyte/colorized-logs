@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 
 #define BOLD         0x010000
 #define DIM          0x020000
@@ -10,7 +11,8 @@
 #define STRIKE       0x400000
 
 static int no_header=0, white=0;
-static int fg, bg, fl, b, frgb, brgb;
+static bool in_span;
+static int fg, bg, fl, frgb, brgb;
 
 static const char *cols[]={"BLK","RED","GRN","YEL","BLU","MAG","CYN","WHI",
                            "HIK","HIR","HIG","HIY","HIB","HIM","HIC","HIW"};
@@ -123,7 +125,7 @@ static void span()
     }
 
     printf(">");
-    b=1;
+    in_span=1;
     return;
 
 do_span:
@@ -163,15 +165,15 @@ do_span:
     }
 
     printf("\">");
-    b=1;
+    in_span=1;
 }
 
 
 static void unspan()
 {
-    if (b)
+    if (in_span)
         printf(no_header?"</span>":"</b>");
-    b=0;
+    in_span=0;
 }
 
 
@@ -250,7 +252,7 @@ int main(int argc, const char **argv)
                 white?"000;font-weight:bold":"fff");
     fg=bg=-1;
     fl=0;
-    b=0;
+    in_span=false;
     frgb=brgb=-1;
     ch=getchar();
 normal:
