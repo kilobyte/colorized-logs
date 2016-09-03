@@ -39,12 +39,12 @@ gnutls_session_t ssl_negotiate(int sock, const char *host, struct session *oldse
 }
 
 
-static int cert_file(const char *name, char *respath)
+static bool cert_file(const char *name, char *respath)
 {
     char fname[BUFFER_SIZE], *fn, *home;
 
     if (!*name || *name=='.')   // no valid hostname starts with a dot
-        return 0;
+        return false;
     fn=fname;
     while (1)
     {
@@ -60,15 +60,15 @@ static int cert_file(const char *name, char *respath)
         else if (is7alnum(*name) || *name=='-' || *name=='.' || *name=='_')
             *fn++=*name++;
         else
-            return 0;
+            return false;
     }
     if (*(fn-1)=='.')   // no valid hostname ends with a dot, either
-        return 0;
+        return false;
     *fn=0;
     if (!(home=getenv("HOME")))
         home=".";
     snprintf(respath, BUFFER_SIZE, "%s/%s/%s/%s.crt", home, CONFIG_DIR, CERT_DIR, fname);
-    return 1;
+    return true;
 }
 
 
@@ -96,7 +96,7 @@ static void load_cert(gnutls_x509_crt_t *cert, const char *name)
 }
 
 
-static void save_cert(gnutls_x509_crt_t cert, const char *name, int new, struct session *oldses)
+static void save_cert(gnutls_x509_crt_t cert, const char *name, bool new, struct session *oldses)
 {
     char *home, fname[BUFFER_SIZE], buf[BIGBUFSIZE];
     FILE *f;
@@ -142,18 +142,18 @@ static void save_cert(gnutls_x509_crt_t cert, const char *name, int new, struct 
 }
 
 
-static int diff_certs(gnutls_x509_crt_t c1, gnutls_x509_crt_t c2)
+static bool diff_certs(gnutls_x509_crt_t c1, gnutls_x509_crt_t c2)
 {
     char buf1[BIGBUFSIZE], buf2[BIGBUFSIZE];
     size_t len1, len2;
 
     len1=len2=BIGBUFSIZE;
     if (gnutls_x509_crt_export(c1, GNUTLS_X509_FMT_DER, buf1, &len1))
-        return 1;
+        return true;
     if (gnutls_x509_crt_export(c2, GNUTLS_X509_FMT_DER, buf2, &len2))
-        return 1;
+        return true;
     if (len1!=len2)
-        return 1;
+        return true;
     return memcmp(buf1, buf2, len1);
 }
 

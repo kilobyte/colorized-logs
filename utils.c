@@ -10,9 +10,9 @@
 void syserr(const char *msg, ...);
 
 /*********************************************/
-/* return: TRUE if s1 is an abrevation of s2 */
+/* return: true if s1 is an abrevation of s2 */
 /*********************************************/
-int is_abrev(const char *s1, const char *s2)
+bool is_abrev(const char *s1, const char *s2)
 {
     return !strncmp(s2, s1, strlen(s1));
 }

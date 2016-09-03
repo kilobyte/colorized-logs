@@ -844,7 +844,7 @@ void write_command(const char *filename, struct session *ses)
 }
 
 
-static int route_exists(const char *A, const char *B, const char *path, int dist, const char *cond, struct session *ses)
+static bool route_exists(const char *A, const char *B, const char *path, int dist, const char *cond, struct session *ses)
 {
     int a, b;
     struct routenode *rptr;
@@ -853,19 +853,19 @@ static int route_exists(const char *A, const char *B, const char *path, int dist
         if (ses->locations[a]&&!strcmp(ses->locations[a], A))
             break;
     if (a==MAX_LOCATIONS)
-        return 0;
+        return false;
     for (b=0;b<MAX_LOCATIONS;b++)
         if (ses->locations[b]&&!strcmp(ses->locations[b], B))
             break;
     if (b==MAX_LOCATIONS)
-        return 0;
+        return false;
     for (rptr=ses->routes[a];rptr;rptr=rptr->next)
         if ((rptr->dest==b)&&
                 (!strcmp(rptr->path, path))&&
                 (rptr->distance==dist)&&
                 (!strcmp(rptr->cond, cond)))
-            return 1;
-    return 0;
+            return true;
+    return false;
 }
 
 /*****************************/

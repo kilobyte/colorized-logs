@@ -102,17 +102,17 @@ int count_routes(struct session *ses)
 
 static void kill_unused_locations(struct session *ses)
 {
-    int us[MAX_LOCATIONS];
+    bool us[MAX_LOCATIONS];
     struct routenode *r;
 
     for (int i=0;i<MAX_LOCATIONS;i++)
-        us[i]=0;
+        us[i]=false;
     for (int i=0;i<MAX_LOCATIONS;i++)
         if ((r=ses->routes[i]))
         {
-            us[i]++;
+            us[i]=true;
             for (;r;r=r->next)
-                us[r->dest]++;
+                us[r->dest]=true;
         };
     for (int i=0;i<MAX_LOCATIONS;i++)
         if (ses->locations[i]&&!us[i])
@@ -163,7 +163,7 @@ void route_command(const char *arg, struct session *ses)
     };
     if (!*way)
     {
-        int first=1;
+        bool first=true;
         if (!*b)
             strcpy(b, "*");
         for (int i=0;i<MAX_LOCATIONS;i++)
@@ -175,7 +175,7 @@ void route_command(const char *arg, struct session *ses)
                         if (first)
                         {
                             tintin_printf(ses, "#THESE ROUTES HAVE BEEN DEFINED:");
-                            first=0;
+                            first=false;
                         };
                         show_route(ses, i, r);
                     };
@@ -257,7 +257,7 @@ void unroute_command(const char *arg, struct session *ses)
 {
     char a[BUFFER_SIZE], b[BUFFER_SIZE];
     struct routenode **r, *p;
-    int found=0;
+    bool found=false;
 
     arg=get_arg(arg, a, 0, ses);
     arg=get_arg(arg, b, 1, ses);
@@ -281,7 +281,7 @@ void unroute_command(const char *arg, struct session *ses)
                             ses->locations[i],
                             ses->locations[p->dest]);
                     };
-                    found=1;
+                    found=true;
                     *r=(*r)->next;
                     SFREE(p->path);
                     SFREE(p->cond);

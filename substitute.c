@@ -19,7 +19,7 @@ extern char *_;
 /***************************/
 /* the #substitute command */
 /***************************/
-static void parse_sub(const char *arg, int gag, struct session *ses)
+static void parse_sub(const char *arg, bool gag, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
     struct listnode *mysubs, *ln;
@@ -159,7 +159,7 @@ void do_all_sub(char *line, struct session *ses)
     ln = ses->subs;
 
     while ((ln = ln->next))
-        if (check_one_action(line, ln->left, &vars, 0, ses))
+        if (check_one_action(line, ln->left, &vars, false, ses))
         {
             if (!strcmp(ln->right, EMPTY_LINE))
             {
@@ -173,7 +173,7 @@ void do_all_sub(char *line, struct session *ses)
             len=strlen(tmp2);
             APPEND(tmp2);
             while (*match_end)
-                if (check_one_action(l=match_end, ln->left, &vars, 1, ses))
+                if (check_one_action(l=match_end, ln->left, &vars, true, ses))
                 {
                     /* no gags possible here */
                     len=match_start-l;

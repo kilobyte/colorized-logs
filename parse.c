@@ -23,14 +23,14 @@ typedef struct session *(*t_c_command)(const char*, struct session*);
 
 static struct session *parse_tintin_command(const char *command, const char *arg, struct session *ses);
 static void do_speedwalk(const char *cp, struct session *ses);
-static int do_goto(const char *txt, struct session *ses);
+static bool do_goto(const char *txt, struct session *ses);
 static inline const char *get_arg_with_spaces(const char *s, char *arg);
 static const char* get_command(const char *s, char *arg);
 static void write_com_arg_mud(const char *command, const char *argument, int nsp, struct session *ses);
 extern void end_command(const char *arg, struct session *ses);
 extern void unlink_command(const char *arg, struct session *ses);
 
-static inline int is_speedwalk_dirs(const char *cp);
+static inline bool is_speedwalk_dirs(const char *cp);
 
 extern struct session *sessionlist, *activesession, *nullsession;
 extern pvars_t *pvars; /* the %0, %1, %2,....%9 variables */
@@ -216,22 +216,22 @@ struct session* parse_input(const char *input, bool override_verbatim, struct se
 }
 
 /************************************************************************/
-/* return TRUE if commands only consists of lowercase letters N,S,E ... */
+/* return true if commands only consists of lowercase letters N,S,E ... */
 /************************************************************************/
-static inline int is_speedwalk_dirs(const char *cp)
+static inline bool is_speedwalk_dirs(const char *cp)
 {
-    bool flag = false;
+    bool res = false;
 
     while (*cp)
     {
         if (*cp != 'n' && *cp != 'e' && *cp != 's' && *cp != 'w' && *cp != 'u' && *cp != 'd' &&
                 !isadigit(*cp))
-            return FALSE;
+            return false;
         if (!isadigit(*cp))
-            flag = true;
+            res = true;
         cp++;
     }
-    return flag;
+    return res;
 }
 
 /**************************/
@@ -275,14 +275,14 @@ static void do_speedwalk(const char *cp, struct session *ses)
 }
 
 
-static int do_goto(const char *txt, struct session *ses)
+static bool do_goto(const char *txt, struct session *ses)
 {
     char *ch;
 
     if (!(ch=strchr(txt, GOTO_CHAR)))
-        return 0;
+        return false;
     if (ch+1>=strchr(txt, 0))
-        return 0;
+        return false;
     if (ch!=txt)
     {
         *ch=' ';
@@ -295,12 +295,12 @@ static int do_goto(const char *txt, struct session *ses)
         if (!(ch=get_hash(ses->myvars, "loc"))||(!*ch))
         {
             tintin_eprintf(ses, "#Cannot goto from $loc, it is not set!");
-            return 1;
+            return true; // was syntaxically correct
         }
         sprintf(tmp, "{%s} {%s}", ch, txt+1);
         goto_command(tmp, ses);
     }
-    return 1;
+    return true;
 }
 
 /*************************************/
@@ -330,9 +330,9 @@ static struct session* parse_tintin_command(const char *command, const char *arg
             {
                 activesession = sesptr;
                 tintin_printf(ses, "#SESSION '%s' ACTIVATED.", sesptr->name);
-                do_hook(ses, HOOK_DEACTIVATE, 0, 1);  /* FIXME: blockzap */
+                do_hook(ses, HOOK_DEACTIVATE, 0, true);  /* FIXME: blockzap */
                 PPOP;
-                return do_hook(sesptr, HOOK_ACTIVATE, 0, 0);
+                return do_hook(sesptr, HOOK_ACTIVATE, 0, false);
             }
         }
 
@@ -406,7 +406,6 @@ void init_parse()
 /**********************************************/
 static const char* get_arg_all(const char *s, char *arg)
 {
-    /* int inside=FALSE; */
     int nest = 0;
 
     s = space_out(s);
@@ -446,7 +445,6 @@ static const char* get_arg_all(const char *s, char *arg)
 /****************************************************/
 const char* get_inline(const char *s, char *arg)
 {
-    /* int inside=FALSE; */
     int nest = 0;
 
     s = space_out(s);
@@ -487,8 +485,6 @@ const char* get_inline(const char *s, char *arg)
 static inline const char* get_arg_with_spaces(const char *s, char *arg)
 {
     int nest = 0;
-
-    /* int inside=FALSE; */
 
     s = space_out(s);
     while (*s)
@@ -558,7 +554,7 @@ const char* get_arg_in_braces(const char *s, char *arg, bool allow_spaces)
 /**********************************************/
 static inline const char* get_arg_stop_spaces(const char *s, char *arg)
 {
-    int inside = FALSE;
+    bool inside = false;
 
     s = space_out(s);
 
@@ -603,7 +599,7 @@ const char* get_arg(const char *s, char *arg, bool allow_spaces, struct session 
 /**********************************************/
 static const char* get_command(const char *s, char *arg)
 {
-    int inside = FALSE;
+    bool inside = false;
 
     while (*s)
     {

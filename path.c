@@ -244,7 +244,7 @@ void unmap_command(const char *arg, struct session *ses)
         tintin_puts("#Ok.  Forgot that move.", ses);
 }
 
-void check_insert_path(const char *command, struct session *ses, int force)
+void check_insert_path(const char *command, struct session *ses, bool force)
 {
     char *ret;
 

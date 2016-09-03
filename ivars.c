@@ -11,8 +11,8 @@
 #include "protos/variables.h"
 
 static int stacks[100][4];
-static int conv_to_ints(char *arg, struct session *ses);
-static int do_one_inside(int begin, int end);
+static bool conv_to_ints(char *arg, struct session *ses);
+static bool do_one_inside(int begin, int end);
 
 extern char tintin_char;
 
@@ -43,7 +43,6 @@ struct session *if_command(const char *line, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
 
-    /* int i; */
     line = get_arg(line, left, 0, ses);
     line = get_arg_in_braces(line, right, 1);
 
@@ -74,7 +73,7 @@ struct session *if_command(const char *line, struct session *ses)
 }
 
 
-static int do_inline(const char *line, int *res, struct session *ses)
+static bool do_inline(const char *line, int *res, struct session *ses)
 {
     char command[BUFFER_SIZE], *ptr;
 
@@ -107,10 +106,10 @@ static int do_inline(const char *line, int *res, struct session *ses)
     else
     {
         tintin_eprintf(ses, "#Unknown inline command [%c%s]!", tintin_char, command);
-        return 0;
+        return false;
     }
 
-    return 1;
+    return true;
 }
 
 
@@ -160,16 +159,15 @@ int eval_expression(char *arg, struct session *ses)
     }
 }
 
-static int conv_to_ints(char *arg, struct session *ses)
+static bool conv_to_ints(char *arg, struct session *ses)
 {
-    int i, flag, result;
-    int m; /* =0 should match, =1 should differ */
-    int regex; /* =0 strncmp, =1 regex match */
+    int i, flag;
+    bool result, should_differ;
+    bool regex=false; /* false=strncmp, true=regex match */
     char *ptr, *tptr;
     char temp[BUFFER_SIZE];
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
 
-    regex=0; /* die lint die */
     i = 0;
     ptr = arg;
     while (*ptr)
@@ -180,7 +178,7 @@ static int conv_to_ints(char *arg, struct session *ses)
         {
             ptr=(char*)get_inline(ptr+1, temp)-1;
             if (!do_inline(temp, &(stacks[i][2]), ses))
-                return 0;
+                return false;
             stacks[i][1]=15;
         }
         /* jku: comparing strings with = and != */
@@ -196,7 +194,7 @@ static int conv_to_ints(char *arg, struct session *ses)
             }
             *tptr='\0';
             if (!*ptr)
-                return 0; /* error */
+                return false; /* error */
             if (*ptr == ']')
                 tintin_eprintf(ses, "#Compare %s to what ? (only one var between [ ])", left);
             /* fprintf(stderr, "Left argument = '%s'\n", left); */
@@ -204,25 +202,25 @@ static int conv_to_ints(char *arg, struct session *ses)
             {
             case '!' :
                 ptr++;
-                m=1;
+                should_differ=true;
                 switch (*ptr)
                 {
-                case '=' : regex=0; ptr++; break;
-                case '~' : regex=1; ptr++; break;
-                default : return 0;
+                case '=' : regex=false; ptr++; break;
+                case '~' : regex=true; ptr++; break;
+                default : return false;
                 }
                 break;
             case '=' :
                 ptr++;
-                m=0;
+                should_differ=false;
                 switch (*ptr)
                 {
-                case '=' : regex=0; ptr++; break;
-                case '~' : regex=1; ptr++; break;
+                case '=' : regex=false; ptr++; break;
+                case '~' : regex=true; ptr++; break;
                 default : break;
                 }
                 break;
-            default : return 0;
+            default : return false;
             }
 
             /* fprintf(stderr, "%c - %s match\n", (m) ? '=' : '!', (regex) ? "regex" : "string"); */
@@ -237,12 +235,12 @@ static int conv_to_ints(char *arg, struct session *ses)
             *tptr='\0';
             /* fprintf(stderr, "Right argument = '%s'\n", right); */
             if (!*ptr)
-                return 0;
+                return false;
             if (regex)
-                result = match(right, left) ? 0 : 1;
+                result = !match(right, left);
             else
                 result = strcmp(left, right);
-            if ((result == 0 && m == 0) || (result != 0 && m != 0))
+            if (result == should_differ)
             { /* success */
                 stacks[i][1] = 15;
                 stacks[i][2] = 1;
@@ -389,7 +387,7 @@ static int conv_to_ints(char *arg, struct session *ses)
         else
         {
             tintin_eprintf(ses, "#Error. Invalid expression in #if or #math in {%s}.", arg);
-            return 0;
+            return false;
         }
         if (*ptr != ' ')
         {
@@ -400,10 +398,10 @@ static int conv_to_ints(char *arg, struct session *ses)
     }
     if (i > 0)
         stacks[i][0] = 0;
-    return 1;
+    return true;
 }
 
-static int do_one_inside(int begin, int end)
+static bool do_one_inside(int begin, int end)
 {
     while (1)
     {
@@ -431,21 +429,21 @@ static int do_one_inside(int begin, int end)
                 stacks[begin][1] = 15;
                 stacks[begin][2] = stacks[loc][2];
                 stacks[begin][0] = stacks[end][0];
-                return 1;
+                return true;
             }
             else
             {
                 stacks[0][0] = stacks[end][0];
                 stacks[0][1] = 15;
                 stacks[0][2] = stacks[loc][2];
-                return 1;
+                return true;
             }
         }
         else if (highest == 2)
         {
             int next = stacks[loc][0];
             if (stacks[next][1] != 15 || stacks[next][0] == 0)
-                return 0;
+                return false;
             stacks[loc][0] = stacks[next][0];
             stacks[loc][1] = 15;
             stacks[loc][2] = !stacks[next][2];
@@ -456,9 +454,9 @@ static int do_one_inside(int begin, int end)
             assert(loc >= 0);
             next = stacks[loc][0];
             if (ploc == -1 || stacks[next][0] == 0 || stacks[next][1] != 15)
-                return 0;
+                return false;
             if (stacks[ploc][1] != 15)
-                return 0;
+                return false;
             switch (highest)
             {
             case 3:            /* highest priority is *,/ */
@@ -515,7 +513,7 @@ static int do_one_inside(int begin, int end)
                 break;
             default:
                 tintin_eprintf(0, "#Programming error *slap Bill*");
-                return 0;
+                return false;
             }
         }
     }

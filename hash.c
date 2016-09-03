@@ -171,7 +171,7 @@ char* get_hash(struct hashtable *h, const char *key)
 /****************************************************/
 /* delete the key and its value from the hash table */
 /****************************************************/
-int delete_hash(struct hashtable *h, const char *key)
+bool delete_hash(struct hashtable *h, const char *key)
 {
     int i;
 
@@ -186,13 +186,13 @@ int delete_hash(struct hashtable *h, const char *key)
             h->nval--;
             if (h->nval*5<h->size)
                 rehash(h, h->size/2);
-            return 1;
+            return true;
         }
         if (!i)
             i=h->size;
         i--;
     }
-    return 0;
+    return false;
 }
 
 

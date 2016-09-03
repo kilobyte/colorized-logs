@@ -6,7 +6,7 @@
 #include "tintin.h"
 #include <assert.h>
 
-int match(const char *regex, const char *string)
+bool match(const char *regex, const char *string)
 {
     const char *rp = regex, *sp = string, *save;
     char ch;
@@ -30,20 +30,20 @@ int match(const char *regex, const char *string)
              * Backed up all the way to starting location (i.e. `*' matches
              * empty string) and we _still_ can't match here.  Give up.
              */
-            return 0;
+            return false;
             /* break; not reached */
         case '\\':
             if ((ch = *rp++) != '\0')
             {
                 /* if not end of pattern, match next char explicitly */
                 if (ch != *sp++)
-                    return 0;
+                    return false;
                 break;
             }
             /* else FALL THROUGH to match a backslash */
         default:                       /* normal character */
             if (ch != *sp++)
-                return 0;
+                return false;
             break;
         }
     }
@@ -55,13 +55,13 @@ int match(const char *regex, const char *string)
 }
 
 
-int is_literal(const char *txt)
+bool is_literal(const char *txt)
 {
     return !strchr(txt, '*');
 }
 
 
-int find(const char *text, const char *pattern, int *from, int *to, const char *fastener)
+bool find(const char *text, const char *pattern, int *from, int *to, const char *fastener)
 {
     const char *txt;
     char *a, *b, *pat, m1[BUFFER_SIZE], m2[BUFFER_SIZE];
@@ -71,13 +71,13 @@ int find(const char *text, const char *pattern, int *from, int *to, const char *
     {
         txt=strstr(text, fastener);
         if (!txt)
-            return 0;
+            return false;
         *from=txt-text;
         if (strchr(pattern, '*'))
             *to=strlen(text)-1;
         else
             *to=*from+strlen(fastener)-1;
-        return 1;
+        return true;
     }
 
     txt=text;
@@ -85,12 +85,12 @@ int find(const char *text, const char *pattern, int *from, int *to, const char *
     {
         for (pattern++;(*pattern)&&(*pattern!='*');)
             if (*(pattern++)!=*(txt++))
-                return 0;
+                return false;
         if (!*pattern)
         {
             *from=0;
             *to=txt-text-1;
-            return 1;
+            return true;
         };
         strcpy(m1, pattern);
         pat=m1;
@@ -103,10 +103,10 @@ int find(const char *text, const char *pattern, int *from, int *to, const char *
         {
             *from=a-text;
             *to=*from+strlen(pattern)-1;
-            return 1;
+            return true;
         }
         else
-            return 0;
+            return false;
     };
     i=b-pattern;
     strcpy(m1, pattern);
@@ -114,9 +114,7 @@ int find(const char *text, const char *pattern, int *from, int *to, const char *
     pat=m1;
     txt=strstr(txt, pat);
     if (!txt)
-    {
-        return 0;
-    };
+        return false;
     *from=txt-text;
     txt+=i;
     pat+=i+1;
@@ -127,7 +125,7 @@ start:
     if (!*pat)
     {
         *to=strlen(text)-1;
-        return 1;
+        return true;
     };
     a=pat;
     b=pat+i-1;
@@ -150,7 +148,7 @@ start:
             *b=0;
         a=strstr(txt, pat);
         if (!a)
-            return 0;
+            return false;
         if (*to==-1)
             *to=strlen(text)-(a-txt)-1;
         txt=a+strlen(pat);
@@ -159,7 +157,7 @@ start:
         else
             pat=strchr(pat, 0);
     } while (*pat);
-    return 1;
+    return true;
 }
 
 

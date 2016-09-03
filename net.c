@@ -39,7 +39,7 @@ extern const char *prof_area;
 static int init_mccp(struct session *ses, int cplen, const char *cpsrc);
 #endif
 
-static int abort_connect;
+static bool abort_connect;
 
 #ifdef HAVE_GETADDRINFO
 static const char* afstr(int af)
@@ -117,7 +117,7 @@ int connect_mud(const char *host, const char *port, struct session *ses)
         setsockopt(sock, IPPROTO_TCP, TCP_KEEPIDLE, &val, sizeof(val));
 #endif
 
-        abort_connect=0;
+        abort_connect=false;
         alarm(15);
     intr:
         if ((connect(sock, addr->ai_addr, addr->ai_addrlen)))
@@ -222,7 +222,7 @@ int connect_mud(const char *host, const char *port, struct session *ses)
 /*****************/
 static void alarm_func(int k)
 {
-    abort_connect=1;
+    abort_connect=true;
 }
 
 /********************************************************************/
@@ -245,13 +245,13 @@ void write_line_mud(const char *line, struct session *ses)
                 sizeof(ses->nagle));
             ses->nagle=1;
         }
-        telnet_write_line(rstr, ses, 1);
+        telnet_write_line(rstr, ses, true);
     }
     else if (ses==nullsession)
         tintin_eprintf(ses, "#spurious output: %s", line);  /* CHANGE ME */
     else
         pty_write_line(rstr, ses->socket);
-    do_hook(ses, HOOK_SEND, line, 1);
+    do_hook(ses, HOOK_SEND, line, true);
 }
 
 /******************************************/
@@ -285,7 +285,7 @@ void write_raw_mud(const char *line, int len, struct session *ses)
                 rp++;
 
             if (ses->issocket)
-                *rp=ret=0, telnet_write_line(rstr, ses, 0);
+                *rp=ret=0, telnet_write_line(rstr, ses, false);
             else
                 ret=write(ses->socket, rstr, rp-rstr);
         }

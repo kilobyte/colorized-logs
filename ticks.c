@@ -12,7 +12,7 @@
 
 /* externs */
 struct session *sessionlist;
-extern int any_closed;
+extern bool any_closed;
 
 time_t time0;
 int utime0;

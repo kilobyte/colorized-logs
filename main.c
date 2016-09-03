@@ -57,7 +57,7 @@ int antisubnum = 0;
 int bindnum = 0;
 int hooknum = 0;
 int gotpassword=0;
-int got_more_kludge=0;
+bool got_more_kludge=false;
 int hist_num;
 bool need_resize=false;
 extern int LINES, COLS;
@@ -65,8 +65,8 @@ extern bool tty, xterm;
 char *tintin_exec;
 struct session *lastdraft;
 bool aborting=false;
-int eofinput=0;
-int any_closed=0;
+static bool eofinput=false;
+bool any_closed=false;
 extern int recursion;
 char *_; /* incoming line being processed */
 extern int o_lastcolor;
@@ -152,17 +152,17 @@ static void sigwinch(void)
 }
 
 
-static int new_news(void)
+static bool new_news(void)
 {
     struct stat KBtin, news;
 
     if (stat(tintin_exec, &KBtin))
-        return 0;       /* can't stat the executable??? */
+        return false;       /* can't stat the executable??? */
     if (stat(NEWS_FILE, &news))
 #ifdef DATA_PATH
         if (stat(DATA_PATH "/" NEWS_FILE, &news))
 #endif
-            return 0;       /* either no NEWS file, or can't stat it */
+            return false;       /* either no NEWS file, or can't stat it */
     return (news.st_ctime>=news.st_atime)||(KBtin.st_ctime+10>news.st_atime);
 }
 
@@ -563,7 +563,7 @@ static int check_events(void)
 
     curr_time = time(NULL);
 restart:
-    any_closed=0;
+    any_closed=false;
     for (sp = sessionlist; sp; sp = sp->next)
     {
         tt = check_event(curr_time, sp);
@@ -598,7 +598,7 @@ static void tintin(void)
 
     memset(&instate, 0, sizeof(instate));
 
-    while (TRUE)
+    for (;;)
     {
 #ifdef XTERM_TITLE
         if (ui_own_output && activesession!=lastsession)
@@ -656,7 +656,7 @@ static void tintin(void)
             if (result==-1)
                 myquitsig(0);
             if (result==0 && !isatty(0))
-                eofinput=1;
+                eofinput=true;
             inbuf+=result;
 
             i=0;
@@ -715,13 +715,13 @@ static void tintin(void)
             if (sesptr->socket && FD_ISSET(sesptr->socket, &readfdmask))
             {
                 aborting=false;
-                any_closed=0;
+                any_closed=false;
                 do
                 {
                     read_mud(sesptr);
                     if (any_closed)
                     {
-                        any_closed=0;
+                        any_closed=false;
                         goto after_read;
                         /* The remaining sessions will be done after select() */
                     }
@@ -738,7 +738,7 @@ static void tintin(void)
         {
             gotpassword= 2-activesession->server_echo;
             if (!gotpassword)
-                got_more_kludge=0;
+                got_more_kludge=false;
             user_passwd(gotpassword && !got_more_kludge);
             term_echoing=!gotpassword;
         }
@@ -883,12 +883,12 @@ static void do_one_line(char *line, int nl, struct session *ses)
         if (match(PROMPT_FOR_MORE_TEXT, line))
         {
             user_passwd(false);
-            got_more_kludge=1;
+            got_more_kludge=true;
         };
     };
     _=line;
     PROF("processing incoming colors");
-    do_in_MUD_colors(line, 0, ses);
+    do_in_MUD_colors(line, false, ses);
     isnb=isnotblank(line, false);
     PROF("promptactions");
     if (!ses->ignore && (nl||isnb))
@@ -1014,13 +1014,13 @@ static void myquitsig(int sig)
         if (sesptr!=nullsession && !sesptr->closing)
         {
             sesptr->closing=1;
-            do_hook(sesptr, HOOK_ZAP, 0, 1);
+            do_hook(sesptr, HOOK_ZAP, 0, true);
             sesptr->closing=0;
             cleanup_session(sesptr);
         }
     }
     activesession = nullsession;
-    do_hook(nullsession, HOOK_END, 0, 1);
+    do_hook(nullsession, HOOK_END, 0, true);
     activesession = NULL;
 
     if (ui_own_output)

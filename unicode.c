@@ -321,7 +321,7 @@ void init_locale()
         user_charset=0;
 }
 
-int new_conv(struct charset_conv *conv, const char *name, int dir)
+bool new_conv(struct charset_conv *conv, const char *name, int dir)
 {
     memset(conv, 0, sizeof(struct charset_conv));
     conv->name=name;
@@ -338,10 +338,10 @@ int new_conv(struct charset_conv *conv, const char *name, int dir)
     {
         if ((dir<=0 && (conv->i_in=iconv_open("UTF-8", name))==(iconv_t)-1) ||
             (dir>=0 && (conv->i_out=iconv_open(name, "UTF-8"))==(iconv_t)-1))
-            return 0;
+            return false;
         conv->mode=CM_ICONV;
     }
-    return 1;
+    return true;
 }
 
 void nullify_conv(struct charset_conv *conv)

@@ -11,7 +11,7 @@ extern pvars_t *pvars;  /* the %0, %1, %2,....%9 variables */
 
 extern struct session *if_command(const char *arg, struct session *ses);
 
-static bool check_regexp(char *line, char *action, pvars_t *vars, int inside, struct session *ses)
+static bool check_regexp(char *line, char *action, pvars_t *vars, struct session *ses)
 {
     regex_t preg;
     regmatch_t pmatch[10];
@@ -21,7 +21,7 @@ static bool check_regexp(char *line, char *action, pvars_t *vars, int inside, st
         tintin_eprintf(ses, "#invalid regular expression: {%s}", action);
         return false;
     }
-    if (regexec(&preg, line, vars?10:0, pmatch, inside?REG_NOTBOL:0))
+    if (regexec(&preg, line, vars?10:0, pmatch, 0))
     {
         regfree(&preg);
         return false;
@@ -61,7 +61,7 @@ void grep_command(const char *arg, struct session *ses)
         return;
     }
 
-    if (check_regexp(line, left, &vars, 0, ses))
+    if (check_regexp(line, left, &vars, ses))
     {
         lastpvars = pvars;
         pvars = &vars;
@@ -106,7 +106,7 @@ int grep_inline(const char *arg, struct session *ses)
         tintin_eprintf(ses, "#ERROR: valid syntax is: (#grep <pattern> <line>)");
         return 0;
     }
-    return check_regexp(line, left, 0, 0, ses);
+    return check_regexp(line, left, 0, ses);
 }
 
 

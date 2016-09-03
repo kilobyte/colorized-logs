@@ -63,9 +63,7 @@ void unantisubstitute_command(const char *arg, struct session *ses)
 }
 
 
-
-
-int do_one_antisub(const char *line, struct session *ses)
+bool do_one_antisub(const char *line, struct session *ses)
 {
     struct listnode *ln;
     pvars_t vars;
@@ -73,7 +71,7 @@ int do_one_antisub(const char *line, struct session *ses)
     ln = ses->antisubs;
 
     while ((ln = ln->next))
-        if (check_one_action(line, ln->left, &vars, 0, ses))
-            return TRUE;
-    return FALSE;
+        if (check_one_action(line, ln->left, &vars, false, ses))
+            return true;
+    return false;
 }

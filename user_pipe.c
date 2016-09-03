@@ -51,7 +51,7 @@ static void userpipe_textout(const char *txt)
     write_stdout(buf, b-buf);
 }
 
-static int userpipe_process_kbd(struct session *ses, WC ch)
+static bool userpipe_process_kbd(struct session *ses, WC ch)
 {
 
     switch (ch)
@@ -59,19 +59,19 @@ static int userpipe_process_kbd(struct session *ses, WC ch)
     case '\n':
         *i_pos=0;
         i_pos=done_input;
-        return 1;
+        return true;
     case 8:
         if (i_pos!=done_input)
             i_pos--;
-        return 0;
+        return false;
     default:
         if (i_pos-done_input>=BUFFER_SIZE-8)
-            return 0;
+            return false;
         i_pos+=wc_to_utf8(i_pos, &ch, 1, BUFFER_SIZE-(i_pos-done_input));
     case 0:
         ;
     }
-    return 0;
+    return false;
 }
 
 static void userpipe_beep(void)

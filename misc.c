@@ -340,13 +340,13 @@ void end_command(const char *arg, struct session *ses)
         if (sesptr!=nullsession && !sesptr->closing)
         {
             sesptr->closing=1;
-            do_hook(sesptr, HOOK_ZAP, 0, 1);
+            do_hook(sesptr, HOOK_ZAP, 0, true);
             sesptr->closing=0;
             cleanup_session(sesptr);
         }
     }
     activesession = nullsession;
-    do_hook(nullsession, HOOK_END, 0, 1);
+    do_hook(nullsession, HOOK_END, 0, true);
     activesession = NULL;
     if (ui_own_output)
     {
@@ -711,7 +711,7 @@ void system_command(const char *arg, struct session *ses)
         while (fgets(buf, BUFFER_SIZE, output))
         {
             ses->lastintitle=0;
-            do_in_MUD_colors(buf, 1, ses);
+            do_in_MUD_colors(buf, true, ses);
             local_to_utf8(ustr, buf, BUFFER_SIZE, &cs);
             user_textout(ustr);
         }
@@ -781,7 +781,7 @@ struct session* zap_command(const char *arg, struct session *ses)
         }
         tintin_puts("#ZZZZZZZAAAAAAAAPPPP!!!!!!!!! LET'S GET OUTTA HERE!!!!!!!!", ses);
         ses->closing=1;
-        do_hook(ses, HOOK_ZAP, 0, 1);
+        do_hook(ses, HOOK_ZAP, 0, true);
         ses->closing=0;
         cleanup_session(ses);
         return flag?newactive_session():activesession;
@@ -1066,30 +1066,30 @@ void info_command(const char *arg, struct session *ses)
     prompt(ses);
 }
 
-int isnotblank(const char *line, bool magic_only)
+bool isnotblank(const char *line, bool magic_only)
 {
     int c;
 
     if (!strcmp(line, EMPTY_LINE))
-        return 0;
+        return false;
     if (magic_only)
-        return 1;
+        return true;
     if (!*line)
-        return 0;
+        return false;
     while (*line)
         if (*line=='~')
             if (!getcolor(&line, &c, true))
-                return 1;
+                return true;
             else
                 line++;
         else if (isaspace(*line))
             line++;
         else
-            return 1;
-    return 0;
+            return true;
+    return false;
 }
 
-int iscompleteprompt(const char *line)
+bool iscompleteprompt(const char *line)
 {
     int c=7;
     char ch=' ';

@@ -370,7 +370,7 @@ nego_too_long:
     return 2; /* we leave everything but IAC SB */
 }
 
-void telnet_write_line(const char *line, struct session *ses, int nl)
+void telnet_write_line(const char *line, struct session *ses, bool nl)
 {
     char outtext[6*BUFFER_SIZE + 2], *out;
 

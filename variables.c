@@ -217,7 +217,7 @@ novar:
 void variable_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
-    int r;
+    bool r;
 
     /* char right2[BUFFER_SIZE]; */
     arg = get_arg(arg, left, 0, ses);
@@ -261,7 +261,7 @@ void listlength_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], list[BUFFER_SIZE],
     temp[BUFFER_SIZE];
-    int  i;
+    int i;
 
     arg = get_arg(arg, left, 0, ses);
     if (!*left)
@@ -424,21 +424,20 @@ void getitem_command(const char *arg, struct session *ses)
 /* First we have function which does necessary stuff */
 /* Argument: after all substitutions, with unnecessary surrounding */
 /*           spaces removed (e.g. ' {atom}' is _not_ an atom */
-int isatom(const char *arg)
+bool isatom(const char *arg)
 {
     int last = strlen(arg);
     if ((arg[0]    == DEFAULT_OPEN) &&
             (arg[last] == DEFAULT_CLOSE))
         /* one element list = '{elem}' */
-        return FALSE;
+        return false;
 
     if (strchr(arg, ' '))
         /* argument contains spaces i.e. = 'elem1 elem2' */
         /* this is incompatibile with supposed " behaviour */
-        return FALSE;
+        return false;
 
-    /* else */
-    return TRUE;
+    return true;
 }
 
 /***********************/
@@ -448,7 +447,6 @@ void isatom_command(const char *line, struct session *ses)
 {
     /* char left[BUFFER_SIZE], right[BUFFER_SIZE], arg2[BUFFER_SIZE], */
     char left[BUFFER_SIZE], right[BUFFER_SIZE], temp[8];
-    int i;
 
     line = get_arg(line, left, 0, ses);
     if (!*left)
@@ -457,8 +455,7 @@ void isatom_command(const char *line, struct session *ses)
         return;
     };
     line = get_arg(line, right, 1, ses);
-    i = isatom(right);
-    sprintf(temp, "%d", i);
+    sprintf(temp, "%d", isatom(right));
     set_variable(left, temp, ses);
 }
 
@@ -535,10 +532,10 @@ static char* get_split_pos(char *list, int head_length)
 /* ARGUMENTS: beg - points to the first character of list             */
 /*            end - points to the element after last (usually '\0')   */
 /*            ses - session; used only for error handling             */
-/* RESULT:    TRUE if list is braced atom e.g. '{atom}'               */
+/* RESULT:    true if list is braced atom e.g. '{atom}'               */
 /*            i.e. whole list begins with DEFAULT_OPEN end ends with  */
 /*            DEFAULT_CLOSE and whole is inside group (inside braces) */
-static int is_braced_atom_2(const char *beg, const char *end, struct session *ses)
+static bool is_braced_atom_2(const char *beg, const char *end, struct session *ses)
 {
     /* we define where list ends */
 #define AT_END(beg, end) (((*beg) == '\0') || (beg >= end))
@@ -547,10 +544,10 @@ static int is_braced_atom_2(const char *beg, const char *end, struct session *se
     int nest = 0;
 
     if (AT_END(beg, end)) /* string is empty */
-        return FALSE;
+        return false;
 
     if (*beg!=DEFAULT_OPEN)
-        return FALSE;
+        return false;
 
     while (NOT_AT_END(beg, end) && !(*beg == DEFAULT_CLOSE && nest == 0))
     {
@@ -565,7 +562,7 @@ static int is_braced_atom_2(const char *beg, const char *end, struct session *se
             beg++;
 
         if (nest == 0 && NOT_AT_END(beg, end))  /* we are at outer level and not at end */
-            return FALSE;
+            return false;
     }
 
     /* we can check only if there are too many opening delimiters */
@@ -573,10 +570,10 @@ static int is_braced_atom_2(const char *beg, const char *end, struct session *se
     if (nest > 0)
     {
         tintin_eprintf(ses, "Unmatched braces error - too many '%c'", DEFAULT_OPEN);
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 /* FUNCTION:  simplify_list - removes unwanted characters from        */

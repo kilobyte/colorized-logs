@@ -29,23 +29,23 @@
 extern struct session *sessionlist, *activesession, *nullsession;
 extern char *history[HISTORY_SIZE];
 extern char *user_charset_name;
-extern int any_closed;
+extern bool any_closed;
 #ifdef HAVE_GNUTLS
 #else
 # define gnutls_session_t int
 #endif
 
-static struct session *new_session(const char *name, const char *address, int sock, int issocket, gnutls_session_t ssl, struct session *ses);
+static struct session *new_session(const char *name, const char *address, int fd, bool issocket, gnutls_session_t ssl, struct session *ses);
 static void show_session(struct session *ses);
 
-static int session_exists(char *name)
+static bool session_exists(char *name)
 {
     struct session *sesptr;
 
     for (sesptr = sessionlist; sesptr; sesptr = sesptr->next)
         if (!strcmp(sesptr->name, name))
-            return 1;
-    return 0;
+            return true;
+    return false;
 }
 
 /* FIXME: use non-ascii letters in generated names */
@@ -144,7 +144,7 @@ static int list_sessions(const const char *arg, struct session *ses, char *left,
 /*****************************************/
 /* the #session and #sslsession commands */
 /*****************************************/
-static struct session *socket_session(const char *arg, struct session *ses, int ssl)
+static struct session *socket_session(const char *arg, struct session *ses, bool ssl)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE], host[BUFFER_SIZE];
     int sock;
@@ -189,22 +189,22 @@ static struct session *socket_session(const char *arg, struct session *ses, int 
             close(sock);
             return ses;
         }
-        return new_session(left, right, sock, 1, sslses, ses);
+        return new_session(left, right, sock, true, sslses, ses);
     }
 #endif
-    return new_session(left, right, sock, 1, 0, ses);
+    return new_session(left, right, sock, true, 0, ses);
 }
 
 
 struct session *session_command(const char *arg, struct session *ses)
 {
-    return socket_session(arg, ses, 0);
+    return socket_session(arg, ses, false);
 }
 
 struct session *sslsession_command(const char *arg, struct session *ses)
 {
 #ifdef HAVE_GNUTLS
-    return socket_session(arg, ses, 1);
+    return socket_session(arg, ses, true);
 #else
     tintin_eprintf(ses, "#SSLSESSION is not supported.  Please recompile KBtin against GnuTLS.");
     return ses;
@@ -236,7 +236,7 @@ struct session *run_command(const char *arg, struct session *ses)
         return ses;
     }
 
-    return new_session(left, right, sock, 0, 0, ses);
+    return new_session(left, right, sock, false, 0, ses);
 }
 
 
@@ -271,13 +271,13 @@ struct session *newactive_session(void)
 
         sprintf(buf, "#SESSION '%s' ACTIVATED.", activesession->name);
         tintin_puts1(buf, activesession);
-        return do_hook(activesession, HOOK_ACTIVATE, 0, 0);
+        return do_hook(activesession, HOOK_ACTIVATE, 0, false);
     }
     else
     {
         activesession=nullsession;
         tintin_puts1("#THERE'S NO ACTIVE SESSION NOW.", activesession);
-        return do_hook(activesession, HOOK_ACTIVATE, 0, 0);
+        return do_hook(activesession, HOOK_ACTIVATE, 0, false);
     }
 }
 
@@ -285,7 +285,7 @@ struct session *newactive_session(void)
 /**********************/
 /* open a new session */
 /**********************/
-static struct session *new_session(const char *name, const char *address, int sock, int issocket, gnutls_session_t ssl, struct session *ses)
+static struct session *new_session(const char *name, const char *address, int sock, bool issocket, gnutls_session_t ssl, struct session *ses)
 {
     struct session *newsession;
 
@@ -377,7 +377,7 @@ static struct session *new_session(const char *name, const char *address, int so
     sessionlist = newsession;
     activesession = newsession;
 
-    return do_hook(newsession, HOOK_OPEN, 0, 0);
+    return do_hook(newsession, HOOK_OPEN, 0, false);
 }
 
 
@@ -391,9 +391,9 @@ void cleanup_session(struct session *ses)
 
     if (ses->closing)
         return;
-    any_closed=1;
+    any_closed=true;
     ses->closing=2;
-    do_hook(act=ses, HOOK_CLOSE, 0, 1);
+    do_hook(act=ses, HOOK_CLOSE, 0, true);
 
     kill_all(ses, END);
     if (ses == sessionlist)
@@ -408,7 +408,7 @@ void cleanup_session(struct session *ses)
         user_textout_draft(0, 0);
         sprintf(buf, "%s\n", ses->last_line);
         convert(&ses->c_io, ses->last_line, buf, -1);
-        do_in_MUD_colors(ses->last_line, 0, 0);
+        do_in_MUD_colors(ses->last_line, false, 0);
         user_textout(ses->last_line);
     };
     sprintf(buf, "#SESSION '%s' DIED.", ses->name);

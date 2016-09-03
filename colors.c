@@ -145,7 +145,7 @@ static int rgb_background(struct rgb c)
 
 #define MAXTOK 10
 
-void do_in_MUD_colors(char *txt, int quotetype, struct session *ses)
+void do_in_MUD_colors(char *txt, bool quotetype, struct session *ses)
 {
     static int ccolor=7;
     /* worst case: buffer full of FormFeeds, with color=1023 */
@@ -353,7 +353,7 @@ error:
                     if (back-TXT<=ses->lastintitle)
                         break;
                     ses->lastintitle=back-TXT;
-                    do_hook(ses, HOOK_TITLE, back, 1);
+                    do_hook(ses, HOOK_TITLE, back, true);
                 }
             }
             break;

@@ -153,7 +153,7 @@ void unbind_command(const char *arg, struct session *ses)
 }
 
 
-int find_bind(const char *key, int msg, struct session *ses)
+bool find_bind(const char *key, int msg, struct session *ses)
 {
     char *val;
 
@@ -161,7 +161,7 @@ int find_bind(const char *key, int msg, struct session *ses)
     {          /* search twice, both for raw key code and key name */
         parse_input(val, true, ses);
         recursion=0;
-        return 1;
+        return true;
     };
     if ((val=get_hash(keynames, key)))
     {
@@ -170,12 +170,12 @@ int find_bind(const char *key, int msg, struct session *ses)
         {
             parse_input(val, true, ses);
             recursion=0;
-            return 1;
+            return true;
         }
     }
     if (msg)
         tintin_printf(ses, "#Unbound keycode: %s", key);
-    return 0;
+    return false;
 }
 
 

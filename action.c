@@ -31,14 +31,14 @@ static int deletedActions=0;
 const char *match_start, *match_end;
 
 extern struct session *if_command(const char *arg, struct session *ses);
-static int check_a_action(const char *line, const char *action, int inside, struct session *ses);
+static bool check_a_action(const char *line, const char *action, bool inside, struct session *ses);
 
-static int kill_action(struct listnode *head, struct listnode *nptr)
+static void kill_action(struct listnode *head, struct listnode *nptr)
 {
     if (inActions)
     {
         if (!strcmp(nptr->left, K_ACTION_MAGIC))
-            return 0;
+            return;
         SFREE(nptr->left);
         nptr->left=MALLOC(strlen(K_ACTION_MAGIC)+1);
         strcpy(nptr->left, K_ACTION_MAGIC);
@@ -46,7 +46,6 @@ static int kill_action(struct listnode *head, struct listnode *nptr)
     }
     else
         deletenode_list(head, nptr);
-    return 1;
 }
 
 static void zap_actions(struct session *ses)
@@ -225,7 +224,7 @@ void unpromptaction_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE];
     struct listnode **ptr, *ln;
-    int flag=false;
+    bool flag=false;
 
     arg = get_arg_in_braces(arg, left, 1);
     if (!*left)
@@ -408,7 +407,7 @@ void check_all_actions(const char *line, struct session *ses)
 
     while ((ln = ln->next))
     {
-        if (check_one_action(line, ln->left, &vars, 0, ses))
+        if (check_one_action(line, ln->left, &vars, false, ses))
         {
             lastpvars = pvars;
             pvars = &vars;
@@ -445,7 +444,7 @@ void check_all_promptactions(const char *line, struct session *ses)
 
     while ((ln = ln->next))
     {
-        if (check_one_action(line, ln->left, &vars, 0, ses))
+        if (check_one_action(line, ln->left, &vars, false, ses))
         {
             lastpvars=pvars;
             pvars=&vars;
@@ -491,7 +490,7 @@ void match_command(const char *arg, struct session *ses)
         return;
     }
 
-    if (check_one_action(line, left, &vars, 0, ses))
+    if (check_one_action(line, left, &vars, false, ses))
     {
         lastpvars = pvars;
         pvars = &vars;
@@ -538,7 +537,7 @@ int match_inline(const char *arg, struct session *ses)
         return 0;
     }
 
-    return check_one_action(line, left, &vars, 0, ses);
+    return check_one_action(line, left, &vars, false, ses);
 }
 
 
@@ -556,7 +555,7 @@ static int match_a_string(const char *line, const char *mask)
     return -1;
 }
 
-bool check_one_action(const char *line, const char *action, pvars_t *vars, int inside, struct session *ses)
+bool check_one_action(const char *line, const char *action, pvars_t *vars, bool inside, struct session *ses)
 {
     if (!check_a_action(line, action, inside, ses))
         return false;
@@ -576,9 +575,9 @@ bool check_one_action(const char *line, const char *action, pvars_t *vars, int i
 
 /******************************************************************/
 /* check if a text triggers an action and fill into the variables */
-/* return TRUE if triggered                                       */
+/* return true if triggered                                       */
 /******************************************************************/
-static int check_a_action(const char *line, const char *action, int inside, struct session *ses)
+static bool check_a_action(const char *line, const char *action, bool inside, struct session *ses)
 {
     char result[BUFFER_SIZE];
     char *temp2, *tptr;
@@ -594,19 +593,19 @@ static int check_a_action(const char *line, const char *action, int inside, stru
     if (*tptr == '^')
     {
         if (inside)
-            return 0;
+            return false;
         tptr++;
         flag_anchor = true;
         /* CHANGED to fix a bug with #action {^%0 foo}
          * Thanks to Spencer Sun for the bug report (AND fix!)
          if (*tptr!=*line)
-         return FALSE;
+         return false;
          */
     }
     if (flag_anchor)
     {
         if ((len = match_a_string(lptr, tptr)) == -1)
-            return FALSE;
+            return false;
         match_start=lptr;
         lptr += len;
         tptr += len;
@@ -626,7 +625,7 @@ static int check_a_action(const char *line, const char *action, int inside, stru
             tptr += len;
         }
         else
-            return FALSE;
+            return false;
     }
     while (*lptr && *tptr)
     {
@@ -636,7 +635,7 @@ static int check_a_action(const char *line, const char *action, int inside, stru
             var_len[*(tptr + 1) - 48] = strlen(lptr);
             var_ptr[*(tptr + 1) - 48] = lptr;
             match_end=""; /* NOTE: to use (match_end-line) change this line */
-            return TRUE;
+            return true;
         }
         lptr2 = lptr;
         len = -1;
@@ -655,7 +654,7 @@ static int check_a_action(const char *line, const char *action, int inside, stru
             tptr = temp2 + len;
         }
         else
-            return FALSE;
+            return false;
     }
     if ((*tptr=='%')&&isadigit(*(tptr+1)))
     {
@@ -664,10 +663,7 @@ static int check_a_action(const char *line, const char *action, int inside, stru
         tptr+=2;
     };
     match_end=lptr;
-    if (*tptr)
-        return FALSE;
-    else
-        return TRUE;
+    return !*tptr;
 }
 
 

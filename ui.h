@@ -25,7 +25,7 @@ typedef void (voidfunc)(void);
 typedef void (voidboolfunc)(bool x);
 typedef void (voidcharpfunc)(const char *txt);
 typedef void (voidcharpboolfunc)(const char *txt, bool x);
-typedef int (processkbdfunc)(struct session *ses, WC ch);
+typedef bool (processkbdfunc)(struct session *ses, WC ch);
 typedef void (voidFILEpfunc)(FILE *f);
 typedef void (printffunc)(const char *fmt, ...);
 

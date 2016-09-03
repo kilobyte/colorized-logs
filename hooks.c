@@ -9,7 +9,7 @@ extern int hooknum;
 extern pvars_t *pvars;  /* the %0, %1, %2,....%9 variables */
 extern bool in_alias;
 
-static int magic_close_hook=true;
+static bool magic_close_hook=true;
 
 const char *hook_names[]=
 {
@@ -98,7 +98,7 @@ void unhook_command(const char *arg, struct session *ses)
     tintin_eprintf(ses, "#Invalid hook: {%s}", left);
 }
 
-struct session* do_hook(struct session *ses, int t, const char *data, int blockzap)
+struct session* do_hook(struct session *ses, int t, const char *data, bool blockzap)
 {
     pvars_t vars, *lastvars;
     int oldclos=oldclos;
