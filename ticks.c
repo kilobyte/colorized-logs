@@ -42,7 +42,7 @@ void tickoff_command(const char *arg, struct session *ses)
 {
     if (ses)
     {
-        ses->tickstatus = FALSE;
+        ses->tickstatus = false;
         tintin_puts("#TICKER IS NOW OFF.", ses);
     }
     else
@@ -56,7 +56,7 @@ void tickon_command(const char *arg, struct session *ses)
 {
     if (ses)
     {
-        ses->tickstatus = TRUE;
+        ses->tickstatus = true;
         if (ses->time0 == 0)
             ses->time0 = time(NULL);
         tintin_puts("#TICKER IS NOW ON.", ses);

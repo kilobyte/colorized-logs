@@ -249,7 +249,7 @@ static void init_nullses(void)
     nullsession=TALLOC(struct session);
     nullsession->name=mystrdup("main");
     nullsession->address=0;
-    nullsession->tickstatus = FALSE;
+    nullsession->tickstatus = false;
     nullsession->tick_size = DEFAULT_TICK_SIZE;
     nullsession->pretick = DEFAULT_PRETICK;
     nullsession->time0 = 0;

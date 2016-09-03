@@ -317,7 +317,7 @@ struct session
     struct session *next;
     char *name;
     char *address;
-    int tickstatus;
+    bool tickstatus;
     time_t time0;      /* time of last tick (adjusted every tick) */
     time_t time10;
     int tick_size, pretick;

@@ -294,7 +294,7 @@ static struct session *new_session(const char *name, const char *address, int so
 
     newsession->name = mystrdup(name);
     newsession->address = mystrdup(address);
-    newsession->tickstatus = FALSE;
+    newsession->tickstatus = false;
     newsession->tick_size = ses->tick_size;
     newsession->pretick = ses->pretick;
     newsession->time0 = 0;
