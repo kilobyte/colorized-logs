@@ -29,7 +29,8 @@ extern char tintin_char;
 extern bool keypad, retain;
 extern pvars_t *pvars; /* the %0, %1, %2,....%9 variables */
 extern char status[BUFFER_SIZE];
-int margins, marginl, marginr;
+bool margins;
+int marginl, marginr;
 extern int LINES, COLS;
 extern bool puts_echoing;
 extern int in_read;
@@ -428,7 +429,7 @@ void margins_command(const char *arg, struct session *ses)
 
     if (margins)
     {
-        margins=0;
+        margins=false;
         tintin_printf(ses, "#MARGINS DISABLED.");
     }
     else
@@ -470,7 +471,7 @@ void margins_command(const char *arg, struct session *ses)
         };
         marginl=l;
         marginr=r;
-        margins=1;
+        margins=true;
         tintin_printf(ses, "#MARGINS ENABLED.");
     }
 }
@@ -492,12 +493,11 @@ void showme_command(const char *arg, struct session *ses)
 void loop_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
-    int flag, bound1, bound2, counter;
+    int bound1, bound2, counter;
     pvars_t vars, *lastpvars;
 
     arg = get_arg(arg, left, 0, ses);
     arg = get_arg_in_braces(arg, right, 1);
-    flag = 1;
     if (sscanf(left, "%d,%d", &bound1, &bound2) != 2)
         tintin_eprintf(ses, "#Wrong number of arguments in #loop: {%s}.", left);
     else
@@ -511,9 +511,9 @@ void loop_command(const char *arg, struct session *ses)
         lastpvars=pvars;
         pvars=&vars;
 
-        flag = 1;
+        bool flag = true;
         counter = bound1;
-        while (flag == 1)
+        while (flag)
         {
             sprintf(vars[0], "%d", counter);
             parse_input(right, true, ses);
@@ -521,13 +521,13 @@ void loop_command(const char *arg, struct session *ses)
             {
                 counter++;
                 if (counter > bound2)
-                    flag = 0;
+                    flag = false;
             }
             else
             {
                 counter--;
                 if (counter < bound2)
-                    flag = 0;
+                    flag = false;
             }
         }
         pvars=lastpvars;
@@ -646,16 +646,10 @@ void snoop_command(const char *arg, struct session *ses)
             return;
         }
     }
-    if (sesptr->snoopstatus)
-    {
-        sesptr->snoopstatus = FALSE;
-        tintin_printf(ses, "#UNSNOOPING SESSION '%s'", sesptr->name);
-    }
-    else
-    {
-        sesptr->snoopstatus = TRUE;
+    if ((sesptr->snoopstatus = !sesptr->snoopstatus))
         tintin_printf(ses, "#SNOOPING SESSION '%s'", sesptr->name);
-    }
+    else
+        tintin_printf(ses, "#UNSNOOPING SESSION '%s'", sesptr->name);
 }
 
 /**************************/
@@ -774,7 +768,7 @@ void shell_command(const char *arg, struct session *ses)
 /********************/
 struct session* zap_command(const char *arg, struct session *ses)
 {
-    int flag=(ses==activesession);
+    bool flag=(ses==activesession);
 
     if (*arg)
     {
@@ -1077,19 +1071,19 @@ void info_command(const char *arg, struct session *ses)
     prompt(ses);
 }
 
-int isnotblank(const char *line, int flag)
+int isnotblank(const char *line, bool magic_only)
 {
     int c;
 
     if (!strcmp(line, EMPTY_LINE))
         return 0;
-    if (flag)
+    if (magic_only)
         return 1;
     if (!*line)
         return 0;
     while (*line)
         if (*line=='~')
-            if (!getcolor(&line, &c, 1))
+            if (!getcolor(&line, &c, true))
                 return 1;
             else
                 line++;

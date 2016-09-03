@@ -610,7 +610,7 @@ static int is_braced_atom_2(const char *beg, const char *end, struct session *se
 /*            If you don't like this behavior simply undefine         */
 /*            REMOVE_ONEELEM_BRACES.                                  */
 /*            see also: getitemnr_command, REMOVE_ONEELEM_BRACES      */
-static void simplify_list(char **beg, char **end, int flag, struct session *ses)
+static void simplify_list(char **beg, char **end, bool flag, struct session *ses)
 {
     /* remember: we do not check arguments (e.g. if they are not NULL) */
 

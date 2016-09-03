@@ -28,7 +28,8 @@ static int k_len, k_pos, k_scrl, tk_len, tk_pos, tk_scrl;
 static int o_len, o_pos, o_oldcolor, o_prevcolor, o_draftlen, o_lastprevcolor;
 #define o_color color
 #define o_lastcolor lastcolor
-static int b_first, b_current, b_last, b_bottom, b_screenb, o_strongdraft;
+static int b_first, b_current, b_last, b_bottom, b_screenb;
+static bool o_strongdraft;
 static int b_greeting;
 static char *b_output[B_LENGTH];
 static int scr_len, scr_curs;
@@ -36,7 +37,8 @@ extern bool isstatus;
 extern int hist_num;
 extern char *history[HISTORY_SIZE];
 static bool in_getpassword;
-extern int margins, marginl, marginr;
+extern bool margins;
+extern int marginl, marginr;
 static struct termios old_tattr;
 static bool retaining;
 #ifdef XTERM_TITLE
@@ -569,7 +571,7 @@ static void usertty_textout(const char *txt)
 #endif
 }
 
-static void usertty_textout_draft(const char *txt, int flag)
+static void usertty_textout_draft(const char *txt, bool strong)
 {
     if (o_draftlen)
         b_canceldraft();
@@ -592,7 +594,7 @@ static void usertty_textout_draft(const char *txt, int flag)
         b_draft[0]=0;
         o_draftlen=0;
     }
-    o_strongdraft=flag;
+    o_strongdraft=strong;
 }
 
 static void transpose_chars()
@@ -1604,7 +1606,7 @@ static void usertty_init(void)
     retaining=false;
     usertty_drawscreen();
 
-    margins=0;
+    margins=false;
     marginl=
         k_len=0;
     k_pos=0;
@@ -1630,7 +1632,7 @@ static void usertty_init(void)
     o_prevcolor=7;
     o_lastprevcolor=7;
     o_draftlen=0;
-    o_strongdraft=0;
+    o_strongdraft=false;
     o_lastcolor=7;
 
     tbuf+=sprintf(tbuf, "\033[1;1f\0337");

@@ -253,7 +253,7 @@ static void init_nullses(void)
     nullsession->tick_size = DEFAULT_TICK_SIZE;
     nullsession->pretick = DEFAULT_PRETICK;
     nullsession->time0 = 0;
-    nullsession->snoopstatus = TRUE;
+    nullsession->snoopstatus = true;
     nullsession->logfile = 0;
     nullsession->logname = 0;
     nullsession->logtype = DEFAULT_LOGTYPE;
@@ -869,7 +869,7 @@ static void read_mud(struct session *ses)
 /**********************************************************/
 static void do_one_line(char *line, int nl, struct session *ses)
 {
-    int isnb;
+    bool isnb;
     char ubuf[BUFFER_SIZE];
     struct timeval t1, t2;
 
@@ -901,7 +901,7 @@ static void do_one_line(char *line, int nl, struct session *ses)
     _=line;
     PROF("processing incoming colors");
     do_in_MUD_colors(line, 0, ses);
-    isnb=isnotblank(line, 0);
+    isnb=isnotblank(line, false);
     PROF("promptactions");
     if (!ses->ignore && (nl||isnb))
         check_all_promptactions(line, ses);

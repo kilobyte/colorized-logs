@@ -297,7 +297,7 @@ static struct session *new_session(const char *name, const char *address, int so
     newsession->tick_size = ses->tick_size;
     newsession->pretick = ses->pretick;
     newsession->time0 = 0;
-    newsession->snoopstatus = 0;
+    newsession->snoopstatus = false;
     newsession->logfile = 0;
     newsession->logname = 0;
     newsession->logtype = ses->logtype;
@@ -449,7 +449,7 @@ void cleanup_session(struct session *ses)
 void seslist(char *result)
 {
     struct session *sesptr;
-    int flag=0;
+    bool flag=false;
     char *r0=result;
 
     if ((sessionlist!=nullsession)||(nullsession->next))
@@ -460,7 +460,7 @@ void seslist(char *result)
                 if (flag)
                     *result++=' ';
                 else
-                    flag=1;
+                    flag=true;
                 if (isatom(sesptr->name))
                     result+=snprintf(result, BUFFER_SIZE-5+r0-result,
                         "%s", sesptr->name);

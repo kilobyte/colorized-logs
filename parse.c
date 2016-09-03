@@ -223,16 +223,15 @@ struct session* parse_input(const char *input, bool override_verbatim, struct se
 /************************************************************************/
 static inline int is_speedwalk_dirs(const char *cp)
 {
-    int flag;
+    bool flag = false;
 
-    flag = FALSE;
     while (*cp)
     {
         if (*cp != 'n' && *cp != 'e' && *cp != 's' && *cp != 'w' && *cp != 'u' && *cp != 'd' &&
                 !isadigit(*cp))
             return FALSE;
         if (!isadigit(*cp))
-            flag = TRUE;
+            flag = true;
         cp++;
     }
     return flag;
@@ -245,17 +244,17 @@ static void do_speedwalk(const char *cp, struct session *ses)
 {
     char sc[2];
     const char *loc;
-    int multflag, loopcnt, i;
+    int loopcnt, i;
 
     strcpy(sc, "x");
     while (*cp)
     {
         loc = cp;
-        multflag = FALSE;
+        bool multflag = false;
         while (isadigit(*cp))
         {
             cp++;
-            multflag = TRUE;
+            multflag = true;
         }
         if (multflag && *cp)
         {
@@ -530,7 +529,7 @@ static inline const char* get_arg_with_spaces(const char *s, char *arg)
     return s;
 }
 
-const char* get_arg_in_braces(const char *s, char *arg, int flag)
+const char* get_arg_in_braces(const char *s, char *arg, bool allow_spaces)
 {
     int nest = 0;
     const char *ptr;
@@ -539,10 +538,10 @@ const char* get_arg_in_braces(const char *s, char *arg, int flag)
     ptr = s;
     if (*s != DEFAULT_OPEN)
     {
-        if (flag == 0)
-            s = get_arg_stop_spaces(ptr, arg);
-        else
+        if (allow_spaces)
             s = get_arg_with_spaces(ptr, arg);
+        else
+            s = get_arg_stop_spaces(ptr, arg);
         return s;
     }
     s++;
@@ -599,9 +598,9 @@ static inline const char* get_arg_stop_spaces(const char *s, char *arg)
 }
 
 
-const char* get_arg(const char *s, char *arg, int flag, struct session *ses)
+const char* get_arg(const char *s, char *arg, bool allow_spaces, struct session *ses)
 {
-    const char *cptr=get_arg_in_braces(s, arg, flag);
+    const char *cptr=get_arg_in_braces(s, arg, allow_spaces);
     if (*arg)
     {
         char tmp[BUFFER_SIZE];

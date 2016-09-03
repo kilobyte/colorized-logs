@@ -29,18 +29,17 @@ const char *hook_names[]=
 void hooks_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
-    int t, flag;
 
     arg=get_arg(arg, left, 0, ses);
     arg=space_out(arg);
     if (!*left || !*arg)
     {
-        flag=1;
-        for (t=0;t<NHOOKS;t++)
+        bool flag=true;
+        for (int t=0;t<NHOOKS;t++)
             if (ses->hooks[t] && (!*left || is_abrev(left, hook_names[t])))
             {
                 if (flag && !*left)
-                    tintin_printf(ses, "#Defined hooks:"), flag=0;
+                    tintin_printf(ses, "#Defined hooks:"), flag=false;
                 tintin_printf(ses, "%-10s: {%s}", hook_names[t], ses->hooks[t]);
                 if (*left)
                     return;
@@ -50,7 +49,7 @@ void hooks_command(const char *arg, struct session *ses)
         return;
     }
     arg=get_arg_in_braces(arg, right, 1);
-    for (t=0;t<NHOOKS;t++)
+    for (int t=0;t<NHOOKS;t++)
         if (is_abrev(left, hook_names[t]))
         {
             SFREE(ses->hooks[t]);
@@ -70,24 +69,23 @@ void hooks_command(const char *arg, struct session *ses)
 void unhook_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE];
-    int t, flag;
 
     arg=get_arg(arg, left, 1, ses);
     if (!*left)
     {
-        flag=1;
-        for (t=0;t<NHOOKS;t++)
+        bool flag=true;
+        for (int t=0;t<NHOOKS;t++)
             if (ses->hooks[t])
             {
                 if (flag)
-                    tintin_printf(ses, "#Defined hooks:"), flag=0;
+                    tintin_printf(ses, "#Defined hooks:"), flag=false;
                 tintin_printf(ses, "%-10s: {%s}", hook_names[t], ses->hooks[t]);
             }
         if (flag)
             tintin_printf(ses, "#No hooks defined.");
         return;
     }
-    for (t=0;t<NHOOKS;t++)
+    for (int t=0;t<NHOOKS;t++)
         if (is_abrev(left, hook_names[t]))
         {
             if (ses->mesvar[MSG_HOOK])

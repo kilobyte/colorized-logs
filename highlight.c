@@ -77,22 +77,22 @@ static int get_high_num(const char *hig)
     return -1;
 }
 
-static int get_high(const char *hig)
+static bool get_high(const char *hig)
 {
     nhighpattern=0;
     if (!*hig)
-        return 0;
+        return false;
     while (hig&&*hig)
     {
         highcolor=7;
         if ((highpattern[nhighpattern++]=get_high_num(hig))==-1)
-            return 0;
+            return false;
         if ((hig=strchr(hig, '/')))
             hig++;
         if (nhighpattern==64)
-            return 1;
+            return true;
     }
-    return 1;
+    return true;
 }
 
 /***************************/
@@ -102,7 +102,7 @@ void highlight_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
     struct listnode *myhighs, *ln;
-    int colflag = TRUE;
+    bool colflag = true;
     char *pright, *tmp1, *tmp2, tmp3[BUFFER_SIZE];
 
     pright = right;
@@ -136,7 +136,7 @@ void highlight_command(const char *arg, struct session *ses)
             colflag = get_high(tmp3);
             tmp1 = tmp2 + 1;
         }
-        if (colflag == TRUE)
+        if (colflag)
         {
             if (!*right)
             {
@@ -195,9 +195,8 @@ void unhighlight_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], result[BUFFER_SIZE];
     struct listnode *myhighs, *ln, *temp;
-    int flag;
+    bool flag = false;
 
-    flag = FALSE;
     myhighs = ses->highs;
     temp = myhighs;
     arg = get_arg_in_braces(arg, left, 1);
@@ -208,7 +207,7 @@ void unhighlight_command(const char *arg, struct session *ses)
         if (ses->mesvar[4])
             tintin_printf(ses, "Ok. {%s} is no longer %s.", ln->left, ln->right);
         deletenode_list(myhighs, ln);
-        flag = TRUE;
+        flag = true;
         /*temp = ln;*/
     }
     if (!flag && ses->mesvar[4])

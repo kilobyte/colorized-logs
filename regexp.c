@@ -50,7 +50,7 @@ void grep_command(const char *arg, struct session *ses)
 {
     pvars_t vars, *lastpvars;
     char left[BUFFER_SIZE], line[BUFFER_SIZE], right[BUFFER_SIZE];
-    int flag=0;
+    bool flag=false;
 
     arg=get_arg(arg, left, 0, ses);
     arg=get_arg(arg, line, 0, ses);
@@ -68,7 +68,7 @@ void grep_command(const char *arg, struct session *ses)
         pvars = &vars;
         parse_input(right, true, ses);
         pvars = lastpvars;
-        flag=1;
+        flag=true;
     }
     arg=get_arg_in_braces(arg, left, 0);
     if (*left == tintin_char)

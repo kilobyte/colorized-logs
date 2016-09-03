@@ -100,10 +100,9 @@ void read_complete(const char *arg, struct session *ses)
 {
     FILE *myfile;
     char buffer[BUFFER_SIZE];
-    int flag;
+    bool flag = true;
     struct completenode *tcomplete, *tcomp2;
 
-    flag = TRUE;
     if ((complete_head = (struct completenode *)(malloc(sizeof(struct completenode)))) == NULL)
     {
         fprintf(stderr, "couldn't alloc completehead\n");

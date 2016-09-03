@@ -11,14 +11,14 @@ const int colors[8]={0,4,2,6,1,5,3,7};
 static enum {MUDC_OFF, MUDC_ON, MUDC_NULL, MUDC_NULL_WARN} mudcolors=MUDC_NULL_WARN;
 static char *MUDcolors[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
-int getcolor(const char *restrict*restrict ptr, int *restrict color, const int flag)
+int getcolor(const char *restrict*restrict ptr, int *restrict color, bool allow_minus_token)
 {
     int fg, bg, blink;
     const char *txt=*ptr;
 
     if (*(txt++)!='~')
         return 0;
-    if (flag&&(*txt=='-')&&(*(txt+1)=='1')&&(*(txt+2)=='~'))
+    if (allow_minus_token&&(*txt=='-')&&(*(txt+1)=='1')&&(*(txt+2)=='~'))
     {
         *color=-1;
         *ptr+=3;

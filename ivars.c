@@ -122,7 +122,7 @@ int eval_expression(char *arg, struct session *ses)
     while (1)
     {
         int i = 0;
-        int flag = 1;
+        bool flag = true;
         int begin = -1;
         int end = -1;
         int prev = -1;
@@ -135,7 +135,7 @@ int eval_expression(char *arg, struct session *ses)
             else if (stacks[i][1] == 1)
             {
                 end = i;
-                flag = 0;
+                flag = false;
             }
             prev = i;
             i = stacks[i][0];

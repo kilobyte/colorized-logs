@@ -24,7 +24,7 @@ static void list_events(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE];
     time_t ct; /* current time */
-    int flag;
+    bool flag;
     struct eventnode *ev;
 
     if (!ses)
@@ -48,17 +48,17 @@ static void list_events(const char *arg, struct session *ses)
     }
     else
     {
-        flag = 0;
+        flag = false;
         while (ev != NULL)
         {
             if (match(left, ev->event))
             {
                 tintin_printf(ses, "(%d)\t {%s}", ev->time-ct, ev->event);
-                flag = 1;
+                flag = true;
             }
             ev = ev->next;
         }
-        if (flag == 0)
+        if (!flag)
             tintin_printf(ses, "#THAT EVENT (%s) IS NOT DEFINED.", left);
     }
 }
@@ -146,7 +146,7 @@ static void remove_event(struct eventnode **ev)
 void undelay_command(const char *arg, struct session *ses)
 {
     char temp[BUFFER_SIZE], left[BUFFER_SIZE];
-    int flag;
+    bool flag;
     struct eventnode **ev;
 
     if (!ses)
@@ -165,12 +165,12 @@ void undelay_command(const char *arg, struct session *ses)
         return;
     }
 
-    flag = 0;
+    flag = false;
     ev = &(ses->events);
     while (*ev)
         if (match(left, (*ev)->event))
         {
-            flag=1;
+            flag=true;
             if (ses==activesession && ses->mesvar[3])
                 tintin_printf(ses, "#Ok. Event {%s} at %ld won't be executed.",
                     (*ev)->event, (*ev)->time-time(0));
@@ -179,7 +179,7 @@ void undelay_command(const char *arg, struct session *ses)
         else
             ev=&((*ev)->next);
 
-    if (flag == 0)
+    if (!flag)
         tintin_printf(ses, "#THAT EVENT IS NOT DEFINED.");
 }
 

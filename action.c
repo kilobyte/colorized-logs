@@ -93,7 +93,7 @@ void action_command(const char *arg, struct session *ses)
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
     char pr[BUFFER_SIZE];
     struct listnode *myactions, *ln;
-    int flag;
+    bool flag;
 
     myactions = ses->actions;
     arg = get_arg_in_braces(arg, left, 0);
@@ -109,10 +109,10 @@ void action_command(const char *arg, struct session *ses)
     }
     else if (*left && !*right)
     {
-        flag=0;
+        flag=false;
         while ((myactions = search_node_with_wild(myactions, left)) != NULL)
             if (strcmp(myactions->left, K_ACTION_MAGIC))
-                shownode_list_action(myactions), flag++;
+                shownode_list_action(myactions), flag=true;
         if (!flag && ses->mesvar[1])
             tintin_printf(ses, "#That action (%s) is not defined.", left);
         prompt(ses);
@@ -136,7 +136,7 @@ void promptaction_command(const char *arg, struct session *ses)
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
     char pr[BUFFER_SIZE];
     struct listnode *myprompts, *ln;
-    int flag;
+    bool flag;
 
     myprompts = ses->prompts;
     arg = get_arg_in_braces(arg, left, 0);
@@ -152,10 +152,10 @@ void promptaction_command(const char *arg, struct session *ses)
     }
     else if (*left && !*right)
     {
-        flag=0;
+        flag=false;
         while ((myprompts = search_node_with_wild(myprompts, left)))
             if (strcmp(myprompts->left, K_ACTION_MAGIC))
-                shownode_list_action(myprompts), flag++;
+                shownode_list_action(myprompts), flag=true;
         if (!flag && ses->mesvar[1])
             tintin_printf(ses, "#That promptaction (%s) is not defined.", left);
         prompt(ses);
@@ -178,7 +178,7 @@ void unaction_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE];
     struct listnode **ptr, *ln;
-    int flag;
+    bool flag=false;
 
     arg = get_arg_in_braces(arg, left, 1);
     if (!*left)
@@ -186,14 +186,13 @@ void unaction_command(const char *arg, struct session *ses)
         tintin_eprintf(ses, "#Syntax: #unaction <pattern>");
         return;
     }
-    flag = 0;
     ptr = &ses->actions->next;
     while (*ptr)
     {
         ln=*ptr;
         if (strcmp(ln->left, K_ACTION_MAGIC)&&match(left, ln->left))
         {
-            flag=1;
+            flag=true;
             if (ses->mesvar[1])
                 tintin_printf(ses, "#Ok. {%s} is no longer an action.", ln->left);
             SFREE(ln->left);
@@ -226,7 +225,7 @@ void unpromptaction_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE];
     struct listnode **ptr, *ln;
-    int flag;
+    int flag=false;
 
     arg = get_arg_in_braces(arg, left, 1);
     if (!*left)
@@ -234,14 +233,13 @@ void unpromptaction_command(const char *arg, struct session *ses)
         tintin_eprintf(ses, "#Syntax: #unpromptaction <pattern>");
         return;
     }
-    flag = 0;
     ptr = &ses->prompts->next;
     while (*ptr)
     {
         ln=*ptr;
         if (strcmp(ln->left, K_ACTION_MAGIC)&&match(left, ln->left))
         {
-            flag=1;
+            flag=true;
             if (ses->mesvar[1])
                 tintin_printf(ses, "#Ok. {%s} is no longer a promptaction.", ln->left);
             SFREE(ln->left);
@@ -589,11 +587,11 @@ static int check_a_action(const char *line, const char *action, int inside, stru
     char result[BUFFER_SIZE];
     char *temp2, *tptr;
     const char *lptr, *lptr2;
-    int i, flag_anchor, len;
+    int i, len;
+    bool flag_anchor = false;
 
     for (i = 0; i < 10; i++)
         var_len[i] = -1;
-    flag_anchor = FALSE;
     lptr = line;
     substitute_myvars(action, result, ses);
     tptr = result;
@@ -602,7 +600,7 @@ static int check_a_action(const char *line, const char *action, int inside, stru
         if (inside)
             return 0;
         tptr++;
-        flag_anchor = TRUE;
+        flag_anchor = true;
         /* CHANGED to fix a bug with #action {^%0 foo}
          * Thanks to Spencer Sun for the bug report (AND fix!)
          if (*tptr!=*line)

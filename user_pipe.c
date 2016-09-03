@@ -98,7 +98,7 @@ void userpipe_initdriver()
     user_pause          = user_illegal;
     user_resume         = user_illegal;
     user_textout        = userpipe_textout;
-    user_textout_draft  = user_noop;
+    user_textout_draft  = (voidcharpboolfunc*)user_noop;
     user_process_kbd    = userpipe_process_kbd;
     user_beep           = userpipe_beep;
     user_keypad         = (voidboolfunc*)user_illegal;

@@ -23,7 +23,7 @@ static void parse_sub(const char *arg, int gag, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
     struct listnode *mysubs, *ln;
-    int flag=0;
+    bool flag=false;
 
     mysubs = ses->subs;
     arg = get_arg_in_braces(arg, left, 0);
@@ -41,14 +41,14 @@ static void parse_sub(const char *arg, int gag, struct session *ses)
                     if (!flag)
                         tintin_printf(ses, "#THESE GAGS HAVE BEEN DEFINED:");
                     tintin_printf(ses, "{%s~7~}", mysubs->left);
-                    flag=1;
+                    flag=true;
                 }
             }
             else
             {
                 if (!flag)
                     tintin_printf(ses, "#THESE SUBSTITUTES HAVE BEEN DEFINED:");
-                flag=1;
+                flag=true;
                 shownode_list(mysubs);
             }
         if (!flag && ses->mesvar[2])
@@ -99,13 +99,12 @@ void gag_command(const char *arg, struct session *ses)
 /*****************************/
 /* the #unsubstitute command */
 /*****************************/
-static void unsub(const char *arg, int gag, struct session *ses)
+static void unsub(const char *arg, bool gag, struct session *ses)
 {
     char left[BUFFER_SIZE];
     struct listnode *mysubs, *ln, *temp;
-    int flag;
+    bool flag = false;
 
-    flag = FALSE;
     mysubs = ses->subs;
     temp = mysubs;
     arg = get_arg_in_braces(arg, left, 1);
@@ -124,7 +123,7 @@ static void unsub(const char *arg, int gag, struct session *ses)
                 tintin_printf(ses, "#Ok. {%s} is no longer substituted.", ln->left);
         }
         deletenode_list(mysubs, ln);
-        flag = TRUE;
+        flag = true;
         /*  temp=ln; */
     }
     if (!flag && ses->mesvar[2])
@@ -133,12 +132,12 @@ static void unsub(const char *arg, int gag, struct session *ses)
 
 void unsubstitute_command(const char *arg, struct session *ses)
 {
-    unsub(arg, 0, ses);
+    unsub(arg, false, ses);
 }
 
 void ungag_command(const char *arg, struct session *ses)
 {
-    unsub(arg, 1, ses);
+    unsub(arg, true, ses);
 }
 
 #define APPEND(srch)    if (rlen+len > BUFFER_SIZE-1)           \

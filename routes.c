@@ -418,7 +418,6 @@ void dogoto_command(const char *arg, struct session *ses)
     struct routenode *r;
     int d[MAX_LOCATIONS], ok[MAX_LOCATIONS], way[MAX_LOCATIONS];
     char path[BUFFER_SIZE], *pptr;
-    int flag;
 
     arg=get_arg(arg, A, 0, ses);
     arg=get_arg(arg, B, 0, ses);
@@ -431,7 +430,7 @@ void dogoto_command(const char *arg, struct session *ses)
         tintin_eprintf(ses, "#SYNTAX: #dogoto <from> <to> [<distvar> [<locvar> [<pathvar>]]] [#else ...]");
         return;
     };
-    flag=*distvar||*locvar||*pathvar;
+    bool flag=*distvar||*locvar||*pathvar;
 
     for (a=0;a<MAX_LOCATIONS;a++)
         if (ses->locations[a]&&!strcmp(ses->locations[a], A))

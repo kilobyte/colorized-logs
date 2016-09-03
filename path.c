@@ -18,7 +18,7 @@
 #include "protos/path.h"
 #include "protos/variables.h"
 
-static int return_flag = TRUE;
+static bool return_flag = true;
 
 extern struct session *nullsession;
 
@@ -220,9 +220,9 @@ void return_command(const char *arg, struct session *ses)
         while (ln->next)
             (ln = ln->next);
         strcpy(command, ln->right);
-        return_flag = FALSE; /* temporarily turn off path tracking */
+        return_flag = false; /* temporarily turn off path tracking */
         parse_input(command, false, ses);
-        return_flag = TRUE;  /* restore path tracking */
+        return_flag = true;  /* restore path tracking */
         deletenode_list(ses->path, ln);
     }
 }
