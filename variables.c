@@ -217,11 +217,9 @@ novar:
 void variable_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
-    bool r;
 
-    /* char right2[BUFFER_SIZE]; */
     arg = get_arg(arg, left, 0, ses);
-    r=*space_out(arg);
+    bool r=*space_out(arg);
     arg = get_arg(arg, right, 1, ses);
     if (*left && r)
     {
@@ -261,24 +259,21 @@ void listlength_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], list[BUFFER_SIZE],
     temp[BUFFER_SIZE];
-    int i;
 
     arg = get_arg(arg, left, 0, ses);
     if (!*left)
-        tintin_eprintf(ses, "#Error - Syntax: #listlength {dest var} {list}");
-    else
+        return tintin_eprintf(ses, "#Error - Syntax: #listlength {dest var} {list}");
+
+    get_arg(arg, list, 1, ses);
+    arg = list;
+    int i=0;
+    do
     {
-        get_arg(arg, list, 1, ses);
-        arg = list;
-        i=0;
-        do
-        {
-            if (*arg) i++;
-            arg = get_arg_in_braces(arg, temp, 0);
-        } while (*arg);
-        sprintf(temp, "%d", i);
-        set_variable(left, temp, ses);
-    }
+        if (*arg) i++;
+        arg = get_arg_in_braces(arg, temp, 0);
+    } while (*arg);
+    sprintf(temp, "%d", i);
+    set_variable(left, temp, ses);
 }
 
 /**************************/
@@ -287,11 +282,10 @@ void listlength_command(const char *arg, struct session *ses)
 int listlength_inline(const char *arg, struct session *ses)
 {
     char list[BUFFER_SIZE], temp[BUFFER_SIZE];
-    int  i;
 
     arg=get_arg(arg, list, 0, ses);
     arg = list;
-    i=0;
+    int i=0;
     do {
         if (*arg) i++;
         arg = get_arg_in_braces(arg, temp, 0);
@@ -303,12 +297,11 @@ int listlength_inline(const char *arg, struct session *ses)
 static int find_item(const char *item, const char *list)
 {
     char temp[BUFFER_SIZE];
-    int i;
 
     /*  sprintf(temp, "#searching for [%s] in list [%s]", item, list);
         tintin_printf(0, temp);
     */
-    i=0;
+    int i=0;
     do {
         i++;
         list = get_arg_in_braces(list, temp, 0);
@@ -329,12 +322,10 @@ void finditem_command(const char *arg, struct session *ses)
     arg = get_arg(arg, item, 0, ses);
     arg = get_arg(arg, list, 1, ses);
     if (!*left)
-        tintin_eprintf(ses, "#Error - Syntax: #finditem {dest var} {item} {list}");
-    else
-    {
-        sprintf(item, "%d", find_item(item, list));
-        set_variable(left, item, ses);
-    }
+        return tintin_eprintf(ses, "#Error - Syntax: #finditem {dest var} {item} {list}");
+
+    sprintf(item, "%d", find_item(item, list));
+    set_variable(left, item, ses);
 }
 
 /************************/
@@ -426,12 +417,9 @@ bool isatom(const char *arg)
         /* one element list = '{elem}' */
         return false;
 
-    if (strchr(arg, ' '))
+    return !strchr(arg, ' ');
         /* argument contains spaces i.e. = 'elem1 elem2' */
         /* this is incompatibile with supposed " behaviour */
-        return false;
-
-    return true;
 }
 
 /***********************/
@@ -439,15 +427,12 @@ bool isatom(const char *arg)
 /***********************/
 void isatom_command(const char *line, struct session *ses)
 {
-    /* char left[BUFFER_SIZE], right[BUFFER_SIZE], arg2[BUFFER_SIZE], */
     char left[BUFFER_SIZE], right[BUFFER_SIZE], temp[8];
 
     line = get_arg(line, left, 0, ses);
     if (!*left)
-    {
-        tintin_eprintf(ses, "#Syntax: #isatom <dest. var> <list>");
-        return;
-    };
+        return tintin_eprintf(ses, "#Syntax: #isatom <dest. var> <list>");
+
     line = get_arg(line, right, 1, ses);
     sprintf(temp, "%d", isatom(right));
     set_variable(left, temp, ses);
@@ -671,11 +656,8 @@ void splitlist_command(const char *arg, struct session *ses)
     arg = get_arg(arg, tailvar, 0, ses);
 
     if (!*headvar && !*tailvar)
-    {
-        tintin_eprintf(ses, "#Error - Syntax: #splitlist {head variable} {tail variable} "
+        return tintin_eprintf(ses, "#Error - Syntax: #splitlist {head variable} {tail variable} "
                      "{list} [{head size}]");
-        return;
-    }
 
     arg = get_arg(arg, list, 1, ses);
     arg = get_arg(arg, headlengthtxt, 1, ses);
@@ -689,15 +671,9 @@ void splitlist_command(const char *arg, struct session *ses)
     else
     {
         if (sscanf(headlengthtxt, "%d", &head_length) != 1)
-        {
-            tintin_eprintf(ses, "#Error in #splitlist - head size has to be number>=0, got {%s}.", headlengthtxt);
-            return;
-        }
+            return tintin_eprintf(ses, "#Error in #splitlist - head size has to be number>=0, got {%s}.", headlengthtxt);
         if (head_length < 0)
-        {
-            tintin_eprintf(ses, "#Error in #splitlist - head size could not be negative, got {%d}.", head_length);
-            return;
-        }
+            return tintin_eprintf(ses, "#Error in #splitlist - head size could not be negative, got {%d}.", head_length);
     }
 
     /** invoke main procedure **/
@@ -720,36 +696,34 @@ void deleteitems_command(const char *arg, struct session *ses)
 
     arg = get_arg(arg, left, 0, ses);
     if (!*left)
-        tintin_eprintf(ses, "#Error - Syntax: #deleteitem {dest. variable} {list} {item}");
-    else
-    {
-        arg=get_arg(arg, list, 0, ses);
-        get_arg(arg, item, 1, ses);
-        arg = list;
-        rpos=right;
-        if (*arg)
-            do {
-                arg = get_arg_in_braces(arg, temp, 0);
-                if (!match(item, temp))
+        return tintin_eprintf(ses, "#Error - Syntax: #deleteitem {dest. variable} {list} {item}");
+
+    arg=get_arg(arg, list, 0, ses);
+    get_arg(arg, item, 1, ses);
+    arg = list;
+    rpos=right;
+    if (*arg)
+        do {
+            arg = get_arg_in_braces(arg, temp, 0);
+            if (!match(item, temp))
+            {
+                if (rpos!=right)
+                    *rpos++=' ';
+                lpos=temp;
+                if (isatom(temp))
+                    while (*lpos)
+                        *rpos++=*lpos++;
+                else
                 {
-                    if (rpos!=right)
-                        *rpos++=' ';
-                    lpos=temp;
-                    if (isatom(temp))
-                        while (*lpos)
-                            *rpos++=*lpos++;
-                    else
-                    {
-                        *rpos++=DEFAULT_OPEN;
-                        while (*lpos)
-                            *rpos++=*lpos++;
-                        *rpos++=DEFAULT_CLOSE;
-                    }
+                    *rpos++=DEFAULT_OPEN;
+                    while (*lpos)
+                        *rpos++=*lpos++;
+                    *rpos++=DEFAULT_CLOSE;
                 }
-            } while (*arg);
-        *rpos=0;
-        set_variable(left, right, ses);
-    }
+            }
+        } while (*arg);
+    *rpos=0;
+    set_variable(left, right, ses);
 }
 
 /**************************/
@@ -805,10 +779,7 @@ void sortlist_command(const char *arg, struct session *ses)
     arg=get_arg(arg, left, 0, ses);
     get_arg(arg, right, 1, ses);
     if (!*left)
-    {
-        tintin_eprintf(ses, "#SYNTAX: sortlist var {list}");
-        return;
-    }
+        return tintin_eprintf(ses, "#SYNTAX: sortlist var {list}");
 
     int n=0;
     arg = right;
@@ -843,15 +814,13 @@ void tolower_command(const char *arg, struct session *ses)
     arg = get_arg(arg, left, 0, ses);
     arg = get_arg(arg, right, 1, ses);
     if (!*left)
-        tintin_eprintf(ses, "#Syntax: #tolower <var> <text>");
-    else
-    {
-        TO_WC(txt, right);
-        for (p = txt; *p; p++)
-            *p = towlower(*p);
-        WRAP_WC(right, txt);
-        set_variable(left, right, ses);
-    }
+        return tintin_eprintf(ses, "#Syntax: #tolower <var> <text>");
+
+    TO_WC(txt, right);
+    for (p = txt; *p; p++)
+        *p = towlower(*p);
+    WRAP_WC(right, txt);
+    set_variable(left, right, ses);
 }
 
 /************************/
@@ -865,15 +834,13 @@ void toupper_command(const char *arg, struct session *ses)
     arg = get_arg(arg, left, 0, ses);
     arg = get_arg(arg, right, 1, ses);
     if (!*left)
-        tintin_eprintf(ses, "#Syntax: #toupper <var> <text>");
-    else
-    {
-        TO_WC(txt, right);
-        for (p = txt; *p; p++)
-            *p = towupper(*p);
-        WRAP_WC(right, txt);
-        set_variable(left, right, ses);
-    }
+        return tintin_eprintf(ses, "#Syntax: #toupper <var> <text>");
+
+    TO_WC(txt, right);
+    for (p = txt; *p; p++)
+        *p = towupper(*p);
+    WRAP_WC(right, txt);
+    set_variable(left, right, ses);
 }
 
 /***************************/
@@ -887,16 +854,14 @@ void firstupper_command(const char *arg, struct session *ses)
     arg = get_arg(arg, left, 0, ses);
     arg = get_arg(arg, right, 1, ses);
     if (!*left)
-        tintin_eprintf(ses, "#Syntax: #firstupper <var> <text>");
-    else
-    {
-        TO_WC(txt, right);
-        for (p = txt; *p; p++)
-            *p = towlower(*p);
-        *txt=towupper(*txt);
-        WRAP_WC(right, txt);
-        set_variable(left, right, ses);
-    }
+        return tintin_eprintf(ses, "#Syntax: #firstupper <var> <text>");
+
+    TO_WC(txt, right);
+    for (p = txt; *p; p++)
+        *p = towlower(*p);
+    *txt=towupper(*txt);
+    WRAP_WC(right, txt);
+    set_variable(left, right, ses);
 }
 
 /***********************/
@@ -909,12 +874,10 @@ void strlen_command(const char *arg, struct session *ses)
     arg = get_arg(arg, left, 0, ses);
     arg = get_arg(arg, right, 1, ses);
     if (!*left)
-        tintin_eprintf(ses, "#Syntax: #strlen <var> <text>");
-    else
-    {
-        sprintf(right, "%d", FLATlen(right));
-        set_variable(left, right, ses);
-    }
+        return tintin_eprintf(ses, "#Syntax: #strlen <var> <text>");
+
+    sprintf(right, "%d", FLATlen(right));
+    set_variable(left, right, ses);
 }
 
 /**********************/
@@ -967,14 +930,12 @@ void reverse_command(const char *arg, struct session *ses)
     arg = get_arg(arg, strvar, 1, ses);
 
     if (!*destvar)
-        tintin_eprintf(ses, "#Error - Syntax: #reverse {destination variable} {string}");
-    else
-    {
-        TO_WC(origstring, strvar);
-        revstr(revstring, origstring);
-        WRAP_WC(strvar, revstring);
-        set_variable(destvar, strvar, ses);
-    }
+        return tintin_eprintf(ses, "#Error - Syntax: #reverse {destination variable} {string}");
+
+    TO_WC(origstring, strvar);
+    revstr(revstring, origstring);
+    WRAP_WC(strvar, revstring);
+    set_variable(destvar, strvar, ses);
 }
 
 
@@ -991,36 +952,34 @@ void explode_command(const char *arg, struct session *ses)
     arg = get_arg(arg, del, 0, ses);
     arg = get_arg(arg, right, 1, ses);
     if (!*left || !*del)
-        tintin_eprintf(ses, "#Syntax: #explode <var> <delimiter> <text>");
-    else
+        return tintin_eprintf(ses, "#Syntax: #explode <var> <delimiter> <text>");
+
+    r=res;
+    p=right;
+    while ((n=strstr(p, del)))
     {
-        r=res;
-        p=right;
-        while ((n=strstr(p, del)))
-        {
-            *n=0;
-            if (p!=right)
-                *r++=' ';
-            if (*p&&isatom(p))
-                r+=sprintf(r, "%s", p);
-            else
-                r+=sprintf(r, "{%s}", p);
-            p=n+strlen(del);
-        }
+        *n=0;
         if (p!=right)
             *r++=' ';
         if (*p&&isatom(p))
             r+=sprintf(r, "%s", p);
         else
             r+=sprintf(r, "{%s}", p);
-
-        if (strlen(res)>BUFFER_SIZE-10)
-        {
-            tintin_eprintf(ses, "#ERROR: exploded line too long in #explode {%s} {%s} {%s}", left, del, right);
-            res[BUFFER_SIZE-10]=0;
-        }
-        set_variable(left, res, ses);
+        p=n+strlen(del);
     }
+    if (p!=right)
+        *r++=' ';
+    if (*p&&isatom(p))
+        r+=sprintf(r, "%s", p);
+    else
+        r+=sprintf(r, "{%s}", p);
+
+    if (strlen(res)>BUFFER_SIZE-10)
+    {
+        tintin_eprintf(ses, "#ERROR: exploded line too long in #explode {%s} {%s} {%s}", left, del, right);
+        res[BUFFER_SIZE-10]=0;
+    }
+    set_variable(left, res, ses);
 }
 
 
@@ -1032,31 +991,28 @@ void implode_command(const char *arg, struct session *ses)
     char left[BUFFER_SIZE], del[BUFFER_SIZE], right[BUFFER_SIZE],
          res[BUFFER_SIZE], temp[BUFFER_SIZE], *r;
     const char *p;
-    int len, dellen;
 
     arg = get_arg(arg, left, 0, ses);
     arg = get_arg(arg, del, 0, ses);
     arg = get_arg(arg, right, 1, ses);
     if (!*left || !*del)
-        tintin_eprintf(ses, "#Syntax: #implode <var> <delimiter> <list>");
-    else
+        return tintin_eprintf(ses, "#Syntax: #implode <var> <delimiter> <list>");
+
+    int dellen=strlen(del);
+    p = get_arg_in_braces(right, res, 0);
+    r=strchr(res, 0);
+    int len=r-res;
+    while (*p)
     {
-        dellen=strlen(del);
-        p = get_arg_in_braces(right, res, 0);
-        r=strchr(res, 0);
-        len=r-res;
-        while (*p)
+        p = get_arg_in_braces(p, temp, 0);
+        if ((len+=strlen(temp)+dellen) > BUFFER_SIZE-10)
         {
-            p = get_arg_in_braces(p, temp, 0);
-            if ((len+=strlen(temp)+dellen) > BUFFER_SIZE-10)
-            {
-                tintin_eprintf(ses, "#ERROR: imploded line too long in #implode {%s} {%s} {%s}", left, del, right);
-                break;
-            }
-            r+=sprintf(r, "%s%s", del, temp);
+            tintin_eprintf(ses, "#ERROR: imploded line too long in #implode {%s} {%s} {%s}", left, del, right);
+            break;
         }
-        set_variable(left, res, ses);
+        r+=sprintf(r, "%s%s", del, temp);
     }
+    set_variable(left, res, ses);
 }
 
 
@@ -1068,69 +1024,57 @@ void collate_command(const char *arg, struct session *ses)
     char left[BUFFER_SIZE], list[BUFFER_SIZE],
          cur[BUFFER_SIZE], last[BUFFER_SIZE], out[BUFFER_SIZE],
          *outptr, *err;
-    int i, j;
 
     arg = get_arg(arg, left, 0, ses);
     if (!*left)
-        tintin_eprintf(ses, "#Error - Syntax: #collate {dest var} {list}");
-    else
+        return tintin_eprintf(ses, "#Error - Syntax: #collate {dest var} {list}");
+
+    strcpy(last, K_ACTION_MAGIC);
+    *(outptr=out)=0;
+    get_arg(arg, list, 1, ses);
+    arg = list;
+    int i=0;
+    while (*arg)
     {
-        strcpy(last, K_ACTION_MAGIC);
-        *(outptr=out)=0;
-        get_arg(arg, list, 1, ses);
-        arg = list;
-        i=0;
-        while (*arg)
+        int j;
+        arg=space_out(arg);
+        if (isadigit(*arg))
+            j=strtol(arg, &err, 10), arg=err;
+        else
+            j=1;
+        if (!*arg || *arg==' ')
+            continue;
+        arg = get_arg_in_braces(arg, cur, 0);
+        if (j)
         {
-            arg=space_out(arg);
-            if (isadigit(*arg))
-                j=strtol(arg, &err, 10), arg=err;
-            else
-                j=1;
-            if (!*arg || *arg==' ')
-                continue;
-            arg = get_arg_in_braces(arg, cur, 0);
-            if (j)
+            if (strcmp(cur, last))
             {
-                if (strcmp(cur, last))
+                if (isatom(last))
                 {
-                    if (isatom(last))
-                    {
-                        if (i>1)
-                            outptr+=sprintf(outptr, "%d", i);
-                        if (i)
-                            outptr+=sprintf(outptr, "%s ", last);
-                    }
-                    else
-                    {
-                        if (i>1)
-                            outptr+=sprintf(outptr, "%d", i);
-                        if (i)
-                            outptr+=sprintf(outptr, "{%s} ", last);
-                    }
-                    strcpy(last, cur);
-                    i=j;
+                    if (i>1)
+                        outptr+=sprintf(outptr, "%d", i);
+                    if (i)
+                        outptr+=sprintf(outptr, "%s ", last);
                 }
                 else
-                    i+=j;
-             }
-        };
-        if (isatom(last))
-        {
-            if (i>1)
-                outptr+=sprintf(outptr, "%d", i);
-            if (i)
-                outptr+=sprintf(outptr, "%s", last);
-        }
-        else
-        {
-            if (i>1)
-                outptr+=sprintf(outptr, "%d", i);
-            if (i)
-                outptr+=sprintf(outptr, "{%s}", last);
-        }
-        set_variable(left, out, ses);
+                {
+                    if (i>1)
+                        outptr+=sprintf(outptr, "%d", i);
+                    if (i)
+                        outptr+=sprintf(outptr, "{%s} ", last);
+                }
+                strcpy(last, cur);
+                i=j;
+            }
+            else
+                i+=j;
+         }
     }
+    if (i>1)
+        outptr+=sprintf(outptr, "%d", i);
+    if (i)
+        outptr+=sprintf(outptr, isatom(last)?"%s":"{%s}", last);
+    set_variable(left, out, ses);
 }
 
 
@@ -1145,39 +1089,34 @@ void expand_command(const char *arg, struct session *ses)
 
     arg = get_arg(arg, left, 0, ses);
     if (!*left)
-        tintin_eprintf(ses, "#Error - Syntax: #expand {dest var} {list}");
-    else
+        return tintin_eprintf(ses, "#Error - Syntax: #expand {dest var} {list}");
+
+    *(outptr=out)=0;
+    get_arg(arg, list, 1, ses);
+    arg = list;
+    while (*arg)
     {
-        *(outptr=out)=0;
-        get_arg(arg, list, 1, ses);
-        arg = list;
-        while (*arg)
+        arg=space_out(arg);
+        if (isadigit(*arg))
+            j=strtol(arg, &err, 10), arg=err;
+        else
+            j=1;
+        if (!*arg || *arg==' ')
+            continue;
+        arg = get_arg_in_braces(arg, cur, 0);
+        if (j>BUFFER_SIZE/2)
+                j=BUFFER_SIZE/2;
+        for (int i=0;i<j;i++)
         {
-            arg=space_out(arg);
-            if (isadigit(*arg))
-                j=strtol(arg, &err, 10), arg=err;
+            if (isatom(cur))
+                outptr+=snprintf(outptr, out+BUFFER_SIZE-outptr, " %s", cur);
             else
-                j=1;
-            if (!*arg || *arg==' ')
-                continue;
-            arg = get_arg_in_braces(arg, cur, 0);
-            if (j>BUFFER_SIZE/2)
-                    j=BUFFER_SIZE/2;
-            for (int i=0;i<j;i++)
-            {
-                if (isatom(cur))
-                    outptr+=snprintf(outptr, out+BUFFER_SIZE-outptr, " %s", cur);
-                else
-                    outptr+=snprintf(outptr, out+BUFFER_SIZE-outptr, " {%s}", cur);
-                if (outptr>=out+BUFFER_SIZE-1)
-                {
-                    tintin_eprintf(ses, "#ERROR: expanded line too long in {%s}", list);
-                    return;
-                }
-            }
+                outptr+=snprintf(outptr, out+BUFFER_SIZE-outptr, " {%s}", cur);
+            if (outptr>=out+BUFFER_SIZE-1)
+                return tintin_eprintf(ses, "#ERROR: expanded line too long in {%s}", list);
         }
-        set_variable(left, (*out)?out+1:out, ses);
     }
+    set_variable(left, (*out)?out+1:out, ses);
 }
 
 
@@ -1192,25 +1131,20 @@ void random_command(const char *arg, struct session *ses)
     arg = get_arg(arg, left, 0, ses);
     arg = get_arg(arg, right, 1, ses);
     if (!*left || !*right)
-        tintin_eprintf(ses, "#Syntax: #random <var> <low,high>");
-    else
+        return tintin_eprintf(ses, "#Syntax: #random <var> <low,high>");
+    if (sscanf(right, "%d, %d%c", &low, &high, &dummy) != 2)
+        return tintin_eprintf(ses, "#Wrong number of range arguments in #random: got {%s}.", right);
+    if (low < 0 || high < 0)
+        return tintin_eprintf(ses, "#Both arguments of range in #random should be >0, got %d,%d.", low, high);
+
+    if (low > high)
     {
-        if (sscanf(right, "%d, %d%c", &low, &high, &dummy) != 2)
-            tintin_eprintf(ses, "#Wrong number of range arguments in #random: got {%s}.", right);
-        else if (low < 0 || high < 0)
-            tintin_eprintf(ses, "#Both arguments of range in #random should be >0, got %d,%d.", low, high);
-        else
-        {
-            if (low > high)
-            {
-                number = low;
-                low = high, high = number;
-            };
-            number = low + rand() % (high - low + 1);
-            sprintf(right, "%d", number);
-            set_variable(left, right, ses);
-        }
+        number = low;
+        low = high, high = number;
     }
+    number = low + rand() % (high - low + 1);
+    sprintf(right, "%d", number);
+    set_variable(left, right, ses);
 }
 
 /**********************/
@@ -1224,21 +1158,18 @@ int random_inline(const char *arg, struct session *ses)
     arg = get_arg(arg, right, 1, ses);
     if (!*right)
         tintin_eprintf(ses, "#Syntax: #random <low,high>");
+    else if (sscanf(right, "%d, %d", &low, &high) != 2)
+        tintin_eprintf(ses, "#Wrong number of range arguments in #random: got {%s}.", right);
+    else if (low < 0 || high < 0)
+        tintin_eprintf(ses, "#Both arguments of range in #random should be >0, got %d,%d.", low, high);
     else
     {
-        if (sscanf(right, "%d, %d", &low, &high) != 2)
-            tintin_eprintf(ses, "#Wrong number of range arguments in #random: got {%s}.", right);
-        else if (low < 0 || high < 0)
-            tintin_eprintf(ses, "#Both arguments of range in #random should be >0, got %d,%d.", low, high);
-        else
+        if (low > high)
         {
-            if (low > high)
-            {
-                tmp = low;
-                low = high, high = tmp;
-            };
-            return low + rand() % (high - low + 1);
+            tmp = low;
+            low = high, high = tmp;
         }
+        return low + rand() % (high - low + 1);
     }
     return 0;
 }
@@ -1283,22 +1214,18 @@ void postpad_command(const char *arg, struct session *ses)
     arg = get_arg(arg, astr, 1, ses);
 
     if (!*lengthstr)
-        tintin_eprintf(ses, "#Error - Syntax: #postpad {dest var} {length} {text}");
-    else
-    {
-        if (!sscanf(lengthstr, "%d", &length) || (length < 1) || (length > BUFFER_SIZE-10))
-            tintin_eprintf(ses, "#Error in #postpad - length has to be a positive number >0, got {%s}.", lengthstr);
-        else
-        {
-            TO_WC(bstr, astr);
-            len=cutws(bstr, length, &bptr);
-            aptr=astr+wc_to_utf8(astr, bstr, bptr-bstr, BUFFER_SIZE-3);
-            while (len<length)
-                len++, *aptr++=' ';
-            *aptr=0;
-            set_variable(destvar, astr, ses);
-        }
-    }
+        return tintin_eprintf(ses, "#Error - Syntax: #postpad {dest var} {length} {text}");
+
+    if (!sscanf(lengthstr, "%d", &length) || (length < 1) || (length > BUFFER_SIZE-10))
+        return tintin_eprintf(ses, "#Error in #postpad - length has to be a positive number >0, got {%s}.", lengthstr);
+
+    TO_WC(bstr, astr);
+    len=cutws(bstr, length, &bptr);
+    aptr=astr+wc_to_utf8(astr, bstr, bptr-bstr, BUFFER_SIZE-3);
+    while (len<length)
+        len++, *aptr++=' ';
+    *aptr=0;
+    set_variable(destvar, astr, ses);
 }
 
 /*****************************************************/
@@ -1322,23 +1249,19 @@ void prepad_command(const char *arg, struct session *ses)
     arg = get_arg(arg, astr, 1, ses);
 
     if (!*lengthstr)
-        tintin_eprintf(ses, "#Error - Syntax: #prepad {dest var} {length} {text}");
-    else
-    {
-        if (!sscanf(lengthstr, "%d", &length) || (length < 1) || (length>BUFFER_SIZE-10))
-            tintin_eprintf(ses, "#Error in #prepad - length has to be a positive number >0, got {%s}.", lengthstr);
-        else
-        {
-            TO_WC(bstr, astr);
-            len=cutws(bstr, length, &bptr);
-            aptr=astr;
-            while (len<length)
-                len++, *aptr++=' ';
-            aptr+=wc_to_utf8(aptr, bstr, bptr-bstr, BUFFER_SIZE-3);
-            *aptr=0;
-            set_variable(destvar, astr, ses);
-        }
-    }
+        return tintin_eprintf(ses, "#Error - Syntax: #prepad {dest var} {length} {text}");
+
+    if (!sscanf(lengthstr, "%d", &length) || (length < 1) || (length>BUFFER_SIZE-10))
+        return tintin_eprintf(ses, "#Error in #prepad - length has to be a positive number >0, got {%s}.", lengthstr);
+
+    TO_WC(bstr, astr);
+    len=cutws(bstr, length, &bptr);
+    aptr=astr;
+    while (len<length)
+        len++, *aptr++=' ';
+    aptr+=wc_to_utf8(aptr, bstr, bptr-bstr, BUFFER_SIZE-3);
+    *aptr=0;
+    set_variable(destvar, astr, ses);
 }
 
 #define INVALID_TIME (int)0x80000000
@@ -1356,7 +1279,7 @@ bad:
         tintin_eprintf(ses, "#time format should be: <#y[ears][, ] #w #d #h #m [and] #[s]> or just <#> of seconds.");
         tintin_eprintf(ses, "#got: {%s}.", tt);
         return INVALID_TIME;
-    };
+    }
     t=0;
     for (;;)
     {
@@ -1398,7 +1321,7 @@ bad:
             tt+=3;
         if (!*tt)
             break;
-    };
+    }
     return t;
 }
 
@@ -1543,42 +1466,40 @@ void substring_command(const char *arg, struct session *ses)
         l=1;
 
     if (!*left || (p==mid) || (*p) || (r<0))
-        tintin_eprintf(ses, "#SYNTAX: substr <var> <l>[,<r>] <string>");
-    else
+        return tintin_eprintf(ses, "#SYNTAX: substr <var> <l>[,<r>] <string>");
+
+    p=mid;
+    TO_WC(buf, right);
+    lptr=buf;
+    s=1;
+    while (*lptr)
     {
-        p=mid;
-        TO_WC(buf, right);
-        lptr=buf;
-        s=1;
-        while (*lptr)
-        {
-            w=wcwidth(*lptr);
-            if (w<0)
-                w=0;
-            if (w && s>=l)
-                break;  /* skip incomplete CJK chars with all modifiers */
-            lptr++;
-            s+=w;
-        }
-        if (s>l)
-            *p++=' ';   /* the left edge is cut in half */
-        rptr=lptr;
-        while (w=wcwidth(*rptr), *rptr)
-        {
-            if (w<0)
-                w=0;
-            if (w && s+w>r+1)
-                break;  /* skip incomplete CJK chars with all modifiers */
-            rptr++;
-            s+=w;
-        }
-        if (rptr>lptr)
-            p+=wc_to_utf8(p, lptr, rptr-lptr, BUFFER_SIZE-3);
-        if (s==r && w==2)
-            *p++=' ';   /* the right edge is cut */
-        *p=0;
-        set_variable(left, mid, ses);
+        w=wcwidth(*lptr);
+        if (w<0)
+            w=0;
+        if (w && s>=l)
+            break;  /* skip incomplete CJK chars with all modifiers */
+        lptr++;
+        s+=w;
     }
+    if (s>l)
+        *p++=' ';   /* the left edge is cut in half */
+    rptr=lptr;
+    while (w=wcwidth(*rptr), *rptr)
+    {
+        if (w<0)
+            w=0;
+        if (w && s+w>r+1)
+            break;  /* skip incomplete CJK chars with all modifiers */
+        rptr++;
+        s+=w;
+    }
+    if (rptr>lptr)
+        p+=wc_to_utf8(p, lptr, rptr-lptr, BUFFER_SIZE-3);
+    if (s==r && w==2)
+        *p++=' ';   /* the right edge is cut */
+    *p=0;
+    set_variable(left, mid, ses);
 }
 
 /***********************/
@@ -1599,21 +1520,18 @@ struct session *strcmp_command(const char *line, struct session *ses)
     }
 
     if (!strcmp(left, right))
-        ses=parse_input(cmd, true, ses);
-    else
-    {
-        line = get_arg_in_braces(line, left, 0);
-        if (*left == tintin_char)
-        {
+        return parse_input(cmd, true, ses);
 
-            if (is_abrev(left + 1, "else"))
-            {
-                line = get_arg_in_braces(line, right, 1);
-                ses=parse_input(right, true, ses);
-            }
-            if (is_abrev(left + 1, "elif"))
-                ses=if_command(line, ses);
+    line = get_arg_in_braces(line, left, 0);
+    if (*left == tintin_char)
+    {
+        if (is_abrev(left + 1, "else"))
+        {
+            line = get_arg_in_braces(line, right, 1);
+            ses=parse_input(right, true, ses);
         }
+        if (is_abrev(left + 1, "elif"))
+            ses=if_command(line, ses);
     }
     return ses;
 }
@@ -1658,21 +1576,18 @@ struct session *ifexists_command(const char *line, struct session *ses)
     }
 
     if (get_hash(ses->myvars, left))
-        ses=parse_input(cmd, true, ses);
-    else
-    {
-        line = get_arg_in_braces(line, left, 0);
-        if (*left == tintin_char)
-        {
+        return parse_input(cmd, true, ses);
 
-            if (is_abrev(left + 1, "else"))
-            {
-                line = get_arg_in_braces(line, cmd, 1);
-                ses=parse_input(cmd, true, ses);
-            }
-            if (is_abrev(left + 1, "elif"))
-                ses=if_command(line, ses);
+    line = get_arg_in_braces(line, left, 0);
+    if (*left == tintin_char)
+    {
+        if (is_abrev(left + 1, "else"))
+        {
+            line = get_arg_in_braces(line, cmd, 1);
+            ses=parse_input(cmd, true, ses);
         }
+        if (is_abrev(left + 1, "elif"))
+            ses=if_command(line, ses);
     }
     return ses;
 }
@@ -1688,12 +1603,10 @@ void ctoi_command(const char* arg, struct session* ses)
     arg=get_arg(arg, right, 1, ses);
 
     if (!*left || !*right)
-        tintin_eprintf(ses, "#Syntax: #ctoi <var> <text>");
-    else
-    {
-        ctoi(right);
-        set_variable(left, right, ses);
-    }
+        return tintin_eprintf(ses, "#Syntax: #ctoi <var> <text>");
+
+    ctoi(right);
+    set_variable(left, right, ses);
 }
 
 /*****************************/
