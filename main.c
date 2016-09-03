@@ -43,7 +43,7 @@ extern void end_command(const char *arg, struct session *ses);
 static void echo_input(const char *txt);
 
 /*************** globals ******************/
-int term_echoing = TRUE;
+bool term_echoing = true;
 int keypad= DEFAULT_KEYPAD;
 int retain= DEFAULT_RETAIN;
 int alnum = 0;
@@ -59,12 +59,12 @@ int hooknum = 0;
 int gotpassword=0;
 int got_more_kludge=0;
 int hist_num;
-int need_resize=0;
+bool need_resize=false;
 extern int LINES, COLS;
 extern int tty, xterm;
 char *tintin_exec;
 struct session *lastdraft;
-int aborting=0;
+bool aborting=false;
 int eofinput=0;
 int any_closed=0;
 extern int recursion;
@@ -148,7 +148,7 @@ static void sighup(void)
 
 static void sigwinch(void)
 {
-    need_resize=1;
+    need_resize=true;
 }
 
 
@@ -427,31 +427,31 @@ static void apply_options()
         {
         case '#':
             *opt->left=tintin_char;
-            activesession=parse_input(opt->left, 1, activesession);
+            activesession=parse_input(opt->left, true, activesession);
             break;
         case 'c':
-            DO_INPUT(opt->right, 0);
+            DO_INPUT(opt->right, false);
             break;
         case 'r':
             set_magic_hook(activesession);
             make_name(sname, opt->right);
             snprintf(temp, BUFFER_SIZE,
                 "%crun %s {%s}", tintin_char, sname, opt->right);
-            DO_INPUT(temp, 1);
+            DO_INPUT(temp, true);
             break;
         case 's':
             set_magic_hook(activesession);
             make_name(sname, opt->right);
             snprintf(temp, BUFFER_SIZE,
                 "%cses %s {%s %s}", tintin_char, sname, opt->right, opt->pr);
-            DO_INPUT(temp, 1);
+            DO_INPUT(temp, true);
             break;
         case 'S':
             set_magic_hook(activesession);
             make_name(sname, opt->right);
             snprintf(temp, BUFFER_SIZE,
                 "%csslses %s {%s %s}", tintin_char, sname, opt->right, opt->pr);
-            DO_INPUT(temp, 1);
+            DO_INPUT(temp, true);
             break;
         case ' ':
             local_to_utf8(ustr, opt->right, BUFFER_SIZE, 0);
@@ -706,8 +706,8 @@ static void tintin(void)
                     }
                     if (*done_input)
                         strcpy(prev_command, done_input);
-                    aborting=0;
-                    activesession = parse_input(done_input, 0, activesession);
+                    aborting=false;
+                    activesession = parse_input(done_input, false, activesession);
                     recursion=0;
                 }
             }
@@ -720,7 +720,7 @@ static void tintin(void)
         {
             if (sesptr->socket && FD_ISSET(sesptr->socket, &readfdmask))
             {
-                aborting=0;
+                aborting=false;
                 any_closed=0;
                 do
                 {
@@ -888,7 +888,7 @@ static void do_one_line(char *line, int nl, struct session *ses)
         {
             gotpassword=1;
             user_passwd(1);
-            term_echoing=FALSE;
+            term_echoing=false;
         };
         break;
     case 1:

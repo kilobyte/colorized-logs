@@ -8,6 +8,7 @@
 #undef TERM_DEBUG       /* debugging pseudo-tty stuff */
 #undef PROFILING        /* profiling */
 
+#include <stdbool.h>
 /************************/
 /* The meaning of life: */
 /************************/
@@ -319,7 +320,7 @@ struct session
     time_t time0;      /* time of last tick (adjusted every tick) */
     time_t time10;
     int tick_size, pretick;
-    int snoopstatus;
+    bool snoopstatus;
     FILE *logfile, *debuglogfile;
     char *logname, *debuglogname;
     char *loginputprefix, *loginputsuffix;

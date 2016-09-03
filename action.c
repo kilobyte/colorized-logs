@@ -17,16 +17,17 @@
 
 extern struct session *activesession, *nullsession;
 extern pvars_t *pvars;  /* the %0, %1, %2,....%9 variables */
-extern int term_echoing;
+extern bool term_echoing;
 extern char tintin_char;
 extern int acnum;
-extern int in_alias;
+extern bool in_alias;
 static int var_len[10];
 static const char *var_ptr[10];
-extern int aborting, recursion;
+extern bool aborting;
+extern int recursion;
 
-int inActions=0;
-int deletedActions=0;
+static bool inActions=false;
+static int deletedActions=0;
 const char *match_start, *match_end;
 
 extern struct session *if_command(const char *arg, struct session *ses);
@@ -312,7 +313,7 @@ void substitute_vars(const char *arg, char *result)
                     if (!aborting)
                     {
                         tintin_eprintf(0, "#ERROR: command+vars too long in {%s}.", ARG);
-                        aborting=1;
+                        aborting=true;
                     }
                     goto novar1;
                 }
@@ -327,7 +328,7 @@ novar1:
                 arg += numands + 1;
                 result += numands + 1;
             }
-            in_alias=0; /* not a simple alias */
+            in_alias=false; /* not a simple alias */
         }
         if (*arg == '$')
         {               /* substitute variable */
@@ -344,7 +345,7 @@ novar1:
                     if (!aborting)
                     {
                         tintin_eprintf(0, "#ERROR: command+vars too long in {%s}.", ARG);
-                        aborting=1;
+                        aborting=true;
                     }
                     goto novar2;
                 }
@@ -365,7 +366,7 @@ novar2:
                 arg += numands;
                 result += numands;
             }
-            in_alias=0; /* not a simple alias */
+            in_alias=false; /* not a simple alias */
         }
         else if (*arg == DEFAULT_OPEN)
         {
@@ -405,7 +406,7 @@ void check_all_actions(const char *line, struct session *ses)
     pvars_t vars, *lastpvars;
 
     ln = ses->actions;
-    inActions=1;
+    inActions=true;
 
     while ((ln = ln->next))
     {
@@ -421,7 +422,7 @@ void check_all_actions(const char *line, struct session *ses)
                 tintin_printf(ses, "[ACTION: %s]", buffer);
             }
             debuglog(ses, "ACTION: {%s}->{%s}", line, ln->right);
-            parse_input(ln->right, 1, ses);
+            parse_input(ln->right, true, ses);
             recursion=0;
             pvars = lastpvars;
             /*      return;*/    /* KB: we want ALL actions to be done */
@@ -429,7 +430,7 @@ void check_all_actions(const char *line, struct session *ses)
     }
     if (deletedActions)
         zap_actions(ses);
-    inActions=0;
+    inActions=false;
 }
 
 
@@ -442,7 +443,7 @@ void check_all_promptactions(const char *line, struct session *ses)
     pvars_t vars, *lastpvars;
 
     ln = ses->prompts;
-    inActions=1;
+    inActions=true;
 
     while ((ln = ln->next))
     {
@@ -458,7 +459,7 @@ void check_all_promptactions(const char *line, struct session *ses)
                 tintin_printf(ses, "[PROMPT-ACTION: %s]", buffer);
             }
             debuglog(ses, "PROMPTACTION: {%s}->{%s}", line, ln->right);
-            parse_input(ln->right, 1, ses);
+            parse_input(ln->right, true, ses);
             recursion=0;
             pvars=lastpvars;
             /*      return;*/    /* KB: we want ALL actions to be done */
@@ -466,7 +467,7 @@ void check_all_promptactions(const char *line, struct session *ses)
     }
     if (deletedActions)
         zap_actions(ses);
-    inActions=0;
+    inActions=false;
 }
 
 
@@ -478,7 +479,7 @@ void match_command(const char *arg, struct session *ses)
     pvars_t vars, *lastpvars;
     char left[BUFFER_SIZE], line[BUFFER_SIZE], right[BUFFER_SIZE],
          temp[BUFFER_SIZE];
-    int flag=0;
+    bool flag=false;
 
     arg=get_arg_in_braces(arg, left, 0);
     arg=get_arg_in_braces(arg, line, 0);
@@ -496,9 +497,9 @@ void match_command(const char *arg, struct session *ses)
     {
         lastpvars = pvars;
         pvars = &vars;
-        parse_input(right, 1, ses);
+        parse_input(right, true, ses);
         pvars = lastpvars;
-        flag=1;
+        flag=true;
     }
     arg=get_arg_in_braces(arg, left, 0);
     if (*left == tintin_char)
@@ -507,7 +508,7 @@ void match_command(const char *arg, struct session *ses)
         {
             get_arg_in_braces(arg, right, 1);
             if (!flag)
-                parse_input(right, 1, ses);
+                parse_input(right, true, ses);
             return;
         }
         if (is_abrev(left + 1, "elif"))

@@ -88,7 +88,7 @@ void savepath_command(const char *arg, struct session *ses)
             }
         }
         strcat(result, "}");
-        parse_input(result, 1, ses);
+        parse_input(result, true, ses);
     }
     else
         tintin_eprintf(ses, "#Syntax: savepath <alias>");
@@ -221,7 +221,7 @@ void return_command(const char *arg, struct session *ses)
             (ln = ln->next);
         strcpy(command, ln->right);
         return_flag = FALSE; /* temporarily turn off path tracking */
-        parse_input(command, 0, ses);
+        parse_input(command, false, ses);
         return_flag = TRUE;  /* restore path tracking */
         deletenode_list(ses->path, ln);
     }

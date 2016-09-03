@@ -22,8 +22,8 @@
 extern int varnum;
 extern pvars_t *pvars;
 extern int LINES, COLS;
-extern int in_alias;
-extern int aborting;
+extern bool in_alias;
+extern bool aborting;
 extern char *_;
 extern struct session *activesession;
 extern char tintin_char;
@@ -57,12 +57,11 @@ void substitute_myvars(const char *arg, char *result, struct session *ses)
 {
     char varname[BUFFER_SIZE], value[BUFFER_SIZE], *v;
     int nest = 0, counter, varlen, valuelen;
-    int specvar;
+    bool specvar;
     int len=strlen(arg);
 
     while (*arg)
     {
-
         if (*arg == '$')
         {                           /* substitute variable */
             counter = 0;
@@ -74,7 +73,7 @@ void substitute_myvars(const char *arg, char *result, struct session *ses)
             if (*(arg+counter) != DEFAULT_OPEN)
             {
                 /* ordinary variable which name contains no spaces and special characters  */
-                specvar = FALSE;
+                specvar = false;
                 while (isalpha(*(arg+varlen+counter))||
                        (*(arg+varlen+counter)=='_')||
                        isadigit(*(arg+varlen+counter)))
@@ -86,7 +85,7 @@ void substitute_myvars(const char *arg, char *result, struct session *ses)
             else
             {
                 /* variable with name containing non-alpha characters e.g ${a b} */
-                specvar = TRUE;
+                specvar = true;
                 get_arg_in_braces(arg + counter, varname, 0);
                 varlen=strlen(varname);
                 substitute_vars(varname, value);
@@ -106,7 +105,7 @@ void substitute_myvars(const char *arg, char *result, struct session *ses)
                         {
                             tintin_eprintf(ses, "#ERROR: command+variables too long while substituting $%s%s%s.",
                                 specvar?"{":"", varname, specvar?"}":"");
-                            aborting=1;
+                            aborting=true;
                         }
                         len-=valuelen-counter-varlen;
                         goto novar;
@@ -184,7 +183,7 @@ void substitute_myvars(const char *arg, char *result, struct session *ses)
                         if (!aborting)
                         {
                             tintin_eprintf(ses, "#ERROR: command+variables too long while substituting $%s.", varname);
-                            aborting=1;
+                            aborting=true;
                         }
                         len-=valuelen-counter-varlen;
                         goto novar;
@@ -805,8 +804,8 @@ struct session *foreach_command(const char *arg, struct session *ses)
         strcpy(vars[0], p=temp);
         for (i=1;i<10;i++)
             p=get_arg_in_braces(p, vars[i], 0);
-        in_alias=1;
-        ses=parse_input(right, 1, ses);
+        in_alias=true;
+        ses=parse_input(right, true, ses);
     }
     pvars=lastvars;
     return ses;
@@ -1630,9 +1629,7 @@ struct session *strcmp_command(const char *line, struct session *ses)
     }
 
     if (!strcmp(left, right))
-    {
-        ses=parse_input(cmd, 1, ses);
-    }
+        ses=parse_input(cmd, true, ses);
     else
     {
         line = get_arg_in_braces(line, left, 0);
@@ -1642,7 +1639,7 @@ struct session *strcmp_command(const char *line, struct session *ses)
             if (is_abrev(left + 1, "else"))
             {
                 line = get_arg_in_braces(line, right, 1);
-                ses=parse_input(right, 1, ses);
+                ses=parse_input(right, true, ses);
             }
             if (is_abrev(left + 1, "elif"))
                 ses=if_command(line, ses);
@@ -1691,7 +1688,7 @@ struct session *ifexists_command(const char *line, struct session *ses)
     }
 
     if (get_hash(ses->myvars, left))
-        ses=parse_input(cmd, 1, ses);
+        ses=parse_input(cmd, true, ses);
     else
     {
         line = get_arg_in_braces(line, left, 0);
@@ -1701,7 +1698,7 @@ struct session *ifexists_command(const char *line, struct session *ses)
             if (is_abrev(left + 1, "else"))
             {
                 line = get_arg_in_braces(line, cmd, 1);
-                ses=parse_input(cmd, 1, ses);
+                ses=parse_input(cmd, true, ses);
             }
             if (is_abrev(left + 1, "elif"))
                 ses=if_command(line, ses);

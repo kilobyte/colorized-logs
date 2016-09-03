@@ -397,7 +397,7 @@ void goto_command(const char *arg, struct session *ses)
                 locs[i],
                 locs[i-1]);
         };
-        parse_input(path[i], 1, ses);
+        parse_input(path[i], true, ses);
     }
     for (i=j;i>=0;i--)
         SFREE(locs[i]);
@@ -518,7 +518,7 @@ not_found:
         if (is_abrev(left + 1, "else"))
         {
             get_arg_in_braces(arg, right, 1);
-            parse_input(right, 1, ses);
+            parse_input(right, true, ses);
             return;
         }
         if (is_abrev(left + 1, "elif"))

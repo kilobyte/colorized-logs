@@ -35,12 +35,12 @@ static inline int is_speedwalk_dirs(const char *cp);
 extern struct session *sessionlist, *activesession, *nullsession;
 extern pvars_t *pvars; /* the %0, %1, %2,....%9 variables */
 extern char tintin_char, verbatim_char;
-extern int term_echoing;
+extern bool term_echoing;
 static inline const char *get_arg_stop_spaces(const char *s, char *arg);
 static const char *get_arg_all(const char *s, char *arg);
-int in_alias=0;
+bool in_alias=false;
 extern int in_read;
-extern int aborting;
+extern bool aborting;
 struct hashtable *commands, *c_commands;
 int recursion;
 #ifdef PROFILING
@@ -50,7 +50,7 @@ extern const char *prof_area;
 /**************************************************************************/
 /* parse input, check for TINTIN commands and aliases and send to session */
 /**************************************************************************/
-struct session* parse_input(const char *input, int override_verbatim, struct session *ses)
+struct session* parse_input(const char *input, bool override_verbatim, struct session *ses)
 {
     char command[BUFFER_SIZE], arg[BUFFER_SIZE], result[BUFFER_SIZE], *al;
     int nspaces;
@@ -64,7 +64,7 @@ struct session* parse_input(const char *input, int override_verbatim, struct ses
 
     if (++recursion>=MAX_RECURSION)
     {
-        in_alias=0;
+        in_alias=false;
         if (recursion==MAX_RECURSION)
            tintin_eprintf(ses, "#TOO DEEP RECURSION.");
         recursion=MAX_RECURSION*3;
@@ -74,7 +74,7 @@ struct session* parse_input(const char *input, int override_verbatim, struct ses
 
     debuglog(ses, "%s", input);
     if (!ses->server_echo && activesession == ses)
-        term_echoing = 1;
+        term_echoing = true;
     if (*input == '\0')
     {
         if (ses!=nullsession)
@@ -157,14 +157,14 @@ struct session* parse_input(const char *input, int override_verbatim, struct ses
                     if (!aborting)
                     {
                         tintin_eprintf(ses, "#ERROR: arguments too long in %s %s %s", command, arg, (*pvars)[0]);
-                        aborting=1;
+                        aborting=true;
                     }
                 }
                 if (*arg)
                     strcat(arg, " ");
                 strcat(arg, (*pvars)[0]);
             };
-            in_alias=0;
+            in_alias=false;
         }
         if (recursion>MAX_RECURSION)
         {
@@ -173,7 +173,7 @@ struct session* parse_input(const char *input, int override_verbatim, struct ses
         }
         if (aborting)
         {
-            aborting=0;
+            aborting=false;
             recursion--;
             PPOP;
             return ses;
@@ -193,11 +193,11 @@ struct session* parse_input(const char *input, int override_verbatim, struct ses
             PROF("expanding aliases");
             for (i = 1, cpsource = arg; i < 10; i++)
                 cpsource=get_arg_in_braces(cpsource, vars[i], 0);
-            in_alias=1;
+            in_alias=true;
             lastpvars=pvars;
             pvars=&vars;
             strcpy(arg, al); /* alias can #unalias itself */
-            ses = parse_input(arg, 1, ses);
+            ses = parse_input(arg, true, ses);
             pvars=lastpvars;
         }
         else if (ses->speedwalk && !*arg && is_speedwalk_dirs(command))
@@ -212,7 +212,7 @@ struct session* parse_input(const char *input, int override_verbatim, struct ses
                 write_com_arg_mud(command, arg, nspaces, ses);
             }
     }
-    aborting=0;
+    aborting=false;
     recursion--;
     PPOP;
     return ses;
@@ -326,7 +326,7 @@ static struct session* parse_tintin_command(const char *command, const char *arg
             if (*arg)
             {
                 get_arg_in_braces(arg, right, 1);
-                parse_input(right, 1, sesptr);     /* was: #sessioname commands */
+                parse_input(right, true, sesptr);     /* was: #sessioname commands */
                 PPOP;
                 return ses;
             }
@@ -354,7 +354,7 @@ static struct session* parse_tintin_command(const char *command, const char *arg
         {
             get_arg_in_braces(arg, right, 1);
             while (i-- > 0)
-                ses = parse_input(right, 1, ses);
+                ses = parse_input(right, true, ses);
         }
         else
         {

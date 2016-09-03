@@ -246,7 +246,7 @@ struct session* all_command(const char *arg, struct session *ses)
         get_arg(arg, what, 1, ses);
         for (sesptr = sessionlist; sesptr; sesptr = sesptr->next)
             if (sesptr!=nullsession)
-                parse_input(what, 1, sesptr);
+                parse_input(what, true, sesptr);
     }
     else
         tintin_eprintf(ses, "#all: BUT THERE ISN'T ANY SESSION AT ALL!");
@@ -515,7 +515,7 @@ void loop_command(const char *arg, struct session *ses)
         while (flag == 1)
         {
             sprintf(vars[0], "%d", counter);
-            parse_input(right, 1, ses);
+            parse_input(right, true, ses);
             if (bound1 < bound2)
             {
                 counter++;
@@ -1257,7 +1257,7 @@ void timecommands_command(const char *arg, struct session *ses)
         return;
     }
     gettimeofday(&tv1, 0);
-    parse_input(right, 1, ses);
+    parse_input(right, true, ses);
     gettimeofday(&tv2, 0);
     tv2.tv_sec-=tv1.tv_sec;
     tv2.tv_usec-=tv1.tv_usec;

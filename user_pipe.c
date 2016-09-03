@@ -9,7 +9,7 @@ mbstate_t outstate;
 #define OUTSTATE &outstate
 extern void user_illegal();
 extern void user_noop();
-extern int need_resize;
+extern bool need_resize;
 
 
 static char *i_pos;
@@ -82,7 +82,7 @@ static void userpipe_beep(void)
 
 static void userpipe_resize(void)
 {
-    need_resize=0;
+    need_resize=false;
 }
 
 void userpipe_initdriver()

@@ -159,7 +159,7 @@ int find_bind(const char *key, int msg, struct session *ses)
 
     if ((val=get_hash(ses->binds, key)))
     {          /* search twice, both for raw key code and key name */
-        parse_input(val, 1, ses);
+        parse_input(val, true, ses);
         recursion=0;
         return 1;
     };
@@ -168,7 +168,7 @@ int find_bind(const char *key, int msg, struct session *ses)
         key=val;
         if ((val=get_hash(ses->binds, key)))
         {
-            parse_input(val, 1, ses);
+            parse_input(val, true, ses);
             recursion=0;
             return 1;
         }

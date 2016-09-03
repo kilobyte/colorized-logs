@@ -15,7 +15,7 @@ void execute_event(struct eventnode *ev, struct session *ses)
 {
     if (activesession==ses && ses->mesvar[3])
         tintin_printf(ses, "[EVENT: %s]", ev->event);
-    parse_input(ev->event, 1, ses);
+    parse_input(ev->event, true, ses);
     recursion=0;
 }
 

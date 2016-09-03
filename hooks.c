@@ -7,9 +7,9 @@
 extern char tintin_char;
 extern int hooknum;
 extern pvars_t *pvars;  /* the %0, %1, %2,....%9 variables */
-extern int in_alias;
+extern bool in_alias;
 
-static int magic_close_hook=1;
+static int magic_close_hook=true;
 
 const char *hook_names[]=
 {
@@ -57,7 +57,7 @@ void hooks_command(const char *arg, struct session *ses)
             ses->hooks[t]=mystrdup(right);
             if (ses->mesvar[MSG_HOOK])
                 tintin_printf(ses, "#Ok, will do {%s} on %s.", right, hook_names[t]);
-            magic_close_hook=0;
+            magic_close_hook=false;
             hooknum++;
             return;
         }
@@ -129,8 +129,8 @@ struct session* do_hook(struct session *ses, int t, const char *data, int blockz
         prepare_actionalias(ses->hooks[t], buffer, ses);
         tintin_printf(ses, "[HOOK: %s]", buffer);
     }
-    in_alias=1;
-    ses=parse_input(ses->hooks[t], 1, ses);
+    in_alias=true;
+    ses=parse_input(ses->hooks[t], true, ses);
     if (blockzap)
         ses->closing=oldclos;
     pvars=lastvars;

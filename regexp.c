@@ -66,7 +66,7 @@ void grep_command(const char *arg, struct session *ses)
     {
         lastpvars = pvars;
         pvars = &vars;
-        parse_input(right, 1, ses);
+        parse_input(right, true, ses);
         pvars = lastpvars;
         flag=1;
     }
@@ -77,7 +77,7 @@ void grep_command(const char *arg, struct session *ses)
         {
             get_arg_in_braces(arg, right, 1);
             if (!flag)
-                parse_input(right, 1, ses);
+                parse_input(right, true, ses);
             return;
         }
         if (is_abrev(left + 1, "elif"))

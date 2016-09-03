@@ -555,7 +555,8 @@ void debuglog(struct session *ses, const char *format, ...)
 struct session* do_read(FILE *myfile, const char *filename, struct session *ses)
 {
     char line[BUFFER_SIZE], buffer[BUFFER_SIZE], lstr[BUFFER_SIZE], *cptr, *eptr;
-    int flag, nl, ignore_lines;
+    bool flag, ignore_lines;
+    int nl;
     mbstate_t cs;
 
     memset(&cs, 0, sizeof(cs));
@@ -578,7 +579,7 @@ struct session* do_read(FILE *myfile, const char *filename, struct session *ses)
     }
     in_read++;
     *buffer=0;
-    ignore_lines=0;
+    ignore_lines=false;
     nl=0;
     while (fgets(lstr, BUFFER_SIZE, myfile))
     {
@@ -593,7 +594,7 @@ struct session* do_read(FILE *myfile, const char *filename, struct session *ses)
                 char_command(line, ses);
             if (!ses->verbose)
                 puts_echoing = FALSE;
-            flag = FALSE;
+            flag = false;
         }
         for (cptr = line; *cptr && *cptr != '\n' && *cptr!='\r'; cptr++) ;
         *cptr = '\0';
@@ -606,7 +607,7 @@ struct session* do_read(FILE *myfile, const char *filename, struct session *ses)
                 puts_echoing=1;
                 tintin_eprintf(ses, "#ERROR! LINE %d TOO LONG IN %s, TRUNCATING", nl, filename);
                 *line=0;
-                ignore_lines=1;
+                ignore_lines=true;
                 puts_echoing=ses->verbose;
             }
             else
@@ -620,14 +621,14 @@ struct session* do_read(FILE *myfile, const char *filename, struct session *ses)
                 continue;
             }
         }
-        ses = parse_input(buffer, 1, ses);
+        ses = parse_input(buffer, true, ses);
         recursion=0;
-        ignore_lines=0;
+        ignore_lines=false;
         strcpy(buffer, line);
     }
     if (*buffer)
     {
-        ses=parse_input(buffer, 1, ses);
+        ses=parse_input(buffer, true, ses);
         recursion=0;
     }
     in_read--;

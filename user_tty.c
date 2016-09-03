@@ -43,7 +43,7 @@ static int retaining;
 static int xterm;
 #endif
 static int putty;
-extern int need_resize;
+extern bool need_resize;
 static int term_width;
 static int dump_color;
 static char term_buf[BUFFER_SIZE*8], *tbuf;
@@ -308,13 +308,13 @@ end:
     term_commit();
 }
 
-static int b_shorten()
+static bool b_shorten()
 {
     if (b_first>b_bottom)
-        return FALSE;
+        return false;
     SFREE(b_output[b_first%B_LENGTH]);
     b_first++;
-    return TRUE;
+    return true;
 }
 
 /********************************************/
@@ -1522,7 +1522,7 @@ static void usertty_drawscreen(void)
 {
     int i;
 
-    need_resize=0;
+    need_resize=false;
     scr_len=LINES-1-isstatus;
     tbuf+=sprintf(tbuf, "\033[0;37;40m\033[2J\033[0;37;40m\033[1;%dr\0337", scr_len);
     tbuf+=sprintf(tbuf, "\033[%d;1f\033[0;37;4%dm", scr_len+1, INPUT_COLOR);
