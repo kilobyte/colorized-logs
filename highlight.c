@@ -9,7 +9,7 @@
 #include "protos/variables.h"
 
 extern int hinum;
-extern int puts_echoing;
+extern bool puts_echoing;
 
 static struct colordef
 {

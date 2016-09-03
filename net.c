@@ -373,7 +373,7 @@ int read_buffer_mud(char *buffer, struct session *ses)
             didget = read_socket(ses, ses->mccp_buf, INPUT_CHUNK);
             if (didget<=0)
             {
-                ses->mccp_more=0;
+                ses->mccp_more=false;
                 return -1;
             }
             ses->mccp->next_in = (Bytef*)ses->mccp_buf;
@@ -425,12 +425,9 @@ int read_buffer_mud(char *buffer, struct session *ses)
 #endif
 
     ses->server_idle_since=time(0);
-    if ((didget+=len) == INPUT_CHUNK)
-        ses->more_coming = 1;
-    else
-        ses->more_coming = 0;
+    ses->more_coming = (didget+=len) == INPUT_CHUNK;
     len=0;
-    ses->ga=0;
+    ses->ga=false;
 
     tmpbuf[didget]=0;
     cpsource = tmpbuf;
@@ -459,7 +456,7 @@ int read_buffer_mud(char *buffer, struct session *ses)
                 didget-=2;
                 cpsource+=2;
                 if (!i)
-                    ses->ga=1;
+                    ses->ga=true;
                 break;
             case -3:
                 i -= 2;

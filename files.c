@@ -24,13 +24,12 @@ extern void char_command(const char *arg, struct session *ses);
 
 extern struct session *nullsession;
 
-extern int puts_echoing;
+extern bool puts_echoing, real_quiet;
 extern int alnum, acnum, subnum, hinum, varnum, antisubnum, routnum, bindnum, pdnum, hooknum;
 extern char tintin_char;
 extern int recursion;
 extern const char *hook_names[];
-extern int keypad, retain;
-extern int real_quiet;
+extern bool keypad, retain;
 extern int ui_sep_input;
 extern char *user_charset_name;
 
@@ -547,8 +546,8 @@ void debuglog(struct session *ses, const char *format, ...)
     if (vsnprintf(buf, BUFFER_SIZE-1, format, ap)>BUFFER_SIZE-2)
         buf[BUFFER_SIZE-3]='>';
     va_end(ap);
-    cfprintf(ses->debuglogfile, "%4d.%06d: %s\n",
-        (int)tv.tv_sec-ses->sessionstart, (int)tv.tv_usec, buf);
+    cfprintf(ses->debuglogfile, "%4ld.%06d: %s\n",
+        (long int)tv.tv_sec-ses->sessionstart, (int)tv.tv_usec, buf);
 }
 
 
@@ -563,7 +562,7 @@ struct session* do_read(FILE *myfile, const char *filename, struct session *ses)
 
     flag = !in_read;
     if (!ses->verbose)
-        puts_echoing = FALSE;
+        puts_echoing = false;
     if (!in_read)
     {
         alnum = 0;
@@ -593,7 +592,7 @@ struct session* do_read(FILE *myfile, const char *filename, struct session *ses)
             if (is7punct(*line))
                 char_command(line, ses);
             if (!ses->verbose)
-                puts_echoing = FALSE;
+                puts_echoing = false;
             flag = false;
         }
         for (cptr = line; *cptr && *cptr != '\n' && *cptr!='\r'; cptr++) ;
@@ -604,7 +603,7 @@ struct session* do_read(FILE *myfile, const char *filename, struct session *ses)
             cptr=(char*)space_out(line);
             if (ignore_lines || (strlen(cptr)+strlen(buffer) >= BUFFER_SIZE/2))
             {
-                puts_echoing=1;
+                puts_echoing=true;
                 tintin_eprintf(ses, "#ERROR! LINE %d TOO LONG IN %s, TRUNCATING", nl, filename);
                 *line=0;
                 ignore_lines=true;
@@ -633,7 +632,7 @@ struct session* do_read(FILE *myfile, const char *filename, struct session *ses)
     }
     in_read--;
     if (!in_read)
-        puts_echoing = 1;
+        puts_echoing = true;
     if (!ses->verbose && !in_read && !real_quiet)
     {
         if (alnum > 0)
@@ -735,7 +734,7 @@ void write_command(const char *filename, struct session *ses)
     SFLAG("speedwalk", speedwalk, DEFAULT_SPEEDWALK);
     SFLAG("presub", presub, DEFAULT_PRESUB);
     SFLAG("togglesubs", togglesubs, DEFAULT_TOGGLESUBS);
-    SFLAG("verbose", verbose, 0);
+    SFLAG("verbose", verbose, false);
     SFLAG("blank", blank, DEFAULT_DISPLAY_BLANK);
     SFLAG("messages aliases", mesvar[0], DEFAULT_ALIAS_MESS);
     SFLAG("messages actions", mesvar[1], DEFAULT_ACTION_MESS);
@@ -750,7 +749,7 @@ void write_command(const char *filename, struct session *ses)
     SFLAG("messages paths", mesvar[10], DEFAULT_PATH_MESS);
     SFLAG("messages errors", mesvar[11], DEFAULT_ERROR_MESS);
     SFLAG("messages hooks", mesvar[12], DEFAULT_HOOK_MESS);
-    SFLAG("verbatim", verbatim, 0);
+    SFLAG("verbatim", verbatim, false);
     SFLAG("ticksize", tick_size, DEFAULT_TICK_SIZE);
     SFLAG("pretick", pretick, DEFAULT_PRETICK);
     if (strcmp(DEFAULT_CHARSET, ses->charset))
@@ -914,7 +913,7 @@ void writesession_command(const char *filename, struct session *ses)
     SFLAG("speedwalk", speedwalk, DEFAULT_SPEEDWALK);
     SFLAG("presub", presub, DEFAULT_PRESUB);
     SFLAG("togglesubs", togglesubs, DEFAULT_TOGGLESUBS);
-    SFLAG("verbose", verbose, 0);
+    SFLAG("verbose", verbose, false);
     SFLAG("blank", blank, DEFAULT_DISPLAY_BLANK);
     SFLAG("messages aliases", mesvar[0], DEFAULT_ALIAS_MESS);
     SFLAG("messages actions", mesvar[1], DEFAULT_ACTION_MESS);
@@ -929,7 +928,7 @@ void writesession_command(const char *filename, struct session *ses)
     SFLAG("messages paths", mesvar[10], DEFAULT_PATH_MESS);
     SFLAG("messages errors", mesvar[11], DEFAULT_ERROR_MESS);
     SFLAG("messages hooks", mesvar[12], DEFAULT_HOOK_MESS);
-    SFLAG("verbatim", verbatim, 0);
+    SFLAG("verbatim", verbatim, false);
     SFLAG("ticksize", tick_size, DEFAULT_TICK_SIZE);
     SFLAG("pretick", pretick, DEFAULT_PRETICK);
     if (strcmp(nullsession->charset, ses->charset))

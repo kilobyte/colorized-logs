@@ -318,12 +318,12 @@ static struct session *new_session(const char *name, const char *address, int so
     newsession->issocket = issocket;
     newsession->naws = !issocket;
 #ifdef HAVE_ZLIB
-    newsession->can_mccp = 0;
+    newsession->can_mccp = false;
     newsession->mccp = 0;
-    newsession->mccp_more = 0;
+    newsession->mccp_more = false;
 #endif
-    newsession->ga = 0;
-    newsession->gas = 0;
+    newsession->ga = false;
+    newsession->gas = false;
     newsession->server_echo = 0;
     newsession->telnet_buflen = 0;
     newsession->last_term_type = 0;
@@ -331,7 +331,7 @@ static struct session *new_session(const char *name, const char *address, int so
     newsession->path = init_list();
     newsession->no_return = 0;
     newsession->path_length = 0;
-    newsession->more_coming = 0;
+    newsession->more_coming = false;
     newsession->events = NULL;
     newsession->verbose = ses->verbose;
     newsession->blank = ses->blank;
@@ -342,9 +342,9 @@ static struct session *new_session(const char *name, const char *address, int so
     newsession->verbatim = ses->verbatim;
     newsession->sessionstart=newsession->idle_since=
         newsession->server_idle_since=time(0);
-    newsession->nagle=0;
-    newsession->halfcr_in=0;
-    newsession->halfcr_log=0;
+    newsession->nagle=false;
+    newsession->halfcr_in=false;
+    newsession->halfcr_log=false;
     newsession->lastintitle=0;
     newsession->debuglogfile=0;
     newsession->debuglogname=0;

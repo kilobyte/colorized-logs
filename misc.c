@@ -26,14 +26,15 @@
 extern struct session *sessionlist, *activesession, *nullsession;
 extern struct completenode *complete_head;
 extern char tintin_char;
-extern int keypad, retain;
+extern bool keypad, retain;
 extern pvars_t *pvars; /* the %0, %1, %2,....%9 variables */
 extern char status[BUFFER_SIZE];
 int margins, marginl, marginr;
 extern int LINES, COLS;
-extern int puts_echoing, in_read;
+extern bool puts_echoing;
+extern int in_read;
 extern const char *logtypes[];
-extern int real_quiet;
+extern bool real_quiet;
 extern char *user_charset_name;
 
 
@@ -60,7 +61,7 @@ int yes_no(const char *txt)
     return -1;
 }
 
-static void togglebool(int *b, const char *arg, struct session *ses, const char *msg1, const char *msg2)
+static void togglebool(bool *b, const char *arg, struct session *ses, const char *msg1, const char *msg2)
 {
     char tmp[BUFFER_SIZE];
     int old=*b;
@@ -71,9 +72,9 @@ static void togglebool(int *b, const char *arg, struct session *ses, const char 
         switch (yes_no(tmp))
         {
         case 0:
-            *b=0; break;
+            *b=false; break;
         case 1:
-            *b=1; break;
+            *b=true; break;
         default:
             tintin_eprintf(ses, "#Valid boolean values are: 1/0, YES/NO, TRUE/FALSE, ON/OFF. Got {%s}.", tmp);
         }
@@ -403,7 +404,7 @@ void togglesubs_command(const char *arg, struct session *ses)
 /************************/
 void verbose_command(const char *arg, struct session *ses)
 {
-    real_quiet=1;
+    real_quiet=true;
     togglebool(&ses->verbose, arg, ses,
                "#Output from #reads will now be shown.",
                "#The #read command will no longer output messages.");

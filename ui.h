@@ -22,7 +22,7 @@ extern const char *bcolors[8];
 #endif
 
 typedef void (voidfunc)(void);
-typedef void (voidintfunc)(int x);
+typedef void (voidboolfunc)(bool x);
 typedef void (voidcharpfunc)(const char *txt);
 typedef void (voidcharpintfunc)(const char *txt, int i);
 typedef int (processkbdfunc)(struct session *ses, WC ch);
@@ -37,9 +37,9 @@ voidcharpintfunc *user_textout_draft;
 processkbdfunc *user_process_kbd;
 voidfunc *user_beep;
 voidfunc *user_done;
-voidintfunc *user_keypad;
+voidboolfunc *user_keypad;
 voidfunc *user_retain;
-voidintfunc *user_passwd;
+voidboolfunc *user_passwd;
 voidFILEpfunc *user_condump;
 printffunc *user_title;
 voidfunc *user_resize;

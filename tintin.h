@@ -99,17 +99,17 @@
 #define CONFIG_DIR ".tintin"
 #define CERT_DIR   "ssl"
 
-#define DEFAULT_DISPLAY_BLANK TRUE        /* blank lines */
-#define DEFAULT_ECHO_SEPINPUT TRUE        /* echo when there is an input box */
-#define DEFAULT_ECHO_NOSEPINPUT FALSE     /* echo when input is not managed */
-#define DEFAULT_IGNORE FALSE              /* ignore */
-#define DEFAULT_SPEEDWALK FALSE           /* speedwalk */
+#define DEFAULT_DISPLAY_BLANK true        /* blank lines */
+#define DEFAULT_ECHO_SEPINPUT true        /* echo when there is an input box */
+#define DEFAULT_ECHO_NOSEPINPUT false     /* echo when input is not managed */
+#define DEFAULT_IGNORE false              /* ignore */
+#define DEFAULT_SPEEDWALK false           /* speedwalk */
         /* note: classic speedwalks are possible only on some primitive
            MUDs with only 4 basic directions (w,e,n,s)                   */
-#define DEFAULT_PRESUB FALSE              /* presub before actions */
-#define DEFAULT_TOGGLESUBS FALSE          /* turn subs on and off FALSE=ON*/
-#define DEFAULT_KEYPAD FALSE              /* start in standard keypad mode */
-#define DEFAULT_RETAIN FALSE              /* retain the last typed line */
+#define DEFAULT_PRESUB false              /* presub before actions */
+#define DEFAULT_TOGGLESUBS false          /* turn subs on and off FALSE=ON*/
+#define DEFAULT_KEYPAD false              /* start in standard keypad mode */
+#define DEFAULT_RETAIN false              /* retain the last typed line */
 #define DEFAULT_ALIAS_MESS TRUE           /* messages for responses */
 #define DEFAULT_ACTION_MESS TRUE          /* when setting/deleting aliases, */
 #define DEFAULT_SUB_MESS TRUE             /* actions, etc. may be set to */
@@ -325,7 +325,7 @@ struct session
     char *logname, *debuglogname;
     char *loginputprefix, *loginputsuffix;
     int logtype;
-    int ignore;
+    bool ignore;
     struct listnode *actions, *prompts, *subs, *highs, *antisubs;
     struct hashtable *aliases, *myvars, *pathdirs, *binds;
     struct listnode *path;
@@ -333,27 +333,27 @@ struct session
     char *locations[MAX_LOCATIONS];
     struct eventnode *events;
     int path_length, no_return;
-    int socket, issocket, naws, ga, gas, last_term_type;
+    int socket, last_term_type;
+    bool issocket, naws, ga, gas;
     int server_echo; /* 0=not negotiated, 1=we shouldn't echo, 2=we can echo */
-    int more_coming;
+    bool more_coming;
     char last_line[BUFFER_SIZE], telnet_buf[BUFFER_SIZE];
     int telnet_buflen;
-    int verbose, blank, echo, speedwalk, togglesubs, presub, verbatim;
+    bool verbose, blank, echo, speedwalk, togglesubs, presub, verbatim;
     char *partial_line_marker;
     int mesvar[MAX_MESVAR+1];
     time_t idle_since, server_idle_since;
-    int sessionstart;
+    time_t sessionstart;
     char *hooks[NHOOKS];
     int closing;
     int nagle;
-    int halfcr_in, halfcr_log; /* \r at the end of a packet */
+    bool halfcr_in, halfcr_log; /* \r at the end of a packet */
     int lastintitle;
     char *charset, *logcharset;
     struct charset_conv c_io, c_log;
 #ifdef HAVE_ZLIB
-    int can_mccp;
+    bool can_mccp, mccp_more;
     z_stream *mccp;
-    int mccp_more;
     char mccp_buf[INPUT_CHUNK];
 #endif
 #ifdef HAVE_GNUTLS

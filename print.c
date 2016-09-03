@@ -9,7 +9,7 @@
 
 extern char *_;
 extern struct session *sessionlist, *activesession, *nullsession;
-int puts_echoing = TRUE;
+bool puts_echoing = true;
 
 /****************************************************/
 /* output to screen should go through this function */

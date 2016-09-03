@@ -18,7 +18,7 @@ static mbstate_t outstate;
 #define B_LENGTH CONSOLE_LENGTH
 
 extern char status[BUFFER_SIZE];
-extern int keypad, retain;
+extern bool keypad, retain;
 extern struct session *activesession, *lastdraft;
 
 static char out_line[BUFFER_SIZE], b_draft[BUFFER_SIZE];
@@ -35,7 +35,7 @@ static int scr_len, scr_curs;
 extern int isstatus;
 extern int hist_num;
 extern char *history[HISTORY_SIZE];
-static int in_getpassword;
+static bool in_getpassword;
 extern int margins, marginl, marginr;
 static struct termios old_tattr;
 static int retaining;
@@ -1179,7 +1179,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
             if (b_bottom!=b_screenb)
                 b_scroll(b_bottom);
             if (!activesession->server_echo)
-                in_getpassword=0;
+                in_getpassword=false;
             WRAP_WC(done_input, k_input);
             if (retain)
             {
@@ -1535,7 +1535,7 @@ static void usertty_drawscreen(void)
         tbuf+=sprintf(tbuf, "\033[%d;f\033[37;4%dm\033[2K", LINES, STATUS_COLOR);
 }
 
-static void usertty_keypad(int k)
+static void usertty_keypad(bool k)
 {
     /*
     Force gnome-terminal to its vt220 mode, as it will ignore the keypad mode
@@ -1619,7 +1619,7 @@ static void usertty_init(void)
     tk_pos=0;
     tk_scrl=0;
     tk_input[0]=0;
-    in_getpassword=0;
+    in_getpassword=false;
 
     b_first=0;
     b_current=-1;
@@ -1655,7 +1655,7 @@ static void usertty_init(void)
 static void usertty_done(void)
 {
     tbuf+=sprintf(tbuf, "\033[1;%dr\033[%d;1f\033[?25h\033[?7h\033[0;37;40m", LINES, LINES);
-    usertty_keypad(0);
+    usertty_keypad(false);
     term_commit();
     term_restore();
     write_stdout("\n", 1);
@@ -1663,7 +1663,7 @@ static void usertty_done(void)
 
 static void usertty_pause(void)
 {
-    usertty_keypad(0);
+    usertty_keypad(false);
     tbuf+=sprintf(tbuf, "\033[1;%dr\033[%d;1f\033[?25h\033[?7h\033[0;37;40m", LINES, LINES);
     term_commit();
     term_restore();
@@ -1726,7 +1726,7 @@ static void usertty_condump(FILE *f)
     fwrite_out(f, out_line);
 }
 
-static void usertty_passwd(int x)
+static void usertty_passwd(bool x)
 {
     ret(0);
     in_getpassword=x;

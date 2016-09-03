@@ -234,10 +234,10 @@ int do_telnet_protocol(const char *data, int nb, struct session *ses)
         case NAWS:
             switch (wt)
             {
-            case WILL:  answer[1]=DO;   ses->naws=0; break;
+            case WILL:  answer[1]=DO;   ses->naws=false; break;
             case DO:    answer[1]=WILL; ses->naws=(LINES>1 && COLS>0); break;
-            case WONT:  answer[1]=DONT; ses->naws=0; break;
-            case DONT:  answer[1]=WONT; ses->naws=0; break;
+            case WONT:  answer[1]=DONT; ses->naws=false; break;
+            case DONT:  answer[1]=WONT; ses->naws=false; break;
             };
             break;
         case END_OF_RECORD:
@@ -255,7 +255,7 @@ int do_telnet_protocol(const char *data, int nb, struct session *ses)
             {
             case WILL:  answer[1]=DO;   ses->can_mccp=time(0)-ses->sessionstart<60; break;
             case DO:    answer[1]=WONT; break;
-            case WONT:  answer[1]=DONT; ses->can_mccp=0; break;
+            case WONT:  answer[1]=DONT; ses->can_mccp=false; break;
             case DONT:  answer[1]=WONT; break;
             };
             break;
@@ -351,7 +351,7 @@ sbloop:
         tintin_printf(ses, "~8~[telnet] received: IAC %s~-1~",
             (*cp==GA)?"GA":"EOR");
 #endif
-        ses->gas=1;
+        ses->gas=true;
         return -2;
     case IAC:       /* IAC IAC is the escape for literal 255 byte */
         return -3;

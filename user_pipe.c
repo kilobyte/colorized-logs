@@ -102,9 +102,9 @@ void userpipe_initdriver()
     user_textout_draft  = user_noop;
     user_process_kbd    = userpipe_process_kbd;
     user_beep           = userpipe_beep;
-    user_keypad         = user_illegal;
+    user_keypad         = (voidboolfunc*)user_illegal;
     user_retain         = user_illegal;
-    user_passwd         = user_noop;
+    user_passwd         = (voidboolfunc*)user_noop;
     user_condump        = user_illegal;
     user_title          = (printffunc*)user_illegal;
     user_resize         = userpipe_resize;

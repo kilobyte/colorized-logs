@@ -44,8 +44,8 @@ static void echo_input(const char *txt);
 
 /*************** globals ******************/
 bool term_echoing = true;
-int keypad= DEFAULT_KEYPAD;
-int retain= DEFAULT_RETAIN;
+bool keypad= DEFAULT_KEYPAD;
+bool retain= DEFAULT_RETAIN;
 int alnum = 0;
 int acnum = 0;
 int subnum = 0;
@@ -70,7 +70,7 @@ int any_closed=0;
 extern int recursion;
 char *_; /* incoming line being processed */
 extern int o_lastcolor;
-int real_quiet=0; /* if set, #verbose 0 will be really quiet */
+bool real_quiet=false; /* if set, #verbose 0 will be really quiet */
 char *history[HISTORY_SIZE];
 struct session *sessionlist, *activesession, *nullsession;
 pvars_t *pvars; /* the %0, %1, %2,....%9 variables */
@@ -265,7 +265,7 @@ static void init_nullses(void)
     nullsession->speedwalk = DEFAULT_SPEEDWALK;
     nullsession->togglesubs = DEFAULT_TOGGLESUBS;
     nullsession->presub = DEFAULT_PRESUB;
-    nullsession->verbatim = 0;
+    nullsession->verbatim = false;
     nullsession->ignore = DEFAULT_IGNORE;
     nullsession->partial_line_marker = mystrdup(DEFAULT_PARTIAL_LINE_MARKER);
     nullsession->aliases = init_hash();
@@ -276,16 +276,16 @@ static void init_nullses(void)
     nullsession->highs = init_list();
     nullsession->pathdirs = init_hash();
     nullsession->socket = 0;
-    nullsession->issocket = 0;
-    nullsession->naws = 0;
+    nullsession->issocket = false;
+    nullsession->naws = false;
 #ifdef HAVE_ZLIB
-    nullsession->can_mccp = 0;
+    nullsession->can_mccp = false;
     nullsession->mccp = 0;
-    nullsession->mccp_more = 0;
+    nullsession->mccp_more = false;
 #endif
     nullsession->last_term_type=0;
     nullsession->server_echo = 0;
-    nullsession->nagle = 0;
+    nullsession->nagle = false;
     nullsession->antisubs = init_list();
     nullsession->binds = init_hash();
     nullsession->next = 0;
@@ -307,8 +307,8 @@ static void init_nullses(void)
     nullsession->path_length = 0;
     nullsession->last_line[0] = 0;
     nullsession->events = NULL;
-    nullsession->verbose=0;
-    nullsession->closing=0;
+    nullsession->verbose=false;
+    nullsession->closing=false;
     sessionlist = nullsession;
     activesession = nullsession;
     pvars=0;
@@ -782,7 +782,7 @@ static void read_mud(struct session *ses)
 
             if (ses->halfcr_log)
             {
-                ses->halfcr_log=0;
+                ses->halfcr_log=false;
                 if (buffer[0]!='\n')
                     temp[count++]='\r';
             }
@@ -793,7 +793,7 @@ static void read_mud(struct session *ses)
                 else
                 {
                     if (n+1==didget)
-                        ses->halfcr_log=1;
+                        ses->halfcr_log=true;
                     else if (buffer[n+1]!='\n')
                         temp[count++]='\r';
                 }
@@ -813,7 +813,7 @@ static void read_mud(struct session *ses)
 
     if (ses->halfcr_in)
     {
-        ses->halfcr_in=0;
+        ses->halfcr_in=false;
         goto halfcr;
     }
     while (*cpsource)
@@ -835,7 +835,7 @@ static void read_mud(struct session *ses)
                 continue;
             if (!*cpsource)
             {
-                ses->halfcr_in=1;
+                ses->halfcr_in=true;
                 break;
             }
             *cpdest=0;
@@ -887,14 +887,14 @@ static void do_one_line(char *line, int nl, struct session *ses)
            && !gotpassword)
         {
             gotpassword=1;
-            user_passwd(1);
+            user_passwd(true);
             term_echoing=false;
         };
         break;
     case 1:
         if (match(PROMPT_FOR_MORE_TEXT, line))
         {
-            user_passwd(0);
+            user_passwd(false);
             got_more_kludge=1;
         };
     };
