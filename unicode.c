@@ -9,7 +9,6 @@
 extern const char *prof_area;
 #endif
 
-int user_charset;
 char *user_charset_name;
 
 
@@ -317,8 +316,6 @@ void init_locale()
 {
     setlocale(LC_CTYPE, "");
     user_charset_name=nl_langinfo(CODESET);
-    if (!strcmp(user_charset_name, "UTF-8"))
-        user_charset=0;
 }
 
 bool new_conv(struct charset_conv *conv, const char *name, int dir)
