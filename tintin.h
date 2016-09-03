@@ -43,7 +43,7 @@
 /************************************************************************/
 
 #ifndef COMPRESSED_HELP
-#define COMPRESSED_HELP TRUE
+#define COMPRESSED_HELP 1
 #endif
 
 /***********************************************/
