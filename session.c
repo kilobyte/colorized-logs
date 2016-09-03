@@ -452,23 +452,23 @@ void seslist(char *result)
     bool flag=false;
     char *r0=result;
 
-    if ((sessionlist!=nullsession)||(nullsession->next))
-    {
-        for (sesptr = sessionlist; sesptr; sesptr = sesptr->next)
-            if (sesptr!=nullsession)
-            {
-                if (flag)
-                    *result++=' ';
-                else
-                    flag=true;
-                if (isatom(sesptr->name))
-                    result+=snprintf(result, BUFFER_SIZE-5+r0-result,
-                        "%s", sesptr->name);
-                else
-                    result+=snprintf(result, BUFFER_SIZE-5+r0-result,
-                        "{%s}", sesptr->name);
-                if (result-r0>BUFFER_SIZE-10)
-                    return; /* pathological session names */
-            }
-    }
+    if (sessionlist==nullsession && !nullsession->next)
+        return;
+
+    for (sesptr = sessionlist; sesptr; sesptr = sesptr->next)
+        if (sesptr!=nullsession)
+        {
+            if (flag)
+                *result++=' ';
+            else
+                flag=true;
+            if (isatom(sesptr->name))
+                result+=snprintf(result, BUFFER_SIZE-5+r0-result,
+                    "%s", sesptr->name);
+            else
+                result+=snprintf(result, BUFFER_SIZE-5+r0-result,
+                    "{%s}", sesptr->name);
+            if (result-r0>BUFFER_SIZE-10)
+                return; /* pathological session names */
+        }
 }
