@@ -231,7 +231,7 @@ void write_logf(struct session *ses, const char *txt, const char *prefix, const 
     int len;
 
     sprintf(buf, "%s%s%s%s\n", prefix, txt, suffix, ses->logtype?"":"\r");
-    if (ses->logtype==2)
+    if (ses->logtype==LOG_TTYREC)
     {
         ttyrec_timestamp((struct ttyrec_header *)lbuf);
         len=sizeof(struct ttyrec_header);
@@ -240,7 +240,7 @@ void write_logf(struct session *ses, const char *txt, const char *prefix, const 
         len=0;
     convert(&ses->c_log, lbuf+len, buf, 1);
     len+=strlen(lbuf+len);
-    if (ses->logtype==2)
+    if (ses->logtype==LOG_TTYREC)
     {
         uint32_t blen=len-sizeof(struct ttyrec_header);
         lbuf[ 8]=blen;
@@ -269,7 +269,7 @@ void write_log(struct session *ses, const char *txt, int n)
         n=strlen(lbuf);
         txt=lbuf;
     }
-    if (ses->logtype==2)
+    if (ses->logtype==LOG_TTYREC)
     {
         ttyrec_timestamp(&th);
         th.len=to_little_endian(n);
@@ -1138,7 +1138,6 @@ const char *logtypes[]=
 void logtype_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE];
-    unsigned t;
 
     arg=get_arg(arg, left, 1, ses);
     if (!*left)
@@ -1146,7 +1145,7 @@ void logtype_command(const char *arg, struct session *ses)
         tintin_printf(ses, "#The log type is: %s", logtypes[ses->logtype]);
         return;
     }
-    for (t=0;t<sizeof(logtypes)/sizeof(char*);t++)
+    for (unsigned t=0;t<sizeof(logtypes)/sizeof(char*);t++)
         if (is_abrev(left, logtypes[t]))
         {
             ses->logtype=t;

@@ -67,8 +67,7 @@
 #define RESET_RAW       /* reset pseudo-terminals to raw mode every write */
 #define GOTO_CHAR '>'   /* be>mt -> #goto be mt */
                         /*Comment last line out to disable this behavior */
-#define OLD_LOG 0 /* set to one to use old-style logging */
-#define DEFAULT_LOGTYPE (1-OLD_LOG)       /* 0: cr/lf, 1: lf, 2: ttyrec */
+#define DEFAULT_LOGTYPE LOG_LF    /* LOG_RAW: cr/lf or what server sends, LOG_LF: lf, LOG_TTYREC */
 #define DEFAULT_OPEN '{' /*character that starts an argument */
 #define DEFAULT_CLOSE '}' /*character that ends an argument */
 #define HISTORY_SIZE 128                  /* history size */
@@ -311,6 +310,8 @@ struct charset_conv
     iconv_t i_in, i_out;
 };
 
+typedef enum { LOG_RAW, LOG_LF, LOG_TTYREC } logtype_t;
+
 struct session
 {
     struct session *next;
@@ -324,7 +325,7 @@ struct session
     FILE *logfile, *debuglogfile;
     char *logname, *debuglogname;
     char *loginputprefix, *loginputsuffix;
-    int logtype;
+    logtype_t logtype;
     bool ignore;
     struct listnode *actions, *prompts, *subs, *highs, *antisubs;
     struct hashtable *aliases, *myvars, *pathdirs, *binds;
