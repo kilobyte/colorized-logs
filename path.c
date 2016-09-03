@@ -47,7 +47,7 @@ void map_command(const char *arg, struct session *ses)
     char cmd[BUFFER_SIZE];
     get_arg_in_braces(arg, cmd, 1);
     prepare_actionalias(cmd, cmd, ses);
-    check_insert_path(cmd, ses, 0);
+    check_insert_path(cmd, ses);
 }
 
 void savepath_command(const char *arg, struct session *ses)
@@ -244,7 +244,7 @@ void unmap_command(const char *arg, struct session *ses)
         tintin_puts("#Ok.  Forgot that move.", ses);
 }
 
-void check_insert_path(const char *command, struct session *ses, bool force)
+void check_insert_path(const char *command, struct session *ses)
 {
     char *ret;
 
@@ -252,12 +252,7 @@ void check_insert_path(const char *command, struct session *ses, bool force)
         return;
 
     if (!(ret=get_hash(ses->pathdirs, command)))
-    {
-        if (!force)
-            return;
-        ret="-no return-";
-        ses->no_return=MAX_PATH_LENGTH+1;
-    }
+        return;
     if (ses->path_length != MAX_PATH_LENGTH)
         ses->path_length++;
     else if (ses->path_length)
