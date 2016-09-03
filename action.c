@@ -556,26 +556,22 @@ static int match_a_string(const char *line, const char *mask)
     return -1;
 }
 
-int check_one_action(const char *line, const char *action, pvars_t *vars, int inside, struct session *ses)
+bool check_one_action(const char *line, const char *action, pvars_t *vars, int inside, struct session *ses)
 {
-    int i;
+    if (!check_a_action(line, action, inside, ses))
+        return false;
 
-    if (check_a_action(line, action, inside, ses))
+    for (int i = 0; i < 10; i++)
     {
-        for (i = 0; i < 10; i++)
+        if (var_len[i] != -1)
         {
-            if (var_len[i] != -1)
-            {
-                strncpy((*vars)[i], var_ptr[i], var_len[i]);
-                *((*vars)[i] + var_len[i]) = '\0';
-            }
-            else
-                (*vars)[i][0]=0;
+            strncpy((*vars)[i], var_ptr[i], var_len[i]);
+            *((*vars)[i] + var_len[i]) = '\0';
         }
-        return TRUE;
+        else
+            (*vars)[i][0]=0;
     }
-    else
-        return FALSE;
+    return true;
 }
 
 /******************************************************************/
@@ -587,10 +583,10 @@ static int check_a_action(const char *line, const char *action, int inside, stru
     char result[BUFFER_SIZE];
     char *temp2, *tptr;
     const char *lptr, *lptr2;
-    int i, len;
+    int len;
     bool flag_anchor = false;
 
-    for (i = 0; i < 10; i++)
+    for (int i = 0; i < 10; i++)
         var_len[i] = -1;
     lptr = line;
     substitute_myvars(action, result, ses);

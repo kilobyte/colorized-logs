@@ -8,14 +8,13 @@ static const int nod = sizeof(cdigit)/sizeof(char*);
 void ctoi(char* input)
 {
     char result[BUFFER_SIZE];
-    int i, j, k, num;
     int lastunit, lastdigit=0;
     char* tmp;
-    j = 0;
+    int i, j = 0;
     tmp = input;
     while (*tmp&&*(tmp+1))
     {
-        for (i=0;i<nod;i++)
+        for (int i=0;i<nod;i++)
             if (!strncmp(tmp, cdigit[i], 3))
             {
                 if (i==14)      /* synonyms */
@@ -31,7 +30,7 @@ void ctoi(char* input)
         tmp+=3;
     }
     result[j]=0; /*just sth != 10, chitchat*/
-    num = j;
+    int num = j;
     lastunit = 0;
     for (i=0, j=0;i<num;i++)
     {
@@ -61,7 +60,7 @@ void ctoi(char* input)
         else if (result[i]<13)
         {
             if (lastunit>result[i]+1)
-                for (k=0;k<lastunit-result[i]-1;k++)
+                for (int k=0;k<lastunit-result[i]-1;k++)
                 {
                     input[j] = '0';
                     j++;
@@ -77,7 +76,7 @@ void ctoi(char* input)
         else if (result[i]==13)
         {
             if (lastunit>=10)
-                for (k=0;k<lastunit-9;k++)
+                for (int k=0;k<lastunit-9;k++)
                 {
                     input[j] = '0';
                     j++;
@@ -88,13 +87,14 @@ void ctoi(char* input)
     }
     if (lastunit>=10)
     {
-        for (k=0;k<lastunit-9;k++)
+        for (int k=0;k<lastunit-9;k++)
         {
             input[j] = '0';
             j++;
         }
         if (lastdigit) input[j-1]='0'+lastdigit;
     }
-    if (j==0) input[j++]='0'; //handle #ctoi x {零}, chit, 7/10/2000
+    if (!j)
+        input[j++]='0'; //handle #ctoi x {零}, chit, 7/10/2000
     input[j] = '\0';
 }

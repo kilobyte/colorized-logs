@@ -786,7 +786,6 @@ struct session *foreach_command(const char *arg, struct session *ses)
     char temp[BUFFER_SIZE], left[BUFFER_SIZE], right[BUFFER_SIZE];
     const char *p, *list;
     pvars_t vars, *lastvars;
-    int i;
 
     arg=get_arg(arg, left, 0, ses);
     get_arg_in_braces(arg, right, 1);
@@ -802,7 +801,7 @@ struct session *foreach_command(const char *arg, struct session *ses)
     {
         list = get_arg_in_braces(list, temp, 0);
         strcpy(vars[0], p=temp);
-        for (i=1;i<10;i++)
+        for (int i=1;i<10;i++)
             p=get_arg_in_braces(p, vars[i], 0);
         in_alias=true;
         ses=parse_input(right, true, ses);
@@ -827,7 +826,6 @@ static int compar(const void *a, const void *b)
 void sortlist_command(const char *arg, struct session *ses)
 {
     char *list, temp[BUFFER_SIZE], left[BUFFER_SIZE], right[BUFFER_SIZE];
-    int i, n;
     char *tab[BUFFER_SIZE];
 
     arg=get_arg(arg, left, 0, ses);
@@ -838,7 +836,7 @@ void sortlist_command(const char *arg, struct session *ses)
         return;
     }
 
-    n=0;
+    int n=0;
     arg = right;
     while (*arg)
     {
@@ -847,7 +845,7 @@ void sortlist_command(const char *arg, struct session *ses)
     };
     qsort(tab, n, sizeof(char*), compar);
     list=temp;
-    for (i=0;i<n;i++)
+    for (int i=0;i<n;i++)
     {
         if (list!=temp)
             *list++=' ';
@@ -974,10 +972,9 @@ int strlen_inline(const char *arg, struct session *ses)
 /* NOTE:      no check                     */
 static WC* revstr(WC *dest, WC *src)
 {
-    int i;
     int ilast = WClen(src) - 1;
 
-    for (i = ilast; i >= 0; i--)
+    for (int i = ilast; i >= 0; i--)
         dest[ilast - i] = src[i];
     dest[ilast + 1] = '\0';
 
@@ -1170,7 +1167,7 @@ void expand_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], list[BUFFER_SIZE],
          cur[BUFFER_SIZE], out[BUFFER_SIZE], *outptr, *err;
-    int i, j;
+    int j;
 
     arg = get_arg(arg, left, 0, ses);
     if (!*left)
@@ -1180,7 +1177,6 @@ void expand_command(const char *arg, struct session *ses)
         *(outptr=out)=0;
         get_arg(arg, list, 1, ses);
         arg = list;
-        i=0;
         while (*arg)
         {
             arg=space_out(arg);
@@ -1193,7 +1189,7 @@ void expand_command(const char *arg, struct session *ses)
             arg = get_arg_in_braces(arg, cur, 0);
             if (j>BUFFER_SIZE/2)
                     j=BUFFER_SIZE/2;
-            for (i=0;i<j;i++)
+            for (int i=0;i<j;i++)
             {
                 if (isatom(cur))
                     outptr+=snprintf(outptr, out+BUFFER_SIZE-outptr, " %s", cur);

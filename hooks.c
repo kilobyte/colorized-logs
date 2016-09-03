@@ -101,7 +101,7 @@ void unhook_command(const char *arg, struct session *ses)
 struct session* do_hook(struct session *ses, int t, const char *data, int blockzap)
 {
     pvars_t vars, *lastvars;
-    int i, oldclos=oldclos;
+    int oldclos=oldclos;
 
     if (!ses->hooks[t])
         return ses;
@@ -113,7 +113,7 @@ struct session* do_hook(struct session *ses, int t, const char *data, int blockz
     }
     lastvars=pvars;
     pvars=&vars;
-    for (i=0;i<10;i++)
+    for (int i=0;i<10;i++)
         vars[i][0]=0;
     if (data)
     {

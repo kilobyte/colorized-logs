@@ -706,7 +706,6 @@ void write_command(const char *filename, struct session *ses)
     char buffer[BUFFER_SIZE*4], num[32], fname[BUFFER_SIZE], lfname[BUFFER_SIZE];
     struct listnode *nodeptr, *templist;
     struct routenode *rptr;
-    int nr;
 
     get_arg_in_braces(filename, buffer, 1);
     substitute_vars(buffer, fname);
@@ -811,7 +810,7 @@ void write_command(const char *filename, struct session *ses)
     }
     zap_list(templist);
 
-    for (nr=0;nr<MAX_LOCATIONS;nr++)
+    for (int nr=0;nr<MAX_LOCATIONS;nr++)
         if ((rptr=ses->routes[nr]))
             do
             {
@@ -834,7 +833,7 @@ void write_command(const char *filename, struct session *ses)
     }
     zap_list(templist);
 
-    for (nr=0;nr<NHOOKS;nr++)
+    for (int nr=0;nr<NHOOKS;nr++)
         if (ses->hooks[nr])
         {
             prepare_for_write("hook", hook_names[nr], ses->hooks[nr], 0, buffer);
@@ -880,7 +879,6 @@ void writesession_command(const char *filename, struct session *ses)
     char buffer[BUFFER_SIZE*4], *val, num[32], fname[BUFFER_SIZE], lfname[BUFFER_SIZE];
     struct listnode *nodeptr, *onptr;
     struct routenode *rptr;
-    int nr;
 
     if (ses==nullsession)
     {
@@ -1013,7 +1011,7 @@ void writesession_command(const char *filename, struct session *ses)
     }
     zap_list(onptr);
 
-    for (nr=0;nr<MAX_LOCATIONS;nr++)
+    for (int nr=0;nr<MAX_LOCATIONS;nr++)
         if ((rptr=ses->routes[nr]))
             do
             {
@@ -1045,7 +1043,7 @@ void writesession_command(const char *filename, struct session *ses)
     }
     zap_list(onptr);
 
-    for (nr=0;nr<NHOOKS;nr++)
+    for (int nr=0;nr<NHOOKS;nr++)
         if (ses->hooks[nr])
             if (!nullsession->hooks[nr] ||
                 strcmp(ses->hooks[nr], nullsession->hooks[nr]))

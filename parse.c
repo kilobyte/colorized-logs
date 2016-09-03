@@ -386,7 +386,6 @@ static struct session* parse_tintin_command(const char *command, const char *arg
 static void add_command(struct hashtable *h, const char *command, t_command func)
 {
     char cmd[BUFFER_SIZE];
-    int n;
 
     if (get_hash(c_commands, command) || get_hash(commands, command))
     {
@@ -394,7 +393,7 @@ static void add_command(struct hashtable *h, const char *command, t_command func
         exit(1);
     }
     strcpy(cmd, command);
-    for (n=strlen(cmd); n; n--)
+    for (int n=strlen(cmd); n; n--)
     {
         cmd[n]=0;
         if (!get_hash(c_commands, cmd) && !get_hash(commands, cmd))

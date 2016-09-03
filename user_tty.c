@@ -207,7 +207,7 @@ static void countpos(void)
 /**********************/
 static void redraw_in(void)
 {
-    int i, l, r, k;
+    int l, r, k;
 
     tbuf+=sprintf(tbuf, "\033[%d;1f\033[0;37;4%dm", scr_len+1, INPUT_COLOR);
     if (k_pos<k_scrl)
@@ -222,7 +222,7 @@ static void redraw_in(void)
     {
         l=WClen(&(k_input[k_scrl]));
         l=(l<COLS-2+(k_scrl==0))?l:COLS-2+(k_scrl==0);
-        for (i=0;i<l;i++)
+        for (int i=0;i<l;i++)
             *tbuf++='*';
     }
     else
@@ -269,7 +269,7 @@ static void redraw_in(void)
     else if (!putty)
         tbuf+=sprintf(tbuf, "\033[0K");
     else
-        for (i=l;i<COLS-!!k_scrl;i++)
+        for (int i=l;i<COLS-!!k_scrl;i++)
             *tbuf++=' ';
     scr_curs=(k_scrl!=0)+k_pos-k_scrl;
     redraw_cursor();
@@ -347,12 +347,11 @@ static void draw_out(const char *pos)
 /****************************/
 static void b_scroll(int b_to)
 {
-    int y;
     if (b_screenb==(b_to=(b_to<b_first?b_first:(b_to>b_bottom?b_bottom:b_to))))
         return;
     tbuf+=sprintf(tbuf, "\033[%d;%df\033[0;37;40m\033[1J", scr_len, COLS);
     term_commit();
-    for (y=b_to-LINES+(isstatus?3:2);y<=b_to;++y)
+    for (int y=b_to-LINES+(isstatus?3:2);y<=b_to;++y)
         if ((y>=1)&&(y>b_first))
         {
             tbuf+=sprintf(tbuf, "\033[%d;1f", scr_len+y-b_to);
@@ -368,10 +367,9 @@ static void b_scroll(int b_to)
 
     if (b_screenb==b_bottom)
     {
-        int x;
         tbuf+=sprintf(tbuf, "\033[%d;1f\033[0;1;37;4%dm\033[2K\033[?25l",
                 scr_len+1, INPUT_COLOR);
-        for (x=0;x<COLS;++x)
+        for (int x=0;x<COLS;++x)
             *tbuf++='^';
     }
     else
@@ -416,12 +414,12 @@ static void b_addline(void)
 /****************************************************/
 static inline void print_char(const WC ch)
 {
-    int clen, dw;
+    int clen;
 
     if (ch==EMPTY_CHAR)
         return;
     /* wrap prematurely if the double-width char won't fit */
-    dw=wcwidth(ch);
+    int dw=wcwidth(ch);
     if (dw<0)
         dw=0;
 
@@ -451,9 +449,7 @@ static inline void print_char(const WC ch)
 
 static void form_feed()
 {
-    int i;
-
-    for (i=(isstatus?2:1);i<LINES;i++)
+    for (int i=(isstatus?2:1);i<LINES;i++)
     {
         tbuf+=sprintf(tbuf, "\033[0;37;40m\r\n\033[2K");
         b_addline();
@@ -696,7 +692,6 @@ static int val[MAXNVAL], nval;
 static int usertty_process_kbd(struct session *ses, WC ch)
 {
     char txt[16];
-    int i, dw;
 
     switch (state)
     {
@@ -903,7 +898,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
                     b_scroll(b_bottom);
                 if (k_pos!=k_len)
                 {
-                    for (i=k_pos;i<=k_len;++i)
+                    for (int i=k_pos;i<=k_len;++i)
                     k_input[i]=k_input[i+1];
                     --k_len;
                 }
@@ -1115,18 +1110,20 @@ static int usertty_process_kbd(struct session *ses, WC ch)
                 b_scroll(b_bottom);
             if (k_pos==k_len)
                 break;
-            i=k_pos;
-            while (i<k_len && (k_input[i]==EMPTY_CHAR || !iswalnum(k_input[i])))
-                i++;
-            while (k_input[i]==EMPTY_CHAR || iswalnum(k_input[i]))
-                i++;
-            i-=k_pos;
-            memcpy(yank_buffer, k_input+k_pos, i*WCL);
-            yank_buffer[i]=0;
-            memmove(k_input+k_pos, k_input+k_pos+i, (k_len-k_pos-i)*WCL);
-            k_len-=i;
-            k_input[k_len]=0;
-            redraw_in();
+            {
+                int i=k_pos;
+                while (i<k_len && (k_input[i]==EMPTY_CHAR || !iswalnum(k_input[i])))
+                    i++;
+                while (k_input[i]==EMPTY_CHAR || iswalnum(k_input[i]))
+                    i++;
+                i-=k_pos;
+                memcpy(yank_buffer, k_input+k_pos, i*WCL);
+                yank_buffer[i]=0;
+                memmove(k_input+k_pos, k_input+k_pos+i, (k_len-k_pos-i)*WCL);
+                k_len-=i;
+                k_input[k_len]=0;
+                redraw_in();
+            }
             break;
         case 127:  /* Alt-Backspace */
             if (b_bottom!=b_screenb)
@@ -1134,7 +1131,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
             ret(0);
             if (k_pos!=0)
             {
-                i=k_pos-1;
+                int i=k_pos-1;
                 while ((i>=0)&&(k_input[i]==EMPTY_CHAR || !iswalnum(k_input[i])))
                     i--;
                 while ((i>=0)&&(k_input[i]==EMPTY_CHAR || iswalnum(k_input[i])))
@@ -1243,10 +1240,10 @@ static int usertty_process_kbd(struct session *ses, WC ch)
             ret(0);
             if (k_pos!=0)
             {
-                dw=(k_input[--k_pos]==EMPTY_CHAR)?2:1;
+                int dw=(k_input[--k_pos]==EMPTY_CHAR)?2:1;
                 if (dw==2)
                     --k_pos;
-                for (i=k_pos;i<=k_len;++i)
+                for (int i=k_pos;i<=k_len;++i)
                     k_input[i]=k_input[i+dw];
                 k_len-=dw;
             };
@@ -1262,7 +1259,7 @@ key_alt_tab:
                 WCcpy(buf, k_input);
                 WCcpy(k_input, tk_input);
                 WCcpy(tk_input, buf);
-                i=k_pos; k_pos=tk_pos; tk_pos=i;
+                int i=k_pos; k_pos=tk_pos; tk_pos=i;
                 i=k_scrl; k_scrl=tk_scrl; tk_scrl=i;
                 i=k_len; k_len=tk_len; tk_len=i;
             };
@@ -1344,7 +1341,7 @@ key_alt_tab:
                 b_scroll(b_bottom);
             if (k_pos!=0)
             {
-                i=k_pos-1;
+                int i=k_pos-1;
                 while ((i>=0)&&(k_input[i]==EMPTY_CHAR || iswspace(k_input[i])))
                     i--;
                 while ((i>=0)&&(k_input[i]==EMPTY_CHAR || !iswspace(k_input[i])))
@@ -1371,15 +1368,17 @@ key_alt_tab:
                 write_stdout("\007", 1);
                 break;
             }
-            i=WClen(yank_buffer);
-            if (i+k_len>=BUFFER_SIZE)
-                i=BUFFER_SIZE-1-k_len;
-            memmove(k_input+k_pos+i, k_input+k_pos, (k_len-k_pos)*WCL);
-            memmove(k_input+k_pos, yank_buffer, i*WCL);
-            k_len+=i;
-            k_input[k_len]=0;
-            k_pos+=i;
-            redraw_in();
+            {
+                int i=WClen(yank_buffer);
+                if (i+k_len>=BUFFER_SIZE)
+                    i=BUFFER_SIZE-1-k_len;
+                memmove(k_input+k_pos+i, k_input+k_pos, (k_len-k_pos)*WCL);
+                memmove(k_input+k_pos, yank_buffer, i*WCL);
+                k_len+=i;
+                k_input[k_len]=0;
+                k_pos+=i;
+                redraw_in();
+            }
             break;
         case 27:        /* [Esc] or a control sequence */
             state=TS_ESC;
@@ -1400,13 +1399,13 @@ key_alt_tab:
 #if 0
         insert_verbatim:
 #endif
-            dw=isw2width(ch)?2:1;
+            int dw=isw2width(ch)?2:1;
             if (k_len+dw==BUFFER_SIZE)
                 write_stdout("\007", 1);
             else
             {
                 k_input[k_len+=dw]=0;
-                for (i=k_len-dw;i>k_pos;--i)
+                for (int i=k_len-dw;i>k_pos;--i)
                     k_input[i]=k_input[i-dw];
                 k_input[k_pos++]=ch;
                 if (dw==2)
@@ -1447,7 +1446,7 @@ key_alt_tab:
 static void b_resize()
 {
     char *src[B_LENGTH];
-    int src_lines, i;
+    int src_lines;
     char line[BUFFER_SIZE], *lp;
     int cont;
     int color;
@@ -1473,7 +1472,7 @@ static void b_resize()
     lp=line;
     cont=0;
     color=-1;
-    for (i=0;i<src_lines;i++)
+    for (int i=0;i<src_lines;i++)
     {
         int ncolor=color;
         const char *sp=src[i];
@@ -1517,8 +1516,6 @@ static void usertty_mark_greeting(void)
 /******************************/
 static void usertty_drawscreen(void)
 {
-    int i;
-
     need_resize=false;
     scr_len=LINES-1-isstatus;
     tbuf+=sprintf(tbuf, "\033[0;37;40m\033[2J\033[0;37;40m\033[1;%dr\0337", scr_len);
@@ -1526,7 +1523,7 @@ static void usertty_drawscreen(void)
     if (!putty)
         tbuf+=sprintf(tbuf, "\033[2K");
     else
-        for (i=0;i<COLS;i++)
+        for (int i=0;i<COLS;i++)
             *tbuf++=' ';
     if (isstatus)
         tbuf+=sprintf(tbuf, "\033[%d;f\033[37;4%dm\033[2K", LINES, STATUS_COLOR);
@@ -1641,8 +1638,7 @@ static void usertty_init(void)
     sprintf(done_input, "~12~KB~3~tin ~7~%s by ~11~kilobyte@angband.pl~9~\n", VERSION);
     usertty_textout(done_input);
     {
-        int i;
-        for (i=0;i<COLS;++i)
+        for (int i=0;i<COLS;++i)
             done_input[i]='-';
         sprintf(done_input+COLS, "~7~\n");
     };
@@ -1715,9 +1711,8 @@ static int fwrite_out(FILE *f, const char *pos)
 
 static void usertty_condump(FILE *f)
 {
-    int i;
     dump_color=7;
-    for (i = (b_greeting>b_first)?b_greeting:b_first; i<b_current; i++)
+    for (int i = (b_greeting>b_first)?b_greeting:b_first; i<b_current; i++)
         if (fwrite_out(f, b_output[i%B_LENGTH]))
             fprintf(f, "\n");
     fwrite_out(f, out_line);

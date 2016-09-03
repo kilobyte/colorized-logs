@@ -426,7 +426,6 @@ color:
 void mudcolors_command(const char *arg, struct session *ses)
 {
     char cc[BUFFER_SIZE][16], buf[BUFFER_SIZE];
-    int nc;
 
     if (!*arg)
     {
@@ -447,7 +446,7 @@ error_msg:
             goto null_codes;
     }
     /* we allow BOTH {a} {b} {c} _and_ {{a} {b} {c}} - inconstency, but it's ok */
-    for (nc=0;nc<16;nc++)
+    for (int nc=0;nc<16;nc++)
     {
         if (!*arg)
         {
@@ -466,7 +465,7 @@ null_codes:
     if (*arg)
         goto error_msg;
     mudcolors=MUDC_ON;
-    for (nc=0;nc<16;nc++)
+    for (int nc=0;nc<16;nc++)
     {
         SFREE(MUDcolors[nc]);
         MUDcolors[nc]=mystrdup(cc[nc]);

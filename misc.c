@@ -493,7 +493,7 @@ void showme_command(const char *arg, struct session *ses)
 void loop_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
-    int bound1, bound2, counter;
+    int bound1, bound2;
     pvars_t vars, *lastpvars;
 
     arg = get_arg(arg, left, 0, ses);
@@ -503,16 +503,16 @@ void loop_command(const char *arg, struct session *ses)
     else
     {
         if (pvars)
-            for (counter=1; counter<10; counter++)
+            for (int counter=1; counter<10; counter++)
                 strcpy(vars[counter], (*pvars)[counter]);
         else
-            for (counter=1; counter<10; counter++)
+            for (int counter=1; counter<10; counter++)
                 strcpy(vars[counter], "");
         lastpvars=pvars;
         pvars=&vars;
 
         bool flag = true;
-        counter = bound1;
+        int counter = bound1;
         while (flag)
         {
             sprintf(vars[0], "%d", counter);
@@ -559,7 +559,6 @@ static const char *msNAME[]=
 void messages_command(const char *arg, struct session *ses)
 {
     char offon[2][20];
-    int mestype;
     char type[BUFFER_SIZE], onoff[BUFFER_SIZE];
 
     strcpy(offon[0], "OFF.");
@@ -568,12 +567,12 @@ void messages_command(const char *arg, struct session *ses)
     arg=get_arg(arg, onoff, 1, ses);
     if (!*type)
     {
-        for (mestype=0;mestype<MAX_MESVAR;++mestype)
+        for (int mestype=0;mestype<MAX_MESVAR;++mestype)
             tintin_printf(ses, "#Messages concerning %s are %s",
                     msNAME[mestype], offon[ses->mesvar[mestype]]);
         return;
     };
-    mestype = 0;
+    int mestype = 0;
     while ((mestype<MAX_MESVAR+1)&&(!is_abrev(type, msNAME[mestype])))
         mestype++;
     if (mestype == MAX_MESVAR+1)
@@ -611,11 +610,11 @@ void messages_command(const char *arg, struct session *ses)
             if (b==-2)
             {
                 b=1;
-                for (mestype=0;mestype<MAX_MESVAR;mestype++)
+                for (int mestype=0;mestype<MAX_MESVAR;mestype++)
                     if (ses->mesvar[mestype])   /* at least one type is ON? */
                         b=0;                    /* disable them all */
             };
-            for (mestype=0;mestype<MAX_MESVAR;mestype++)
+            for (int mestype=0;mestype<MAX_MESVAR;mestype++)
                 ses->mesvar[mestype]=b;
             if (b)
                 tintin_printf(ses, "#Ok. All messages are now ON.");
@@ -996,8 +995,7 @@ void info_command(const char *arg, struct session *ses)
     binds     = ses->binds->nval;
     pathdirs  = ses->pathdirs->nval;
     {
-        int i;
-        for (i=0;i<MAX_LOCATIONS;i++)
+        for (int i=0;i<MAX_LOCATIONS;i++)
             if (ses->locations[i])
                 locs++;
     }

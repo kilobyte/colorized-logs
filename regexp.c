@@ -11,24 +11,23 @@ extern pvars_t *pvars;  /* the %0, %1, %2,....%9 variables */
 
 extern struct session *if_command(const char *arg, struct session *ses);
 
-static int check_regexp(char *line, char *action, pvars_t *vars, int inside, struct session *ses)
+static bool check_regexp(char *line, char *action, pvars_t *vars, int inside, struct session *ses)
 {
     regex_t preg;
     regmatch_t pmatch[10];
-    int i;
 
     if (regcomp(&preg, action, REG_EXTENDED))
     {
         tintin_eprintf(ses, "#invalid regular expression: {%s}", action);
-        return 0;
+        return false;
     }
     if (regexec(&preg, line, vars?10:0, pmatch, inside?REG_NOTBOL:0))
     {
         regfree(&preg);
-        return FALSE;
+        return false;
     }
     if (vars)
-        for (i = 0; i < 10; i++)
+        for (int i = 0; i < 10; i++)
         {
             if (pmatch[i].rm_so != -1)
             {
@@ -40,7 +39,7 @@ static int check_regexp(char *line, char *action, pvars_t *vars, int inside, str
                 (*vars)[i][0]=0;
         }
     regfree(&preg);
-    return TRUE;
+    return true;
 }
 
 /*********************/

@@ -56,7 +56,6 @@ static int nhighpattern;
 static int highcolor; /* an ugly kludge... */
 static int get_high_num(const char *hig)
 {
-    int code;
     char tmp[BUFFER_SIZE];
 
     if (!*hig)
@@ -71,7 +70,7 @@ static int get_high_num(const char *hig)
         if (getcolor(&sl, &highcolor, 0))
             return highcolor;
     };
-    for (code=0;cNames[code].num!=-1;code++)
+    for (int code=0;cNames[code].num!=-1;code++)
         if (is_abrev(hig, cNames[code].name))
             return highcolor=cNames[code].num;
     return -1;
@@ -153,8 +152,6 @@ void highlight_command(const char *arg, struct session *ses)
         }
         else
         {
-            int i;
-
             if (!puts_echoing && ses->mesvar[11])
             {
                 tintin_eprintf(ses, "#Invalid highlighting color: {%s}", left);
@@ -165,7 +162,7 @@ void highlight_command(const char *arg, struct session *ses)
                 tintin_printf(ses, "#Invalid highlighting color, valid colors are:");
             tmp3[0]=0;
             tmp1=tmp3;
-            for (i=0;cNames[i].num!=-1;i++)
+            for (int i=0;cNames[i].num!=-1;i++)
             {
                 sprintf(left, "%s~7~, ", cNames[i].name);
                 if (cNames[i].num)
@@ -222,7 +219,7 @@ void do_all_high(char *line, struct session *ses)
     int c, d;
     char *pos, *txt;
     int *atr;
-    int l, r, i;
+    int l, r;
     struct listnode *ln;
 
     c=-1;
@@ -257,7 +254,7 @@ color:
             /* changed: no longer highlight in the middle of a word */
             if (((l==0)||(!isalnum(text[l])||!isalnum(text[l-1])))&&
                     (!isalnum(text[r])||!isalnum(text[r+1])))
-                for (i=l;i<=r;i++)
+                for (int i=l;i<=r;i++)
                     attr[i]=highpattern[(++c)%nhighpattern];
             txt=text+r+1;
         }

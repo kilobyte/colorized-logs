@@ -177,8 +177,7 @@ static void unspan()
 
 int main(int argc, const char **argv)
 {
-    int i;
-    for (i=1; i<argc; ++i)
+    for (int i=1; i<argc; ++i)
         if (!strcmp(argv[i], "-n") || !strcmp(argv[i], "--no-header"))
             no_header=1;
         else if (!strcmp(argv[i], "-w") || !strcmp(argv[i], "--white"))
@@ -363,7 +362,7 @@ csi:
         ch=getchar();
         goto csi;
     case 'm':
-        for (i=0;i<=ntok;i++)
+        for (int i=0;i<=ntok;i++)
             switch (tok[i])
             {
             case 0:
@@ -485,7 +484,7 @@ csi:
             ntok=1;
         else if (ntok>512) /* sanity */
             ntok=512;
-        for (i=0;i<ntok;++i)
+        for (int i=0;i<ntok;++i)
             printf(" ");
         ch=getchar();
         goto normal;

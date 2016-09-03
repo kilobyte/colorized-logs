@@ -18,9 +18,7 @@ extern char *history[HISTORY_SIZE];
 /************************/
 void history_command(const char *arg, struct session *ses)
 {
-    int i;
-
-    for (i = HISTORY_SIZE - 1; i >= 0; i--)
+    for (int i = HISTORY_SIZE - 1; i >= 0; i--)
         if (history[i])
             tintin_printf(ses, "%2d %s ", i, history[i]);
     prompt(NULL);
@@ -60,9 +58,7 @@ void do_history(char *buffer, struct session *ses)
             }
             else
             {
-                int i;
-
-                for (i = 0; i < HISTORY_SIZE && history[i]; i++)
+                for (int i = 0; i < HISTORY_SIZE && history[i]; i++)
                     if (is_abrev(cptr + 1, history[i]))
                     {
                         strcpy(buffer, history[i]);
@@ -80,12 +76,10 @@ void do_history(char *buffer, struct session *ses)
 /***********************************************/
 static void insert_history(const char *buffer)
 {
-    int i;
-
     if (history[HISTORY_SIZE - 1])
         SFREE(history[HISTORY_SIZE - 1]);
 
-    for (i = HISTORY_SIZE - 1; i > 0; i--)
+    for (int i = HISTORY_SIZE - 1; i > 0; i--)
         history[i] = history[i - 1];
 
     history[0] = mystrdup(buffer);

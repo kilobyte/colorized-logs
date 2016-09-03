@@ -386,7 +386,6 @@ static struct session *new_session(const char *name, const char *address, int so
 /*****************************************************************************/
 void cleanup_session(struct session *ses)
 {
-    int i;
     char buf[BUFFER_SIZE];
     struct session *sesptr, *act;
 
@@ -422,7 +421,7 @@ void cleanup_session(struct session *ses)
         fclose(ses->debuglogfile);
     SFREE(ses->loginputprefix);
     SFREE(ses->loginputsuffix);
-    for (i=0;i<NHOOKS;i++)
+    for (int i=0;i<NHOOKS;i++)
         SFREE(ses->hooks[i]);
     SFREE(ses->name);
     SFREE(ses->address);

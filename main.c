@@ -239,7 +239,6 @@ static void setup_ulimit(void)
 
 static void init_nullses(void)
 {
-    int i;
     struct timeval tv;
 
     gettimeofday(&tv, 0);
@@ -293,14 +292,14 @@ static void init_nullses(void)
         nullsession->server_idle_since=time(0);
     nullsession->debuglogfile=0;
     nullsession->debuglogname=0;
-    for (i=0;i<HISTORY_SIZE;i++)
+    for (int i=0;i<HISTORY_SIZE;i++)
         history[i]=0;
-    for (i=0;i<MAX_LOCATIONS;i++)
+    for (int i=0;i<MAX_LOCATIONS;i++)
     {
         nullsession->routes[i]=0;
         nullsession->locations[i]=0;
     }
-    for (i=0;i<NHOOKS;i++)
+    for (int i=0;i<NHOOKS;i++)
         nullsession->hooks[i]=0;
     nullsession->path = init_list();
     nullsession->no_return = 0;
@@ -354,17 +353,16 @@ static struct listnode *options;
 
 static void parse_options(int argc, char **argv)
 {
-    int noargs=0;
-    int arg;
+    bool noargs=false;
 
     options=init_list();
 
-    for (arg=1;arg<argc;arg++)
+    for (int arg=1;arg<argc;arg++)
     {
         if (*argv[arg]=='-' && !noargs)
         {
             if (!strcmp(argv[arg], "--"))
-                noargs=1;
+                noargs=true;
             else if (!strcmp(argv[arg], "--version")) /* make autotest happy */
             {
                 printf("KBtin version "VERSION"\n");
@@ -759,7 +757,7 @@ static void read_mud(struct session *ses)
 {
     char buffer[BUFFER_SIZE], linebuffer[BUFFER_SIZE], *cpsource, *cpdest;
     char temp[BUFFER_SIZE];
-    int didget, n, count;
+    int didget, count;
 
     PROFSTART;
     if ((didget = read_buffer_mud(buffer, ses))==-1)
@@ -787,7 +785,7 @@ static void read_mud(struct session *ses)
                     temp[count++]='\r';
             }
 
-            for (n = 0; n < didget; n++)
+            for (int n = 0; n < didget; n++)
                 if (buffer[n] != '\r')
                     temp[count++] = buffer[n];
                 else

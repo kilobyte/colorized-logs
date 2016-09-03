@@ -43,17 +43,16 @@ static void addroute(struct session *ses, int a, int b, char *way, int dist, cha
 
 void copyroutes(struct session *ses1, struct session *ses2)
 {
-    int i;
     struct routenode *r, *p;
 
-    for (i=0;i<MAX_LOCATIONS;i++)
+    for (int i=0;i<MAX_LOCATIONS;i++)
     {
         if (ses1->locations[i])
             ses2->locations[i]=mystrdup(ses1->locations[i]);
         else
             ses2->locations[i]=0;
     };
-    for (i=0;i<MAX_LOCATIONS;i++)
+    for (int i=0;i<MAX_LOCATIONS;i++)
     {
         ses2->routes[i]=0;
         for (r=ses1->routes[i];r;r=r->next)
@@ -72,9 +71,8 @@ void copyroutes(struct session *ses1, struct session *ses2)
 void kill_routes(struct session *ses)
 {
     struct routenode *r, *p;
-    int i;
 
-    for (i=0;i<MAX_LOCATIONS;i++)
+    for (int i=0;i<MAX_LOCATIONS;i++)
     {
         SFREE(ses->locations[i]);
         ses->locations[i]=0;
@@ -94,10 +92,9 @@ void kill_routes(struct session *ses)
 int count_routes(struct session *ses)
 {
     struct routenode *r;
-    int i;
     int num=0;
 
-    for (i=0;i<MAX_LOCATIONS;i++)
+    for (int i=0;i<MAX_LOCATIONS;i++)
         for (r=ses->routes[i];r;r=r->next)
             num++;
     return num;
@@ -105,20 +102,19 @@ int count_routes(struct session *ses)
 
 static void kill_unused_locations(struct session *ses)
 {
-    int i;
     int us[MAX_LOCATIONS];
     struct routenode *r;
 
-    for (i=0;i<MAX_LOCATIONS;i++)
+    for (int i=0;i<MAX_LOCATIONS;i++)
         us[i]=0;
-    for (i=0;i<MAX_LOCATIONS;i++)
+    for (int i=0;i<MAX_LOCATIONS;i++)
         if ((r=ses->routes[i]))
         {
             us[i]++;
             for (;r;r=r->next)
                 us[r->dest]++;
         };
-    for (i=0;i<MAX_LOCATIONS;i++)
+    for (int i=0;i<MAX_LOCATIONS;i++)
         if (ses->locations[i]&&!us[i])
         {
             SFREE(ses->locations[i]);
@@ -149,7 +145,7 @@ static void show_route(struct session *ses, int a, struct routenode *r)
 void route_command(const char *arg, struct session *ses)
 {
     char a[BUFFER_SIZE], b[BUFFER_SIZE], way[BUFFER_SIZE], dist[BUFFER_SIZE], cond[BUFFER_SIZE];
-    int i, j, d;
+    int j, d;
     struct routenode *r;
 
     arg=get_arg(arg, a, 0, ses);
@@ -160,7 +156,7 @@ void route_command(const char *arg, struct session *ses)
     if (!*a)
     {
         tintin_printf(ses, "#THESE ROUTES HAVE BEEN DEFINED:");
-        for (i=0;i<MAX_LOCATIONS;i++)
+        for (int i=0;i<MAX_LOCATIONS;i++)
             for (r=ses->routes[i];r;r=r->next)
                 show_route(ses, i, r);
         return;
@@ -170,7 +166,7 @@ void route_command(const char *arg, struct session *ses)
         int first=1;
         if (!*b)
             strcpy(b, "*");
-        for (i=0;i<MAX_LOCATIONS;i++)
+        for (int i=0;i<MAX_LOCATIONS;i++)
             if (ses->locations[i]&&match(a, ses->locations[i]))
                 for (r=ses->routes[i];r;r=r->next)
                     if (ses->locations[i]&&
@@ -187,6 +183,7 @@ void route_command(const char *arg, struct session *ses)
             tintin_printf(ses, "#THAT ROUTE (%s) IS NOT DEFINED.", b);
         return;
     };
+    int i;
     for (i=0;i<MAX_LOCATIONS;i++)
         if (ses->locations[i]&&!strcmp(ses->locations[i], a))
             goto found_i;
@@ -259,7 +256,6 @@ found_j:
 void unroute_command(const char *arg, struct session *ses)
 {
     char a[BUFFER_SIZE], b[BUFFER_SIZE];
-    int i;
     struct routenode **r, *p;
     int found=0;
 
@@ -272,7 +268,7 @@ void unroute_command(const char *arg, struct session *ses)
         return;
     };
 
-    for (i=0;i<MAX_LOCATIONS;i++)
+    for (int i=0;i<MAX_LOCATIONS;i++)
         if (ses->locations[i]&&match(a, ses->locations[i]))
             for (r=&ses->routes[i];*r;)
             {
