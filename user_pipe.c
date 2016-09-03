@@ -87,12 +87,12 @@ static void userpipe_resize(void)
 
 void userpipe_initdriver()
 {
-    ui_sep_input=0;
-    ui_con_buffer=0;
-    ui_keyboard=0;
-    ui_own_output=0;
-    ui_tty=1;
-    ui_drafts=0;
+    ui_sep_input=false;
+    ui_con_buffer=false;
+    ui_keyboard=false;
+    ui_own_output=false;
+    ui_tty=true;
+    ui_drafts=false;
 
     user_init           = userpipe_init;
     user_done           = user_noop;

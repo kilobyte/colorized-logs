@@ -61,7 +61,7 @@ int got_more_kludge=0;
 int hist_num;
 bool need_resize=false;
 extern int LINES, COLS;
-extern int tty, xterm;
+extern bool tty, xterm;
 char *tintin_exec;
 struct session *lastdraft;
 bool aborting=false;
@@ -97,7 +97,7 @@ extern time_t kbd_lag, mud_lag;
 extern int kbd_cnt, mud_cnt;
 extern void setup_prof();
 #endif
-extern int ui_sep_input;
+extern bool ui_sep_input;
 
 static void tstphandler(int sig)
 {

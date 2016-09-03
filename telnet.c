@@ -6,7 +6,8 @@
 #include "protos/net.h"
 #include "protos/utils.h"
 
-extern int LINES, COLS, isstatus;
+extern int LINES, COLS;
+extern bool isstatus;
 extern struct session *sessionlist;
 
 #define EOR 239     /* End of Record */

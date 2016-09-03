@@ -30,7 +30,7 @@ extern char tintin_char;
 extern int recursion;
 extern const char *hook_names[];
 extern bool keypad, retain;
-extern int ui_sep_input;
+extern bool ui_sep_input;
 extern char *user_charset_name;
 
 int in_read=0;

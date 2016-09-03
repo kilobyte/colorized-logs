@@ -32,17 +32,17 @@ static int b_first, b_current, b_last, b_bottom, b_screenb, o_strongdraft;
 static int b_greeting;
 static char *b_output[B_LENGTH];
 static int scr_len, scr_curs;
-extern int isstatus;
+extern bool isstatus;
 extern int hist_num;
 extern char *history[HISTORY_SIZE];
 static bool in_getpassword;
 extern int margins, marginl, marginr;
 static struct termios old_tattr;
-static int retaining;
+static bool retaining;
 #ifdef XTERM_TITLE
-static int xterm;
+static bool xterm;
 #endif
-static int putty;
+static bool putty;
 extern bool need_resize;
 static int term_width;
 static int dump_color;
@@ -673,7 +673,7 @@ static int ret(int r)
         k_input[0]=0;
         scr_curs=0;
     }
-    retaining=0;
+    retaining=false;
     return 1;
 }
 
@@ -933,15 +933,10 @@ static int usertty_process_kbd(struct session *ses, WC ch)
         {
             state=TS_NORMAL;
             /* answer from ESC [>c */
-            if ((val[0]==0 && val[1]==115) /* konsole */
-                || val[0]==1               /* libvte, mlterm, aterm, termit */
-                || val[0]==41              /* xterm, terminology */
-               )
-            {
-                bind_xterm(1);
-            }
-            else
-                bind_xterm(0);
+            bind_xterm((val[0]==0 && val[1]==115) /* konsole */
+                       || val[0]==1               /* libvte, mlterm, aterm, termit */
+                       || val[0]==41              /* xterm, terminology */
+                      );
         }
         else
             state=TS_NORMAL;
@@ -1184,7 +1179,7 @@ static int usertty_process_kbd(struct session *ses, WC ch)
             if (retain)
             {
                 k_pos=k_len;
-                retaining=1;
+                retaining=true;
             }
             else
             {
@@ -1575,7 +1570,7 @@ static void usertty_resize(void)
 
 static void usertty_show_status(void)
 {
-    int st;
+    bool st;
     st=!!strcmp(status, EMPTY_LINE);
     if (st!=isstatus)
     {
@@ -1605,8 +1600,8 @@ static void usertty_init(void)
     term_init();
     tbuf=term_buf+sprintf(term_buf, "\033[?7l");
     usertty_keypad(keypad);
-    isstatus=0;
-    retaining=0;
+    isstatus=false;
+    retaining=false;
     usertty_drawscreen();
 
     margins=0;
@@ -1761,12 +1756,12 @@ static void usertty_beep(void)
 
 void usertty_initdriver()
 {
-    ui_sep_input=1;
-    ui_con_buffer=1;
-    ui_keyboard=1;
-    ui_own_output=1;
-    ui_tty=1;
-    ui_drafts=1;
+    ui_sep_input=true;
+    ui_con_buffer=true;
+    ui_keyboard=true;
+    ui_own_output=true;
+    ui_tty=true;
+    ui_drafts=true;
 
     user_init           = usertty_init;
     user_done           = usertty_done;

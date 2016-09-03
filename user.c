@@ -20,15 +20,15 @@ const char *bcolors[8]={"",   ";44",   ";42",  ";46",
 #endif
 
 char done_input[BUFFER_SIZE];
-int tty;
-int isstatus;
+bool tty;
+bool isstatus;
 
-int ui_sep_input=0;
-int ui_con_buffer=0;
-int ui_keyboard=0;
-int ui_own_output=0;
-int ui_tty=1;
-int ui_drafts=0;
+bool ui_sep_input=false;
+bool ui_con_buffer=false;
+bool ui_keyboard=false;
+bool ui_own_output=false;
+bool ui_tty=true;
+bool ui_drafts=false;
 
 int LINES=0;
 int COLS=0;

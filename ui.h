@@ -1,13 +1,14 @@
 #include "unicode.h"
 
-int ui_sep_input;
-int ui_con_buffer;
-int ui_keyboard;
-int ui_own_output;
-int ui_tty;
-int ui_drafts;
+bool ui_sep_input;
+bool ui_con_buffer;
+bool ui_keyboard;
+bool ui_own_output;
+bool ui_tty;
+bool ui_drafts;
 
-int LINES, COLS, tty;
+int LINES, COLS;
+bool tty;
 char done_input[BUFFER_SIZE];
 int color, lastcolor;
 

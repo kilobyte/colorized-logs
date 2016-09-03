@@ -189,17 +189,13 @@ void init_bind(void)
         set_hash(keynames, n[0], n[1]);
 }
 
-void bind_xterm(int xterm)
+void bind_xterm(bool xterm)
 {
     const char**n;
-    switch (xterm)
-    {
-    case 1:
+    if (xterm)
         for (n=XTERM_KEYNAMES;**n;n+=2)
             set_hash(keynames, n[0], n[1]);
-        break;
-    default:
+    else
         for (n=NORMAL_KEYNAMES;**n;n+=2)
             set_hash(keynames, n[0], n[1]);
-    }
 }
