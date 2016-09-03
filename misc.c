@@ -585,10 +585,10 @@ void messages_command(const char *arg, struct session *ses)
             switch (yes_no(onoff))
             {
             case 0:
-                ses->mesvar[mestype]=0;
+                ses->mesvar[mestype]=false;
                 break;
             case 1:
-                ses->mesvar[mestype]=1;
+                ses->mesvar[mestype]=true;
                 break;
             case -1:
                 tintin_eprintf(ses, "#messages: Hey! What should I do with %s? Specify a boolean value, not {%s}.",

@@ -109,20 +109,20 @@
 #define DEFAULT_TOGGLESUBS false          /* turn subs on and off FALSE=ON*/
 #define DEFAULT_KEYPAD false              /* start in standard keypad mode */
 #define DEFAULT_RETAIN false              /* retain the last typed line */
-#define DEFAULT_ALIAS_MESS TRUE           /* messages for responses */
-#define DEFAULT_ACTION_MESS TRUE          /* when setting/deleting aliases, */
-#define DEFAULT_SUB_MESS TRUE             /* actions, etc. may be set to */
-#define DEFAULT_HIGHLIGHT_MESS TRUE       /* default either on or off */
-#define DEFAULT_VARIABLE_MESS TRUE        /* might want to turn off these */
-#define DEFAULT_EVENT_MESS TRUE
-#define DEFAULT_ROUTE_MESS TRUE
-#define DEFAULT_GOTO_MESS TRUE
-#define DEFAULT_BIND_MESS TRUE
-#define DEFAULT_SYSTEM_MESS TRUE
-#define DEFAULT_PATH_MESS TRUE
-#define DEFAULT_ERROR_MESS TRUE
-#define DEFAULT_HOOK_MESS TRUE
-#define DEFAULT_LOG_MESS TRUE
+#define DEFAULT_ALIAS_MESS true           /* messages for responses */
+#define DEFAULT_ACTION_MESS true          /* when setting/deleting aliases, */
+#define DEFAULT_SUB_MESS true             /* actions, etc. may be set to */
+#define DEFAULT_HIGHLIGHT_MESS true       /* default either on or off */
+#define DEFAULT_VARIABLE_MESS true        /* might want to turn off these */
+#define DEFAULT_EVENT_MESS true
+#define DEFAULT_ROUTE_MESS true
+#define DEFAULT_GOTO_MESS true
+#define DEFAULT_BIND_MESS true
+#define DEFAULT_SYSTEM_MESS true
+#define DEFAULT_PATH_MESS true
+#define DEFAULT_ERROR_MESS true
+#define DEFAULT_HOOK_MESS true
+#define DEFAULT_LOG_MESS true
 #define DEFAULT_PRETICK 10
 #define DEFAULT_CHARSET "ISO-8859-1"      /* the MUD-side charset */
 #define DEFAULT_LOGCHARSET LOGCS_LOCAL
@@ -342,7 +342,7 @@ struct session
     int telnet_buflen;
     bool verbose, blank, echo, speedwalk, togglesubs, presub, verbatim;
     char *partial_line_marker;
-    int mesvar[MAX_MESVAR+1];
+    bool mesvar[MAX_MESVAR+1];
     time_t idle_since, server_idle_since;
     time_t sessionstart;
     char *hooks[NHOOKS];

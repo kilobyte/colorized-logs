@@ -288,7 +288,6 @@ struct session *newactive_session(void)
 static struct session *new_session(const char *name, const char *address, int sock, int issocket, gnutls_session_t ssl, struct session *ses)
 {
     struct session *newsession;
-    int i;
 
     newsession = TALLOC(struct session);
 
@@ -349,15 +348,16 @@ static struct session *new_session(const char *name, const char *address, int so
     newsession->debuglogfile=0;
     newsession->debuglogname=0;
     newsession->partial_line_marker = mystrdup(ses->partial_line_marker);
-    memcpy(newsession->mesvar, ses->mesvar, sizeof(int)*(MAX_MESVAR+1));
-    for (i=0;i<MAX_LOCATIONS;i++)
+    for (int i=0;i<=MAX_MESVAR;i++)
+        newsession->mesvar[i] = ses->mesvar[i];
+    for (int i=0;i<MAX_LOCATIONS;i++)
     {
         newsession->routes[i]=0;
         newsession->locations[i]=0;
     };
     copyroutes(ses, newsession);
     newsession->last_line[0]=0;
-    for (i=0;i<NHOOKS;i++)
+    for (int i=0;i<NHOOKS;i++)
         if (ses->hooks[i])
             newsession->hooks[i]=mystrdup(ses->hooks[i]);
         else
