@@ -16,9 +16,6 @@ static int fg, bg, fl, frgb, brgb;
 static const char *cols[]={"BLK","RED","GRN","YEL","BLU","MAG","CYN","WHI",
                            "HIK","HIR","HIG","HIY","HIB","HIM","HIC","HIW"};
 
-static int ntok, tok[10];
-static int ch;
-
 typedef unsigned char u8;
 
 
@@ -253,7 +250,8 @@ int main(int argc, const char **argv)
     fl=0;
     in_span=false;
     frgb=brgb=-1;
-    ch=getchar();
+    char ch=getchar();
+    int ntok, tok[10];
 normal:
     switch (ch)
     {
