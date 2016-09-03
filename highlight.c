@@ -117,7 +117,6 @@ void highlight_command(const char *arg, struct session *ses)
     {
         tintin_printf(ses, "#THESE HIGHLIGHTS HAVE BEEN DEFINED:");
         show_list(myhighs);
-        prompt(ses);
     }
     else
     {

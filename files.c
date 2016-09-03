@@ -150,7 +150,6 @@ void read_complete(const char *arg, struct session *ses)
     tcomplete->next = NULL;
     fclose(myfile);
     tintin_printf(0, "tab.txt file loaded.");
-    prompt(NULL);
     tintin_printf(0, "");
 
 }
@@ -439,7 +438,6 @@ void condump_command(const char *arg, struct session *ses)
     }
     else
         tintin_eprintf(ses, "#Syntax: #condump <file>");
-    prompt(NULL);
 }
 
 /********************/
@@ -484,7 +482,6 @@ void log_command(const char *arg, struct session *ses)
     }
     else
         tintin_eprintf(ses, "#THERE'S NO SESSION TO LOG.");
-    prompt(NULL);
 }
 
 /*************************/
@@ -526,7 +523,6 @@ void debuglog_command(const char *arg, struct session *ses)
     }
     else
         tintin_printf(ses, "#DEBUGLOG ALREADY OFF.");
-    prompt(NULL);
 }
 
 void debuglog(struct session *ses, const char *format, ...)
@@ -654,7 +650,6 @@ struct session* do_read(FILE *myfile, const char *filename, struct session *ses)
             tintin_printf(ses, "#OK. %d HOOKS LOADED.", hooknum);
     }
     fclose(myfile);
-    prompt(NULL);
     return ses;
 }
 
@@ -674,13 +669,11 @@ struct session* read_command(const char *filename, struct session *ses)
     if (!*filename)
     {
         tintin_eprintf(ses, "#Syntax: #read filename");
-        prompt(NULL);
         return ses;
     }
     if ((myfile = fopen(lfname, "r")) == NULL)
     {
         tintin_eprintf(ses, "#ERROR - COULDN'T OPEN FILE {%s}.", fname);
-        prompt(NULL);
         return ses;
     }
 
@@ -712,13 +705,11 @@ void write_command(const char *filename, struct session *ses)
     if (*filename == '\0')
     {
         tintin_eprintf(ses, "#ERROR: syntax is: #write <filename>");
-        prompt(NULL);
         return;
     }
     if ((myfile = fopen(lfname, "w")) == NULL)
     {
         tintin_eprintf(ses, "#ERROR - COULDN'T OPEN FILE {%s}.", fname);
-        prompt(NULL);
         return;
     }
 
@@ -891,13 +882,11 @@ void writesession_command(const char *filename, struct session *ses)
     if (*filename == '\0')
     {
         tintin_eprintf(ses, "#ERROR - COULDN'T OPEN FILE {%s}.", fname);
-        prompt(NULL);
         return;
     }
     if ((myfile = fopen(lfname, "w")) == NULL)
     {
         tintin_eprintf(ses, "#ERROR - COULDN'T OPEN FILE {%s}.", fname);
-        prompt(NULL);
         return;
     }
 
@@ -1099,13 +1088,11 @@ void textin_command(const char *arg, struct session *ses)
     if (ses == nullsession)
     {
         tintin_eprintf(ses, "#You can't read any text in without a session being active.");
-        prompt(NULL);
         return;
     }
     if ((myfile = fopen(lfname, "r")) == NULL)
     {
         tintin_eprintf(ses, "ERROR: File {%s} doesn't exist.", filename);
-        prompt(ses);
         return;
     }
     while (fgets(buffer, sizeof(buffer), myfile))
@@ -1117,7 +1104,6 @@ void textin_command(const char *arg, struct session *ses)
     }
     fclose(myfile);
     tintin_printf(ses, "#File read - Success.");
-    prompt(ses);
 }
 
 const char *logtypes[]=

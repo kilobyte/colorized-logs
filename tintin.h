@@ -131,17 +131,6 @@
 #define CHAR_VERBATIM '\\'
 #define CHAR_QUOTE '"'
 #define CHAR_NEWLINE ';'
-/**************************************************************************/
-/* Should a prompt appear whenever TINTIN has written something to the    */
-/* screen?                                                                */
-/**************************************************************************/
-#define FORCE_PROMPT FALSE
-/**************************************************************************/
-/* Whenever TINTIN has written something to the screen, the program sends */
-/* a CR/LF to the MUD to force a new prompt to appear. You can have       */
-/* TINTIN print it's own pseudo prompt instead.                           */
-/**************************************************************************/
-#define PSEUDO_PROMPT FALSE
 /*************************************************************************/
 /* The text below is checked for. If it trickers then echo is turned off */
 /* echo is turned back on the next time the user types a return          */

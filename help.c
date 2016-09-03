@@ -71,7 +71,6 @@ void help_command(const char *arg, struct session *ses)
             DEFAULT_COMPRESSION_EXT);
         tintin_eprintf(0, "#      %s/KBtin_help%s", getenv("HOME"),
             DEFAULT_COMPRESSION_EXT);
-        prompt(NULL);
         return;
     }
     if (*arg==tintin_char)
@@ -118,6 +117,5 @@ void help_command(const char *arg, struct session *ses)
     }
    tintin_printf(0, "#Sorry, no help on that word.");
 end:
-    prompt(NULL);
     fclose(myfile);
 }

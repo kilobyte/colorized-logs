@@ -101,7 +101,6 @@ void cr_command(const char *arg, struct session *ses)
 void version_command(const char *arg, struct session *ses)
 {
     tintin_printf(ses, "#You are using KBtin %s", VERSION);
-    prompt(ses);
 }
 
 /****************************/
@@ -702,7 +701,6 @@ void system_command(const char *arg, struct session *ses)
         if (!(output = mypopen(buf, 0)))
         {
             tintin_puts1("#ERROR EXECUTING SHELL COMMAND.", ses);
-            prompt(NULL);
             return;
         };
         memset(&cs, 0, sizeof(cs));
@@ -722,8 +720,6 @@ void system_command(const char *arg, struct session *ses)
     }
     else
         tintin_eprintf(ses, "#EXECUTE WHAT COMMAND?");
-    prompt(NULL);
-
 }
 
 /**********************/
@@ -754,8 +750,6 @@ void shell_command(const char *arg, struct session *ses)
     }
     else
         tintin_eprintf(ses, "#EXECUTE WHAT COMMAND?");
-    prompt(NULL);
-
 }
 
 
@@ -816,7 +810,6 @@ void news_command(const char *arg, struct session *ses)
 #else
         tintin_eprintf(ses, "#'%s' file not found!", NEWS_FILE);
 #endif
-    prompt(ses);
 }
 
 
@@ -866,7 +859,6 @@ void tablist(struct completenode *tcomplete)
     }
     if (!done)
         tintin_printf(0, "%s", tbuf);
-    prompt(NULL);
 }
 
 void tab_add(char *arg, struct session *ses)
@@ -880,7 +872,6 @@ void tab_add(char *arg, struct session *ses)
     if ((arg == NULL) || (strlen(arg) <= 0))
     {
         tintin_puts("Sorry, you must have some word to add.", NULL);
-        prompt(NULL);
         return;
     }
     get_arg(arg, buff, 1, ses);
@@ -911,7 +902,6 @@ void tab_add(char *arg, struct session *ses)
     tmp = newt;
     sprintf(buff, "#New word %s added to tab completion list.", arg);
     tintin_puts(buff, NULL);
-    prompt(NULL);
 }
 
 void tab_delete(char *arg, struct session *ses)
@@ -924,7 +914,6 @@ void tab_delete(char *arg, struct session *ses)
     if ((arg == NULL) || (strlen(arg) <= 0))
     {
         tintin_puts("#Sorry, you must have some word to delete.", NULL);
-        prompt(NULL);
         return;
     }
     get_arg(arg, s_buff, 1, ses);
@@ -933,7 +922,6 @@ void tab_delete(char *arg, struct session *ses)
     if (tmpold->strng == NULL)
     {                          /* (no list if the second node is null) */
         tintin_puts("#There are no words for you to delete!", NULL);
-        prompt(NULL);
         return;
     }
     strcpy(c_buff, tmp->strng);
@@ -949,7 +937,6 @@ void tab_delete(char *arg, struct session *ses)
         tmpold->next = tmpnext;
         free(tmp);
         tintin_puts("#Tab word deleted.", NULL);
-        prompt(NULL);
     }
     else
     {
@@ -958,11 +945,9 @@ void tab_delete(char *arg, struct session *ses)
             tmpold->next = NULL;
             free(tmp);
             tintin_puts("#Tab word deleted.", NULL);
-            prompt(NULL);
             return;
         }
         tintin_puts("Word not found in list.", NULL);
-        prompt(NULL);
     }
 }
 #endif
@@ -1063,7 +1048,6 @@ void info_command(const char *arg, struct session *ses)
             1/(ses->line_time.tv_sec+ses->line_time.tv_usec*0.000001));
     if (ses->closing)
         tintin_printf(ses, "The session has it's closing mark set to %d!", ses->closing);
-    prompt(ses);
 }
 
 bool isnotblank(const char *line, bool magic_only)

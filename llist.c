@@ -102,13 +102,9 @@ void kill_all(struct session *ses, int mode)
             ses->pathdirs = init_hash();
             kill_routes(ses);
             tintin_printf(ses, "#Lists cleared.");
-            prompt(NULL);
         }
-        else
-        {       /* can't happen */
+        else /* can't happen */
             tintin_printf(0, "#Can't clean the common lists (yet).");
-            prompt(NULL);
-        }
         break;
 
     case END:

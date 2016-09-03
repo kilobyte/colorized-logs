@@ -104,7 +104,6 @@ void action_command(const char *arg, struct session *ses)
     {
         tintin_printf(ses, "#Defined actions:");
         show_list_action(myactions);
-        prompt(ses);
     }
     else if (*left && !*right)
     {
@@ -114,7 +113,6 @@ void action_command(const char *arg, struct session *ses)
                 shownode_list_action(myactions), flag=true;
         if (!flag && ses->mesvar[1])
             tintin_printf(ses, "#That action (%s) is not defined.", left);
-        prompt(ses);
     }
     else
     {
@@ -147,7 +145,6 @@ void promptaction_command(const char *arg, struct session *ses)
     {
         tintin_printf(ses, "#Defined prompts:");
         show_list_action(myprompts);
-        prompt(ses);
     }
     else if (*left && !*right)
     {
@@ -157,7 +154,6 @@ void promptaction_command(const char *arg, struct session *ses)
                 shownode_list_action(myprompts), flag=true;
         if (!flag && ses->mesvar[1])
             tintin_printf(ses, "#That promptaction (%s) is not defined.", left);
-        prompt(ses);
     }
     else
     {

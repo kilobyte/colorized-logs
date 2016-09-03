@@ -106,7 +106,6 @@ static int list_sessions(const const char *arg, struct session *ses, char *left,
         for (sesptr = sessionlist; sesptr; sesptr = sesptr->next)
             if (sesptr!=nullsession)
                 show_session(sesptr);
-        prompt(ses);
     }
     else if (*left && !*right)
     {
@@ -117,23 +116,18 @@ static int list_sessions(const const char *arg, struct session *ses, char *left,
                 break;
             }
         if (sesptr == NULL)
-        {
             tintin_puts("#THAT SESSION IS NOT DEFINED.", ses);
-            prompt(NULL);
-        }
     }
     else
     {
         if (strlen(left) > MAX_SESNAME_LENGTH)
         {
             tintin_eprintf(ses, "#SESSION NAME TOO LONG.");
-            prompt(NULL);
             return 1;
         }
         if (session_exists(left))
         {
             tintin_eprintf(ses, "#THERE'S A SESSION WITH THAT NAME ALREADY.");
-            prompt(NULL);
             return 1;
         };
         return 0;

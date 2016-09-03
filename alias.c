@@ -30,7 +30,6 @@ void show_hashlist(struct session *ses, struct hashtable *h, const char *pat, co
     if (*pat && !templist->next)
         tintin_printf(ses, msg_none, pat);
     zap_list(templist);
-    prompt(ses);
 }
 
 void delete_hashlist(struct session *ses, struct hashtable *h, const char *pat, const char *msg_ok, const char *msg_none)
@@ -61,7 +60,6 @@ void delete_hashlist(struct session *ses, struct hashtable *h, const char *pat, 
     if (msg_none && !templist->next)
         tintin_printf(ses, msg_none, pat);
     zap_list(templist);
-    prompt(ses);
 }
 
 

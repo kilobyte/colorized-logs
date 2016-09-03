@@ -58,7 +58,6 @@ static void parse_sub(const char *arg, bool gag, struct session *ses)
             else
                 tintin_printf(ses, "#NO %sS HAVE BEEN DEFINED.", gag? "GAG":"SUBSTITUTE");
         }
-        prompt(ses);
     }
     else
     {

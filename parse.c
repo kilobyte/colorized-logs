@@ -353,10 +353,7 @@ static struct session* parse_tintin_command(const char *command, const char *arg
                 ses = parse_input(right, true, ses);
         }
         else
-        {
             tintin_eprintf(ses, "#Cannot repeat a command a non-positive number of times.");
-            prompt(ses);
-        }
         PPOP;
         return ses;
     }
@@ -365,10 +362,7 @@ static struct session* parse_tintin_command(const char *command, const char *arg
     else if ((func=get_hash(commands, cmd)))
         ((t_command)func)(arg, ses);
     else
-    {
         tintin_eprintf(ses, "#UNKNOWN TINTIN-COMMAND: [%c%s]", tintin_char, command);
-        prompt(ses);
-    }
     PPOP;
     return ses;
 }
@@ -656,7 +650,6 @@ static void write_com_arg_mud(const char *command, const char *argument, int nsp
 #else
         tintin_eprintf(ses, "#NO SESSION ACTIVE. USE THE %cSESSION COMMAND TO START ONE.", tintin_char);
 #endif
-        prompt(NULL);
     }
     else
     {
@@ -674,18 +667,4 @@ static void write_com_arg_mud(const char *command, const char *argument, int nsp
         do_out_MUD_colors(outtext);
         write_line_mud(outtext, ses);
     }
-}
-
-
-/***************************************************************/
-/* show a prompt - mud prompt if we're connected/else just a > */
-/***************************************************************/
-void prompt(struct session *ses)
-{
-#if FORCE_PROMPT
-    if (ses && !PSEUDO_PROMPT)
-        write_line_mud("", ses);
-    else
-        tintin_printf(">", ses);
-#endif
 }

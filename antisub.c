@@ -28,7 +28,6 @@ void antisubstitute_command(const char *arg, struct session *ses)
     {
         tintin_puts("#THESE ANTISUBSTITUTES HAS BEEN DEFINED:", ses);
         show_list(myantisubs);
-        prompt(ses);
     }
     else
     {

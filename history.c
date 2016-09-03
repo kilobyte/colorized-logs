@@ -21,7 +21,6 @@ void history_command(const char *arg, struct session *ses)
     for (int i = HISTORY_SIZE - 1; i >= 0; i--)
         if (history[i])
             tintin_printf(ses, "%2d %s ", i, history[i]);
-    prompt(NULL);
 }
 
 
