@@ -9,11 +9,6 @@
 #undef PROFILING        /* profiling */
 
 #include <stdbool.h>
-/************************/
-/* The meaning of life: */
-/************************/
-#define TRUE 1
-#define FALSE 0
 
 /**********************/
 /* color ANSI numbers */
