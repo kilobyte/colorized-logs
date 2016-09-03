@@ -465,14 +465,13 @@ static int do_one_inside(int begin, int end)
                 stacks[ploc][0] = stacks[next][0];
                 if (stacks[loc][3]==0)
                     stacks[ploc][2] *= stacks[next][2];
+                else if (stacks[next][2])
+                    stacks[ploc][2] /= stacks[next][2];
                 else
-                    if (stacks[next][2])
-                        stacks[ploc][2] /= stacks[next][2];
-                    else
-                    {
-                        stacks[ploc][2]=0;
-                        tintin_eprintf(0, "#Error: Division by zero.");
-                    }
+                {
+                    stacks[ploc][2]=0;
+                    tintin_eprintf(0, "#Error: Division by zero.");
+                }
                 break;
             case 5:            /* highest priority is +,- */
                 stacks[ploc][0] = stacks[next][0];

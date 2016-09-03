@@ -475,16 +475,13 @@ static void apply_options()
             local_to_utf8(ustr, temp, BUFFER_SIZE, 0);
             if ((f=fopen(temp, "r")))
                 activesession = do_read(f, ustr, activesession);
-            else
+            else if ((home = getenv("HOME")))
             {
-                if ((home = getenv("HOME")))
-                {
-                    strcpy(temp, home);
-                    strcat(temp, "/.tintinrc");
-                    local_to_utf8(ustr, temp, BUFFER_SIZE, 0);
-                    if ((f=fopen(temp, "r")))
-                        activesession = do_read(f, ustr, activesession);
-                }
+                strcpy(temp, home);
+                strcat(temp, "/.tintinrc");
+                local_to_utf8(ustr, temp, BUFFER_SIZE, 0);
+                if ((f=fopen(temp, "r")))
+                    activesession = do_read(f, ustr, activesession);
             }
         }
     }
@@ -621,9 +618,8 @@ static void tintin(void)
         FD_ZERO(&readfdmask);
         if (!eofinput)
             FD_SET(0, &readfdmask);
-        else
-            if (activesession==nullsession)
-                end_command(0, activesession);
+        else if (activesession==nullsession)
+            end_command(0, activesession);
         for (sesptr = sessionlist; sesptr; sesptr = sesptr->next)
         {
             if (sesptr==nullsession)
@@ -767,11 +763,8 @@ static void read_mud(struct session *ses)
             activesession = newactive_session();
         return;
     }
-    else
-    {
-        if (!didget)
-            return; /* possible if only telnet protocol data was received */
-    }
+    else if (!didget)
+        return; /* possible if only telnet protocol data was received */
     if (ses->logfile)
     {
         if (ses->logtype)
@@ -788,13 +781,10 @@ static void read_mud(struct session *ses)
             for (int n = 0; n < didget; n++)
                 if (buffer[n] != '\r')
                     temp[count++] = buffer[n];
-                else
-                {
-                    if (n+1==didget)
-                        ses->halfcr_log=true;
-                    else if (buffer[n+1]!='\n')
-                        temp[count++]='\r';
-                }
+                else if (n+1==didget)
+                    ses->halfcr_log=true;
+                else if (buffer[n+1]!='\n')
+                    temp[count++]='\r';
             temp[count]=0;      /* didget<BUFFER_SIZE, so no overflow */
             write_log(ses, temp, count);
         }
@@ -941,9 +931,8 @@ static void do_one_line(char *line, int nl, struct session *ses)
                 lastdraft=ses;
             }
         }
-        else
-            if (ses->snoopstatus)
-                snoop(line, ses);
+        else if (ses->snoopstatus)
+            snoop(line, ses);
     }
     PROFPOP;
     _=0;
@@ -1053,8 +1042,7 @@ static void myquitsig(int sig)
         }
         user_done();
     }
-    else
-        if (tty)
-            user_textout("~7~\n");
+    else if (tty)
+        user_textout("~7~\n");
     exit(0);
 }

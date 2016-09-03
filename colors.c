@@ -32,8 +32,7 @@ int getcolor(const char *restrict*restrict ptr, int *restrict color, bool allow_
             return 0;
         txt=err;
     }
-    else
-    if (*txt==':')
+    else if (*txt==':')
         fg=(*color==-1)? 7 : ((*color)&0xf);
     else
         return 0;

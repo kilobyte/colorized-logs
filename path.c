@@ -190,8 +190,7 @@ void return_command(const char *arg, struct session *ses)
 
     if (!*how)
         n=1;
-    else
-    if (!strcmp(how, "all") || !strcmp(how, "ALL"))
+    else if (!strcmp(how, "all") || !strcmp(how, "ALL"))
         n=ses->path_length;
     else
     {

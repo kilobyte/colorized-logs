@@ -399,8 +399,7 @@ static FILE* open_logfile(struct session *ses, const char *name, const char *fil
         }
         else
             tintin_eprintf(ses, "#ERROR: COULDN'T OPEN PIPE: {xz >%s}.", fname);
-    else
-        if ((f = fopen(lfname, "w")))
+    else if ((f = fopen(lfname, "w")))
         {
             if (ses->mesvar[MSG_LOG])
                 tintin_printf(ses, filemsg, fname);
@@ -480,9 +479,8 @@ void log_command(const char *arg, struct session *ses)
             if (ses->mesvar[MSG_LOG])
                 tintin_printf(ses, "#OK. LOGGING TURNED OFF.");
         }
-        else
-            if (ses->mesvar[MSG_LOG])
-                tintin_printf(ses, "#LOGGING ALREADY OFF.");
+        else if (ses->mesvar[MSG_LOG])
+            tintin_printf(ses, "#LOGGING ALREADY OFF.");
     }
     else
         tintin_eprintf(ses, "#THERE'S NO SESSION TO LOG.");

@@ -119,55 +119,40 @@ void substitute_myvars(const char *arg, char *result, struct session *ses)
                     /* secstotick code added by Sverre Normann */
                     if (strcmp(varname, "secstotick")==0)
                         sprintf(value, "%d", timetilltick(ses));
-                    else
-                    if (strcmp(varname, "LINES")==0)
+                    else if (strcmp(varname, "LINES")==0)
                         sprintf(value, "%d", LINES);
-                    else
-                    if (strcmp(varname, "COLS")==0)
+                    else if (strcmp(varname, "COLS")==0)
                         sprintf(value, "%d", COLS);
-                    else
-                    if (strcmp(varname, "PATH")==0)
+                    else if (strcmp(varname, "PATH")==0)
                         path2var(value, ses);
-                    else
-                    if (strcmp(varname, "IDLETIME")==0)
+                    else if (strcmp(varname, "IDLETIME")==0)
                         sprintf(value, "%ld", (long int)(time(0)-ses->idle_since));
-                    else
-                    if (strcmp(varname, "SERVERIDLE")==0)
+                    else if (strcmp(varname, "SERVERIDLE")==0)
                         sprintf(value, "%ld", (long int)(time(0)-ses->server_idle_since));
-                    else
-                    if (_ && (strcmp(varname, "LINE")==0 ||
-                        strcmp(varname, "_")==0))
+                    else if (_ && (strcmp(varname, "LINE")==0
+                                   || strcmp(varname, "_")==0))
                         strcpy(value, _);
-                    else
-                    if (strcmp(varname, "SESSION")==0)
+                    else if (strcmp(varname, "SESSION")==0)
                         strcpy(value, ses->name);
-                    else
-                    if (strcmp(varname, "SESSIONS")==0)
+                    else if (strcmp(varname, "SESSIONS")==0)
                         seslist(value);
-                    else
-                    if (strcmp(varname, "ASESSION")==0)
+                    else if (strcmp(varname, "ASESSION")==0)
                         strcpy(value, activesession->name);
-                    else
-                    if (strcmp(varname, "LOGFILE")==0)
+                    else if (strcmp(varname, "LOGFILE")==0)
                         strcpy(value, ses->logfile?ses->logname:"");
-                    else
-                    if (strcmp(varname, "_random")==0)
+                    else if (strcmp(varname, "_random")==0)
                         sprintf(value, "%d", rand());
-                    else
-                    if (strcmp(varname, "_time")==0 || strcmp(varname, "time")==0)
+                    else if (strcmp(varname, "_time")==0 || strcmp(varname, "time")==0)
                         sprintf(value, "%ld", (long int)time0);
-                    else
-                    if (strcmp(varname, "_clock")==0)
+                    else if (strcmp(varname, "_clock")==0)
                         sprintf(value, "%ld", (long int)time(0));
-                    else
-                    if (strcmp(varname, "_msec")==0)
+                    else if (strcmp(varname, "_msec")==0)
                     {
                         struct timeval tv;
                         gettimeofday(&tv, 0);
                         sprintf(value, "%ld", (long int)((tv.tv_sec-time0)*1000+(tv.tv_usec-utime0)/1000));
                     }
-                    else
-                    if (strcmp(varname, "HOME")==0)
+                    else if (strcmp(varname, "HOME")==0)
                     {
                         v=getenv("HOME");
                         if (v)
@@ -571,12 +556,10 @@ static int is_braced_atom_2(const char *beg, const char *end, struct session *se
     {
         if (*beg=='\\') /* next element is taken verbatim i.e. as is */
             beg++;
-        else
-            if (*beg == DEFAULT_OPEN)
-                nest++;
-            else
-                if (*beg == DEFAULT_CLOSE)
-                    nest--;
+        else if (*beg == DEFAULT_OPEN)
+            nest++;
+        else if (*beg == DEFAULT_CLOSE)
+            nest--;
 
         if (NOT_AT_END(beg, end)) /* in case '\\' is the last character */
             beg++;
@@ -700,7 +683,7 @@ void splitlist_command(const char *arg, struct session *ses)
     {
         tintin_eprintf(ses, "#Error - Syntax: #splitlist {head variable} {tail variable} "
                      "{list} [{head size}]");
-        return; /* on ERROR */
+        return;
     }
 
     arg = get_arg(arg, list, 1, ses);
@@ -717,14 +700,14 @@ void splitlist_command(const char *arg, struct session *ses)
         if (sscanf(headlengthtxt, "%d", &head_length) != 1)
         {
             tintin_eprintf(ses, "#Error in #splitlist - head size has to be number>=0, got {%s}.", headlengthtxt);
-            return; /* on ERROR */
+            return;
         }
         if (head_length < 0)
         {
             tintin_eprintf(ses, "#Error in #splitlist - head size could not be negative, got {%d}.", head_length);
-            return; /* on ERROR */
+            return;
         }
-    } /* end if */
+    }
 
     /** invoke main procedure **/
     split_list(head, tail, list, head_length, ses);

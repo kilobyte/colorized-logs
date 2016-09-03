@@ -577,50 +577,47 @@ void messages_command(const char *arg, struct session *ses)
         mestype++;
     if (mestype == MAX_MESVAR+1)
         tintin_eprintf(ses, "#Invalid message type to toggle: {%s}", type);
+    else if (mestype<MAX_MESVAR)
+    {
+        switch (yes_no(onoff))
+        {
+        case 0:
+            ses->mesvar[mestype]=false;
+            break;
+        case 1:
+            ses->mesvar[mestype]=true;
+            break;
+        case -1:
+            tintin_eprintf(ses, "#messages: Hey! What should I do with %s? Specify a boolean value, not {%s}.",
+                    msNAME[mestype], onoff);
+            return;
+        default:
+            ses->mesvar[mestype]=!ses->mesvar[mestype];
+        };
+        tintin_printf(ses, "#Ok. messages concerning %s are now %s",
+                msNAME[mestype], offon[ses->mesvar[mestype]]);
+    }
     else
     {
-        if (mestype<MAX_MESVAR)
+        int b=yes_no(onoff);
+        if (b==-1)
         {
-            switch (yes_no(onoff))
-            {
-            case 0:
-                ses->mesvar[mestype]=false;
-                break;
-            case 1:
-                ses->mesvar[mestype]=true;
-                break;
-            case -1:
-                tintin_eprintf(ses, "#messages: Hey! What should I do with %s? Specify a boolean value, not {%s}.",
-                        msNAME[mestype], onoff);
-                return;
-            default:
-                ses->mesvar[mestype]=!ses->mesvar[mestype];
-            };
-            tintin_printf(ses, "#Ok. messages concerning %s are now %s",
-                    msNAME[mestype], offon[ses->mesvar[mestype]]);
-        }
-        else
+            tintin_eprintf(ses, "#messages: Hey! What should I do with all messages? Specify a boolean, not {%s}.", onoff);
+            return;
+        };
+        if (b==-2)
         {
-            int b=yes_no(onoff);
-            if (b==-1)
-            {
-                tintin_eprintf(ses, "#messages: Hey! What should I do with all messages? Specify a boolean, not {%s}.", onoff);
-                return;
-            };
-            if (b==-2)
-            {
-                b=1;
-                for (int mestype=0;mestype<MAX_MESVAR;mestype++)
-                    if (ses->mesvar[mestype])   /* at least one type is ON? */
-                        b=0;                    /* disable them all */
-            };
+            b=1;
             for (int mestype=0;mestype<MAX_MESVAR;mestype++)
-                ses->mesvar[mestype]=b;
-            if (b)
-                tintin_printf(ses, "#Ok. All messages are now ON.");
-            else
-                tintin_printf(ses, "#Ok. All messages are now OFF.");
-        }
+                if (ses->mesvar[mestype])   /* at least one type is ON? */
+                    b=0;                    /* disable them all */
+        };
+        for (int mestype=0;mestype<MAX_MESVAR;mestype++)
+            ses->mesvar[mestype]=b;
+        if (b)
+            tintin_printf(ses, "#Ok. All messages are now ON.");
+        else
+            tintin_printf(ses, "#Ok. All messages are now OFF.");
     }
 }
 
@@ -1085,11 +1082,10 @@ int isnotblank(const char *line, bool magic_only)
                 return 1;
             else
                 line++;
+        else if (isaspace(*line))
+            line++;
         else
-            if (isaspace(*line))
-                line++;
-            else
-               return 1;
+            return 1;
     return 0;
 }
 
@@ -1104,9 +1100,8 @@ int iscompleteprompt(const char *line)
             if (!getcolor(&line, &c, 1))
                 ch='~';
         }
-        else
-            if (!isaspace(*line))
-                ch=*line;
+        else if (!isaspace(*line))
+            ch=*line;
     return strchr("?:>.*$#]&)", ch) && (c==-1||!(c&0x70));
 }
 

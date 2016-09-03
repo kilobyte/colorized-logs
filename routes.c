@@ -292,9 +292,8 @@ void unroute_command(const char *arg, struct session *ses)
             };
     if (found)
         kill_unused_locations(ses);
-    else
-        if (ses->mesvar[6])
-            tintin_printf(ses, "#THAT ROUTE (%s) IS NOT DEFINED.", b);
+    else if (ses->mesvar[6])
+        tintin_printf(ses, "#THAT ROUTE (%s) IS NOT DEFINED.", b);
 }
 
 #define INF 0x7FFFFFFF

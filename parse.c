@@ -82,11 +82,8 @@ struct session* parse_input(const char *input, bool override_verbatim, struct se
             write_line_mud("", ses);
             debuglog(ses, "");
         }
-        else
-        {
-            if (!in_read)
-                write_com_arg_mud("", "", 0, ses);
-        }
+        else if (!in_read)
+            write_com_arg_mud("", "", 0, ses);
         PPOP;
         return ses;
     }
@@ -363,17 +360,10 @@ static struct session* parse_tintin_command(const char *command, const char *arg
         PPOP;
         return ses;
     }
-
     else if ((func=get_hash(c_commands, cmd)))
-    {
         ses=((t_c_command)func)(arg, ses);
-    }
-
     else if ((func=get_hash(commands, cmd)))
-    {
         ((t_command)func)(arg, ses);
-    }
-
     else
     {
         tintin_eprintf(ses, "#UNKNOWN TINTIN-COMMAND: [%c%s]", tintin_char, command);
@@ -548,12 +538,10 @@ const char* get_arg_in_braces(const char *s, char *arg, bool allow_spaces)
     {
         if (*s==CHAR_VERBATIM)     /* \ */
             ;
-        else
-            if (*s == DEFAULT_OPEN)
-                nest++;
-            else
-                if (*s == DEFAULT_CLOSE)
-                    nest--;
+        else if (*s == DEFAULT_OPEN)
+            nest++;
+        else if (*s == DEFAULT_CLOSE)
+            nest--;
         *arg++ = *s++;
     }
     if (!*s)
@@ -701,6 +689,7 @@ void prompt(struct session *ses)
 #if FORCE_PROMPT
     if (ses && !PSEUDO_PROMPT)
         write_line_mud("", ses);
-    else tintin_printf(">", ses);
+    else
+        tintin_printf(">", ses);
 #endif
 }
