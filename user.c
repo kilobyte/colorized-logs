@@ -27,7 +27,6 @@ bool ui_sep_input=false;
 bool ui_con_buffer=false;
 bool ui_keyboard=false;
 bool ui_own_output=false;
-bool ui_tty=true;
 bool ui_drafts=false;
 
 int LINES=0;

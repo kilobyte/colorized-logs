@@ -91,7 +91,6 @@ void userpipe_initdriver()
     ui_con_buffer=false;
     ui_keyboard=false;
     ui_own_output=false;
-    ui_tty=true;
     ui_drafts=false;
 
     user_init           = userpipe_init;

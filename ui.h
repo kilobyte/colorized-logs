@@ -4,7 +4,6 @@ bool ui_sep_input;
 bool ui_con_buffer;
 bool ui_keyboard;
 bool ui_own_output;
-bool ui_tty;
 bool ui_drafts;
 
 int LINES, COLS;

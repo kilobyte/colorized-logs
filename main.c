@@ -192,7 +192,7 @@ static void setup_signals(void)
     if (sigaction(SIGTSTP, &act, 0))
         syserr("sigaction SIGTSTP");
 
-    if (ui_own_output && ui_tty)
+    if (ui_own_output)
     {
         act.sa_handler=(sighandler_t)sigcont;
         if (sigaction(SIGCONT, &act, 0))

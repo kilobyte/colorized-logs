@@ -1760,7 +1760,6 @@ void usertty_initdriver()
     ui_con_buffer=true;
     ui_keyboard=true;
     ui_own_output=true;
-    ui_tty=true;
     ui_drafts=true;
 
     user_init           = usertty_init;
