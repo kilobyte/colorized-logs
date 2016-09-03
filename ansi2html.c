@@ -10,8 +10,7 @@
 #define INVERSE      0x200000
 #define STRIKE       0x400000
 
-static int no_header=0, white=0;
-static bool in_span;
+static bool no_header=false, white=false, in_span;
 static int fg, bg, fl, frgb, brgb;
 
 static const char *cols[]={"BLK","RED","GRN","YEL","BLU","MAG","CYN","WHI",
@@ -181,11 +180,11 @@ int main(int argc, const char **argv)
 {
     for (int i=1; i<argc; ++i)
         if (!strcmp(argv[i], "-n") || !strcmp(argv[i], "--no-header"))
-            no_header=1;
+            no_header=true;
         else if (!strcmp(argv[i], "-w") || !strcmp(argv[i], "--white"))
-            white=1;
+            white=true;
         else if (!strcmp(argv[i], "-nw") || !strcmp(argv[i], "-wn"))
-            no_header=white=1;
+            no_header=white=true;
         else
             return fprintf(stderr, "%s: Unknown argument '%s'.\n", argv[0],
                            argv[i]), 1;
