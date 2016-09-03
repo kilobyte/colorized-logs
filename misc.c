@@ -955,33 +955,20 @@ void tab_delete(char *arg, struct session *ses)
 void info_command(const char *arg, struct session *ses)
 {
     char buffer[BUFFER_SIZE], *bptr;
-    int actions   = 0;
-    int practions = 0;
-    int aliases   = 0;
-    int vars      = 0;
-    int subs      = 0;
-    int antisubs  = 0;
-    int highs     = 0;
-    int locs      = 0;
-    int routes    = 0;
-    int binds     = 0;
-    int pathdirs  = 0;
-
-    actions   = count_list(ses->actions);
-    practions = count_list(ses->prompts);
-    aliases   = ses->aliases->nval;
-    subs      = count_list(ses->subs);
-    antisubs  = count_list(ses->antisubs);
-    vars      = ses->myvars->nval;
-    highs     = count_list(ses->highs);
-    binds     = ses->binds->nval;
-    pathdirs  = ses->pathdirs->nval;
-    {
-        for (int i=0;i<MAX_LOCATIONS;i++)
-            if (ses->locations[i])
-                locs++;
-    }
-    routes=count_routes(ses);
+    int actions   = count_list(ses->actions);
+    int practions = count_list(ses->prompts);
+    int aliases   = ses->aliases->nval;
+    int subs      = count_list(ses->subs);
+    int antisubs  = count_list(ses->antisubs);
+    int vars      = ses->myvars->nval;
+    int highs     = count_list(ses->highs);
+    int binds     = ses->binds->nval;
+    int pathdirs  = ses->pathdirs->nval;
+    int locs = 0;
+    for (int i=0;i<MAX_LOCATIONS;i++)
+        if (ses->locations[i])
+            locs++;
+    int routes=count_routes(ses);
     if (ses==nullsession)
         tintin_printf(ses, "Session : {%s}  (null session)", ses->name);
     else
