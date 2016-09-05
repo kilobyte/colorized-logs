@@ -8,6 +8,10 @@
 extern struct session *nullsession;
 
 const int colors[8]={0,4,2,6,1,5,3,7};
+const char *attribs[16]={"",";5",";3",";3;5",";4",";4;5",";4;3",";4;3;5",
+        ";9",";5;9",";3;9",";3;5;9",";4;9",";4;5;9",";4;3;9",";4;3;5;9",
+};
+
 static enum {MUDC_OFF, MUDC_ON, MUDC_NULL, MUDC_NULL_WARN} mudcolors=MUDC_NULL_WARN;
 static char *MUDcolors[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
