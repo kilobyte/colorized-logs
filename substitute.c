@@ -6,15 +6,12 @@
 /*********************************************************************/
 #include "tintin.h"
 #include "protos/action.h"
+#include "protos/globals.h"
 #include "protos/llist.h"
 #include "protos/print.h"
 #include "protos/parse.h"
 #include "protos/variables.h"
 
-extern pvars_t *pvars;
-extern int subnum;
-extern const char *match_start, *match_end;
-extern char *_;
 
 /***************************/
 /* the #substitute command */

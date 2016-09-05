@@ -5,7 +5,6 @@
 
 char done_input[BUFFER_SIZE];
 bool tty;
-bool isstatus;
 
 bool ui_sep_input=false;
 bool ui_con_buffer=false;

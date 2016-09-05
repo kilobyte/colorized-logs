@@ -6,13 +6,11 @@
 /*********************************************************************/
 #include "tintin.h"
 #include "protos/glob.h"
+#include "protos/globals.h"
 #include "protos/hash.h"
 #include "protos/llist.h"
 #include "protos/print.h"
 #include "protos/parse.h"
-
-
-extern int alnum;
 
 
 void show_hashlist(struct session *ses, struct hashtable *h, const char *pat, const char *msg_all, const char *msg_none)

@@ -1,13 +1,10 @@
 #include "tintin.h"
 #include "protos/action.h"
+#include "protos/globals.h"
 #include "protos/print.h"
 #include "protos/parse.h"
 #include "protos/utils.h"
 
-extern char tintin_char;
-extern int hooknum;
-extern pvars_t *pvars;  /* the %0, %1, %2,....%9 variables */
-extern bool in_alias;
 
 static bool magic_close_hook=true;
 

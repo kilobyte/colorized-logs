@@ -1,14 +1,12 @@
 /* Do all the telnet protocol stuff */
 
 #include "tintin.h"
+#include "protos/globals.h"
 #include "protos/print.h"
 #include "protos/run.h"
 #include "protos/net.h"
 #include "protos/utils.h"
 
-extern int LINES, COLS;
-extern bool isstatus;
-extern struct session *sessionlist;
 
 #define EOR 239     /* End of Record */
 #define SE  240     /* subnegotiation end */

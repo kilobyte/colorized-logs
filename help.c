@@ -2,13 +2,12 @@
 /* functions for the #help command                               */
 /*****************************************************************/
 #include "tintin.h"
+#include "protos/globals.h"
 #include "protos/print.h"
 #include "protos/parse.h"
 #include "protos/run.h"
 #include "protos/utils.h"
 
-extern char tintin_char;
-extern char *tintin_exec;
 
 static FILE* check_file(char *filestring)
 {

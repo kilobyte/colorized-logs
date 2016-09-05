@@ -11,6 +11,7 @@
 #include "tintin.h"
 #include "protos/action.h"
 #include "protos/alias.h"
+#include "protos/globals.h"
 #include "protos/hash.h"
 #include "protos/llist.h"
 #include "protos/print.h"
@@ -20,11 +21,7 @@
 
 static bool return_flag = true;
 
-extern struct session *nullsession;
 
-extern char tintin_char;
-extern int pdnum;
-extern int COLS, LINES;
 
 void mark_command(const char *arg, struct session *ses)
 {

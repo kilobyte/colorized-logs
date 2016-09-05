@@ -10,6 +10,7 @@
 #include "protos/alias.h"
 #include "protos/chinese.h"
 #include "protos/glob.h"
+#include "protos/globals.h"
 #include "protos/hash.h"
 #include "protos/print.h"
 #include "protos/parse.h"
@@ -19,16 +20,6 @@
 #include "protos/unicode.h"
 #include "protos/utils.h"
 
-extern int varnum;
-extern pvars_t *pvars;
-extern int LINES, COLS;
-extern bool in_alias;
-extern bool aborting;
-extern char *_;
-extern struct session *activesession;
-extern char tintin_char;
-extern time_t time0;
-extern int utime0;
 
 extern struct session *if_command(const char *arg, struct session *ses);
 

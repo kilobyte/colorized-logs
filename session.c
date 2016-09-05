@@ -7,6 +7,7 @@
 #include "tintin.h"
 #include "protos/colors.h"
 #include "protos/files.h"
+#include "protos/globals.h"
 #include "protos/hash.h"
 #include "protos/hooks.h"
 #include "protos/llist.h"
@@ -26,10 +27,6 @@
 #endif
 
 
-extern struct session *sessionlist, *activesession, *nullsession;
-extern char *history[HISTORY_SIZE];
-extern char *user_charset_name;
-extern bool any_closed;
 #ifdef HAVE_GNUTLS
 #else
 # define gnutls_session_t int

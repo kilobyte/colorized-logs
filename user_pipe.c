@@ -1,6 +1,7 @@
 #include "tintin.h"
 #include "ui.h"
 #include "protos/colors.h"
+#include "protos/globals.h"
 #include "protos/unicode.h"
 #include "protos/utils.h"
 
@@ -9,11 +10,7 @@ static mbstate_t outstate;
 #define OUTSTATE &outstate
 extern void user_illegal();
 extern void user_noop();
-extern bool need_resize;
-
-
 static char *i_pos;
-
 
 static void userpipe_init(void)
 {

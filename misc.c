@@ -7,6 +7,8 @@
 #include "tintin.h"
 #include "ui.h"
 #include "protos/colors.h"
+#include "protos/files.h"
+#include "protos/globals.h"
 #include "protos/highlight.h"
 #include "protos/hooks.h"
 #include "protos/llist.h"
@@ -23,20 +25,8 @@
 
 
 /* externs */
-extern struct session *sessionlist, *activesession, *nullsession;
-extern struct completenode *complete_head;
-extern char tintin_char;
-extern bool keypad, retain;
-extern pvars_t *pvars; /* the %0, %1, %2,....%9 variables */
-extern char status[BUFFER_SIZE];
 bool margins;
 int marginl, marginr;
-extern int LINES, COLS;
-extern bool puts_echoing;
-extern int in_read;
-extern const char *logtypes[];
-extern bool real_quiet;
-extern char *user_charset_name;
 
 
 int yes_no(const char *txt)

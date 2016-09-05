@@ -2,6 +2,7 @@
 #include "assert.h"
 #include "protos/action.h"
 #include "protos/glob.h"
+#include "protos/globals.h"
 #include "protos/ivars.h"
 #include "protos/print.h"
 #include "protos/misc.h"
@@ -14,7 +15,6 @@ static int stacks[100][4];
 static bool conv_to_ints(char *arg, struct session *ses);
 static bool do_one_inside(int begin, int end);
 
-extern char tintin_char;
 
 /*********************/
 /* the #math command */

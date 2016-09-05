@@ -1,4 +1,5 @@
 #include "tintin.h"
+#include "protos/globals.h"
 #include "protos/print.h"
 #include "protos/parse.h"
 #include "protos/utils.h"
@@ -6,8 +7,6 @@
 #include <sys/types.h>
 #include <regex.h>
 
-extern char tintin_char;
-extern pvars_t *pvars;  /* the %0, %1, %2,....%9 variables */
 
 extern struct session *if_command(const char *arg, struct session *ses);
 

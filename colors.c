@@ -5,7 +5,6 @@
 #include "protos/utils.h"
 #include "protos/hooks.h"
 
-extern struct session *nullsession;
 
 const int colors[8]={0,4,2,6,1,5,3,7};
 const char *attribs[16]={"",";5",";3",";3;5",";4",";4;5",";4;3",";4;3;5",

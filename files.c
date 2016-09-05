@@ -8,7 +8,9 @@
 #include "tintin.h"
 #include "ui.h"
 #include "protos/action.h"
+#include "protos/globals.h"
 #include "protos/hash.h"
+#include "protos/hooks.h"
 #include "protos/llist.h"
 #include "protos/print.h"
 #include "protos/net.h"
@@ -21,19 +23,6 @@
 
 static void prepare_for_write(const char *command, const char *left, const char *right, const char *pr, char *result);
 extern void char_command(const char *arg, struct session *ses);
-
-extern struct session *nullsession;
-
-extern bool puts_echoing, real_quiet;
-extern int alnum, acnum, subnum, hinum, varnum, antisubnum, routnum, bindnum, pdnum, hooknum;
-extern char tintin_char;
-extern int recursion;
-extern const char *hook_names[];
-extern bool keypad, retain;
-extern bool ui_sep_input;
-extern char *user_charset_name;
-
-int in_read=0;
 
 /*******************************/
 /* expand tildes in a filename */

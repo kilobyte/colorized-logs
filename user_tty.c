@@ -2,6 +2,7 @@
 #include "ui.h"
 #include "protos/bind.h"
 #include "protos/colors.h"
+#include "protos/globals.h"
 #include "protos/misc.h"
 #include "protos/telnet.h"
 #include "protos/unicode.h"
@@ -17,10 +18,6 @@ static mbstate_t outstate;
 
 #define B_LENGTH CONSOLE_LENGTH
 
-extern char status[BUFFER_SIZE];
-extern bool keypad, retain;
-extern struct session *activesession, *lastdraft;
-
 static char out_line[BUFFER_SIZE], b_draft[BUFFER_SIZE];
 static WC k_input[BUFFER_SIZE], kh_input[BUFFER_SIZE], tk_input[BUFFER_SIZE];
 static WC yank_buffer[BUFFER_SIZE];
@@ -33,19 +30,13 @@ static bool o_strongdraft;
 static int b_greeting;
 static char *b_output[B_LENGTH];
 static int scr_len, scr_curs;
-extern bool isstatus;
-extern int hist_num;
-extern char *history[HISTORY_SIZE];
 static bool in_getpassword;
-extern bool margins;
-extern int marginl, marginr;
 static struct termios old_tattr;
 static bool retaining;
 #ifdef XTERM_TITLE
 static bool xterm;
 #endif
 static bool putty;
-extern bool need_resize;
 static int term_width;
 static int dump_color;
 static char term_buf[BUFFER_SIZE*8], *tbuf;

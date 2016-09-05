@@ -11,6 +11,7 @@
 #include "protos/colors.h"
 #include "protos/files.h"
 #include "protos/glob.h"
+#include "protos/globals.h"
 #include "protos/hash.h"
 #include "protos/highlight.h"
 #include "protos/history.h"
@@ -41,63 +42,16 @@ typedef void (*sighandler_t)(int);
 extern void end_command(const char *arg, struct session *ses);
 
 static void echo_input(const char *txt);
-
-/*************** globals ******************/
-bool term_echoing = true;
-bool keypad= DEFAULT_KEYPAD;
-bool retain= DEFAULT_RETAIN;
-int alnum = 0;
-int acnum = 0;
-int subnum = 0;
-int varnum = 0;
-int hinum = 0;
-int routnum = 0;
-int pdnum = 0;
-int antisubnum = 0;
-int bindnum = 0;
-int hooknum = 0;
-int gotpassword=0;
-bool got_more_kludge=false;
-int hist_num;
-bool need_resize=false;
-extern int LINES, COLS;
-extern bool tty, xterm;
-char *tintin_exec;
-struct session *lastdraft;
-bool aborting=false;
 static bool eofinput=false;
-bool any_closed=false;
-extern int recursion;
-char *_; /* incoming line being processed */
-extern int o_lastcolor;
-bool real_quiet=false; /* if set, #verbose 0 will be really quiet */
-char *history[HISTORY_SIZE];
-struct session *sessionlist, *activesession, *nullsession;
-pvars_t *pvars; /* the %0, %1, %2,....%9 variables */
-char tintin_char = DEFAULT_TINTIN_CHAR;
-char verbatim_char = DEFAULT_VERBATIM_CHAR;
 static char prev_command[BUFFER_SIZE];
 static void tintin(void);
 static void read_mud(struct session *ses);
 static void do_one_line(char *line, int nl, struct session *ses);
 static void snoop(const char *buffer, struct session *ses);
-char status[BUFFER_SIZE];
-
-/************ externs *************/
-extern char done_input[BUFFER_SIZE];
-
-extern time_t time0;
-extern int utime0;
-
 static void myquitsig(int);
-extern struct completenode *complete_head;
 #ifdef PROFILING
-extern const char *prof_area;
-extern time_t kbd_lag, mud_lag;
-extern int kbd_cnt, mud_cnt;
 extern void setup_prof();
 #endif
-extern bool ui_sep_input;
 
 static void tstphandler(int sig)
 {

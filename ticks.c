@@ -7,12 +7,9 @@
 #include "tintin.h"
 #include <assert.h>
 #include "protos/events.h"
+#include "protos/globals.h"
 #include "protos/print.h"
 #include "protos/parse.h"
-
-/* externs */
-struct session *sessionlist;
-extern bool any_closed;
 
 time_t time0;
 int utime0;

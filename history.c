@@ -5,13 +5,13 @@
 /*                     coded by peter unold 1992                     */
 /*********************************************************************/
 #include "tintin.h"
+#include "protos/globals.h"
 #include "protos/print.h"
 #include "protos/parse.h"
 #include "protos/utils.h"
 
 static void insert_history(const char *buffer);
 
-extern char *history[HISTORY_SIZE];
 
 /************************/
 /* the #history command */

@@ -6,7 +6,6 @@
 #include "protos/wcwidth.h"
 
 #ifdef PROFILING
-extern const char *prof_area;
 #endif
 
 char *user_charset_name;

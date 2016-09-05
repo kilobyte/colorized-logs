@@ -2,14 +2,13 @@
 #include "protos/action.h"
 #include "protos/colors.h"
 #include "protos/glob.h"
+#include "protos/globals.h"
 #include "protos/llist.h"
 #include "protos/print.h"
 #include "protos/parse.h"
 #include "protos/utils.h"
 #include "protos/variables.h"
 
-extern int hinum;
-extern bool puts_echoing;
 
 static struct colordef
 {

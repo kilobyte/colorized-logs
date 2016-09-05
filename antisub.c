@@ -6,12 +6,11 @@
 /*********************************************************************/
 #include "tintin.h"
 #include "protos/action.h"
+#include "protos/globals.h"
 #include "protos/llist.h"
 #include "protos/print.h"
 #include "protos/parse.h"
 
-extern pvars_t *pvars;  /* the %0, %1, %2,....%9 variables */
-extern int antisubnum;
 
 /*******************************/
 /* the #antisubstitute command */

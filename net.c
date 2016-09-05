@@ -12,6 +12,7 @@
 #include <netdb.h>
 #include "tintin.h"
 #include "protos/files.h"
+#include "protos/globals.h"
 #include "protos/hooks.h"
 #include "protos/print.h"
 #include "protos/run.h"
@@ -31,9 +32,7 @@
 
 static void alarm_func(int);
 
-extern struct session *sessionlist, *activesession, *nullsession;
 #ifdef PROFILING
-extern const char *prof_area;
 #endif
 #ifdef HAVE_ZLIB
 static int init_mccp(struct session *ses, int cplen, const char *cpsrc);

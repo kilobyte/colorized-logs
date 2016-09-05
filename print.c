@@ -1,14 +1,13 @@
 #include "tintin.h"
 #include "protos/action.h"
 #include "protos/antisub.h"
+#include "protos/globals.h"
 #include "protos/highlight.h"
 #include "protos/print.h"
 #include "protos/misc.h"
 #include "protos/substitute.h"
 #include "ui.h"
 
-extern char *_;
-extern struct session *sessionlist, *activesession, *nullsession;
 bool puts_echoing = true;
 
 /****************************************************/

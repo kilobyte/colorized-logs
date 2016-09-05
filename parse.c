@@ -8,6 +8,7 @@
 #include "protos/action.h"
 #include "protos/colors.h"
 #include "protos/files.h"
+#include "protos/globals.h"
 #include "protos/hash.h"
 #include "protos/hooks.h"
 #include "protos/print.h"
@@ -32,19 +33,12 @@ extern void unlink_command(const char *arg, struct session *ses);
 
 static inline bool is_speedwalk_dirs(const char *cp);
 
-extern struct session *sessionlist, *activesession, *nullsession;
-extern pvars_t *pvars; /* the %0, %1, %2,....%9 variables */
-extern char tintin_char, verbatim_char;
-extern bool term_echoing;
 static inline const char *get_arg_stop_spaces(const char *s, char *arg);
 static const char *get_arg_all(const char *s, char *arg);
 bool in_alias=false;
-extern int in_read;
-extern bool aborting;
 static struct hashtable *commands, *c_commands;
 int recursion;
 #ifdef PROFILING
-extern const char *prof_area;
 #endif
 
 /**************************************************************************/

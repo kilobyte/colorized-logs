@@ -12,7 +12,6 @@
 #include "protos/pty.h"
 #include "protos/utils.h"
 
-extern char **environ;
 
 
 #ifdef TERM_DEBUG

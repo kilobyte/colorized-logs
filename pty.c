@@ -31,7 +31,6 @@
 # include <sys/syslimits.h>
 #endif
 
-extern char **environ;
 extern void syserr(char *msg, ...);
 
 

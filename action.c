@@ -8,6 +8,7 @@
 #include "protos/action.h"
 #include "protos/files.h"
 #include "protos/glob.h"
+#include "protos/globals.h"
 #include "protos/llist.h"
 #include "protos/print.h"
 #include "protos/parse.h"
@@ -15,16 +16,8 @@
 #include "protos/variables.h"
 
 
-extern struct session *activesession, *nullsession;
-extern pvars_t *pvars;  /* the %0, %1, %2,....%9 variables */
-extern bool term_echoing;
-extern char tintin_char;
-extern int acnum;
-extern bool in_alias;
 static int var_len[10];
 static const char *var_ptr[10];
-extern bool aborting;
-extern int recursion;
 
 static bool inActions=false;
 static int deletedActions=0;

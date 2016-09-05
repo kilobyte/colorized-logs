@@ -1,15 +1,12 @@
 #include "tintin.h"
 #include "protos/action.h"
 #include "protos/glob.h"
+#include "protos/globals.h"
 #include "protos/print.h"
 #include "protos/parse.h"
 #include "protos/utils.h"
 #include "protos/variables.h"
 
-extern struct session *sessionlist;
-extern struct session *activesession;
-extern struct session *nullsession;
-extern int recursion;
 
 void execute_event(struct eventnode *ev, struct session *ses)
 {
