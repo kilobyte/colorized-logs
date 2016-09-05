@@ -11,51 +11,6 @@
 char *user_charset_name;
 
 
-/* get the length of an UTF-8 string */
-int utf8_len(const char *s)
-{
-    int l=0;
-
-    while (*s)
-        if ((*s++&0xc0)!=0x80)
-            l++;
-    return l;
-}
-
-/* copy at most n UTF-8 characters, using no more than maxb bytes */
-/* return # of wide chars copied */
-int utf8_ncpy(char *d, char *s, int n, int maxb)
-{
-    int nc=0;
-
-    if (--maxb<0)
-        return 0;
-    while (*s && maxb)
-    {
-        if ((*s&0xc0)!=0x80)
-            if (nc++>=n)
-            {
-                nc--;
-                break;
-            }
-        *d++=*s++;
-    }
-    *d=0;
-    return nc;
-}
-
-/* skip first n UTF-8 characters */
-char* utf8_seek(char *s, int n)
-{
-    if (n<=0)
-        return s;
-    for (; *s; s++)
-        if ((*s&0xc0)!=0x80)
-            if (!n--)
-                return s;
-    return s;
-}
-
 /* copy up to n (no check for 0, -1 = inf) wide chars, return n of bytes consumed */
 /* d must be able to hold at least n+1 WChars */
 int utf8_to_wc(wchar_t *d, const char *s, int n)
