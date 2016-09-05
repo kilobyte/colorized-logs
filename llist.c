@@ -236,7 +236,6 @@ void insertnode_list(struct listnode *listhead, const char *ltext, const char *r
         return;
         break;
 
-
     case LENGTH:
         ln=strlen(ltext);
         while ((nptrlast = nptr) && (nptr = nptr->next))
@@ -271,8 +270,6 @@ void insertnode_list(struct listnode *listhead, const char *ltext, const char *r
         newnode->next = NULL;
         return;
         break;
-
-
 
     case ALPHA:
         while ((nptrlast = nptr) && (nptr = nptr->next))

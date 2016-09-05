@@ -24,7 +24,6 @@ void history_command(const char *arg, struct session *ses)
 }
 
 
-
 void do_history(char *buffer, struct session *ses)
 {
     char result[BUFFER_SIZE];

@@ -22,7 +22,6 @@
 static bool return_flag = true;
 
 
-
 void mark_command(const char *arg, struct session *ses)
 {
     if (ses==nullsession)

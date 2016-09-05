@@ -55,7 +55,6 @@ static inline void add_hash_value(struct hashtable *h, char *left, char *right)
 }
 
 
-
 static inline void rehash(struct hashtable *h, int s)
 {
     int gs;
@@ -73,7 +72,6 @@ static inline void rehash(struct hashtable *h, int s)
     }
     CFREE(gt, gs, struct hashentry);
 }
-
 
 
 /********************************************************************/
@@ -144,7 +142,6 @@ void set_hash_nostring(struct hashtable *h, const char *key, char *value)
 }
 
 
-
 /****************************************************/
 /* get the value for a given key, or 0 if not found */
 /****************************************************/
@@ -165,7 +162,6 @@ char* get_hash(struct hashtable *h, const char *key)
     }
     return 0;
 }
-
 
 
 /****************************************************/
@@ -194,7 +190,6 @@ bool delete_hash(struct hashtable *h, const char *key)
     }
     return false;
 }
-
 
 
 /*****************************************************/

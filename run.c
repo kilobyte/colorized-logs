@@ -13,7 +13,6 @@
 #include "protos/utils.h"
 
 
-
 #ifdef TERM_DEBUG
 static void print_stty(int fd)
 {
