@@ -16,6 +16,6 @@ for f in ${*:--}
     egrep -v '^struct session \*[a-z_]+_command\('|
     while read x
       do
-        echo "$x;"
+        echo "extern $x;"
       done) >"protos/$h"
   done
