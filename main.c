@@ -76,7 +76,7 @@ struct session *sessionlist, *activesession, *nullsession;
 pvars_t *pvars; /* the %0, %1, %2,....%9 variables */
 char tintin_char = DEFAULT_TINTIN_CHAR;
 char verbatim_char = DEFAULT_VERBATIM_CHAR;
-char prev_command[BUFFER_SIZE];
+static char prev_command[BUFFER_SIZE];
 static void tintin(void);
 static void read_mud(struct session *ses);
 static void do_one_line(char *line, int nl, struct session *ses);

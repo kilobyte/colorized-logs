@@ -41,7 +41,7 @@ static const char *get_arg_all(const char *s, char *arg);
 bool in_alias=false;
 extern int in_read;
 extern bool aborting;
-struct hashtable *commands, *c_commands;
+static struct hashtable *commands, *c_commands;
 int recursion;
 #ifdef PROFILING
 extern const char *prof_area;

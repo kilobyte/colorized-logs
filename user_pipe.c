@@ -5,7 +5,7 @@
 #include "protos/utils.h"
 
 
-mbstate_t outstate;
+static mbstate_t outstate;
 #define OUTSTATE &outstate
 extern void user_illegal();
 extern void user_noop();
