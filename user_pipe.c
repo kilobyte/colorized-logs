@@ -8,8 +8,6 @@
 
 static mbstate_t outstate;
 #define OUTSTATE &outstate
-extern void user_illegal();
-extern void user_noop();
 static char *i_pos;
 
 static void userpipe_init(void)
@@ -77,9 +75,23 @@ static void userpipe_beep(void)
     /* should it beep if we're redirected to a pipe? */
 }
 
+static void userpipe_passwd(bool x)
+{
+    // TODO: stty echo off?
+}
+
 static void userpipe_resize(void)
 {
     need_resize=false;
+}
+
+static void user_illegal()
+{
+    syserr("DRIVER: operation not supported");
+}
+
+static void user_noop()
+{
 }
 
 void userpipe_initdriver()
@@ -100,7 +112,7 @@ void userpipe_initdriver()
     user_beep           = userpipe_beep;
     user_keypad         = (voidboolfunc*)user_illegal;
     user_retain         = user_illegal;
-    user_passwd         = (voidboolfunc*)user_noop;
+    user_passwd         = userpipe_passwd;
     user_condump        = user_illegal;
     user_title          = (printffunc*)user_illegal;
     user_resize         = userpipe_resize;

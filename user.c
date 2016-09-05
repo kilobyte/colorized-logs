@@ -29,12 +29,3 @@ void user_setdriver(int dr)
         syserr("No such driver: %d", dr);
     }
 }
-
-void user_illegal()
-{
-    syserr("DRIVER: operation not supported");
-}
-
-void user_noop()
-{
-}
