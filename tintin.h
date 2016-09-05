@@ -49,7 +49,6 @@
 #define INPUT_COLOR  COLOR_BLUE
 #define MARGIN_COLOR COLOR_RED
 /* FIXME: neither INPUT_COLOR nor MARGIN_COLOR can be COLOR_WHITE */
-/*#define GRAY2 */    /* if you have problems with the dark gray (~8~) color */
 /*#define IGNORE_INT*//* uncomment to disable INT (usually ^C) from keyboard */
 /*#define BARE_ESC*/  /* uncomment to allow use of bare ESC key.  It will
                          prevent Alt-XXX from being recognized, though. */
