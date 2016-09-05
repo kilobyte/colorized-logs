@@ -25,7 +25,6 @@
 #include "protos/substitute.h"
 #include "protos/ticks.h"
 #include "protos/unicode.h"
-#include "protos/user.h"
 #include "protos/utils.h"
 #include <sys/wait.h>
 #include <sys/types.h>
