@@ -487,7 +487,7 @@ static char* get_split_pos(char *list, int head_length)
     if (head_length > 0)
     { /* modified #getitemnr code */
         do {
-            list = (char*)get_arg_in_braces(list, temp, STOP_AT_SPACES);
+            list = (char*)get_arg_in_braces(list, temp, 0);
             i++;
         } while (i != head_length);
 

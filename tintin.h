@@ -150,8 +150,6 @@
 /* The stuff below here shouldn't be modified unless you know what you're */
 /* doing........                                                          */
 /**************************************************************************/
-#define STOP_AT_SPACES 0
-#define WITH_SPACES 1
 typedef enum {PRIORITY, ALPHA, LENGTH} llist_mode_t;
 #define CLEAN 0
 #define END 1
