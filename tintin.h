@@ -346,7 +346,7 @@ typedef char pvars_t[10][BUFFER_SIZE];
 
 #ifdef PROFILING
 # define PROF(x) prof_area=(x)
-# define PROFPUSH(x) {char *prev_prof=prof_area; prof_area=(x)
+# define PROFPUSH(x) {const char *prev_prof=prof_area; prof_area=(x)
 # define PROFPOP prof_area=prev_prof;}
 # define PROFSTART struct timeval tvstart, tvend;gettimeofday(&tvstart,0);
 # define PROFEND(x,y) gettimeofday(&tvend,0);(x)+=(tvend.tv_sec-tvstart.tv_sec) \

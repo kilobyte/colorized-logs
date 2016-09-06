@@ -48,7 +48,7 @@ struct session* parse_input(const char *input, bool override_verbatim, struct se
     char command[BUFFER_SIZE], arg[BUFFER_SIZE], result[BUFFER_SIZE], *al;
     int nspaces;
 #ifdef PROFILING
-    char *oldprof=prof_area;
+    const char *oldprof=prof_area;
     PROF("parsing input");
 # define PPOP prof_area=oldprof
 #else
@@ -305,7 +305,7 @@ static struct session* parse_tintin_command(const char *command, const char *arg
     const char *func, *a;
     char *b, cmd[BUFFER_SIZE], right[BUFFER_SIZE];
 #ifdef PROFILING
-    char *oldprof=prof_area;
+    const char *oldprof=prof_area;
     PROF("executing commands");
 #endif
 
