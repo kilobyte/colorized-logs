@@ -16,8 +16,6 @@
 static mbstate_t outstate;
 #define OUTSTATE &outstate
 
-#define B_LENGTH CONSOLE_LENGTH
-
 static char out_line[BUFFER_SIZE], b_draft[BUFFER_SIZE];
 static WC k_input[BUFFER_SIZE], kh_input[BUFFER_SIZE], tk_input[BUFFER_SIZE];
 static WC yank_buffer[BUFFER_SIZE];
@@ -28,7 +26,7 @@ static int o_len, o_pos, o_oldcolor, o_prevcolor, o_draftlen, o_lastprevcolor;
 static int b_first, b_current, b_last, b_bottom, b_screenb;
 static bool o_strongdraft;
 static int b_greeting;
-static char *b_output[B_LENGTH];
+static char *b_output[CONSOLE_LENGTH];
 static int scr_len, scr_curs;
 static bool in_getpassword;
 static struct termios old_tattr;
@@ -305,7 +303,7 @@ static bool b_shorten()
 {
     if (b_first>b_bottom)
         return false;
-    SFREE(b_output[b_first%B_LENGTH]);
+    SFREE(b_output[b_first%CONSOLE_LENGTH]);
     b_first++;
     return true;
 }
@@ -347,7 +345,7 @@ static void b_scroll(int b_to)
         {
             tbuf+=sprintf(tbuf, "\033[%d;1f", scr_len+y-b_to);
             if (y<b_current)
-                draw_out(b_output[y%B_LENGTH]);
+                draw_out(b_output[y%CONSOLE_LENGTH]);
             else if (y==b_current)
                 draw_out(out_line);
             else
@@ -381,9 +379,9 @@ static void b_addline(void)
             syserr("Out of memory");
     out_line[o_len]=0;
     strcpy(new, out_line);
-    if (b_bottom==b_first+B_LENGTH)
+    if (b_bottom==b_first+CONSOLE_LENGTH)
         b_shorten();
-    b_output[(unsigned int)b_current%(unsigned int)B_LENGTH]=new;
+    b_output[(unsigned int)b_current%(unsigned int)CONSOLE_LENGTH]=new;
     o_pos=0;
     o_len=setcolor(out_line, o_oldcolor=o_color);
     if (b_bottom<++b_current)
@@ -1435,7 +1433,7 @@ key_alt_tab:
 /********************************************/
 static void b_resize()
 {
-    char *src[B_LENGTH];
+    char *src[CONSOLE_LENGTH];
     int src_lines;
     char line[BUFFER_SIZE], *lp;
     int cont;
@@ -1446,13 +1444,13 @@ static void b_resize()
         return;
     term_width=COLS;
 
-    assert(src_lines<=B_LENGTH);
-    if (b_bottom%B_LENGTH > b_first%B_LENGTH)
-        memcpy(src, b_output+(b_first%B_LENGTH), src_lines*sizeof(char*));
+    assert(src_lines<=CONSOLE_LENGTH);
+    if (b_bottom%CONSOLE_LENGTH > b_first%CONSOLE_LENGTH)
+        memcpy(src, b_output+(b_first%CONSOLE_LENGTH), src_lines*sizeof(char*));
     else
     {
-        memcpy(src, b_output+(b_first%B_LENGTH), (B_LENGTH-b_first%B_LENGTH)*sizeof(char*));
-        memcpy(src+B_LENGTH-b_first%B_LENGTH, b_output, (b_bottom%B_LENGTH)*sizeof(char*));
+        memcpy(src, b_output+(b_first%CONSOLE_LENGTH), (CONSOLE_LENGTH-b_first%CONSOLE_LENGTH)*sizeof(char*));
+        memcpy(src+CONSOLE_LENGTH-b_first%CONSOLE_LENGTH, b_output, (b_bottom%CONSOLE_LENGTH)*sizeof(char*));
     }
     o_len=o_pos=0;
     o_oldcolor=o_prevcolor=o_lastprevcolor=7;
@@ -1704,7 +1702,7 @@ static void usertty_condump(FILE *f)
 {
     dump_color=7;
     for (int i = (b_greeting>b_first)?b_greeting:b_first; i<b_current; i++)
-        if (fwrite_out(f, b_output[i%B_LENGTH]))
+        if (fwrite_out(f, b_output[i%CONSOLE_LENGTH]))
             fprintf(f, "\n");
     fwrite_out(f, out_line);
 }
