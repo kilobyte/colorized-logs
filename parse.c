@@ -38,8 +38,6 @@ static const char *get_arg_all(const char *s, char *arg);
 bool in_alias=false;
 static struct hashtable *commands, *c_commands;
 int recursion;
-#ifdef PROFILING
-#endif
 
 /**************************************************************************/
 /* parse input, check for TINTIN commands and aliases and send to session */

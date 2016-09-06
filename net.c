@@ -32,8 +32,6 @@
 
 static void alarm_func(int);
 
-#ifdef PROFILING
-#endif
 #ifdef HAVE_ZLIB
 static int init_mccp(struct session *ses, int cplen, const char *cpsrc);
 #endif

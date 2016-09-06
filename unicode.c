@@ -5,9 +5,6 @@
 #include "protos/utils.h"
 #include "protos/wcwidth.h"
 
-#ifdef PROFILING
-#endif
-
 char *user_charset_name;
 
 
