@@ -1,8 +1,6 @@
 /******************************************************************/
 /* file: tintin.h - the include file for KBtin                    */
 /******************************************************************/
-#define UTF8                /* UTF8 support */
-
 #undef TELNET_DEBUG     /* define to show TELNET negotiations */
 #undef USER_DEBUG       /* debugging of the user interface */
 #undef TERM_DEBUG       /* debugging pseudo-tty stuff */
@@ -54,7 +52,6 @@
                          prevent Alt-XXX from being recognized, though. */
 #define XTERM_TITLE "KBtin - %s"
 #undef  PTY_ECHO_HACK   /* not working yet */
-#define ASSUME_UTF8 0      /* if character width cannot be autodetected */
 #define ECHO_COLOR "~8~"
 #define LOG_INPUT_PREFIX "" /* you can add ANSI codes, etc here */
 #define LOG_INPUT_SUFFIX ""
