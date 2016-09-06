@@ -2,6 +2,7 @@
 #include <locale.h>
 #include "tintin.h"
 #include "translit.h"
+#include "protos/prof.h"
 #include "protos/utils.h"
 #include "protos/wcwidth.h"
 

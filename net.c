@@ -15,6 +15,7 @@
 #include "protos/globals.h"
 #include "protos/hooks.h"
 #include "protos/print.h"
+#include "protos/prof.h"
 #include "protos/run.h"
 #include "protos/telnet.h"
 #include "protos/unicode.h"

@@ -21,6 +21,7 @@
 #include "protos/misc.h"
 #include "protos/net.h"
 #include "protos/parse.h"
+#include "protos/prof.h"
 #include "protos/session.h"
 #include "protos/substitute.h"
 #include "protos/ticks.h"
@@ -48,9 +49,6 @@ static void read_mud(struct session *ses);
 static void do_one_line(char *line, int nl, struct session *ses);
 static void snoop(const char *buffer, struct session *ses);
 static void myquitsig(int);
-#ifdef PROFILING
-extern void setup_prof();
-#endif
 
 static void tstphandler(int sig)
 {

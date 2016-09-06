@@ -12,6 +12,7 @@
 #include "protos/hash.h"
 #include "protos/hooks.h"
 #include "protos/print.h"
+#include "protos/prof.h"
 #include "protos/net.h"
 #include "protos/parse.h"
 #include "protos/path.h"
