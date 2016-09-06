@@ -73,58 +73,38 @@ void zap_list(struct listnode *nptr)
 /********************************************************************
 **   This function will clear all lists associated with a session  **
 ********************************************************************/
-void kill_all(struct session *ses, int mode)
+void kill_all(struct session *ses, bool no_reinit)
 {
-    switch (mode)
-    {
-    case CLEAN:
-        if (ses != NULL)
-        {
-            kill_hash(ses->aliases);
-            ses->aliases = init_hash();
-            kill_list(ses->actions);
-            ses->actions = init_list();
-            kill_list(ses->prompts);
-            ses->prompts = init_list();
-            kill_hash(ses->myvars);
-            ses->myvars = init_hash();
-            kill_list(ses->highs);
-            ses->highs = init_list();
-            kill_list(ses->subs);
-            ses->subs = init_list();
-            kill_list(ses->antisubs);
-            ses->antisubs = init_list();
-            kill_list(ses->path);
-            ses->path = init_list();
-            kill_hash(ses->binds);
-            ses->binds = init_hash();
-            kill_hash(ses->pathdirs);
-            ses->pathdirs = init_hash();
-            kill_routes(ses);
-            tintin_printf(ses, "#Lists cleared.");
-        }
-        else /* can't happen */
-            tintin_printf(0, "#Can't clean the common lists (yet).");
-        break;
+    if (!ses) // can't happen
+        return;
 
-    case END:
-        if (ses != NULL)
-        {
-            kill_hash(ses->aliases);
-            kill_list(ses->actions);
-            kill_list(ses->prompts);
-            kill_hash(ses->myvars);
-            kill_list(ses->highs);
-            kill_list(ses->subs);
-            kill_list(ses->antisubs);
-            kill_list(ses->path);
-            kill_hash(ses->pathdirs);
-            kill_hash(ses->binds);
-            kill_routes(ses);
-        }
-        break;
-    }
+    kill_hash(ses->aliases);
+    kill_list(ses->actions);
+    kill_list(ses->prompts);
+    kill_hash(ses->myvars);
+    kill_list(ses->highs);
+    kill_list(ses->subs);
+    kill_list(ses->antisubs);
+    kill_list(ses->path);
+    kill_hash(ses->pathdirs);
+    kill_hash(ses->binds);
+    kill_routes(ses);
+    if (no_reinit)
+        return;
+
+    ses->aliases = init_hash();
+    ses->actions = init_list();
+    ses->prompts = init_list();
+    ses->myvars = init_hash();
+    ses->highs = init_list();
+    ses->subs = init_list();
+    ses->antisubs = init_list();
+    ses->path = init_list();
+    ses->binds = init_hash();
+    ses->pathdirs = init_hash();
+    tintin_printf(ses, "#Lists cleared.");
 }
+
 /***********************************************/
 /* make a copy of a list - return: ptr to copy */
 /***********************************************/

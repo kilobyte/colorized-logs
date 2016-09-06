@@ -151,8 +151,6 @@
 /* doing........                                                          */
 /**************************************************************************/
 typedef enum {PRIORITY, ALPHA, LENGTH} llist_mode_t;
-#define CLEAN 0
-#define END 1
 #define K_ACTION_MAGIC "#X~4~~2~~12~[This action is being deleted!]~7~X"
 
 #define BUFFER_SIZE 4096

@@ -386,7 +386,7 @@ void cleanup_session(struct session *ses)
     ses->closing=2;
     do_hook(act=ses, HOOK_CLOSE, 0, true);
 
-    kill_all(ses, END);
+    kill_all(ses, true);
     if (ses == sessionlist)
         sessionlist = ses->next;
     else

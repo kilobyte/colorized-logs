@@ -1186,7 +1186,7 @@ void elif_command(const char *arg, struct session *ses)
 
 void killall_command(const char *arg, struct session *ses)
 {
-    kill_all(ses, CLEAN);
+    kill_all(ses, false);
 }
 
 /****************************/
