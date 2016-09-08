@@ -104,9 +104,9 @@ static void span()
     if (cl>clbuf)
     {
         *cl=0;
-        if (cl>=clbuf+5) /* implies no spaces */
+        if (cl>=clbuf+5)
             printf(" class=\"%s\"", clbuf+1);
-        else
+        else /* implies no spaces */
             printf(" class=%s", clbuf+1);
     }
 
