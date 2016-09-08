@@ -320,15 +320,15 @@ esc:
         break;
     case ']':
         ch=getchar();
-        if (ch<'0'||ch>'9')
+        if (ch<'0'||ch>'9') /* not an OSC, don't try to parse */
             goto normal;
         for (;;ch=getchar())
             switch (ch)
             {
             case 27:
-                ch=getchar();
+                ch=getchar(); /* want ESC \ but we accept ESC anything */
             case 7:
-                ch=getchar();
+                ch=getchar(); /* BELL is the alternate terminator */
             case EOF:
                 goto normal;
             }
@@ -487,7 +487,7 @@ csi:
             printf(" ");
         ch=getchar();
         goto normal;
-    case 'J':
+    case 'J': /* screen clear */
         goto formfeed;
     default:
         ch=getchar();           /* invalid/unimplemented code, ignore */
