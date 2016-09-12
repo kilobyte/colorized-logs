@@ -12,6 +12,7 @@
 
 static bool no_header=false, white=false, in_span;
 static int fg, bg, fl, frgb, brgb;
+static const char *title=0;
 
 static const char *cols[]={"BLK","RED","GRN","YEL","BLU","MAG","CYN","WHI",
                            "HIK","HIR","HIG","HIY","HIB","HIM","HIC","HIW"};
@@ -182,22 +183,36 @@ int main(int argc, const char **argv)
             white=true;
         else if (!strcmp(argv[i], "-nw") || !strcmp(argv[i], "-wn"))
             no_header=white=true;
+        else if (!strcmp(argv[i], "-t") || !strcmp(argv[i], "--title"))
+            if (++i<argc)
+                title=argv[i];
+            else
+                return fprintf(stderr, "%s: --title requires an argument.\n",
+                               argv[0]), 1;
         else
             return fprintf(stderr, "%s: Unknown argument '%s'.\n", argv[0],
                            argv[i]), 1;
 
     if (no_header)
     {
+        if (title)
+        {
+            return fprintf(stderr, "%s: --title and --no-header are mutually "
+                           "exclusive.\n", argv[0]), 1;
+        }
         printf(
 "<pre style=\"color:#%s;white-space:pre-wrap:word-wrap:break-word\">",
                 white?"000":"bbb");
     }
     else
+    {
         printf(
 "<!DOCTYPE html>\n"
 "<html>\n"
-"<head>\n"
-"<!--<title></title>-->\n"
+"<head>\n");
+        if (title)
+            printf("<title>%s</title>\n", title);
+        printf(
 "<style type=\"text/css\">\n"
 "body {background-color: %s;}\n"
 "pre {\n"
@@ -246,6 +261,7 @@ int main(int argc, const char **argv)
                 white?"white":"black",
                 white?"000":"bbb",
                 white?"000;font-weight:bold":"fff");
+    }
     fg=bg=-1;
     fl=0;
     in_span=false;

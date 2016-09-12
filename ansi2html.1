@@ -26,6 +26,10 @@ most webpages.  Text requested to be bolded (normally bright white) will be
 turned bold black, but explicit bright white \fIwill not\fR be changed,
 becoming invisible (just like explicit black is invisible in the normal
 on-black mode), same as on real terminals.
+.TP
+.B -t
+Set the page title to the next argument.  Mutually exclusive with
+.BR -n .
 .SH CAVEATS
 Most ANSI codes other than color codes are ignored; possibly causing
 misformatted output.  In general, anything unfit for a hardcopy terminal
