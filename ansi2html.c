@@ -174,6 +174,26 @@ static void unspan()
 }
 
 
+static void print_string(const char *restrict str)
+{
+    for (; *str; str++)
+        switch (*str)
+        {
+        case '<':
+            printf("&lt;");
+            break;
+        case '>':
+            printf("&gt;");
+            break;
+        case '&':
+            printf("&amp;");
+            break;
+        default:
+            putchar(*str);
+        }
+}
+
+
 int main(int argc, const char **argv)
 {
     for (int i=1; i<argc; ++i)
@@ -211,7 +231,11 @@ int main(int argc, const char **argv)
 "<html>\n"
 "<head>\n");
         if (title)
-            printf("<title>%s</title>\n", title);
+        {
+            printf("<title>");
+            print_string(title);
+            printf("</title>\n");
+        }
         printf(
 "<style type=\"text/css\">\n"
 "body {background-color: %s;}\n"
