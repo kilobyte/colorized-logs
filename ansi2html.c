@@ -291,7 +291,7 @@ int main(int argc, const char **argv)
     in_span=false;
     frgb=brgb=-1;
     char ch=getchar();
-    int ntok, tok[10];
+    unsigned int ntok, tok[16];
 normal:
     switch (ch)
     {
@@ -390,7 +390,7 @@ csi:
         ch=getchar();
         goto csiopt;
     case ';':
-        if (++ntok>=10)
+        if (++ntok>=sizeof(tok)/sizeof(tok[0]))
             goto normal;        /* too many tokens, something is fishy */
         tok[ntok]=0;
         ch=getchar();
@@ -401,7 +401,7 @@ csi:
         ch=getchar();
         goto csi;
     case 'm':
-        for (int i=0;i<=ntok;i++)
+        for (unsigned int i=0;i<=ntok;i++)
             switch (tok[i])
             {
             case 0:
@@ -523,7 +523,7 @@ csi:
             ntok=1;
         else if (ntok>512) /* sanity */
             ntok=512;
-        for (int i=0;i<ntok;++i)
+        for (unsigned int i=0;i<ntok;++i)
             printf(" ");
         ch=getchar();
         goto normal;

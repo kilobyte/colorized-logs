@@ -146,7 +146,7 @@ static int rgb_background(struct rgb c)
     return ((c.r&0x80) >> 5 | (c.g&0x80) >> 6 | (c.b&0x80) >> 7) << 4;
 }
 
-#define MAXTOK 10
+#define MAXTOK 16
 
 void do_in_MUD_colors(char *txt, bool quotetype, struct session *ses)
 {
