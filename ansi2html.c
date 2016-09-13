@@ -467,7 +467,7 @@ csi:
                     i++;
                     frgb=rgb_from_256(tok[i]);
                 }
-                else if (tok[i]==2 && i<=ntok+3)
+                else if (tok[i]==2 && i+3<=ntok)
                 {   /* 24 bit */
                     frgb=rgb_to_int(tok[i+1], tok[i+2], tok[i+3]);
                     i+=3;
@@ -494,7 +494,7 @@ csi:
                     i++;
                     brgb=rgb_from_256(tok[i]);
                 }
-                else if (tok[i]==2 && i<=ntok+3)
+                else if (tok[i]==2 && i+3<=ntok)
                 {   /* 24 bit */
                     brgb=rgb_to_int(tok[i+1], tok[i+2], tok[i+3]);
                     i+=3;
