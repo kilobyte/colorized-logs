@@ -13,21 +13,21 @@ will convert the ANSI log into a HTML page, converting ANSI color codes into
 appropriate tags.  All standard colors and attributes are supported.
 .SH OPTIONS
 .TP
-.B -n
+.BR -n ", " --no-header
 Don't produce a HTML header.  This allows including the log into a web page
 you make some other way.  You are responsible for setting background color
 appropriately \(em to black or something dark in the default on-black mode,
 or to white/light when \fB-w\fR is used.  Fancy-schmancy background images
 are fine.
 .TP
-.B -w
+.BR -w ", " --white
 Make the background white.  This is contrary to most terminals but matches
 most webpages.  Text requested to be bolded (normally bright white) will be
 turned bold black, but explicit bright white \fIwill not\fR be changed,
 becoming invisible (just like explicit black is invisible in the normal
 on-black mode), same as on real terminals.
 .TP
-.B -t
+.BR -t ", " --title " \fItext\fR"
 Set the page title to the next argument.  Mutually exclusive with
 .BR -n .
 .SH CAVEATS
