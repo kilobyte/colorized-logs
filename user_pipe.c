@@ -32,7 +32,7 @@ static void userpipe_textout(const char *txt)
                 if (color==-1)
                     color=lastcolor;
                 if (tty)
-                    b+=sprintf(b, COLORCODE(color));
+                    b=ansicolor(b, color);
             }
             else
                 *b++='~';

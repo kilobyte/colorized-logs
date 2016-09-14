@@ -7,9 +7,6 @@
 
 
 const int colors[8]={0,4,2,6,1,5,3,7};
-const char *attribs[16]={"",";5",";3",";3;5",";4",";4;5",";4;3",";4;3;5",
-        ";9",";5;9",";3;9",";3;5;9",";4;9",";4;5;9",";4;3;9",";4;3;5;9",
-};
 
 static enum {MUDC_OFF, MUDC_ON, MUDC_NULL, MUDC_NULL_WARN} mudcolors=MUDC_NULL_WARN;
 static char *MUDcolors[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
@@ -473,4 +470,28 @@ null_codes:
         MUDcolors[nc]=mystrdup(cc[nc]);
     };
     tintin_printf(ses, "#outgoing color codes table initialized");
+}
+
+char *ansicolor(char *s, int c)
+{
+    *s++=27, *s++='[', *s++='0';
+    if (c&8)
+        *s++=';', *s++='1';
+    *s++=';', *s++='3';
+    *s++='0'+colors[c&7];
+    *s++=';', *s++='4';
+    *s++='0'+colors[(c>>4)&7];
+    if (c>>=7)
+    {
+        if (c&1)
+            *s++=';', *s++='5';
+        if (c&2)
+            *s++=';', *s++='3';
+        if (c&4)
+            *s++=';', *s++='4';
+        if (c&8)
+            *s++=';', *s++='9';
+    }
+    *s++='m';
+    return s;
 }

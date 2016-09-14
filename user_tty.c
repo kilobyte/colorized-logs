@@ -288,7 +288,7 @@ static void redraw_status(void)
                 c=c|(STATUS_COLOR<<4);
             if ((c&15)==((c>>4)&7))
                 c=(c&0xf0)|(c&7? 0:(STATUS_COLOR==COLOR_BLACK? 7:0));
-            tbuf+=sprintf(tbuf, COLORCODE(c));
+            tbuf=ansicolor(tbuf, c);
             pos++;
         }
         else
@@ -318,7 +318,7 @@ static void draw_out(const char *pos)
     {
         if (getcolor(&pos, &c, 0))
         {
-            tbuf+=sprintf(tbuf, COLORCODE(c));
+            tbuf=ansicolor(tbuf, c);
             pos++;
             continue;
         }
@@ -424,7 +424,7 @@ static inline void print_char(const WC ch)
             o_color=(o_color&0xf0)|((o_color&7)?0:7);
         o_len+=setcolor(out_line+o_len, o_color);
         if (b_screenb==b_bottom)
-            tbuf+=sprintf(tbuf, COLORCODE(o_color));
+            tbuf=ansicolor(tbuf, o_color);
         o_oldcolor=o_color;
     };
     clen=wcrtomb(tbuf, ch, &outstate);
@@ -451,8 +451,8 @@ static void b_textout(const char *txt)
     wchar_t u[2];
 
     /* warning! terminal output can get discarded! */
-    tbuf+=sprintf(tbuf, "\0338");
-    tbuf+=sprintf(tbuf, COLORCODE(o_color));
+    *tbuf++=27, *tbuf++='8';
+    tbuf=ansicolor(tbuf, o_color);
     for (;*txt;txt++)
         switch (*txt)
         {
@@ -515,8 +515,9 @@ static void b_canceldraft(void)
             tbuf+=sprintf(tbuf, "\033[A\033[2K");
             assert(tbuf-term_buf < (ssize_t)sizeof(term_buf));
         };
-        tbuf+=sprintf(tbuf, "\r"COLORCODE(o_lastcolor));
-        tbuf+=sprintf(tbuf, "\0337");
+        *tbuf++='\r';
+        tbuf=ansicolor(tbuf, o_lastcolor);
+        *tbuf++=27, *tbuf++='7';
     }
     else
         b_current=b_last;
@@ -1680,10 +1681,10 @@ static bool fwrite_out(FILE *f, const char *pos)
             {
                 if (c==dump_color)
                     continue;
-                if ((c>>4)&7)
-                    s+=sprintf(s, COLORCODE(c));
+                if (c&~15)
+                    s=ansicolor(s, c);
                 else    /* a kludge to make a certain log archive happy */
-                    s+=sprintf(s, "\033[0%s;3%d%sm", ((c)&8)?";1":"", colors[(c)&7], attribs[(c)>>7]);
+                    s+=sprintf(s, "\033[0%s;3%dm", ((c)&8)?";1":"", colors[(c)&7]);
                 dump_color=c;
                 continue;
             };
