@@ -1684,7 +1684,7 @@ static bool fwrite_out(FILE *f, const char *pos)
                 if (c&~15)
                     s=ansicolor(s, c);
                 else    /* a kludge to make a certain log archive happy */
-                    s+=sprintf(s, "\033[0%s;3%dm", ((c)&8)?";1":"", colors[(c)&7]);
+                    s+=sprintf(s, "\033[0%s;3%dm", ((c)&8)?";1":"", rgbbgr[(c)&7]);
                 dump_color=c;
                 continue;
             };

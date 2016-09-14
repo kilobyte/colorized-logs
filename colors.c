@@ -6,7 +6,7 @@
 #include "protos/hooks.h"
 
 
-const int colors[8]={0,4,2,6,1,5,3,7};
+const int rgbbgr[8]={0,4,2,6,1,5,3,7};
 
 static enum {MUDC_OFF, MUDC_ON, MUDC_NULL, MUDC_NULL_WARN} mudcolors=MUDC_NULL_WARN;
 static char *MUDcolors[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
@@ -291,13 +291,13 @@ again:
                             break;
                         default:
                             if (tok[i]>=30 && tok[i]<38)
-                                ccolor=(ccolor&~0x07)|colors[tok[i]-30];
+                                ccolor=(ccolor&~0x07)|rgbbgr[tok[i]-30];
                             else if (tok[i]>=40 && tok[i]<48)
-                                ccolor=(ccolor&~0x70)|(colors[tok[i]-40]<<4);
+                                ccolor=(ccolor&~0x70)|(rgbbgr[tok[i]-40]<<4);
                             else if (tok[i]>=90 && tok[i]<98)
-                                ccolor=(ccolor&~0x07)|8|colors[tok[i]-90];
+                                ccolor=(ccolor&~0x07)|8|rgbbgr[tok[i]-90];
                             else if (tok[i]>=100 && tok[i]<108) /* not bright */
-                                ccolor=(ccolor&~0x70)|(colors[tok[i]-100]<<4);
+                                ccolor=(ccolor&~0x70)|(rgbbgr[tok[i]-100]<<4);
                             /* ignore unknown attributes */
                         }
                     out+=setcolor(out, ccolor);
@@ -478,9 +478,9 @@ char *ansicolor(char *s, int c)
     if (c&8)
         *s++=';', *s++='1';
     *s++=';', *s++='3';
-    *s++='0'+colors[c&7];
+    *s++='0'+rgbbgr[c&7];
     *s++=';', *s++='4';
-    *s++='0'+colors[(c>>4)&7];
+    *s++='0'+rgbbgr[(c>>4)&7];
     if (c>>=7)
     {
         if (c&1)
