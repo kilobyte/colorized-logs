@@ -383,7 +383,7 @@ struct ttyrec_header
                            (x))
 
 /* Chinese rod numerals are _not_ digits for our purposes. */
-#define isadigit(x) ((x)>='0' && (x)<='9')
+static inline bool isadigit(char x) { return x>='0' && x<='9'; }
 /* Solaris is buggy for high-bit chars in UTF-8. */
 #define isaspace(x) ((x)==' ' || (x)=='\t' || (x)=='\n' || (x)==12 || (x)=='\v')
 #define iswadigit(x) isadigit(x)
