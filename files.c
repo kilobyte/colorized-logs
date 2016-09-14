@@ -6,7 +6,6 @@
 /*                    New code by Bill Reiss 1993                    */
 /*********************************************************************/
 #include "tintin.h"
-#include "ui.h"
 #include "protos/action.h"
 #include "protos/globals.h"
 #include "protos/hash.h"
@@ -17,6 +16,7 @@
 #include "protos/parse.h"
 #include "protos/run.h"
 #include "protos/unicode.h"
+#include "protos/user.h"
 #include "protos/utils.h"
 #include "protos/variables.h"
 #include <pwd.h>

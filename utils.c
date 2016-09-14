@@ -5,7 +5,7 @@
 /*                     coded by peter unold 1992                     */
 /*********************************************************************/
 #include "tintin.h"
-#include "ui.h"
+#include "protos/user.h"
 
 void syserr(const char *msg, ...);
 

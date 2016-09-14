@@ -1,8 +1,8 @@
 #include "tintin.h"
-#include "ui.h"
 #include "protos/colors.h"
 #include "protos/globals.h"
 #include "protos/unicode.h"
+#include "protos/user.h"
 #include "protos/utils.h"
 
 

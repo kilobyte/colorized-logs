@@ -5,7 +5,6 @@
 /*                     coded by peter unold 1992                     */
 /*********************************************************************/
 #include "tintin.h"
-#include "unicode.h"
 #include "protos/action.h"
 #include "protos/alias.h"
 #include "protos/chinese.h"

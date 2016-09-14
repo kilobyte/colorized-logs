@@ -6,7 +6,7 @@
 #include "protos/print.h"
 #include "protos/misc.h"
 #include "protos/substitute.h"
-#include "ui.h"
+#include "protos/user.h"
 
 bool puts_echoing = true;
 

@@ -186,6 +186,7 @@ typedef enum {PRIORITY, ALPHA, LENGTH} llist_mode_t;
 #include <ctype.h>
 #include <wctype.h>
 #include "malloc.h"
+#include "unicode.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdarg.h>

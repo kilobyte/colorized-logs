@@ -17,9 +17,9 @@
 #include "protos/routes.h"
 #include "protos/run.h"
 #include "protos/unicode.h"
+#include "protos/user.h"
 #include "protos/utils.h"
 #include "protos/variables.h"
-#include "ui.h"
 #ifdef HAVE_GNUTLS
 #include "protos/ssl.h"
 #else

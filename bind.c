@@ -1,11 +1,11 @@
 #include "tintin.h"
-#include "ui.h"
 #include "protos/action.h"
 #include "protos/alias.h"
 #include "protos/globals.h"
 #include "protos/hash.h"
 #include "protos/print.h"
 #include "protos/parse.h"
+#include "protos/user.h"
 #include "protos/variables.h"
 
 static struct hashtable *keynames;

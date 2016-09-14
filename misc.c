@@ -5,7 +5,6 @@
 /*                     coded by peter unold 1992                     */
 /*********************************************************************/
 #include "tintin.h"
-#include "ui.h"
 #include "protos/colors.h"
 #include "protos/files.h"
 #include "protos/globals.h"
@@ -20,6 +19,7 @@
 #include "protos/session.h"
 #include "protos/substitute.h"
 #include "protos/unicode.h"
+#include "protos/user.h"
 #include "protos/utils.h"
 #include "protos/variables.h"
 

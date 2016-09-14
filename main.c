@@ -26,12 +26,12 @@
 #include "protos/substitute.h"
 #include "protos/ticks.h"
 #include "protos/unicode.h"
+#include "protos/user.h"
 #include "protos/utils.h"
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/resource.h>
-#include "ui.h"
 
 #ifndef BADSIG
 #define BADSIG (void (*)())-1
