@@ -1,11 +1,27 @@
 #include "tintin.h"
-#include "protos/crc.h"
 #include "protos/glob.h"
 #include "protos/llist.h"
 #include "protos/utils.h"
 
 #define DELETED_HASHENTRY ((char*)init_hash)
-#define crc(x) ((unsigned int)crc32s(x))
+
+// Jenkins hash
+static uint32_t hash(const char *key)
+{
+    uint32_t h = 0;
+
+    while (*key)
+    {
+        h += *key++;
+        h += h << 10;
+        h ^= h >> 6;
+    }
+    h += h << 3;
+    h ^= h >> 11;
+    h += h << 15;
+    return h;
+}
+
 
 /**********************************/
 /* initialize an empty hash table */
@@ -43,7 +59,7 @@ void kill_hash(struct hashtable* h)
 static inline void add_hash_value(struct hashtable *h, char *left, char *right)
 {
     int i;
-    i=crc(left)%h->size;
+    i=hash(left)%h->size;
     while (h->tab[i].left)
     {
         if (!i)
@@ -84,7 +100,7 @@ void set_hash(struct hashtable *h, const char *key, const char *value)
     if (h->nent*5 > h->size*4)
         rehash(h, h->nval*3);
     j=-1;
-    i=crc(key)%h->size;
+    i=hash(key)%h->size;
     while (h->tab[i].left)
     {
         if (h->tab[i].left==DELETED_HASHENTRY)
@@ -117,7 +133,7 @@ void set_hash_nostring(struct hashtable *h, const char *key, char *value)
     if (h->nent*5 > h->size*4)
         rehash(h, h->nval*3);
     j=-1;
-    i=crc(key)%h->size;
+    i=hash(key)%h->size;
     while (h->tab[i].left)
     {
         if (h->tab[i].left==DELETED_HASHENTRY)
@@ -149,7 +165,7 @@ char* get_hash(struct hashtable *h, const char *key)
 {
     int i;
 
-    i=crc(key)%h->size;
+    i=hash(key)%h->size;
     while (h->tab[i].left)
     {
         if (h->tab[i].left!=DELETED_HASHENTRY&&(!strcmp(h->tab[i].left, key)))
@@ -171,7 +187,7 @@ bool delete_hash(struct hashtable *h, const char *key)
 {
     int i;
 
-    i=crc(key)%h->size;
+    i=hash(key)%h->size;
     while (h->tab[i].left)
     {
         if (h->tab[i].left!=DELETED_HASHENTRY&&(!strcmp(h->tab[i].left, key)))
