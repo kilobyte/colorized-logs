@@ -37,9 +37,7 @@ static void show_session(struct session *ses);
 
 static bool session_exists(char *name)
 {
-    struct session *sesptr;
-
-    for (sesptr = sessionlist; sesptr; sesptr = sesptr->next)
+    for (struct session *sesptr = sessionlist; sesptr; sesptr = sesptr->next)
         if (!strcmp(sesptr->name, name))
             return true;
     return false;
@@ -438,14 +436,13 @@ void cleanup_session(struct session *ses)
 
 void seslist(char *result)
 {
-    struct session *sesptr;
     bool flag=false;
     char *r0=result;
 
     if (sessionlist==nullsession && !nullsession->next)
         return;
 
-    for (sesptr = sessionlist; sesptr; sesptr = sesptr->next)
+    for (struct session *sesptr = sessionlist; sesptr; sesptr = sesptr->next)
         if (sesptr!=nullsession)
         {
             if (flag)

@@ -10,7 +10,7 @@ void ctoi(char* input)
     char result[BUFFER_SIZE];
     int lastunit, lastdigit=0;
     char* tmp;
-    int i, j = 0;
+    int j = 0;
     tmp = input;
     while (*tmp&&*(tmp+1))
     {
@@ -32,7 +32,8 @@ void ctoi(char* input)
     result[j]=0; /*just sth != 10, chitchat*/
     int num = j;
     lastunit = 0;
-    for (i=0, j=0;i<num;i++)
+    j=0;
+    for (int i=0;i<num;i++)
     {
         if (result[i]==0)
         {

@@ -387,13 +387,12 @@ error:
 
 void do_out_MUD_colors(char *line)
 {
-    char buf[BUFFER_SIZE];
-    char *txt=buf, *pos=line;
+    char buf[BUFFER_SIZE], *txt=buf;
     int c=7;
 
     if (!mudcolors)
         return;
-    for (;*pos;pos++)
+    for (char *pos=line;*pos;pos++)
     {
         if (*pos=='~')
             if (getcolor((const char**)&pos, &c, 0))

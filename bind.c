@@ -178,21 +178,19 @@ bool find_bind(const char *key, int msg, struct session *ses)
 
 void init_bind(void)
 {
-    const char**n;
     keynames=init_hash();
     if (!ui_keyboard)
         return;
-    for (n=KEYNAMES;**n;n+=2)
+    for (const char**n=KEYNAMES;**n;n+=2)
         set_hash(keynames, n[0], n[1]);
 }
 
 void bind_xterm(bool xterm)
 {
-    const char**n;
     if (xterm)
-        for (n=XTERM_KEYNAMES;**n;n+=2)
+        for (const char**n=XTERM_KEYNAMES;**n;n+=2)
             set_hash(keynames, n[0], n[1]);
     else
-        for (n=NORMAL_KEYNAMES;**n;n+=2)
+        for (const char**n=NORMAL_KEYNAMES;**n;n+=2)
             set_hash(keynames, n[0], n[1]);
 }

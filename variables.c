@@ -799,7 +799,7 @@ void sortlist_command(const char *arg, struct session *ses)
 void tolower_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
-    WC *p, txt[BUFFER_SIZE];
+    WC txt[BUFFER_SIZE];
 
     arg = get_arg(arg, left, 0, ses);
     arg = get_arg(arg, right, 1, ses);
@@ -807,7 +807,7 @@ void tolower_command(const char *arg, struct session *ses)
         return tintin_eprintf(ses, "#Syntax: #tolower <var> <text>");
 
     TO_WC(txt, right);
-    for (p = txt; *p; p++)
+    for (WC *p = txt; *p; p++)
         *p = towlower(*p);
     WRAP_WC(right, txt);
     set_variable(left, right, ses);
@@ -819,7 +819,7 @@ void tolower_command(const char *arg, struct session *ses)
 void toupper_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
-    WC *p, txt[BUFFER_SIZE];
+    WC txt[BUFFER_SIZE];
 
     arg = get_arg(arg, left, 0, ses);
     arg = get_arg(arg, right, 1, ses);
@@ -827,7 +827,7 @@ void toupper_command(const char *arg, struct session *ses)
         return tintin_eprintf(ses, "#Syntax: #toupper <var> <text>");
 
     TO_WC(txt, right);
-    for (p = txt; *p; p++)
+    for (WC *p = txt; *p; p++)
         *p = towupper(*p);
     WRAP_WC(right, txt);
     set_variable(left, right, ses);
@@ -839,7 +839,7 @@ void toupper_command(const char *arg, struct session *ses)
 void firstupper_command(const char *arg, struct session *ses)
 {
     char left[BUFFER_SIZE], right[BUFFER_SIZE];
-    WC *p, txt[BUFFER_SIZE];
+    WC txt[BUFFER_SIZE];
 
     arg = get_arg(arg, left, 0, ses);
     arg = get_arg(arg, right, 1, ses);
@@ -847,7 +847,7 @@ void firstupper_command(const char *arg, struct session *ses)
         return tintin_eprintf(ses, "#Syntax: #firstupper <var> <text>");
 
     TO_WC(txt, right);
-    for (p = txt; *p; p++)
+    for (WC *p = txt; *p; p++)
         *p = towlower(*p);
     *txt=towupper(*txt);
     WRAP_WC(right, txt);

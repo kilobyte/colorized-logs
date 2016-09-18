@@ -32,7 +32,7 @@ void show_hashlist(struct session *ses, struct hashtable *h, const char *pat, co
 
 void delete_hashlist(struct session *ses, struct hashtable *h, const char *pat, const char *msg_ok, const char *msg_none)
 {
-    struct listnode *templist, *ln;
+    struct listnode *templist;
 
     if (is_literal(pat))
     {
@@ -49,7 +49,7 @@ void delete_hashlist(struct session *ses, struct hashtable *h, const char *pat, 
         return;
     }
     templist=hash2list(h, pat);
-    for (ln=templist->next; ln; ln=ln->next)
+    for (struct listnode *ln=templist->next; ln; ln=ln->next)
     {
         if (msg_ok)
             tintin_printf(ses, msg_ok, ln->left);

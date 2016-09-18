@@ -124,7 +124,7 @@ close_master:
 
 ok:
 #else
-    char *p, *q, *l, *d;
+    char *p, *q;
     char PtyName[32], TtyName[32];
 
     strcpy(PtyName, PtyProto);
@@ -133,9 +133,9 @@ ok:
         ;
     for (q = TtyName; *q != 'X'; q++)
         ;
-    for (l = PTYRANGE0; (*p = *l) != '\0'; l++)
+    for (char *l = PTYRANGE0; (*p = *l) != '\0'; l++)
     {
-        for (d = PTYRANGE1; (p[1] = *d) != '\0'; d++)
+        for (char *d = PTYRANGE1; (p[1] = *d) != '\0'; d++)
         {
 /*          tintin_printf(0, "OpenPTY tries '%s'", PtyName);*/
             if ((master = open(PtyName, O_RDWR | O_NOCTTY)) == -1)

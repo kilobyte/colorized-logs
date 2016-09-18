@@ -69,7 +69,7 @@ static const char* afstr(int af)
 int connect_mud(const char *host, const char *port, struct session *ses)
 {
     int err, val;
-    struct addrinfo *ai, hints, *addr;
+    struct addrinfo *ai, hints;
     int sock;
 
     memset(&hints, 0, sizeof(hints));
@@ -90,7 +90,7 @@ int connect_mud(const char *host, const char *port, struct session *ses)
     if (signal(SIGALRM, alarm_func) == BADSIG)
         syserr("signal SIGALRM");
 
-    for (addr=ai; addr; addr=addr->ai_next)
+    for (struct addrinfo *addr=ai; addr; addr=addr->ai_next)
     {
         tintin_printf(ses, "#Trying to connect... (%s) (charset=%s)",
             afstr(addr->ai_family), ses->charset);

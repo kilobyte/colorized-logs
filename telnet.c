@@ -168,9 +168,7 @@ static void telnet_send_ttype(struct session *ses)
 
 void telnet_resize_all(void)
 {
-    struct session *sp;
-
-    for (sp=sessionlist; sp; sp=sp->next)
+    for (struct session *sp=sessionlist; sp; sp=sp->next)
         if (sp->naws)
         {
             if (sp->issocket)

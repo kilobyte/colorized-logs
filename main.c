@@ -362,7 +362,6 @@ static void parse_options(int argc, char **argv)
 
 static void apply_options()
 {
-    struct listnode *opt;
     char temp[BUFFER_SIZE], sname[BUFFER_SIZE];
     char ustr[BUFFER_SIZE];
     const char *home;
@@ -370,7 +369,7 @@ static void apply_options()
 # define DO_INPUT(str,iv) local_to_utf8(ustr, str, BUFFER_SIZE, 0);\
                           activesession=parse_input(str, iv, activesession);
 
-    for (opt=options->next; opt; opt=opt->next)
+    for (struct listnode *opt=options->next; opt; opt=opt->next)
     {
         switch (*opt->left)
         {
@@ -509,13 +508,12 @@ ever wants to read -- that is what docs are for.
 /******************************************************/
 static int check_events(void)
 {
-    struct session *sp;
     int tick_time = 0, curr_time, tt;
 
     curr_time = time(NULL);
 restart:
     any_closed=false;
-    for (sp = sessionlist; sp; sp = sp->next)
+    for (struct session *sp = sessionlist; sp; sp = sp->next)
     {
         tt = check_event(curr_time, sp);
         if (any_closed)
@@ -536,7 +534,6 @@ restart:
 static void tintin(void)
 {
     int i, result, maxfd;
-    struct session *sesptr;
     struct timeval tv;
     fd_set readfdmask;
 #ifdef XTERM_TITLE
@@ -571,15 +568,15 @@ static void tintin(void)
             FD_SET(0, &readfdmask);
         else if (activesession==nullsession)
             end_command(0, activesession);
-        for (sesptr = sessionlist; sesptr; sesptr = sesptr->next)
+        for (struct session *ses = sessionlist; ses; ses = ses->next)
         {
-            if (sesptr==nullsession)
+            if (ses==nullsession)
                 continue;
-            if (sesptr->nagle)
-                flush_socket(sesptr);
-            FD_SET(sesptr->socket, &readfdmask);
-            if (sesptr->socket>maxfd)
-                maxfd=sesptr->socket;
+            if (ses->nagle)
+                flush_socket(ses);
+            FD_SET(ses->socket, &readfdmask);
+            if (ses->socket>maxfd)
+                maxfd=ses->socket;
         }
         result = select(maxfd+1, &readfdmask, 0, 0, &tv);
 
@@ -661,15 +658,15 @@ static void tintin(void)
             PROFEND(kbd_lag, kbd_cnt);
             PROFPOP;
         }
-        for (sesptr = sessionlist; sesptr; sesptr = sesptr->next)
+        for (struct session *ses = sessionlist; ses; ses = ses->next)
         {
-            if (sesptr->socket && FD_ISSET(sesptr->socket, &readfdmask))
+            if (ses->socket && FD_ISSET(ses->socket, &readfdmask))
             {
                 aborting=false;
                 any_closed=false;
                 do
                 {
-                    read_mud(sesptr);
+                    read_mud(ses);
                     if (any_closed)
                     {
                         any_closed=false;
@@ -677,7 +674,7 @@ static void tintin(void)
                         /* The remaining sessions will be done after select() */
                     }
 #ifdef HAVE_ZLIB
-                } while (sesptr->mccp_more);
+                } while (ses->mccp_more);
 #else
                 } while (0);
 #endif
@@ -956,18 +953,18 @@ static void echo_input(const char *txt)
 /**********************************************************/
 static void myquitsig(int sig)
 {
-    struct session *sesptr, *t;
+    struct session *t;
     int err=errno;
 
-    for (sesptr = sessionlist; sesptr; sesptr = t)
+    for (struct session *ses = sessionlist; ses; ses = t)
     {
-        t = sesptr->next;
-        if (sesptr!=nullsession && !sesptr->closing)
+        t = ses->next;
+        if (ses!=nullsession && !ses->closing)
         {
-            sesptr->closing=1;
-            do_hook(sesptr, HOOK_ZAP, 0, true);
-            sesptr->closing=0;
-            cleanup_session(sesptr);
+            ses->closing=1;
+            do_hook(ses, HOOK_ZAP, 0, true);
+            ses->closing=0;
+            cleanup_session(ses);
         }
     }
     activesession = nullsession;

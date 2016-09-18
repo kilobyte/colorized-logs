@@ -174,14 +174,13 @@ struct session* parse_input(const char *input, bool override_verbatim, struct se
             ses = parse_tintin_command(command + 1, arg, ses);
         else if ((al = get_hash(ses->aliases, command)))
         {
-            const char *cpsource;
+            const char *cpsource=arg;
             pvars_t vars, *lastpvars;
-            int i;
 
             strcpy(vars[0], arg);
 
             PROF("expanding aliases");
-            for (i = 1, cpsource = arg; i < 10; i++)
+            for (int i = 1; i < 10; i++)
                 cpsource=get_arg_in_braces(cpsource, vars[i], 0);
             in_alias=true;
             lastpvars=pvars;
@@ -301,7 +300,6 @@ static bool do_goto(const char *txt, struct session *ses)
 /*************************************/
 static struct session* parse_tintin_command(const char *command, const char *arg, struct session *ses)
 {
-    struct session *sesptr;
     const char *func, *a;
     char *b, cmd[BUFFER_SIZE], right[BUFFER_SIZE];
 #ifdef PROFILING
@@ -309,7 +307,7 @@ static struct session* parse_tintin_command(const char *command, const char *arg
     PROF("executing commands");
 #endif
 
-    for (sesptr = sessionlist; sesptr; sesptr = sesptr->next)
+    for (struct session *sesptr = sessionlist; sesptr; sesptr = sesptr->next)
         if (strcmp(sesptr->name, command) == 0)
         {
             if (*arg)

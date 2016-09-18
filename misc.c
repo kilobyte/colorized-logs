@@ -128,7 +128,7 @@ void send_command(const char *arg, struct session *ses)
 /****************************/
 void sendchar_command(const char *arg, struct session *ses)
 {
-    char chdesc[BUFFER_SIZE], outbuf[BUFFER_SIZE], *chp, *ep, *outp=outbuf;
+    char chdesc[BUFFER_SIZE], outbuf[BUFFER_SIZE], *ep, *outp=outbuf;
     long int ch;
     if (ses==nullsession)
     {
@@ -145,7 +145,7 @@ void sendchar_command(const char *arg, struct session *ses)
         arg=get_arg(arg, chdesc, 0, ses);
         if (!*arg && !*chdesc)
             break;
-        for (chp=chdesc; *chp; chp++)
+        for (char *chp=chdesc; *chp; chp++)
         {
             switch (*chp)
             {
@@ -229,13 +229,11 @@ void sendchar_command(const char *arg, struct session *ses)
 /********************/
 struct session* all_command(const char *arg, struct session *ses)
 {
-    struct session *sesptr;
-
     if ((sessionlist!=nullsession)||(nullsession->next))
     {
         char what[BUFFER_SIZE];
         get_arg(arg, what, 1, ses);
-        for (sesptr = sessionlist; sesptr; sesptr = sesptr->next)
+        for (struct session *sesptr = sessionlist; sesptr; sesptr = sesptr->next)
             if (sesptr!=nullsession)
                 parse_input(what, true, sesptr);
     }
@@ -321,9 +319,8 @@ void retain_command(const char *arg, struct session *ses)
 void end_command(const char *arg, struct session *ses)
 {
     struct session *sp;
-    struct session *sesptr;
 
-    for (sesptr = sessionlist; sesptr; sesptr = sp)
+    for (struct session *sesptr = sessionlist; sesptr; sesptr = sp)
     {
         sp = sesptr->next;
         if (sesptr!=nullsession && !sesptr->closing)
@@ -811,10 +808,9 @@ void tablist(struct completenode *tcomplete)
 {
     int count, done;
     char tbuf[BUFFER_SIZE];
-    struct completenode *tmp;
 
     done = 0;
-    if (tcomplete == NULL)
+    if (!tcomplete)
     {
         tintin_eprintf(0, "Sorry.. But you have no words in your tab completion file");
         return;
@@ -828,7 +824,7 @@ void tablist(struct completenode *tcomplete)
        if columns, just increase the mod #.  Also.. decrease the # in the %s's
      */
 
-    for (tmp = tcomplete->next; tmp != NULL; tmp = tmp->next)
+    for (struct completenode *tmp = tcomplete->next; tmp; tmp = tmp->next)
     {
         if ((count % 3))
         {
@@ -1108,7 +1104,6 @@ void dohighlights_command(const char *arg, struct session *ses)
 /***************************/
 void decolorize_command(const char *arg, struct session *ses)
 {
-    const char *a;
     char left[BUFFER_SIZE], right[BUFFER_SIZE], *b;
     int c;
 
@@ -1119,7 +1114,7 @@ void decolorize_command(const char *arg, struct session *ses)
     else
     {
         b=right;
-        for (a=right;*a;a++)
+        for (const char *a=right;*a;a++)
             if (*a=='~')
             {
                 if (!getcolor(&a, &c, 1))
@@ -1355,7 +1350,7 @@ void chr_command(const char *arg, struct session *ses)
 void ord_command(const char *arg, struct session *ses)
 {
     char destvar[BUFFER_SIZE], left[BUFFER_SIZE], res[BUFFER_SIZE], *r;
-    WC right[BUFFER_SIZE], *cptr;
+    WC right[BUFFER_SIZE];
 
     arg=get_arg(arg, destvar, 0, ses);
     if (!*destvar)
@@ -1366,7 +1361,7 @@ void ord_command(const char *arg, struct session *ses)
     r=res;
     get_arg(arg, left, 1, ses);
     utf8_to_wc(right, left, BUFFER_SIZE-1);
-    for (cptr=right; *cptr; cptr++)
+    for (WC *cptr=right; *cptr; cptr++)
     {
         if (r-res<BUFFER_SIZE-9)
             r+=sprintf(r, " %u", (unsigned int)*cptr);
@@ -1393,7 +1388,7 @@ end:
 void hexord_command(const char *arg, struct session *ses)
 {
     char destvar[BUFFER_SIZE], left[BUFFER_SIZE], res[BUFFER_SIZE], *r;
-    WC right[BUFFER_SIZE], *cptr;
+    WC right[BUFFER_SIZE];
 
     arg=get_arg(arg, destvar, 0, ses);
     if (!*destvar)
@@ -1404,7 +1399,7 @@ void hexord_command(const char *arg, struct session *ses)
     r=res;
     get_arg(arg, left, 1, ses);
     utf8_to_wc(right, left, BUFFER_SIZE-1);
-    for (cptr=right; *cptr; cptr++)
+    for (WC *cptr=right; *cptr; cptr++)
     {
         if (r-res<BUFFER_SIZE-9)
             r+=sprintf(r, " U+%04X", (unsigned int)*cptr);

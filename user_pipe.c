@@ -20,10 +20,9 @@ static void userpipe_init(void)
 
 static void userpipe_textout(const char *txt)
 {
-    const char *a;
-    char buf[BUFFER_SIZE], *b;
+    char buf[BUFFER_SIZE], *b=buf;
 
-    for (a=txt,b=buf; *a; )
+    for (const char *a=txt; *a; )
         switch (*a)
         {
         case '~':
