@@ -58,8 +58,7 @@ void kill_hash(struct hashtable* h)
 
 static inline void add_hash_value(struct hashtable *h, char *left, char *right)
 {
-    int i;
-    i=hash(left)%h->size;
+    int i=hash(left)%h->size;
     while (h->tab[i].left)
     {
         if (!i)
@@ -73,11 +72,8 @@ static inline void add_hash_value(struct hashtable *h, char *left, char *right)
 
 static inline void rehash(struct hashtable *h, int s)
 {
-    int gs;
-    struct hashentry *gt;
-
-    gt=h->tab;
-    gs=h->size;
+    struct hashentry *gt=h->tab;
+    int gs=h->size;
     h->tab=CALLOC(s, struct hashentry);
     h->nent=h->nval;
     h->size=s;
@@ -95,12 +91,10 @@ static inline void rehash(struct hashtable *h, int s)
 /********************************************************************/
 void set_hash(struct hashtable *h, const char *key, const char *value)
 {
-    int i, j;
-
     if (h->nent*5 > h->size*4)
         rehash(h, h->nval*3);
-    j=-1;
-    i=hash(key)%h->size;
+    int j=-1;
+    int i=hash(key)%h->size;
     while (h->tab[i].left)
     {
         if (h->tab[i].left==DELETED_HASHENTRY)
@@ -128,12 +122,10 @@ void set_hash(struct hashtable *h, const char *key, const char *value)
 
 void set_hash_nostring(struct hashtable *h, const char *key, char *value)
 {
-    int i, j;
-
     if (h->nent*5 > h->size*4)
         rehash(h, h->nval*3);
-    j=-1;
-    i=hash(key)%h->size;
+    int j=-1;
+    int i=hash(key)%h->size;
     while (h->tab[i].left)
     {
         if (h->tab[i].left==DELETED_HASHENTRY)
@@ -163,9 +155,7 @@ void set_hash_nostring(struct hashtable *h, const char *key, char *value)
 /****************************************************/
 char* get_hash(struct hashtable *h, const char *key)
 {
-    int i;
-
-    i=hash(key)%h->size;
+    int i=hash(key)%h->size;
     while (h->tab[i].left)
     {
         if (h->tab[i].left!=DELETED_HASHENTRY&&(!strcmp(h->tab[i].left, key)))
@@ -185,9 +175,7 @@ char* get_hash(struct hashtable *h, const char *key)
 /****************************************************/
 bool delete_hash(struct hashtable *h, const char *key)
 {
-    int i;
-
-    i=hash(key)%h->size;
+    int i=hash(key)%h->size;
     while (h->tab[i].left)
     {
         if (h->tab[i].left!=DELETED_HASHENTRY&&(!strcmp(h->tab[i].left, key)))
