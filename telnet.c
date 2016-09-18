@@ -217,7 +217,7 @@ int do_telnet_protocol(const char *data, int nb, struct session *ses)
             case DO:    answer[1]=WONT; break;
             case WONT:  answer[1]=DONT; ses->server_echo=2; break;
             case DONT:  answer[1]=WONT; break;
-            };
+            }
             break;
         case TERMINAL_TYPE:
             switch (wt)
@@ -226,7 +226,7 @@ int do_telnet_protocol(const char *data, int nb, struct session *ses)
             case DO:    answer[1]=WILL; break;
             case WONT:  answer[1]=DONT; break;
             case DONT:  answer[1]=WONT; break;
-            };
+            }
             break;
         case NAWS:
             switch (wt)
@@ -235,7 +235,7 @@ int do_telnet_protocol(const char *data, int nb, struct session *ses)
             case DO:    answer[1]=WILL; ses->naws=(LINES>1 && COLS>0); break;
             case WONT:  answer[1]=DONT; ses->naws=false; break;
             case DONT:  answer[1]=WONT; ses->naws=false; break;
-            };
+            }
             break;
         case END_OF_RECORD:
             switch (wt)
@@ -244,7 +244,7 @@ int do_telnet_protocol(const char *data, int nb, struct session *ses)
             case DO:    answer[1]=WONT; break;
             case WONT:  answer[1]=DONT; break;
             case DONT:  answer[1]=WONT; break;
-            };
+            }
             break;
 #ifdef HAVE_ZLIB
         case COMPRESS2:
@@ -254,7 +254,7 @@ int do_telnet_protocol(const char *data, int nb, struct session *ses)
             case DO:    answer[1]=WONT; break;
             case WONT:  answer[1]=DONT; ses->can_mccp=false; break;
             case DONT:  answer[1]=WONT; break;
-            };
+            }
             break;
 #endif
         default:
@@ -264,7 +264,7 @@ int do_telnet_protocol(const char *data, int nb, struct session *ses)
             case DO:    answer[1]=WONT; break;
             case WONT:  answer[1]=DONT; break;
             case DONT:  answer[1]=WONT; break;
-            };
+            }
         }
         write_socket(ses, (char*)answer, 3);
 #ifdef TELNET_DEBUG

@@ -78,7 +78,7 @@ void kill_routes(struct session *ses)
             SFREE(p->path);
             SFREE(p->cond);
             TFREE(p, struct routenode);
-        };
+        }
         ses->routes[i]=0;
     }
 }
@@ -106,7 +106,7 @@ static void kill_unused_locations(struct session *ses)
             us[i]=true;
             for (;r;r=r->next)
                 us[r->dest]=true;
-        };
+        }
     for (int i=0;i<MAX_LOCATIONS;i++)
         if (ses->locations[i]&&!us[i])
         {
@@ -152,7 +152,7 @@ void route_command(const char *arg, struct session *ses)
             for (struct routenode *r=ses->routes[i];r;r=r->next)
                 show_route(ses, i, r);
         return;
-    };
+    }
     if (!*way)
     {
         bool first=true;
@@ -168,13 +168,13 @@ void route_command(const char *arg, struct session *ses)
                         {
                             tintin_printf(ses, "#THESE ROUTES HAVE BEEN DEFINED:");
                             first=false;
-                        };
+                        }
                         show_route(ses, i, r);
-                    };
+                    }
         if (first)
             tintin_printf(ses, "#THAT ROUTE (%s) IS NOT DEFINED.", b);
         return;
-    };
+    }
     int i;
     for (i=0;i<MAX_LOCATIONS;i++)
         if (ses->locations[i]&&!strcmp(ses->locations[i], a))
@@ -186,10 +186,10 @@ void route_command(const char *arg, struct session *ses)
             {
                 ses->locations[i]=mystrdup(a);
                 goto found_i;
-            };
+            }
         tintin_eprintf(ses, "#TOO MANY LOCATIONS!");
         return;
-    };
+    }
 found_i:
     for (j=0;j<MAX_LOCATIONS;j++)
         if (ses->locations[j]&&!strcmp(ses->locations[j], b))
@@ -201,11 +201,11 @@ found_i:
             {
                 ses->locations[j]=mystrdup(b);
                 goto found_j;
-            };
+            }
         tintin_eprintf(ses, "#TOO MANY LOCATIONS!");
         kill_unused_locations(ses);
         return;
-    };
+    }
 found_j:
     if (*dist)
     {
@@ -216,7 +216,7 @@ found_j:
             tintin_eprintf(ses, "#Hey! Route length has to be a number! Got {%s}.", arg);
             kill_unused_locations(ses);
             return;
-        };
+        }
         if ((d<0)&&(ses->mesvar[6]||ses->mesvar[11]))
             tintin_eprintf(ses, "#Error: distance cannot be negative!");
     }
@@ -238,7 +238,7 @@ found_j:
                 ses->locations[j],
                 way,
                 d);
-    };
+    }
     routnum++;
 }
 
@@ -257,7 +257,7 @@ void unroute_command(const char *arg, struct session *ses)
     {
         tintin_eprintf(ses, "#SYNTAX: #unroute <from> <to>");
         return;
-    };
+    }
 
     for (int i=0;i<MAX_LOCATIONS;i++)
         if (ses->locations[i]&&match(a, ses->locations[i]))
@@ -271,7 +271,7 @@ void unroute_command(const char *arg, struct session *ses)
                         tintin_printf(ses, "#Ok. There is no longer a route from {%s~-1~} to {%s~-1~}.",
                             ses->locations[i],
                             ses->locations[p->dest]);
-                    };
+                    }
                     found=true;
                     *r=(*r)->next;
                     SFREE(p->path);
@@ -280,7 +280,7 @@ void unroute_command(const char *arg, struct session *ses)
                 }
                 else
                     r=&((*r)->next);
-            };
+            }
     if (found)
         kill_unused_locations(ses);
     else if (ses->mesvar[6])
@@ -306,7 +306,7 @@ void goto_command(const char *arg, struct session *ses)
     {
         tintin_eprintf(ses, "#SYNTAX: #goto <from> <to>");
         return;
-    };
+    }
 
     for (a=0;a<MAX_LOCATIONS;a++)
         if (ses->locations[a]&&!strcmp(ses->locations[a], A))
@@ -315,7 +315,7 @@ void goto_command(const char *arg, struct session *ses)
     {
         tintin_eprintf(ses, "#Location not found: [%s]", A);
         return;
-    };
+    }
     for (b=0;b<MAX_LOCATIONS;b++)
         if (ses->locations[b]&&!strcmp(ses->locations[b], B))
             break;
@@ -323,12 +323,12 @@ void goto_command(const char *arg, struct session *ses)
     {
         tintin_eprintf(ses, "#Location not found: [%s]", B);
         return;
-    };
+    }
     for (i=0;i<MAX_LOCATIONS;i++)
     {
         d[i]=INF;
         ok[i]=0;
-    };
+    }
     d[a]=0;
     do
     {
@@ -340,7 +340,7 @@ void goto_command(const char *arg, struct session *ses)
         {
             tintin_eprintf(ses, "#No route from %s to %s!", A, B);
             return;
-        };
+        }
         ok[i]=1;
         for (struct routenode *r=ses->routes[i];r;r=r->next)
             if (d[r->dest]>s+r->distance)
@@ -355,7 +355,7 @@ void goto_command(const char *arg, struct session *ses)
                     d[r->dest]=s+r->distance;
                     way[r->dest]=i;
                 }
-            };
+            }
     } while (!ok[b]);
     j=0;
     for (i=b;i!=a;i=way[i])
@@ -381,7 +381,7 @@ void goto_command(const char *arg, struct session *ses)
             tintin_printf(ses, "#going from %s to %s",
                 locs[i],
                 locs[i-1]);
-        };
+        }
         parse_input(path[i], true, ses);
     }
     for (i=j;i>=0;i--)
@@ -413,7 +413,7 @@ void dogoto_command(const char *arg, struct session *ses)
     {
         tintin_eprintf(ses, "#SYNTAX: #dogoto <from> <to> [<distvar> [<locvar> [<pathvar>]]] [#else ...]");
         return;
-    };
+    }
     bool flag=*distvar||*locvar||*pathvar;
 
     for (a=0;a<MAX_LOCATIONS;a++)
@@ -430,7 +430,7 @@ void dogoto_command(const char *arg, struct session *ses)
     {
         d[i]=INF;
         ok[i]=0;
-    };
+    }
     d[a]=0;
     do
     {
@@ -454,7 +454,7 @@ void dogoto_command(const char *arg, struct session *ses)
                     d[r->dest]=s+r->distance;
                     way[r->dest]=i;
                 }
-            };
+            }
     } while (!ok[b]);
     sprintf(tmp, "%d", d[b]);
     if (*distvar)

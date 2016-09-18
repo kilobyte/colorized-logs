@@ -777,7 +777,7 @@ void sortlist_command(const char *arg, struct session *ses)
     {
         arg = get_arg_in_braces(arg, temp, 0);
         tab[n++]=mystrdup(temp);
-    };
+    }
     qsort(tab, n, sizeof(char*), compar);
     list=temp;
     for (int i=0;i<n;i++)
@@ -1302,7 +1302,7 @@ bad:
             break;
         default:
             goto bad;
-        };
+        }
         if (*tt==',')
             tt++;
         while (*tt==' ')

@@ -438,7 +438,7 @@ void margins_command(const char *arg, struct session *ses)
                     tintin_eprintf(ses, "#Left margin too big (%d)!", l);
                     return;
                 }
-            };
+            }
             arg=get_arg(arg, num, 1, ses);
             if (*num)
             {
@@ -454,7 +454,7 @@ void margins_command(const char *arg, struct session *ses)
                     return;
                 }
             }
-        };
+        }
         marginl=l;
         marginr=r;
         margins=true;
@@ -521,23 +521,23 @@ void loop_command(const char *arg, struct session *ses)
 }
 
 static const char *msNAME[]=
-    {
-        "aliases",
-        "actions",
-        "substitutes",
-        "events",
-        "highlights",
-        "variables",
-        "routes",
-        "gotos",
-        "binds",
-        "#system",
-        "paths",
-        "errors",
-        "hooks",
-        "logging",
-        "all"
-    };
+{
+    "aliases",
+    "actions",
+    "substitutes",
+    "events",
+    "highlights",
+    "variables",
+    "routes",
+    "gotos",
+    "binds",
+    "#system",
+    "paths",
+    "errors",
+    "hooks",
+    "logging",
+    "all"
+};
 
 /*************************/
 /* the #messages command */
@@ -557,7 +557,7 @@ void messages_command(const char *arg, struct session *ses)
             tintin_printf(ses, "#Messages concerning %s are %s",
                     msNAME[mestype], offon[ses->mesvar[mestype]]);
         return;
-    };
+    }
     int mestype = 0;
     while ((mestype<MAX_MESVAR+1)&&(!is_abrev(type, msNAME[mestype])))
         mestype++;
@@ -579,7 +579,7 @@ void messages_command(const char *arg, struct session *ses)
             return;
         default:
             ses->mesvar[mestype]=!ses->mesvar[mestype];
-        };
+        }
         tintin_printf(ses, "#Ok. messages concerning %s are now %s",
                 msNAME[mestype], offon[ses->mesvar[mestype]]);
     }
@@ -590,14 +590,14 @@ void messages_command(const char *arg, struct session *ses)
         {
             tintin_eprintf(ses, "#messages: Hey! What should I do with all messages? Specify a boolean, not {%s}.", onoff);
             return;
-        };
+        }
         if (b==-2)
         {
             b=1;
             for (int mestype=0;mestype<MAX_MESVAR;mestype++)
                 if (ses->mesvar[mestype])   /* at least one type is ON? */
                     b=0;                    /* disable them all */
-        };
+        }
         for (int mestype=0;mestype<MAX_MESVAR;mestype++)
             ses->mesvar[mestype]=b;
         if (b)
@@ -689,7 +689,7 @@ void system_command(const char *arg, struct session *ses)
         {
             tintin_puts1("#ERROR EXECUTING SHELL COMMAND.", ses);
             return;
-        };
+        }
         memset(&cs, 0, sizeof(cs));
 
         save_lastintitle=ses->lastintitle;

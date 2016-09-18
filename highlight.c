@@ -68,7 +68,7 @@ static int get_high_num(const char *hig)
         sl=tmp;
         if (getcolor(&sl, &highcolor, 0))
             return highcolor;
-    };
+    }
     for (int code=0;cNames[code].num!=-1;code++)
         if (is_abrev(hig, cNames[code].name))
             return highcolor=cNames[code].num;
@@ -173,7 +173,7 @@ void highlight_command(const char *arg, struct session *ses)
                     tmp3[0]=0;
                     tmp1=tmp3;
                 }
-            };
+            }
             strcpy(tmp1, "or 0..15:0..7:0..1");
             tintin_printf(ses, "%s", tmp3);
         }
@@ -229,7 +229,7 @@ void do_all_high(char *line, struct session *ses)
         {
             c=d;
             goto color;
-        };
+        }
         *txt++=*pos;
         *atr++=c;
         continue;
@@ -256,7 +256,7 @@ color:
                     attr[i]=highpattern[(++c)%nhighpattern];
             txt=text+r+1;
         }
-    };
+    }
     c=-1;
     pos=line;
     txt=text;
@@ -273,7 +273,7 @@ color:
                 txt++, atr++;
             break;
         }
-    };
+    }
     if (c!=*atr)
         pos+=setcolor(pos, c=*atr);
     *pos=0;

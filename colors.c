@@ -23,7 +23,7 @@ int getcolor(const char *restrict*restrict ptr, int *restrict color, bool allow_
         *color=-1;
         *ptr+=3;
         return 1;
-    };
+    }
     if (isadigit(*txt))
     {
         char *err;
@@ -41,7 +41,7 @@ int getcolor(const char *restrict*restrict ptr, int *restrict color, bool allow_
         *color=fg;
         *ptr=txt;
         return 1;
-    };
+    }
     if (*txt!=':')
         return 0;
     if (isadigit(*++txt))
@@ -59,7 +59,7 @@ int getcolor(const char *restrict*restrict ptr, int *restrict color, bool allow_
         *color=bg<<4|fg;
         *ptr=txt;
         return 1;
-    };
+    }
     if (*txt!=':')
         return 0;
     if (isadigit(*++txt))
@@ -375,10 +375,10 @@ error:
                     *out++=*back++;
                 *out++=quotetype?'~':'`';
                 break;
-            };
+            }
         default:
             *out++=*txt;
-        };
+        }
     if (out-OUT>=BUFFER_SIZE) /* can happen only if there's a lot of FFs */
         out=OUT+BUFFER_SIZE-1;
     *out=0;
@@ -413,7 +413,7 @@ color:
             strcpy(txt, MUDcolors[c&0xf]);
             txt+=strlen(MUDcolors[c&0xf]);
         }
-    };
+    }
     *txt=0;
     strcpy(line, buf);
 }
@@ -459,7 +459,7 @@ null_codes:
                 goto error_msg;
         }
         arg=get_arg_in_braces(arg, cc[nc], 0);
-    };
+    }
     if (*arg)
         goto error_msg;
     mudcolors=MUDC_ON;
@@ -467,7 +467,7 @@ null_codes:
     {
         SFREE(MUDcolors[nc]);
         MUDcolors[nc]=mystrdup(cc[nc]);
-    };
+    }
     tintin_printf(ses, "#outgoing color codes table initialized");
 }
 

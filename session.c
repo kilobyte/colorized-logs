@@ -124,9 +124,9 @@ static int list_sessions(const const char *arg, struct session *ses, char *left,
         {
             tintin_eprintf(ses, "#THERE'S A SESSION WITH THAT NAME ALREADY.");
             return 1;
-        };
+        }
         return 0;
-    };
+    }
     return 1;
 }
 
@@ -216,7 +216,7 @@ struct session *run_command(const char *arg, struct session *ses)
     {
         tintin_eprintf(ses, "#run: HEY! SPECIFY A COMMAND, WILL YOU?");
         return ses;
-    };
+    }
 
     utf8_to_local(ustr, right);
     if ((sock=run(ustr, COLS, LINES-1, TERM)) == -1)
@@ -343,7 +343,7 @@ static struct session *new_session(const char *name, const char *address, int so
     {
         newsession->routes[i]=0;
         newsession->locations[i]=0;
-    };
+    }
     copyroutes(ses, newsession);
     newsession->last_line[0]=0;
     for (int i=0;i<NHOOKS;i++)
@@ -399,7 +399,7 @@ void cleanup_session(struct session *ses)
         convert(&ses->c_io, ses->last_line, buf, -1);
         do_in_MUD_colors(ses->last_line, false, 0);
         user_textout(ses->last_line);
-    };
+    }
     sprintf(buf, "#SESSION '%s' DIED.", ses->name);
     tintin_puts(buf, NULL);
     if (close(ses->socket) == -1)

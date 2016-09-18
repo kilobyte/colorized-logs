@@ -51,8 +51,8 @@ static void expand_filename(const char *arg, char *result, char *lstr)
                 if (pwd)
                     result+=snprintf(result, BUFFER_SIZE, "%s", pwd->pw_dir), arg=p;
             }
-        };
-    };
+        }
+    }
     strlcpy(result, arg, r0-result+BUFFER_SIZE);
     utf8_to_local(lstr, r0);
 }
@@ -1047,7 +1047,7 @@ static void prepare_for_write(const char *command, const char *left, const char 
         strcat(result, " {");
         strcat(result, right);
         strcat(result, "}");
-    };
+    }
     if (pr && strlen(pr))
     {
         strcat(result, " {");

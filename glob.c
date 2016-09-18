@@ -91,11 +91,11 @@ bool find(const char *text, const char *pattern, int *from, int *to, const char 
             *from=0;
             *to=txt-text-1;
             return true;
-        };
+        }
         strcpy(m1, pattern);
         pat=m1;
         goto start;
-    };
+    }
     if (!(b=strchr(pattern, '*')))
     {
         a=strstr(txt, pattern);
@@ -107,7 +107,7 @@ bool find(const char *text, const char *pattern, int *from, int *to, const char 
         }
         else
             return false;
-    };
+    }
     i=b-pattern;
     strcpy(m1, pattern);
     m1[i]=0;
@@ -126,7 +126,7 @@ start:
     {
         *to=strlen(text)-1;
         return true;
-    };
+    }
     a=pat;
     b=pat+i-1;
     while (a<b)
@@ -134,7 +134,7 @@ start:
         char c=*a;
         *a++=*b;
         *b--=c;
-    };
+    }
     i=strlen(txt);
     for (a=m2+i-1;*txt;)
         *a--=*txt++;

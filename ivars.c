@@ -30,7 +30,7 @@ void math_command(const char *line, struct session *ses)
     {
         tintin_eprintf(ses, "#Syntax: #math <variable> <expression>");
         return;
-    };
+    }
     i = eval_expression(right, ses);
     sprintf(temp, "%d", i);
     set_variable(left, temp, ses);

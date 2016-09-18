@@ -825,15 +825,15 @@ static void do_one_line(char *line, int nl, struct session *ses)
             gotpassword=1;
             user_passwd(true);
             term_echoing=false;
-        };
+        }
         break;
     case 1:
         if (match(PROMPT_FOR_MORE_TEXT, line))
         {
             user_passwd(false);
             got_more_kludge=true;
-        };
-    };
+        }
+    }
     _=line;
     PROF("processing incoming colors");
     do_in_MUD_colors(line, false, ses);

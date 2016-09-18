@@ -153,7 +153,7 @@ struct session* parse_input(const char *input, bool override_verbatim, struct se
                 if (*arg)
                     strcat(arg, " ");
                 strcat(arg, (*pvars)[0]);
-            };
+            }
             in_alias=false;
         }
         if (recursion>MAX_RECURSION)

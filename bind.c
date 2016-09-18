@@ -159,7 +159,7 @@ bool find_bind(const char *key, int msg, struct session *ses)
         parse_input(val, true, ses);
         recursion=0;
         return true;
-    };
+    }
     if ((val=get_hash(keynames, key)))
     {
         key=val;

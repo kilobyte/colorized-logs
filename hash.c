@@ -50,7 +50,7 @@ void kill_hash(struct hashtable* h)
                 SFREE(h->tab[i].left);
                 SFREE(h->tab[i].right);
             }
-        };
+        }
     CFREE(h->tab, h->size, struct hashentry);
     TFREE(h, struct hashtable);
 }

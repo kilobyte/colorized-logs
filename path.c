@@ -198,7 +198,7 @@ void return_command(const char *arg, struct session *ses)
         }
         if (!n)     /* silently ignore "#return 0" */
             return;
-    };
+    }
     if (n>ses->path_length)
         n=ses->path_length;
 

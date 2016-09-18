@@ -161,7 +161,7 @@ void do_all_sub(char *line, struct session *ses)
             {
                 strcpy(line, EMPTY_LINE);
                 return;
-            };
+            }
             substitute_vars(ln->right, tmp1);
             substitute_myvars(tmp1, tmp2, ses);
             rlen=match_start-line;

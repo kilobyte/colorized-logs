@@ -649,7 +649,7 @@ static bool check_a_action(const char *line, const char *action, bool inside, st
         var_len[*(tptr+1)-48]=0;
         var_ptr[*(tptr+1)-48]=lptr;
         tptr+=2;
-    };
+    }
     match_end=lptr;
     return !*tptr;
 }

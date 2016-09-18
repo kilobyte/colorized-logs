@@ -230,7 +230,7 @@ static void redraw_in(void)
                 r+=k;
                 l-=k;
                 k=0;
-            };
+            }
             tbuf+=sprintf(tbuf, "\033[4%dm", MARGIN_COLOR);
             k+=marginr-marginl+1;
             if (k>l)
@@ -240,7 +240,7 @@ static void redraw_in(void)
                 tbuf+=OUT_WC(tbuf, k_input+r, k);
                 r+=k;
                 l-=k;
-            };
+            }
             tbuf+=sprintf(tbuf, "\033[4%dm", INPUT_COLOR);
             if (l>0)
                 tbuf+=OUT_WC(tbuf, k_input+r, l);
@@ -252,7 +252,7 @@ static void redraw_in(void)
                 l=k_len-k_scrl;
             tbuf+=OUT_WC(tbuf, k_input+k_scrl, l);
         }
-    };
+    }
     if (k_scrl+COLS-2<k_len)
         tbuf+=sprintf(tbuf, "\033[1m>");
     else if (!putty)
@@ -293,7 +293,7 @@ static void redraw_status(void)
         }
         else
             one_utf8_to_mb(&tbuf, &pos, &outstate);
-    };
+    }
 end:
     redraw_cursor();
     term_commit();
@@ -328,7 +328,7 @@ static void draw_out(const char *pos)
             continue;
         }
         one_utf8_to_mb(&tbuf, &pos, &outstate);
-    };
+    }
 }
 
 /****************************/
@@ -351,7 +351,7 @@ static void b_scroll(int b_to)
             else
                 tbuf+=sprintf(tbuf, "\033[2K");
             term_commit();
-        };
+        }
     tbuf+=sprintf(tbuf, "\0337");
 
     if (b_screenb==b_bottom)
@@ -426,7 +426,7 @@ static inline void print_char(const WC ch)
         if (b_screenb==b_bottom)
             tbuf=ansicolor(tbuf, o_color);
         o_oldcolor=o_color;
-    };
+    }
     clen=wcrtomb(tbuf, ch, &outstate);
     if (clen!=-1)
         tbuf+=clen;
@@ -485,12 +485,12 @@ static void b_textout(const char *txt)
                 if (o_color==-1)
                     o_color=o_prevcolor;
                 break;
-            };
+            }
             /* fall through */
         default:
             txt+=utf8_to_wc(u, txt, 1)-1;
             print_char(u[0]);
-        };
+        }
     out_line[o_len]=0;
     tbuf+=sprintf(tbuf, "\0337");
 #ifdef USER_DEBUG
@@ -514,7 +514,7 @@ static void b_canceldraft(void)
             b_current--;
             tbuf+=sprintf(tbuf, "\033[A\033[2K");
             assert(tbuf-term_buf < (ssize_t)sizeof(term_buf));
-        };
+        }
         *tbuf++='\r';
         tbuf=ansicolor(tbuf, o_lastcolor);
         *tbuf++=27, *tbuf++='7';
@@ -712,7 +712,7 @@ static bool usertty_process_kbd(struct session *ses, WC ch)
         {
             sprintf(txt, "ESCO"WCC, (WCI)ch);
             find_bind(txt, 1, ses);
-        };
+        }
         break;
     case TS_ESC_S_S:            /* ESC [ [ */
         state=TS_NORMAL;
@@ -721,7 +721,7 @@ static bool usertty_process_kbd(struct session *ses, WC ch)
         {
             sprintf(txt, "ESC[["WCC, (WCI)ch);
             find_bind(txt, 1, ses);
-        };
+        }
         break;
     case TS_ESC_S:              /* ESC [ */
         state=TS_NORMAL;
@@ -822,7 +822,7 @@ static bool usertty_process_kbd(struct session *ses, WC ch)
                     sprintf(txt, "ESC["WCC, (WCI)ch);
                     find_bind(txt, 1, ses);
                     break;
-                };
+                }
             }
         }
         else if (ch=='[')
@@ -932,12 +932,12 @@ static bool usertty_process_kbd(struct session *ses, WC ch)
         {
             state=TS_ESC_S; val[nval=0]=0;
             break;
-        };
+        }
         if (ch=='O')
         {
             state=TS_ESC_O; val[nval=0]=0;
             break;
-        };
+        }
 #ifndef BARE_ESC
         state=TS_NORMAL;
         if (ch==127)
@@ -1189,7 +1189,7 @@ static bool usertty_process_kbd(struct session *ses, WC ch)
                 while (i--)
                     *tbuf++=' ';
                 tbuf+=sprintf(tbuf, "\033[1;37;4%dm\033[%d;1f", INPUT_COLOR, scr_len+1);
-            };
+            }
             scr_curs=0;
             term_commit();
 #endif
@@ -1235,7 +1235,7 @@ static bool usertty_process_kbd(struct session *ses, WC ch)
                 for (int i=k_pos;i<=k_len;++i)
                     k_input[i]=k_input[i+dw];
                 k_len-=dw;
-            };
+            }
             redraw_in();
             break;
         case 9:                 /* [Tab], ^[I] */
@@ -1251,7 +1251,7 @@ key_alt_tab:
                 int i=k_pos; k_pos=tk_pos; tk_pos=i;
                 i=k_scrl; k_scrl=tk_scrl; tk_scrl=i;
                 i=k_len; k_len=tk_len; tk_len=i;
-            };
+            }
             redraw_in();
             break;
         case 11:                /* ^[K] */
@@ -1384,7 +1384,7 @@ key_alt_tab:
                 sprintf(txt, "^"WCC, (WCI)(ch+64));
                 find_bind(txt, 1, ses);
                 break;
-            };
+            }
 #if 0
         insert_verbatim:
 #endif
@@ -1420,7 +1420,7 @@ key_alt_tab:
                     redraw_in();
             }
         }
-    };
+    }
 #ifdef USER_DEBUG
     debug_info();
     redraw_cursor();
@@ -1630,7 +1630,7 @@ static void usertty_init(void)
         for (int i=0;i<COLS;++i)
             done_input[i]='-';
         sprintf(done_input+COLS, "~7~\n");
-    };
+    }
     usertty_textout(done_input);
 }
 
@@ -1687,7 +1687,7 @@ static bool fwrite_out(FILE *f, const char *pos)
                     s+=sprintf(s, "\033[0%s;3%dm", ((c)&8)?";1":"", rgbbgr[(c)&7]);
                 dump_color=c;
                 continue;
-            };
+            }
         if (*pos=='\r')
             eol=false;
         else if (*pos!='\n')
