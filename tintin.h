@@ -384,22 +384,25 @@ struct ttyrec_header
                            (x))
 
 /* Chinese rod numerals are _not_ digits for our purposes. */
-static inline bool isadigit(char x) { return x>='0' && x<='9'; }
+static inline bool isadigit(WC x) { return x>='0' && x<='9'; }
 /* Solaris is buggy for high-bit chars in UTF-8. */
-#define isaspace(x) ((x)==' ' || (x)=='\t' || (x)=='\n' || (x)==12 || (x)=='\v')
+static inline bool isaspace(WC x) { return x==' ' || x=='\t' || x=='\n' || x==12 || x=='\v'; }
 #define iswadigit(x) isadigit(x)
 /* Japanese/Chinese double-width chars.  We can't use wcwidth() as that's
    a GNU extension.  The code below is buggy as it should return 0 for
    non-printables, but nyah... */
-#define isw2width(x) ((x)>=0x1100  && ((x)<=0x11ff ||   \
-                      (x)>=0x2e80) && ((x)<=0xd7ff ||   \
-                      (x)>=0xf900) && ((x)<=0xfaff ||   \
-                      (x)>=0xfe30) && ((x)<=0xfe6f ||   \
-                      (x)>=0xff01) && ((x)<=0xff60 ||   \
-                      (x)>=0xffe0) && ((x)<=0xffe6 ||   \
-                      (x)>=0x20000) && (x)<=0x2ffff)
-#define is7alpha(x) ((((x)>='A')&&((x)<='Z')) || (((x)>='a')&&((x)<='z')))
-#define is7alnum(x) ((((x)>='0')&&((x)<='9')) || is7alpha(x))
+static inline bool isw2width(WC x)
+{
+    return x>=0x1100  && (x<=0x11ff ||
+           x>=0x2e80) && (x<=0xd7ff ||
+           x>=0xf900) && (x<=0xfaff ||
+           x>=0xfe30) && (x<=0xfe6f ||
+           x>=0xff01) && (x<=0xff60 ||
+           x>=0xffe0) && (x<=0xffe6 ||
+           x>=0x20000) && x<=0x2ffff;
+}
+static inline bool is7alpha(WC x) { return (x>='A'&&x<='Z') || (x>='a'&&x<='z'); }
+static inline bool is7alnum(WC x) { return (x>='0'&&x<='9') || is7alpha(x); }
 static inline char toalower(char x) { return (x>='A' && x<='Z') ? x+32 : x; }
 #define EMPTY_CHAR 0xffff
 #define VALID_TIN_CHARS "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
