@@ -1280,7 +1280,7 @@ bad:
         tt=err;
         while (*tt==' ')
             tt++;
-        switch (tolower(*tt))
+        switch (toalower(*tt))
         {
         case 'w':
             w*=7;

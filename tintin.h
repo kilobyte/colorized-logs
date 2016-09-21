@@ -400,6 +400,7 @@ static inline bool isadigit(char x) { return x>='0' && x<='9'; }
                       (x)>=0x20000) && (x)<=0x2ffff)
 #define is7alpha(x) ((((x)>='A')&&((x)<='Z')) || (((x)>='a')&&((x)<='z')))
 #define is7alnum(x) ((((x)>='0')&&((x)<='9')) || is7alpha(x))
+static inline char toalower(char x) { return (x>='A' && x<='Z') ? x+32 : x; }
 #define EMPTY_CHAR 0xffff
 #define VALID_TIN_CHARS "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
 #define is7punct(x) strchr(VALID_TIN_CHARS, (x))

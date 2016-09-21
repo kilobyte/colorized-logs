@@ -330,7 +330,7 @@ static struct session* parse_tintin_command(const char *command, const char *arg
     a=command;
     b=cmd;
     while (*a)
-        *b++=tolower(*a++);
+        *b++=toalower(*a++);
     *b=0;
 
     if (isadigit(*command))
