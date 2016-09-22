@@ -55,25 +55,6 @@ void syserr(const char *msg, ...)
     exit(1);
 }
 
-/* Is any compiler _that_ old still alive? */
-#ifndef HAVE_SNPRINTF
-/* not for protos.h */ int snprintf(char *str, int len, const char *fmt, ...)
-{
-    va_list ap;
-
-    va_start(ap, fmt);
-    vsprintf(str, fmt, ap);
-    va_end(ap);
-}
-#endif
-
-#ifndef HAVE_VSNPRINTF
-/* not for protos.h */ int vsnprintf(char *str, int len, const char *fmt, va_list ap);
-{
-    vsprintf(str, fmt, ap);
-}
-#endif
-
 #ifndef HAVE_STRLCPY
 /* not for protos.h */ size_t strlcpy(char *dst, const char *src, size_t n)
 {
