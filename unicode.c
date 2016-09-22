@@ -4,7 +4,6 @@
 #include "translit.h"
 #include "protos/prof.h"
 #include "protos/utils.h"
-#include "protos/wcwidth.h"
 
 char *user_charset_name;
 
