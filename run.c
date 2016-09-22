@@ -19,7 +19,7 @@ static void print_stty(int fd)
     struct termios ta;
     struct winsize ws;
     char buf[BUFFER_SIZE], *bptr;
-#define battr(c, a, b) bptr+=sprintf(bptr, " %s%s~7~", (ta.c_##c&a)?"~9~":"~2~-~4~", b, a);
+#define battr(c, a, b) bptr+=sprintf(bptr, " %s%s~7~", (ta.c_##c&a)?"~9~":"~2~-~4~", b);
 
     memset(&ta, 0, sizeof(ta));
     memset(&ws, 0, sizeof(ws));
