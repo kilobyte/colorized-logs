@@ -71,6 +71,10 @@ AC_AI_ADDRCONFIG
 AC_SYS_LARGEFILE
 AC_C_TRY_FLAG([-Wno-unused-parameter])
 
+# Enable some warnings.
+AC_C_TRY_FLAG([-Wwrite-strings])
+AC_C_TRY_FLAG([-Wstrict-prototypes])
+
 AC_CONFIG_FILES([Makefile])
 
 # Initialize the test suite.
