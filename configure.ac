@@ -21,7 +21,7 @@ AC_HEADER_SYS_WAIT
 AC_CREATE_STDINT_H
 AC_HEADER_TIOCGWINSZ
 AC_CHECK_HEADERS([strings.h string.h sys/time.h termios.h unistd.h stropts.h \
-    pty.h libutil.h util.h sys/syslimits.h])
+    pty.h libutil.h util.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST

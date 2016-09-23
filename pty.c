@@ -3,6 +3,7 @@
 #define _GNU_SOURCE
 #include "config.h"
 #include <fcntl.h>
+#include <limits.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
@@ -26,9 +27,6 @@
 # ifdef HAVE_UTIL_H
 #  include <util.h>
 # endif
-#endif
-#ifdef HAVE_SYS_SYSLIMITS_H
-# include <sys/syslimits.h>
 #endif
 
 extern void syserr(char *msg, ...);
