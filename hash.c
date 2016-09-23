@@ -26,7 +26,7 @@ static uint32_t hash(const char *key)
 /**********************************/
 /* initialize an empty hash table */
 /**********************************/
-struct hashtable* init_hash()
+struct hashtable* init_hash(void)
 {
     struct hashtable *h=TALLOC(struct hashtable);
     h->size=8;

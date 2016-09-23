@@ -360,7 +360,7 @@ static void parse_options(int argc, char **argv)
         addnode_list(options, "-", 0, 0);
 }
 
-static void apply_options()
+static void apply_options(void)
 {
     char temp[BUFFER_SIZE], sname[BUFFER_SIZE];
     char ustr[BUFFER_SIZE];

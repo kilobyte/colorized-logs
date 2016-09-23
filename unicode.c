@@ -263,7 +263,7 @@ int utf8_width(char *s)
 }
 
 
-void init_locale()
+void init_locale(void)
 {
     setlocale(LC_CTYPE, "");
     user_charset_name=nl_langinfo(CODESET);

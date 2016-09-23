@@ -376,7 +376,7 @@ static void add_command(struct hashtable *h, const char *command, t_command func
     }
 }
 
-void init_parse()
+void init_parse(void)
 {
     commands=init_hash();
     c_commands=init_hash();

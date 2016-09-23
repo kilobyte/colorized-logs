@@ -24,7 +24,7 @@ static void sigprof(void)
     set_hash_nostring(prof_count, prof_area, (char *)(intptr_t)(c+1));
 }
 
-void setup_prof()
+void setup_prof(void)
 {
     struct sigaction act;
     struct itimerval it;

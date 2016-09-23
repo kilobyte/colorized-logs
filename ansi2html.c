@@ -47,7 +47,7 @@ static inline int rgb_to_int(u8 r, u8 g, u8 b)
 }
 
 
-static void span()
+static void span(void)
 {
     int tmp, _fg=fg, _bg=bg, _frgb=frgb, _brgb=brgb;
     char clbuf[32], *cl=clbuf;
@@ -166,7 +166,7 @@ do_span:
 }
 
 
-static void unspan()
+static void unspan(void)
 {
     if (in_span)
         printf(no_header?"</span>":"</b>");

@@ -3,7 +3,7 @@
 #include <string.h>
 #include "tintin.h"
 
-int main()
+int main(void)
 {
     struct ttyrec_header th;
     char buf[BUFFER_SIZE];

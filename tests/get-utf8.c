@@ -17,7 +17,7 @@ static void sl(const char* loc)
     exit(0);
 }
 
-int main()
+int main(void)
 {
     /* try preferred values first */
     sl("C.UTF-8");

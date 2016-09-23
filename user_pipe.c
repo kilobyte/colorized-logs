@@ -84,16 +84,16 @@ static void userpipe_resize(void)
     need_resize=false;
 }
 
-static void user_illegal()
+static void user_illegal(void)
 {
     syserr("DRIVER: operation not supported");
 }
 
-static void user_noop()
+static void user_noop(void)
 {
 }
 
-void userpipe_initdriver()
+void userpipe_initdriver(void)
 {
     ui_sep_input=false;
     ui_con_buffer=false;
@@ -112,7 +112,7 @@ void userpipe_initdriver()
     user_keypad         = (void (*)(bool))user_illegal;
     user_retain         = user_illegal;
     user_passwd         = userpipe_passwd;
-    user_condump        = user_illegal;
+    user_condump        = (void (*)(FILE *))user_illegal;
     user_title          = (void (*)(const char*, ...))user_illegal;
     user_resize         = userpipe_resize;
     user_show_status    = user_illegal;

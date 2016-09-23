@@ -299,7 +299,7 @@ end:
     term_commit();
 }
 
-static bool b_shorten()
+static bool b_shorten(void)
 {
     if (b_first>b_bottom)
         return false;
@@ -436,7 +436,7 @@ static inline void print_char(const WC ch)
     o_pos+=dw;
 }
 
-static void form_feed()
+static void form_feed(void)
 {
     for (int i=(isstatus?2:1);i<LINES;i++)
     {
@@ -583,7 +583,7 @@ static void usertty_textout_draft(const char *txt, bool strong)
     o_strongdraft=strong;
 }
 
-static void transpose_chars()
+static void transpose_chars(void)
 {
     WC w1[3], w2[3], *l, *r;
 
@@ -614,7 +614,7 @@ static void transpose_chars()
     k_pos+=WClen(w2);
 }
 
-static void transpose_words()
+static void transpose_words(void)
 {
     WC buf[BUFFER_SIZE];
     int a1, a2, b1, b2;
@@ -1432,7 +1432,7 @@ key_alt_tab:
 /********************************************/
 /* reformat the scrollback into a new width */
 /********************************************/
-static void b_resize()
+static void b_resize(void)
 {
     char *src[CONSOLE_LENGTH];
     int src_lines;
@@ -1531,7 +1531,7 @@ static void usertty_keypad(bool k)
     term_commit();
 }
 
-static void usertty_retain()
+static void usertty_retain(void)
 {
     ret(false);
     redraw_in();
@@ -1741,7 +1741,7 @@ static void usertty_beep(void)
 }
 
 
-void usertty_initdriver()
+void usertty_initdriver(void)
 {
     ui_sep_input=true;
     ui_con_buffer=true;
