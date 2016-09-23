@@ -138,7 +138,8 @@ static void telnet_send_naws(struct session *ses)
 
 static void telnet_send_ttype(struct session *ses)
 {
-    char nego[128], *ttype;
+    char nego[128];
+    const char *ttype;
 
     switch (ses->last_term_type++)
     {

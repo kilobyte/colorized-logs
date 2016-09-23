@@ -41,7 +41,8 @@ gnutls_session_t ssl_negotiate(int sock, const char *host, struct session *oldse
 
 static bool cert_file(const char *name, char *respath)
 {
-    char fname[BUFFER_SIZE], *fn, *home;
+    char fname[BUFFER_SIZE], *fn;
+    const char *home;
 
     if (!*name || *name=='.')   // no valid hostname starts with a dot
         return false;
@@ -98,7 +99,8 @@ static void load_cert(gnutls_x509_crt_t *cert, const char *name)
 
 static void save_cert(gnutls_x509_crt_t cert, const char *name, bool new, struct session *oldses)
 {
-    char *home, fname[BUFFER_SIZE], buf[BIGBUFSIZE];
+    char fname[BUFFER_SIZE], buf[BIGBUFSIZE];
+    const char *home;
     FILE *f;
     size_t len;
 
@@ -165,7 +167,7 @@ static int ssl_check_cert(gnutls_session_t sslses, const char *host, struct sess
     gnutls_x509_crt_t cert, oldcert;
     const gnutls_datum_t *cert_list;
     unsigned int cert_list_size;
-    char *err=0;
+    const char *err=0;
 
     oldcert=0;
     load_cert(&oldcert, host);

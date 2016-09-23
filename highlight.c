@@ -13,7 +13,7 @@
 static struct colordef
 {
     int num;
-    char *name;
+    const char *name;
 } cNames[]=
     {
         { 0, "black"},

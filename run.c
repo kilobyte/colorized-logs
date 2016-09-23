@@ -179,7 +179,7 @@ int run(const char *command, int sx, int sy, const char *term)
     case 0:
         {
             struct termios ta;
-            char *argv[4];
+            const char *argv[4];
             char cmd[BUFFER_SIZE+5];
 
             tcgetattr(1, &ta);
@@ -193,7 +193,7 @@ int run(const char *command, int sx, int sy, const char *term)
             argv[3]=0;
             if (term)
                 setenv("TERM", term, 1); /* TERM=KBtin.  Or should we lie? */
-            execve("/bin/sh", argv, environ);
+            execve("/bin/sh", (char*const*)argv, environ);
             fprintf(stderr, "#ERROR: Couldn't exec `%s'\n", command);
             exit(127);
         }
@@ -217,7 +217,8 @@ FILE* mypopen(const char *command, int wr)
         return 0;
     case 0:
         {
-            char *argv[4], cmd[BUFFER_SIZE+5];
+            const char *argv[4];
+            char cmd[BUFFER_SIZE+5];
 
             if (!wr)
             {
@@ -246,7 +247,7 @@ FILE* mypopen(const char *command, int wr)
             argv[1]="-c";
             argv[2]=cmd;
             argv[3]=0;
-            execve("/bin/sh", argv, environ);
+            execve("/bin/sh", (char*const*)argv, environ);
             fprintf(stderr, "#ERROR: Couldn't exec `%s'\n", command);
             exit(127);
         }

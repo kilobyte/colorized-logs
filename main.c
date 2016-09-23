@@ -289,7 +289,7 @@ static void init_nullses(void)
 #endif
 }
 
-static void opterror(char *msg, ...)
+static void opterror(const char *msg, ...)
 {
     va_list ap;
 
