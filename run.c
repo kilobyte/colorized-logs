@@ -12,6 +12,8 @@
 #include "protos/pty.h"
 #include "protos/utils.h"
 
+extern char **environ;
+
 
 #ifdef TERM_DEBUG
 static void print_stty(int fd)
