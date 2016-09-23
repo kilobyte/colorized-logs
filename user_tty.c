@@ -11,6 +11,7 @@
 # include <termios.h>
 #endif
 #include <assert.h>
+#include <sys/ioctl.h>
 
 static mbstate_t outstate;
 #define OUTSTATE &outstate
