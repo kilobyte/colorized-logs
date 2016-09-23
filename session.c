@@ -89,7 +89,7 @@ noname:
     #session {a}        - print info about session a
   (opposed to #session {a} {mud.address.here 666} - starting a new session)
 */
-static int list_sessions(const const char *arg, struct session *ses, char *left, char *right)
+static int list_sessions(const char *arg, struct session *ses, char *left, char *right)
 {
     struct session *sesptr;
     arg = get_arg_in_braces(arg, left, 0);
