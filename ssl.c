@@ -140,7 +140,10 @@ static void save_cert(gnutls_x509_crt_t cert, const char *name, bool new, struct
         return;
     }
     if (fclose(f))
+    {
         tintin_eprintf(oldses, "#Save failed: %s", strerror(errno));
+        unlink(fname);
+    }
 }
 
 
