@@ -22,7 +22,9 @@ pipetty_SOURCES=pipetty.c
 pipetty_LDADD=pty.o
 
 KBtin_DOCS=BUGS OLDNEWS KEYPAD FAQ
-EXTRA_DIST=KBtin_help.in commands make_commands $(man_MANS) help2ansi fixmanual terminfo.src prof_init kbtin.ico make_protos $(KBtin_DOCS) autogen.sh
+EXTRA_DIST=KBtin_help.in commands make_commands $(man_MANS) help2ansi \
+	fixmanual terminfo.src prof_init kbtin.ico make_protos $(KBtin_DOCS) \
+	autogen.sh VERSION get_version
 CLEANFILES=$(BUILT_SOURCES) KBtin_help.gz manual.html
 DISTCLEANFILES=_stdint.h
 
@@ -80,6 +82,10 @@ manual.html: KBtin_help.in help2ansi ansi2html fixmanual
 # install the terminfo data
 install-terminfo: terminfo.src
 	tic terminfo.src -o $(DESTDIR)$(TERMINFODIR)
+
+VERSION: FORCE
+	[ ! -d .git ] || $(srcdir)/get_version >VERSION
+FORCE:
 
 SUBDIRS = . tests
 

@@ -23,6 +23,7 @@ configure.lineno
 configure.scan
 depcomp
 missing
+VERSION
 DEADJOE
 .deps
 install-sh
