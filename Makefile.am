@@ -81,15 +81,6 @@ manual.html: KBtin_help.in help2ansi ansi2html fixmanual
 install-terminfo: terminfo.src
 	tic terminfo.src -o $(DESTDIR)$(TERMINFODIR)
 
-# Remake, check and tag new version
-cvs-dist: KBtin check
-	@if sed 1q NEWS | grep -e "$(VERSION)" > /dev/null; then :; else \
-		echo "NEWS not updated; not releasing" 1>&2; \
-		exit 1;                               \
-	fi
-	cvs tag `echo "Release-$(VERSION)" | sed 's/\./-/g'`
-	$(MAKE) dist
-
 SUBDIRS = . tests
 
 mac: clean
