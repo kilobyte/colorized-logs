@@ -60,7 +60,7 @@ void substitute_myvars(const char *arg, char *result, struct session *ses)
             varlen = 0;
 
             /* ${name} code added by Sverre Normann */
-            if (*(arg+counter) != DEFAULT_OPEN)
+            if (*(arg+counter) != BRACE_OPEN)
             {
                 /* ordinary variable which name contains no spaces and special characters  */
                 specvar = false;
@@ -177,12 +177,12 @@ novar:
                 arg += varlen + counter;
             }
         }
-        else if (*arg == DEFAULT_OPEN)
+        else if (*arg == BRACE_OPEN)
         {
             nest++;
             *result++ = *arg++;
         }
-        else if (*arg == DEFAULT_CLOSE)
+        else if (*arg == BRACE_CLOSE)
         {
             nest--;
             *result++ = *arg++;
@@ -402,8 +402,8 @@ void getitem_command(const char *arg, struct session *ses)
 bool isatom(const char *arg)
 {
     int last = strlen(arg);
-    if ((arg[0]    == DEFAULT_OPEN) &&
-            (arg[last] == DEFAULT_CLOSE))
+    if ((arg[0]    == BRACE_OPEN) &&
+            (arg[last] == BRACE_CLOSE))
         /* one element list = '{elem}' */
         return false;
 
@@ -502,8 +502,8 @@ static char* get_split_pos(char *list, int head_length)
 /*            end - points to the element after last (usually '\0')   */
 /*            ses - session; used only for error handling             */
 /* RESULT:    true if list is braced atom e.g. '{atom}'               */
-/*            i.e. whole list begins with DEFAULT_OPEN end ends with  */
-/*            DEFAULT_CLOSE and whole is inside group (inside braces) */
+/*            i.e. whole list begins with BRACE_OPEN end ends with    */
+/*            BRACE_CLOSE and whole is inside group (inside braces)   */
 static bool is_braced_atom_2(const char *beg, const char *end, struct session *ses)
 {
     /* we define where list ends */
@@ -515,16 +515,16 @@ static bool is_braced_atom_2(const char *beg, const char *end, struct session *s
     if (AT_END(beg, end)) /* string is empty */
         return false;
 
-    if (*beg!=DEFAULT_OPEN)
+    if (*beg!=BRACE_OPEN)
         return false;
 
-    while (NOT_AT_END(beg, end) && !(*beg == DEFAULT_CLOSE && nest == 0))
+    while (NOT_AT_END(beg, end) && !(*beg == BRACE_CLOSE && nest == 0))
     {
         if (*beg=='\\') /* next element is taken verbatim i.e. as is */
             beg++;
-        else if (*beg == DEFAULT_OPEN)
+        else if (*beg == BRACE_OPEN)
             nest++;
-        else if (*beg == DEFAULT_CLOSE)
+        else if (*beg == BRACE_CLOSE)
             nest--;
 
         if (NOT_AT_END(beg, end)) /* in case '\\' is the last character */
@@ -538,7 +538,7 @@ static bool is_braced_atom_2(const char *beg, const char *end, struct session *s
     /* this should not happen anyway */
     if (nest > 0)
     {
-        tintin_eprintf(ses, "Unmatched braces error - too many '%c'", DEFAULT_OPEN);
+        tintin_eprintf(ses, "Unmatched braces error - too many '%c'", BRACE_OPEN);
         return false;
     }
 
@@ -705,10 +705,10 @@ void deleteitems_command(const char *arg, struct session *ses)
                         *rpos++=*lpos++;
                 else
                 {
-                    *rpos++=DEFAULT_OPEN;
+                    *rpos++=BRACE_OPEN;
                     while (*lpos)
                         *rpos++=*lpos++;
-                    *rpos++=DEFAULT_CLOSE;
+                    *rpos++=BRACE_CLOSE;
                 }
             }
         } while (*arg);

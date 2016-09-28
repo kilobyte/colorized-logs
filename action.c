@@ -354,12 +354,12 @@ novar2:
             }
             in_alias=false; /* not a simple alias */
         }
-        else if (*arg == DEFAULT_OPEN)
+        else if (*arg == BRACE_OPEN)
         {
             nest++;
             *result++ = *arg++;
         }
-        else if (*arg == DEFAULT_CLOSE)
+        else if (*arg == BRACE_CLOSE)
         {
             nest--;
             *result++ = *arg++;

@@ -407,12 +407,12 @@ static const char* get_arg_all(const char *s, char *arg)
         {
             break;
         }
-        else if (*s == DEFAULT_OPEN)
+        else if (*s == BRACE_OPEN)
         {
             nest++;
             *arg++ = *s++;
         }
-        else if (*s == DEFAULT_CLOSE)
+        else if (*s == BRACE_CLOSE)
         {
             nest--;
             *arg++ = *s++;
@@ -443,12 +443,12 @@ const char* get_inline(const char *s, char *arg)
         }
         else if (*s == ')' && nest < 1)
             break;
-        else if (*s == DEFAULT_OPEN)
+        else if (*s == BRACE_OPEN)
         {
             nest++;
             *arg++ = *s++;
         }
-        else if (*s == DEFAULT_CLOSE)
+        else if (*s == BRACE_CLOSE)
         {
             nest--;
             *arg++ = *s++;
@@ -482,12 +482,12 @@ static inline const char* get_arg_with_spaces(const char *s, char *arg)
         }
         else if (*s == ';' && nest == 0)
             break;
-        else if (*s == DEFAULT_OPEN)
+        else if (*s == BRACE_OPEN)
         {
             nest++;
             *arg++ = *s++;
         }
-        else if (*s == DEFAULT_CLOSE)
+        else if (*s == BRACE_CLOSE)
         {
             *arg++ = *s++;
             nest--;
@@ -506,7 +506,7 @@ const char* get_arg_in_braces(const char *s, char *arg, bool allow_spaces)
 
     s = space_out(s);
     ptr = s;
-    if (*s != DEFAULT_OPEN)
+    if (*s != BRACE_OPEN)
     {
         if (allow_spaces)
             s = get_arg_with_spaces(ptr, arg);
@@ -515,13 +515,13 @@ const char* get_arg_in_braces(const char *s, char *arg, bool allow_spaces)
         return s;
     }
     s++;
-    while (*s != '\0' && !(*s == DEFAULT_CLOSE && nest == 0))
+    while (*s != '\0' && !(*s == BRACE_CLOSE && nest == 0))
     {
         if (*s==CHAR_VERBATIM)     /* \ */
             ;
-        else if (*s == DEFAULT_OPEN)
+        else if (*s == BRACE_OPEN)
             nest++;
-        else if (*s == DEFAULT_CLOSE)
+        else if (*s == BRACE_CLOSE)
             nest--;
         *arg++ = *s++;
     }

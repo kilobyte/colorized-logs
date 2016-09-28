@@ -595,8 +595,8 @@ struct session* do_read(FILE *myfile, const char *filename, struct session *ses)
             {
                 if (*cptr &&
                     !isspace(*(eptr=strchr(buffer, 0)-1)) &&
-                    (*eptr!=';') && (*cptr!=DEFAULT_CLOSE) &&
-                    (*cptr!=tintin_char || *eptr!=DEFAULT_OPEN))
+                    (*eptr!=';') && (*cptr!=BRACE_CLOSE) &&
+                    (*cptr!=tintin_char || *eptr!=BRACE_OPEN))
                     strcat(buffer, " ");
                 strcat(buffer, cptr);
                 continue;

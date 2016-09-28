@@ -59,8 +59,8 @@
 #define GOTO_CHAR '>'   /* be>mt -> #goto be mt */
                         /*Comment last line out to disable this behavior */
 #define DEFAULT_LOGTYPE LOG_LF    /* LOG_RAW: cr/lf or what server sends, LOG_LF: lf, LOG_TTYREC */
-#define DEFAULT_OPEN '{' /*character that starts an argument */
-#define DEFAULT_CLOSE '}' /*character that ends an argument */
+#define BRACE_OPEN '{' /*character that starts an argument */
+#define BRACE_CLOSE '}' /*character that ends an argument */
 #define HISTORY_SIZE 128                  /* history size */
 #define MAX_PATH_LENGTH 256               /* max path length (#route) */
 #define MAX_LOCATIONS 2048

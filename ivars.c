@@ -261,7 +261,7 @@ static bool conv_to_ints(char *arg, struct session *ses)
                 tintin_eprintf(ses, "#Undefined variable in {%s}.", arg);
             stacks[i][1] = 15;
             stacks[i][2] = 0;
-            if (*(++ptr)==DEFAULT_OPEN)
+            if (*(++ptr)==BRACE_OPEN)
             {
                 ptr=(char*)get_arg_in_braces(ptr, temp, 0);
             }
