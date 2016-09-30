@@ -565,7 +565,7 @@ static void usertty_textout_draft(const char *txt, bool strong)
     {
         strcpy(b_draft, txt);
 #ifdef USER_DEBUG
-        strcat(b_draft, "\342\226\240");
+        strcat(b_draft, "\xe2\x96\xa0"); // U+25A0 BLACK SQUARE
 #endif
         if ((o_draftlen=strlen(b_draft)))
             b_textout(b_draft);
