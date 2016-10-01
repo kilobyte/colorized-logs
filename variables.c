@@ -1058,7 +1058,7 @@ void collate_command(const char *arg, struct session *ses)
             }
             else
                 i+=j;
-         }
+        }
     }
     if (i>1)
         outptr+=sprintf(outptr, "%d", i);

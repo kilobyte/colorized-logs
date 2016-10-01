@@ -59,7 +59,7 @@ struct session* parse_input(const char *input, bool override_verbatim, struct se
     {
         in_alias=false;
         if (recursion==MAX_RECURSION)
-           tintin_eprintf(ses, "#TOO DEEP RECURSION.");
+            tintin_eprintf(ses, "#TOO DEEP RECURSION.");
         recursion=MAX_RECURSION*3;
         PPOP;
         return ses;

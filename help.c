@@ -113,7 +113,7 @@ void help_command(const char *arg, struct session *ses)
             }
         }
     }
-   tintin_printf(0, "#Sorry, no help on that word.");
+    tintin_printf(0, "#Sorry, no help on that word.");
 end:
     fclose(myfile);
 }

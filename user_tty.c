@@ -994,7 +994,7 @@ static bool usertty_process_kbd(struct session *ses, WC ch)
             if (b_bottom!=b_screenb)
                 b_scroll(b_bottom);
             if (ret(true))
-               redraw_in();
+                redraw_in();
             if (k_pos==k_len)
                 break;
             while (k_pos<k_len && (k_input[k_pos]==EMPTY_CHAR || !iswalnum(k_input[k_pos])))
@@ -1015,7 +1015,7 @@ static bool usertty_process_kbd(struct session *ses, WC ch)
             if (b_bottom!=b_screenb)
                 b_scroll(b_bottom);
             if (ret(true))
-               redraw_in();
+                redraw_in();
             if (!k_pos)
                 break;
             while (k_pos && (k_input[k_pos]==EMPTY_CHAR || !iswalnum(k_input[k_pos-1])))
@@ -1051,7 +1051,7 @@ static bool usertty_process_kbd(struct session *ses, WC ch)
             if (b_bottom!=b_screenb)
                 b_scroll(b_bottom);
             if (ret(true))
-               redraw_in();
+                redraw_in();
             while (k_pos<k_len && (k_input[k_pos]==EMPTY_CHAR || !iswalnum(k_input[k_pos])))
                 ++k_pos;
             while (k_pos<k_len && (k_input[k_pos]==EMPTY_CHAR || iswalnum(k_input[k_pos])))
