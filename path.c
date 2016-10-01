@@ -51,43 +51,40 @@ void savepath_command(const char *arg, struct session *ses)
     if (ses==nullsession)
         return tintin_printf(ses, "#No session active => NO PATH TO SAVE!");
 
-    char alias[BUFFER_SIZE];
+    char alias[BUFFER_SIZE], result[BUFFER_SIZE];
     get_arg_in_braces(arg, alias, 1);
-    if (*arg)
+    if (!*arg)
+        return tintin_eprintf(ses, "#Syntax: savepath <alias>");
+
+    struct listnode *ln = ses->path;
+    int dirlen, len = 0;
+
+    if (!ses->path_length)
     {
-        char result[BUFFER_SIZE];
-        struct listnode *ln = ses->path;
-        int dirlen, len = 0;
-
-        if (!ses->path_length)
-        {
-            tintin_eprintf(ses, "#No path to save!");
-            return;
-        }
-
-        sprintf(result, "%calias {%s} {", tintin_char, alias);
-        len = strlen(result);
-        while ((ln = ln->next))
-        {
-            dirlen = strlen(ln->left);
-            if (dirlen + len < BUFFER_SIZE - 10)
-            {
-                strcat(result, ln->left);
-                len += dirlen + 1;
-                if (ln->next)
-                    strcat(result, ";");
-            }
-            else
-            {
-                tintin_eprintf(ses, "#Error - buffer too small to contain alias");
-                break;
-            }
-        }
-        strcat(result, "}");
-        parse_input(result, true, ses);
+        tintin_eprintf(ses, "#No path to save!");
+        return;
     }
-    else
-        tintin_eprintf(ses, "#Syntax: savepath <alias>");
+
+    sprintf(result, "%calias {%s} {", tintin_char, alias);
+    len = strlen(result);
+    while ((ln = ln->next))
+    {
+        dirlen = strlen(ln->left);
+        if (dirlen + len < BUFFER_SIZE - 10)
+        {
+            strcat(result, ln->left);
+            len += dirlen + 1;
+            if (ln->next)
+                strcat(result, ";");
+        }
+        else
+        {
+            tintin_eprintf(ses, "#Error - buffer too small to contain alias");
+            break;
+        }
+    }
+    strcat(result, "}");
+    parse_input(result, true, ses);
 }
 
 
