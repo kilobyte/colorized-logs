@@ -234,17 +234,10 @@ struct session *run_command(const char *arg, struct session *ses)
 /******************/
 static void show_session(struct session *ses)
 {
-    char temp[BUFFER_SIZE];
-
-    sprintf(temp, "%-10s{%s}", ses->name, ses->address);
-
-    if (ses == activesession)
-        strcat(temp, " (active)");
-    if (ses->snoopstatus)
-        strcat(temp, " (snooped)");
-    if (ses->logfile)
-        strcat(temp, " (logging)");
-    tintin_printf(0, "%s", temp);
+    tintin_printf(0, "%-10s{%s}%s%s%s", ses->name, ses->address,
+        ses == activesession ? " (active)":"",
+        ses->snoopstatus ? " (snooped)":"",
+        ses->logfile ? " (logging)":"");
 }
 
 /**********************************/

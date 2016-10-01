@@ -104,8 +104,7 @@ void read_complete(const char *arg, struct session *ses)
     {
         if (const char *cptr = getenv("HOME"))
         {
-            strcpy(buffer, cptr);
-            strcat(buffer, "/.tab.txt");
+            snprintf(buffer, BUFFER_SIZE, "%s/.tab.txt", cptr);
             myfile = fopen(buffer, "r");
         }
     }
@@ -1035,26 +1034,14 @@ void writesession_command(const char *filename, struct session *ses)
 
 static void prepare_for_write(const char *command, const char *left, const char *right, const char *pr, char *result)
 {
-    /* Achtung: "result" must be long enough or we're fucked */
-    *result = tintin_char;
-    *(result + 1) = '\0';
-    strcat(result, command);
-    strcat(result, " {");
-    strcat(result, left);
-    strcat(result, "}");
+    /* "result" is four times as big as the regular buffer.  This is */
+    /* pointless as read line are capped at 1/2 buffer anyway.       */
+    result+=sprintf(result, "%c%s {%s}", tintin_char, command, left);
     if (right)
-    {
-        strcat(result, " {");
-        strcat(result, right);
-        strcat(result, "}");
-    }
+        result+=sprintf(result, " {%s}", right);
     if (pr && strlen(pr))
-    {
-        strcat(result, " {");
-        strcat(result, pr);
-        strcat(result, "}");
-    }
-    strcat(result, "\n");
+        result+=sprintf(result, " {%s}", pr);
+    sprintf(result, "\n");
 }
 
 

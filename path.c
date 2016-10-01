@@ -51,13 +51,12 @@ void savepath_command(const char *arg, struct session *ses)
     if (ses==nullsession)
         return tintin_printf(ses, "#No session active => NO PATH TO SAVE!");
 
-    char alias[BUFFER_SIZE], result[BUFFER_SIZE];
+    char alias[BUFFER_SIZE], result[BUFFER_SIZE], *r=result;
     get_arg_in_braces(arg, alias, 1);
     if (!*arg)
         return tintin_eprintf(ses, "#Syntax: savepath <alias>");
 
     struct listnode *ln = ses->path;
-    int dirlen, len = 0;
 
     if (!ses->path_length)
     {
@@ -65,25 +64,19 @@ void savepath_command(const char *arg, struct session *ses)
         return;
     }
 
-    sprintf(result, "%calias {%s} {", tintin_char, alias);
-    len = strlen(result);
+    r+=snprintf(r, BUFFER_SIZE, "%calias {%s} {", tintin_char, alias);
     while ((ln = ln->next))
     {
-        dirlen = strlen(ln->left);
-        if (dirlen + len < BUFFER_SIZE - 10)
-        {
-            strcat(result, ln->left);
-            len += dirlen + 1;
-            if (ln->next)
-                strcat(result, ";");
-        }
-        else
+        int dirlen = strlen(ln->left);
+        if (r-result + dirlen >= BUFFER_SIZE - 10)
         {
             tintin_eprintf(ses, "#Error - buffer too small to contain alias");
             break;
         }
+        else
+            r += sprintf(r, "%s%s", ln->left, ln->next?";":"");
     }
-    strcat(result, "}");
+    *r++='}', *r=0;
     parse_input(result, true, ses);
 }
 
@@ -135,28 +128,22 @@ void path_command(const char *arg, struct session *ses)
     if (ses==nullsession)
         return tintin_puts("#No session active => NO PATH!", ses);
 
-    int len = 0, dirlen;
     struct listnode *ln = ses->path;
     char mypath[BUFFER_SIZE];
 
-    strcpy(mypath, "#Path:  ");
+    char *r=mypath+sprintf(mypath, "#Path:  ");
     while ((ln = ln->next))
     {
-        dirlen = strlen(ln->left);
-        if ((COLS>0) && (dirlen + len > COLS-10))
+        int dirlen = strlen(ln->left);
+        if (r-mypath + dirlen > (COLS?COLS:BUFFER_SIZE)-10)
         {
-            if (len)
-                mypath[len+7]=0;
+            r[-1]=0;
             tintin_puts(mypath, ses);
-            strcpy(mypath, "#Path:  ");
-            len = 0;
+            r=mypath+sprintf(mypath, "#Path:  ");
         }
-        strcat(mypath, ln->left);
-        strcat(mypath+dirlen, ";");
-        len += dirlen + 1;
+        r+=sprintf(r, "%s;", ln->left);
     }
-    if (len)
-        mypath[len+7]=0;
+    r[-1]=0;
     tintin_puts(mypath, ses);
 }
 
