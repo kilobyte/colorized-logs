@@ -26,45 +26,33 @@ void history_command(const char *arg, struct session *ses)
 
 void do_history(char *buffer, struct session *ses)
 {
-    char result[BUFFER_SIZE];
+    char temp[BUFFER_SIZE];
     const char *cptr;
 
-    if (!ses->verbatim && *(cptr=space_out(buffer)))
+    if (!ses->verbatim && *(cptr=space_out(buffer)) && *cptr=='!')
     {
-
-        if (*cptr == '!')
+        if (*(cptr + 1) == '!' && history[0])
         {
-            if (*(cptr + 1) == '!')
-            {
-                if (history[0])
-                {
-                    strcpy(result, history[0]);
-                    strcat(result, cptr + 2);
-                    strcpy(buffer, result);
-                }
-            }
-            else if (isadigit(*(cptr + 1)))
-            {
-                int i = atoi(cptr + 1);
-
-                if (i >= 0 && i < HISTORY_SIZE && history[i])
-                {
-                    strcpy(result, history[i]);
-                    strcat(result, cptr + 2);
-                    strcpy(buffer, result);
-                }
-            }
-            else
-            {
-                for (int i = 0; i < HISTORY_SIZE && history[i]; i++)
-                    if (is_abrev(cptr + 1, history[i]))
-                    {
-                        strcpy(buffer, history[i]);
-                        break;
-                    }
-            }
-
+            strcpy(temp, cptr+2);
+            snprintf(buffer, BUFFER_SIZE, "%s%s", history[0], temp);
         }
+        else if (isadigit(*(cptr + 1)))
+        {
+            int i = atoi(cptr + 1);
+
+            if (i >= 0 && i < HISTORY_SIZE && history[i])
+            {
+                strcpy(temp, cptr+2);
+                snprintf(buffer, BUFFER_SIZE, "%s%s", history[i], temp);
+            }
+        }
+        else
+            for (int i = 0; i < HISTORY_SIZE && history[i]; i++)
+                if (is_abrev(cptr + 1, history[i]))
+                {
+                    strcpy(buffer, history[i]);
+                    break;
+                }
     }
     insert_history(buffer);
 }
