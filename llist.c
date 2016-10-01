@@ -302,10 +302,6 @@ struct listnode* searchnode_list(struct listnode *listhead, char *cptr)
     {
         if ((i = strcmp(listhead->left, cptr)) == 0)
             return listhead;
-        /* CHANGED to fix bug when list isn't alphabetically sorted
-           else if (i>0)
-           return NULL;
-         */
     }
     return NULL;
 }
@@ -343,9 +339,6 @@ struct listnode* search_node_with_wild(struct listnode *listhead, char *cptr)
 {
     while ((listhead = listhead->next))
     {
-        /* CHANGED to fix silly globbing behavior
-           if (check_one_node(listhead->left, cptr))
-         */
         if (match(cptr, listhead->left))
             return listhead;
     }

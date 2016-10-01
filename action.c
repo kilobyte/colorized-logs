@@ -584,11 +584,6 @@ static bool check_a_action(const char *line, const char *action, bool inside, st
             return false;
         tptr++;
         flag_anchor = true;
-        /* CHANGED to fix a bug with #action {^%0 foo}
-         * Thanks to Spencer Sun for the bug report (AND fix!)
-         if (*tptr!=*line)
-         return false;
-         */
     }
     if (flag_anchor)
     {
