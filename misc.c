@@ -685,7 +685,7 @@ void system_command(const char *arg, struct session *ses)
         if (ses->mesvar[9])
             tintin_puts1("#EXECUTING SHELL COMMAND.", ses);
         utf8_to_local(buf, what);
-        if (!(output = mypopen(buf, 0)))
+        if (!(output = mypopen(buf, false)))
         {
             tintin_puts1("#ERROR EXECUTING SHELL COMMAND.", ses);
             return;

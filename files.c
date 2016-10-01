@@ -327,7 +327,7 @@ static FILE* open_logfile(struct session *ses, const char *name, const char *fil
             tintin_eprintf(ses, "#ERROR: {|} IS NOT A VALID PIPE.");
             return 0;
         }
-        if ((f=mypopen(name, 1)))
+        if ((f=mypopen(name, true)))
         {
             if (ses->mesvar[MSG_LOG])
                 tintin_printf(ses, pipemsg, name);
@@ -363,7 +363,7 @@ static FILE* open_logfile(struct session *ses, const char *name, const char *fil
     expand_filename(name, fname, lfname);
     len=strlen(fname);
     if (len>=4 && !strcmp(fname+len-3, ".gz"))
-        if ((f = mypopen(strcat(strcpy(temp, "gzip -9 >"), lfname), 1)))
+        if ((f = mypopen(strcat(strcpy(temp, "gzip -9 >"), lfname), true)))
         {
             if (ses->mesvar[MSG_LOG])
                 tintin_printf(ses, filemsg, fname);
@@ -371,7 +371,7 @@ static FILE* open_logfile(struct session *ses, const char *name, const char *fil
         else
             tintin_eprintf(ses, "#ERROR: COULDN'T OPEN PIPE: {gzip -9 >%s}.", fname);
     else if (len>=5 && !strcmp(fname+len-4, ".bz2"))
-        if ((f = mypopen(strcat(strcpy(temp, "bzip2 >"), lfname), 1)))
+        if ((f = mypopen(strcat(strcpy(temp, "bzip2 >"), lfname), true)))
         {
             if (ses->mesvar[MSG_LOG])
                 tintin_printf(ses, filemsg, fname);
@@ -379,7 +379,7 @@ static FILE* open_logfile(struct session *ses, const char *name, const char *fil
         else
             tintin_eprintf(ses, "#ERROR: COULDN'T OPEN PIPE: {bzip2 >%s}.", fname);
     else if (len>=4 && !strcmp(fname+len-3, ".xz"))
-        if ((f = mypopen(strcat(strcpy(temp, "xz >"), lfname), 1)))
+        if ((f = mypopen(strcat(strcpy(temp, "xz >"), lfname), true)))
         {
             if (ses->mesvar[MSG_LOG])
                 tintin_printf(ses, filemsg, fname);

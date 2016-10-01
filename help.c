@@ -21,7 +21,7 @@ static FILE* check_file(char *filestring)
         return 0;
     sprintf(sysfile, "%s %s%s", DEFAULT_EXPANSION_STR, filestring,
         DEFAULT_COMPRESSION_EXT);
-    return mypopen(sysfile, 0);
+    return mypopen(sysfile, false);
 #else
     return (FILE *) fopen(filestring, "r");
 #endif

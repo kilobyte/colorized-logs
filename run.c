@@ -203,7 +203,7 @@ int run(const char *command, int sx, int sy, const char *term)
 }
 
 
-FILE* mypopen(const char *command, int wr)
+FILE* mypopen(const char *command, bool wr)
 {
     int p[2];
 
