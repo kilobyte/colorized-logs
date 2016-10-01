@@ -70,27 +70,3 @@ static void insert_history(const char *buffer)
 
     history[0] = mystrdup(buffer);
 }
-
-#if 0
-/************************************************************/
-/* do all the parse stuff for !XXXX history commands        */
-/************************************************************/
-struct session* parse_history(const char *command, const char *arg, struct session *ses)
-{
-    if ((*(command + 1) == '!' || !*(command + 1)) && history[0])
-        return parse_input(history[0], true, ses); /* we're already not in verbatim */
-
-    else if (isadigit(*(command + 1)))
-    {
-        int i = atoi(command + 1);
-
-        if (i >= 0 && i < HISTORY_SIZE && history[i])
-        {
-            return parse_input(history[i], true, ses);
-        }
-    }
-    tintin_eprintf(ses, "#HISTORY: I DON'T REMEMBER THAT COMMAND.");
-
-    return ses;
-}
-#endif
