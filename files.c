@@ -20,6 +20,7 @@
 #include "protos/utils.h"
 #include "protos/variables.h"
 #include <pwd.h>
+#include <fcntl.h>
 
 static void prepare_for_write(const char *command, const char *left, const char *right, const char *pr, char *result);
 extern void char_command(const char *arg, struct session *ses);
@@ -316,7 +317,7 @@ void loginputformat_command(const char *arg, struct session *ses)
 
 static FILE* open_logfile(struct session *ses, const char *name, const char *filemsg, const char *appendmsg, const char *pipemsg)
 {
-    char temp[BUFFER_SIZE], fname[BUFFER_SIZE], lfname[BUFFER_SIZE];
+    char fname[BUFFER_SIZE], lfname[BUFFER_SIZE];
     FILE *f;
     int len;
 
@@ -371,8 +372,15 @@ static FILE* open_logfile(struct session *ses, const char *name, const char *fil
         zip="xz";
     if (zip)
     {
-        snprintf(temp, BUFFER_SIZE, "%s >%s", zip, lfname);
-        if ((f = mypopen(temp, true, -1)))
+        int fd=open(lfname, O_WRONLY|O_BINARY|O_CREAT|O_TRUNC, 0666);
+        if (fd==-1)
+        {
+            tintin_eprintf(ses, "#ERROR: COULDN'T CREATE FILE {%s}: %s",
+                           fname, strerror(errno));
+            return 0;
+        }
+
+        if ((f = mypopen(zip, true, fd)))
         {
             if (ses->mesvar[MSG_LOG])
                 tintin_printf(ses, filemsg, fname);
