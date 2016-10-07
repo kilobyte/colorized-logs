@@ -327,7 +327,7 @@ static FILE* open_logfile(struct session *ses, const char *name, const char *fil
             tintin_eprintf(ses, "#ERROR: {|} IS NOT A VALID PIPE.");
             return 0;
         }
-        if ((f=mypopen(name, true)))
+        if ((f=mypopen(name, true, -1)))
         {
             if (ses->mesvar[MSG_LOG])
                 tintin_printf(ses, pipemsg, name);
@@ -372,7 +372,7 @@ static FILE* open_logfile(struct session *ses, const char *name, const char *fil
     if (zip)
     {
         snprintf(temp, BUFFER_SIZE, "%s >%s", zip, lfname);
-        if ((f = mypopen(temp, true)))
+        if ((f = mypopen(temp, true, -1)))
         {
             if (ses->mesvar[MSG_LOG])
                 tintin_printf(ses, filemsg, fname);

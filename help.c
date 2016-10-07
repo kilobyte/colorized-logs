@@ -2,26 +2,23 @@
 /* functions for the #help command                               */
 /*****************************************************************/
 #include "tintin.h"
+#include <fcntl.h>
 #include "protos/globals.h"
 #include "protos/print.h"
 #include "protos/run.h"
 #include "protos/utils.h"
 
 
-static FILE* check_file(char *filestring)
+static FILE* check_file(const char *filestring)
 {
 #if COMPRESSED_HELP
     char sysfile[BUFFER_SIZE];
-    FILE *f;
+    int f;
 
     sprintf(sysfile, "%s%s", filestring, DEFAULT_COMPRESSION_EXT);
-    if ((f=fopen(sysfile, "r")))
-        fclose(f);
-    else
+    if ((f=open(sysfile, O_RDONLY|O_BINARY))==-1)
         return 0;
-    sprintf(sysfile, "%s %s%s", DEFAULT_EXPANSION_STR, filestring,
-        DEFAULT_COMPRESSION_EXT);
-    return mypopen(sysfile, false);
+    return mypopen(DEFAULT_EXPANSION_STR, false, f);
 #else
     return (FILE *) fopen(filestring, "r");
 #endif

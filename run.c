@@ -203,17 +203,21 @@ int run(const char *command, int sx, int sy, const char *term)
 }
 
 
-FILE* mypopen(const char *command, bool wr)
+FILE* mypopen(const char *command, bool wr, int ofd)
 {
     int p[2];
 
     if (pipe(p))
+    {
+        close(ofd);
         return 0;
+    }
     switch (fork())
     {
     case -1:
         close(p[0]);
         close(p[1]);
+        close(ofd);
         return 0;
     case 0:
         {
@@ -223,8 +227,10 @@ FILE* mypopen(const char *command, bool wr)
             if (!wr)
             {
                 close(p[0]);
-                close(0);
-                open("/dev/null", O_RDONLY);
+                if (ofd==-1)
+                    ofd=open("/dev/null", O_RDONLY);
+                if (ofd!=-1)
+                    dup2(ofd, 0);
                 dup2(p[1], 1);
                 dup2(p[1], 2);
                 close(p[1]);
@@ -232,16 +238,18 @@ FILE* mypopen(const char *command, bool wr)
             else
             {
                 close(p[1]);
-                close(1);
-                close(2);
-                open("/dev/null", O_WRONLY);
-                dup2(1, 2);
+                if (ofd==-1)
+                    ofd=open("/dev/null", O_WRONLY);
+                if (ofd!=-1)
+                    dup2(ofd, 1), dup2(ofd, 2);
                 dup2(p[0], 0);
                 close(p[0]);
                 signal(SIGINT, SIG_IGN);
                 signal(SIGHUP, SIG_IGN);
                 signal(SIGTSTP, SIG_IGN);
             }
+            if (ofd>2)
+                close(ofd);
             sprintf(cmd, "exec %s", command);
             argv[0]="sh";
             argv[1]="-c";
@@ -252,6 +260,7 @@ FILE* mypopen(const char *command, bool wr)
             exit(127);
         }
     default:
+        close(ofd);
         close(p[!wr]);
         return fdopen(p[wr], wr?"w":"r");
     }
