@@ -80,10 +80,10 @@
 #define DEFAULT_FILE_DIR "." /* Path to Tintin files, or HOME */
 #endif
 #if COMPRESSED_HELP
-#define DEFAULT_COMPRESSION_EXT ".gz"     /* for compress: ".Z" */
-#define DEFAULT_EXPANSION_STR "gzip -cd " /* for compress: "uncompress -c" */
+#define COMPRESSION_EXT ".gz"      /* for compress: ".Z" */
+#define UNCOMPRESS_CMD "gzip -cd " /* for compress: "uncompress -c" */
 #else
-#define DEFAULT_COMPRESSION_EXT ""
+#define COMPRESSION_EXT ""
 #endif
 #define NEWS_FILE   "NEWS"
 #define CONFIG_DIR ".tintin"

@@ -15,10 +15,10 @@ static FILE* check_file(const char *filestring)
     char sysfile[BUFFER_SIZE];
     int f;
 
-    sprintf(sysfile, "%s%s", filestring, DEFAULT_COMPRESSION_EXT);
+    sprintf(sysfile, "%s%s", filestring, COMPRESSION_EXT);
     if ((f=open(sysfile, O_RDONLY|O_BINARY))==-1)
         return 0;
-    return mypopen(DEFAULT_EXPANSION_STR, false, f);
+    return mypopen(UNCOMPRESS_CMD, false, f);
 #else
     return (FILE *) fopen(filestring, "r");
 #endif
@@ -57,15 +57,15 @@ void help_command(const char *arg, struct session *ses)
         tintin_eprintf(0, "#Locations checked:");
         if (strcmp(DEFAULT_FILE_DIR, "HOME"))
             tintin_eprintf(0, "#      %s/KBtin_help%s", DEFAULT_FILE_DIR,
-                DEFAULT_COMPRESSION_EXT);
+                COMPRESSION_EXT);
 #ifdef DATA_PATH
         tintin_eprintf(0, "#      %s/KBtin_help%s", DATA_PATH,
-            DEFAULT_COMPRESSION_EXT);
+            COMPRESSION_EXT);
 #endif
         tintin_eprintf(0, "#      %s_help%s", tintin_exec,
-            DEFAULT_COMPRESSION_EXT);
+            COMPRESSION_EXT);
         tintin_eprintf(0, "#      %s/KBtin_help%s", getenv("HOME"),
-            DEFAULT_COMPRESSION_EXT);
+            COMPRESSION_EXT);
         return;
     }
     if (*arg==tintin_char)
