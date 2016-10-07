@@ -69,6 +69,7 @@ AC_SCO
 AC_AI_ADDRCONFIG
 AC_SYS_LARGEFILE
 AC_C_TRY_FLAG([-Wno-unused-parameter])
+AC_DECL_OR_ZERO([O_BINARY], [fcntl.h])
 
 # Enable some warnings.
 AC_C_TRY_FLAG([-Wwrite-strings])
