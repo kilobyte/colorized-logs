@@ -5,6 +5,7 @@
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #ifdef HAVE_TERMIOS_H
 # include <termios.h>
 #endif
@@ -169,6 +170,7 @@ int run(const char *command, int sx, int sy, const char *term)
 #if defined(__FreeBSD_kernel__) && defined(__GLIBC__)
     int err = errno;
     sigaction(SIGCHLD, &oldact, 0);
+    while (waitpid(-1, 0, WNOHANG)>0);
     errno = err;
 #endif
 
