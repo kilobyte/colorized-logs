@@ -385,13 +385,17 @@ static inline bool isaspace(WC x) { return x==' ' || x=='\t' || x=='\n' || x==12
 static inline bool isw2width(WC x)
 {
     return x>=0x1100  && (x<=0x11ff ||
-           x>=0x2e80) && (x<=0xd7ff ||
+           x==0x2329 || x==0x232a   ||
+           x>=0x2e80) && x!=0x303f
+                      && (x<=0xa4cf ||
+           x>=0xac00) && (x<=0xd7ff ||
            x>=0xf900) && (x<=0xfaff ||
            x>=0xfe30) && (x<=0xfe6f ||
-           x>=0xff01) && (x<=0xff60 ||
+           x>=0xff00) && (x<=0xff60 ||
            x>=0xffe0) && (x<=0xffe6 ||
-           x>=0x20000) && x<=0x2ffff;
+           x>=0x20000) && x<=0x3ffff;
 }
+
 static inline bool is7alpha(WC x) { return (x>='A'&&x<='Z') || (x>='a'&&x<='z'); }
 static inline bool is7alnum(WC x) { return (x>='0'&&x<='9') || is7alpha(x); }
 static inline char toalower(char x) { return (x>='A' && x<='Z') ? x+32 : x; }
