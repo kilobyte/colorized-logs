@@ -170,15 +170,18 @@ enum
     MSG_LOG,
     MAX_MESVAR
 };
-#define HOOK_OPEN       0
-#define HOOK_CLOSE      1
-#define HOOK_ZAP        2
-#define HOOK_END        3
-#define HOOK_SEND       4
-#define HOOK_ACTIVATE   5
-#define HOOK_DEACTIVATE 6
-#define HOOK_TITLE      7
-#define NHOOKS          8
+enum
+{
+    HOOK_OPEN,
+    HOOK_CLOSE,
+    HOOK_ZAP,
+    HOOK_END,
+    HOOK_SEND,
+    HOOK_ACTIVATE,
+    HOOK_DEACTIVATE,
+    HOOK_TITLE,
+    NHOOKS
+};
 
 /************************ includes *********************/
 #define _GNU_SOURCE
