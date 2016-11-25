@@ -152,21 +152,24 @@ typedef enum {PRIORITY, ALPHA, LENGTH} llist_mode_t;
 
 #define BUFFER_SIZE 4096
 #define INPUT_CHUNK 1536
-#define MSG_ALIAS       0
-#define MSG_ACTION      1
-#define MSG_SUBSTITUTE  2
-#define MSG_EVENT       3
-#define MSG_HIGHLIGHT   4
-#define MSG_VARIABLE    5
-#define MSG_ROUTE       6
-#define MSG_GOTO        7
-#define MSG_BIND        8
-#define MSG_SYSTEM      9
-#define MSG_PATH        10
-#define MSG_ERROR       11
-#define MSG_HOOK        12
-#define MSG_LOG         13
-#define MAX_MESVAR      14
+enum
+{
+    MSG_ALIAS,
+    MSG_ACTION,
+    MSG_SUBSTITUTE,
+    MSG_EVENT,
+    MSG_HIGHLIGHT,
+    MSG_VARIABLE,
+    MSG_ROUTE,
+    MSG_GOTO,
+    MSG_BIND,
+    MSG_SYSTEM,
+    MSG_PATH,
+    MSG_ERROR,
+    MSG_HOOK,
+    MSG_LOG,
+    MAX_MESVAR
+};
 #define HOOK_OPEN       0
 #define HOOK_CLOSE      1
 #define HOOK_ZAP        2
