@@ -31,7 +31,7 @@ void mark_command(const char *arg, struct session *ses)
     ses->path = init_list();
     ses->path_length = 0;
     ses->no_return = 0;
-    if (ses->mesvar[10])
+    if (ses->mesvar[MSG_PATH])
         tintin_puts("#Beginning of path marked.", ses);
 }
 
@@ -220,7 +220,7 @@ void unmap_command(const char *arg, struct session *ses)
     while (ln->next)
         (ln = ln->next);
     deletenode_list(ses->path, ln);
-    if (ses->mesvar[10])
+    if (ses->mesvar[MSG_PATH])
         tintin_puts("#Ok.  Forgot that move.", ses);
 }
 
@@ -252,7 +252,7 @@ void pathdir_command(const char *arg, struct session *ses)
     if (*left && *right)
     {
         set_hash(ses->pathdirs, left, right);
-        if (ses->mesvar[10])
+        if (ses->mesvar[MSG_PATH])
             tintin_printf(ses, "#Ok.  {%s} is marked in #path. {%s} is it's #return.",
                     left, right);
         pdnum++;
@@ -270,6 +270,6 @@ void unpathdir_command(const char *arg, struct session *ses)
     arg = get_arg_in_braces(arg, left, 1);
     prepare_actionalias(left, left, ses);
     delete_hashlist(ses, ses->pathdirs, left,
-        ses->mesvar[10]? "#Ok. $%s is no longer recognized as a pathdir." : 0,
-        ses->mesvar[10]? "#THAT PATHDIR (%s) IS NOT DEFINED." : 0);
+        ses->mesvar[MSG_PATH]? "#Ok. $%s is no longer recognized as a pathdir." : 0,
+        ses->mesvar[MSG_PATH]? "#THAT PATHDIR (%s) IS NOT DEFINED." : 0);
 }

@@ -137,7 +137,7 @@ void highlight_command(const char *arg, struct session *ses)
         {
             if (!*right)
             {
-                if (ses->mesvar[4] || ses->mesvar[11])
+                if (ses->mesvar[MSG_HIGHLIGHT] || ses->mesvar[MSG_ERROR])
                     tintin_eprintf(ses, "#Highlight WHAT?");
                 return;
             }
@@ -145,12 +145,12 @@ void highlight_command(const char *arg, struct session *ses)
                 deletenode_list(myhighs, ln);
             insertnode_list(myhighs, right, left, get_fastener(right, tmp1), LENGTH);
             hinum++;
-            if (ses->mesvar[4])
+            if (ses->mesvar[MSG_HIGHLIGHT])
                 tintin_printf(ses, "#Ok. {%s} is now highlighted %s.", right, left);
         }
         else
         {
-            if (!puts_echoing && ses->mesvar[11])
+            if (!puts_echoing && ses->mesvar[MSG_ERROR])
             {
                 tintin_eprintf(ses, "#Invalid highlighting color: {%s}", left);
                 return;
@@ -199,13 +199,13 @@ void unhighlight_command(const char *arg, struct session *ses)
     substitute_myvars(result, left, ses);
     while ((ln = search_node_with_wild(temp, left)) != NULL)
     {
-        if (ses->mesvar[4])
+        if (ses->mesvar[MSG_HIGHLIGHT])
             tintin_printf(ses, "Ok. {%s} is no longer %s.", ln->left, ln->right);
         deletenode_list(myhighs, ln);
         flag = true;
         /*temp = ln;*/
     }
-    if (!flag && ses->mesvar[4])
+    if (!flag && ses->mesvar[MSG_HIGHLIGHT])
         tintin_printf(ses, "#THAT HIGHLIGHT IS NOT DEFINED.");
 }
 

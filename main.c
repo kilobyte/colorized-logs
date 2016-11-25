@@ -263,20 +263,20 @@ static void init_nullses(void)
     activesession = nullsession;
     pvars=0;
 
-    nullsession->mesvar[0] = DEFAULT_ALIAS_MESS;
-    nullsession->mesvar[1] = DEFAULT_ACTION_MESS;
-    nullsession->mesvar[2] = DEFAULT_SUB_MESS;
-    nullsession->mesvar[3] = DEFAULT_EVENT_MESS;
-    nullsession->mesvar[4] = DEFAULT_HIGHLIGHT_MESS;
-    nullsession->mesvar[5] = DEFAULT_VARIABLE_MESS;
-    nullsession->mesvar[6] = DEFAULT_ROUTE_MESS;
-    nullsession->mesvar[7] = DEFAULT_GOTO_MESS;
-    nullsession->mesvar[8] = DEFAULT_BIND_MESS;
-    nullsession->mesvar[9] = DEFAULT_SYSTEM_MESS;
-    nullsession->mesvar[10]= DEFAULT_PATH_MESS;
-    nullsession->mesvar[11]= DEFAULT_ERROR_MESS;
-    nullsession->mesvar[12]= DEFAULT_HOOK_MESS;
-    nullsession->mesvar[13]= DEFAULT_LOG_MESS;
+    nullsession->mesvar[MSG_ALIAS] = DEFAULT_ALIAS_MESS;
+    nullsession->mesvar[MSG_ACTION] = DEFAULT_ACTION_MESS;
+    nullsession->mesvar[MSG_SUBSTITUTE] = DEFAULT_SUB_MESS;
+    nullsession->mesvar[MSG_EVENT] = DEFAULT_EVENT_MESS;
+    nullsession->mesvar[MSG_HIGHLIGHT] = DEFAULT_HIGHLIGHT_MESS;
+    nullsession->mesvar[MSG_VARIABLE] = DEFAULT_VARIABLE_MESS;
+    nullsession->mesvar[MSG_ROUTE] = DEFAULT_ROUTE_MESS;
+    nullsession->mesvar[MSG_GOTO] = DEFAULT_GOTO_MESS;
+    nullsession->mesvar[MSG_BIND] = DEFAULT_BIND_MESS;
+    nullsession->mesvar[MSG_SYSTEM] = DEFAULT_SYSTEM_MESS;
+    nullsession->mesvar[MSG_PATH]= DEFAULT_PATH_MESS;
+    nullsession->mesvar[MSG_ERROR]= DEFAULT_ERROR_MESS;
+    nullsession->mesvar[MSG_HOOK]= DEFAULT_HOOK_MESS;
+    nullsession->mesvar[MSG_LOG]= DEFAULT_LOG_MESS;
     nullsession->charset=mystrdup(DEFAULT_CHARSET);
     nullsession->logcharset=logcs_is_special(DEFAULT_LOGCHARSET) ?
                               DEFAULT_LOGCHARSET : mystrdup(DEFAULT_LOGCHARSET);

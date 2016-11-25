@@ -84,7 +84,7 @@ void tintin_eprintf(struct session *ses, const char *format, ...)
 
     /* note: the behavior on !ses is wrong */
     if ((ses == activesession || ses == nullsession || !ses)
-        && (puts_echoing||!ses||ses->mesvar[11]))
+        && (puts_echoing||!ses||ses->mesvar[MSG_ERROR]))
     {
         va_start(ap, format);
         int n=vsnprintf(buf, BUFFER_SIZE-1, format, ap);

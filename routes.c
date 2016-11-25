@@ -217,13 +217,13 @@ found_j:
             kill_unused_locations(ses);
             return;
         }
-        if ((d<0)&&(ses->mesvar[6]||ses->mesvar[11]))
+        if ((d<0)&&(ses->mesvar[MSG_ROUTE]||ses->mesvar[MSG_ERROR]))
             tintin_eprintf(ses, "#Error: distance cannot be negative!");
     }
     else
         d=DEFAULT_ROUTE_DISTANCE;
     addroute(ses, i, j, way, d, cond);
-    if (ses->mesvar[6])
+    if (ses->mesvar[MSG_ROUTE])
     {
         if (*cond)
             tintin_printf(ses, "#Ok. Way from {%s} to {%s} is now set to {%s} (distance=%i) condition:{%s}",
@@ -266,7 +266,7 @@ void unroute_command(const char *arg, struct session *ses)
                 if (match(b, ses->locations[(*r)->dest]))
                 {
                     struct routenode *p=*r;
-                    if (ses->mesvar[6])
+                    if (ses->mesvar[MSG_ROUTE])
                     {
                         tintin_printf(ses, "#Ok. There is no longer a route from {%s~-1~} to {%s~-1~}.",
                             ses->locations[i],
@@ -283,7 +283,7 @@ void unroute_command(const char *arg, struct session *ses)
             }
     if (found)
         kill_unused_locations(ses);
-    else if (ses->mesvar[6])
+    else if (ses->mesvar[MSG_ROUTE])
         tintin_printf(ses, "#THAT ROUTE (%s) IS NOT DEFINED.", b);
 }
 
@@ -376,7 +376,7 @@ void goto_command(const char *arg, struct session *ses)
     locs[0]=mystrdup(ses->locations[b]);
     for (i=j;i>0;i--)
     {
-        if (ses->mesvar[7])
+        if (ses->mesvar[MSG_GOTO])
         {
             tintin_printf(ses, "#going from %s to %s",
                 locs[i],

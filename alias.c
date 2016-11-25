@@ -82,7 +82,7 @@ void alias_command(const char *arg, struct session *ses)
             tintin_printf(ses, "#Converted offending alias to {%s}.", left);
         }
         set_hash(ses->aliases, left, right);
-        if (ses->mesvar[0])
+        if (ses->mesvar[MSG_ALIAS])
             tintin_printf(ses, "#Ok. {%s} aliases {%s}.", left, right);
         alnum++;
         return;
@@ -101,6 +101,6 @@ void unalias_command(const char *arg, struct session *ses)
 
     arg = get_arg_in_braces(arg, left, 1);
     delete_hashlist(ses, ses->aliases, left,
-        ses->mesvar[0]? "#Ok. {%s} is no longer an alias." : 0,
-        ses->mesvar[0]? "#No match(es) found for {%s}" : 0);
+        ses->mesvar[MSG_ALIAS]? "#Ok. {%s} is no longer an alias." : 0,
+        ses->mesvar[MSG_ALIAS]? "#No match(es) found for {%s}" : 0);
 }

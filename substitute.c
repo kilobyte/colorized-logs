@@ -48,7 +48,7 @@ static void parse_sub(const char *arg, bool gag, struct session *ses)
                 flag=true;
                 shownode_list(mysubs);
             }
-        if (!flag && ses->mesvar[2])
+        if (!flag && ses->mesvar[MSG_SUBSTITUTE])
         {
             if (strcmp(left, "*"))
                 tintin_printf(ses, "#THAT %s IS NOT DEFINED.", gag? "GAG":"SUBSTITUTE");
@@ -62,7 +62,7 @@ static void parse_sub(const char *arg, bool gag, struct session *ses)
             deletenode_list(mysubs, ln);
         insertnode_list(mysubs, left, right, 0, ALPHA);
         subnum++;
-        if (ses->mesvar[2])
+        if (ses->mesvar[MSG_SUBSTITUTE])
         {
             if (strcmp(right, EMPTY_LINE))
                 tintin_printf(ses, "#Ok. {%s} now replaces {%s}.", right, left);
@@ -111,7 +111,7 @@ static void unsub(const char *arg, bool gag, struct session *ses)
             temp=ln;
             continue;
         }
-        if (ses->mesvar[2])
+        if (ses->mesvar[MSG_SUBSTITUTE])
         {
             if (!strcmp(ln->right, EMPTY_LINE))
                 tintin_printf(ses, "#Ok. {%s} is no longer gagged.", ln->left);
@@ -122,7 +122,7 @@ static void unsub(const char *arg, bool gag, struct session *ses)
         flag = true;
         /*  temp=ln; */
     }
-    if (!flag && ses->mesvar[2])
+    if (!flag && ses->mesvar[MSG_SUBSTITUTE])
         tintin_printf(ses, "#THAT SUBSTITUTE (%s) IS NOT DEFINED.", left);
 }
 

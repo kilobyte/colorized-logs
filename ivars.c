@@ -257,7 +257,7 @@ static bool conv_to_ints(char *arg, struct session *ses)
         /* jku: undefined variables are now assigned value 0 (false) */
         else if (*ptr == '$')
         {
-            if (ses->mesvar[5])
+            if (ses->mesvar[MSG_VARIABLE])
                 tintin_eprintf(ses, "#Undefined variable in {%s}.", arg);
             stacks[i][1] = 15;
             stacks[i][2] = 0;

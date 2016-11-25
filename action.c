@@ -104,7 +104,7 @@ void action_command(const char *arg, struct session *ses)
         while ((myactions = search_node_with_wild(myactions, left)) != NULL)
             if (strcmp(myactions->left, K_ACTION_MAGIC))
                 shownode_list_action(myactions), flag=true;
-        if (!flag && ses->mesvar[1])
+        if (!flag && ses->mesvar[MSG_ACTION])
             tintin_printf(ses, "#That action (%s) is not defined.", left);
     }
     else
@@ -112,7 +112,7 @@ void action_command(const char *arg, struct session *ses)
         if ((ln = searchnode_list(myactions, left)) != NULL)
             kill_action(myactions, ln);
         insertnode_list(myactions, left, right, pr, PRIORITY);
-        if (ses->mesvar[1])
+        if (ses->mesvar[MSG_ACTION])
             tintin_printf(ses, "#Ok. {%s} now triggers {%s} @ {%s}", left, right, pr);
         acnum++;
     }
@@ -145,7 +145,7 @@ void promptaction_command(const char *arg, struct session *ses)
         while ((myprompts = search_node_with_wild(myprompts, left)))
             if (strcmp(myprompts->left, K_ACTION_MAGIC))
                 shownode_list_action(myprompts), flag=true;
-        if (!flag && ses->mesvar[1])
+        if (!flag && ses->mesvar[MSG_ACTION])
             tintin_printf(ses, "#That promptaction (%s) is not defined.", left);
     }
     else
@@ -153,7 +153,7 @@ void promptaction_command(const char *arg, struct session *ses)
         if ((ln = searchnode_list(myprompts, left)) != NULL)
             kill_action(myprompts, ln);
         insertnode_list(myprompts, left, right, pr, PRIORITY);
-        if (ses->mesvar[1])
+        if (ses->mesvar[MSG_ACTION])
             tintin_printf(ses, "#Ok. {%s} now triggers {%s} @ {%s}", left, right, pr);
     }
 }
@@ -181,7 +181,7 @@ void unaction_command(const char *arg, struct session *ses)
         if (strcmp(ln->left, K_ACTION_MAGIC)&&match(left, ln->left))
         {
             flag=true;
-            if (ses->mesvar[1])
+            if (ses->mesvar[MSG_ACTION])
                 tintin_printf(ses, "#Ok. {%s} is no longer an action.", ln->left);
             SFREE(ln->left);
             if (inActions)
@@ -202,7 +202,7 @@ void unaction_command(const char *arg, struct session *ses)
         else
             ptr=&(*ptr)->next;
     }
-    if (!flag && ses->mesvar[1])    /* is it an error or not? */
+    if (!flag && ses->mesvar[MSG_ACTION])    /* is it an error or not? */
         tintin_printf(ses, "#No match(es) found for {%s}", left);
 }
 
@@ -228,7 +228,7 @@ void unpromptaction_command(const char *arg, struct session *ses)
         if (strcmp(ln->left, K_ACTION_MAGIC)&&match(left, ln->left))
         {
             flag=true;
-            if (ses->mesvar[1])
+            if (ses->mesvar[MSG_ACTION])
                 tintin_printf(ses, "#Ok. {%s} is no longer a promptaction.", ln->left);
             SFREE(ln->left);
             if (inActions)
@@ -249,7 +249,7 @@ void unpromptaction_command(const char *arg, struct session *ses)
         else
             ptr=&(*ptr)->next;
     }
-    if (!flag && ses->mesvar[1])    /* is it an error or not? */
+    if (!flag && ses->mesvar[MSG_ACTION])    /* is it an error or not? */
         tintin_printf(ses, "#No match(es) found for {%s}", left);
 }
 
@@ -399,7 +399,7 @@ void check_all_actions(const char *line, struct session *ses)
         {
             lastpvars = pvars;
             pvars = &vars;
-            if (ses->mesvar[1] && activesession == ses)
+            if (ses->mesvar[MSG_ACTION] && activesession == ses)
             {
                 char buffer[BUFFER_SIZE];
 
@@ -436,7 +436,7 @@ void check_all_promptactions(const char *line, struct session *ses)
         {
             lastpvars=pvars;
             pvars=&vars;
-            if (ses->mesvar[1] && activesession == ses)
+            if (ses->mesvar[MSG_ACTION] && activesession == ses)
             {
                 char buffer[BUFFER_SIZE];
 

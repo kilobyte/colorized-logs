@@ -34,7 +34,7 @@ void antisubstitute_command(const char *arg, struct session *ses)
             deletenode_list(myantisubs, ln);
         insertnode_list(myantisubs, left, left, 0, ALPHA);
         antisubnum++;
-        if (ses->mesvar[2])
+        if (ses->mesvar[MSG_SUBSTITUTE])
             tintin_printf(ses, "Ok. Any line with {%s} will not be subbed.", left);
     }
 }
@@ -51,12 +51,12 @@ void unantisubstitute_command(const char *arg, struct session *ses)
     arg = get_arg_in_braces(arg, left, 1);
     while ((ln = search_node_with_wild(temp, left)) != NULL)
     {
-        if (ses->mesvar[2])
+        if (ses->mesvar[MSG_SUBSTITUTE])
             tintin_printf(ses, "#Ok. Lines with {%s} will now be subbed.", ln->left);
         deletenode_list(myantisubs, ln);
         flag = true;
     }
-    if (!flag && ses->mesvar[2])
+    if (!flag && ses->mesvar[MSG_SUBSTITUTE])
         tintin_printf(ses, "#THAT ANTISUBSTITUTE (%s) IS NOT DEFINED.", left);
 }
 

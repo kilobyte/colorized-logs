@@ -119,7 +119,7 @@ void bind_command(const char *arg, struct session *ses)
     if (*left && *right)
     {
         set_hash(ses->binds, left, right);
-        if (ses->mesvar[8])
+        if (ses->mesvar[MSG_BIND])
             tintin_printf(ses, "#Ok. {%s} is now bound to {%s}.", left, right);
         bindnum++;
         return;
@@ -145,8 +145,8 @@ void unbind_command(const char *arg, struct session *ses)
     substitute_vars(left, result);
     substitute_myvars(result, left, ses);
     delete_hashlist(ses, ses->binds, left,
-        ses->mesvar[8]? "#Ok. {%s} is no longer bound." : 0,
-        ses->mesvar[8]? "#No match(es) found for {%s}" : 0);
+        ses->mesvar[MSG_BIND]? "#Ok. {%s} is no longer bound." : 0,
+        ses->mesvar[MSG_BIND]? "#No match(es) found for {%s}" : 0);
 }
 
 

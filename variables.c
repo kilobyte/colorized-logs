@@ -26,7 +26,7 @@ void set_variable(const char *left, const char *right, struct session *ses)
 {
     set_hash(ses->myvars, left, right);
     varnum++;       /* we don't care for exactness of this */
-    if (ses->mesvar[5])
+    if (ses->mesvar[MSG_VARIABLE])
         tintin_printf(ses, "#Ok. $%s is now set to {%s}.", left, right);
 }
 
@@ -230,8 +230,8 @@ void unvariable_command(const char *arg, struct session *ses)
 
     arg = get_arg(arg, left, 1, ses);
     delete_hashlist(ses, ses->myvars, left,
-        ses->mesvar[5]? "#Ok. $%s is no longer a variable." : 0,
-        ses->mesvar[5]? "#THAT VARIABLE (%s) IS NOT DEFINED." : 0);
+        ses->mesvar[MSG_VARIABLE]? "#Ok. $%s is no longer a variable." : 0,
+        ses->mesvar[MSG_VARIABLE]? "#THAT VARIABLE (%s) IS NOT DEFINED." : 0);
 }
 
 
@@ -373,7 +373,7 @@ void getitem_command(const char *arg, struct session *ses)
     else
     {
         set_variable(destvar, "", ses);
-        if (ses->mesvar[5])
+        if (ses->mesvar[MSG_VARIABLE])
             tintin_printf(ses, "#Item doesn't exist!");
     }
 }

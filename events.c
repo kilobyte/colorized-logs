@@ -10,7 +10,7 @@
 
 void execute_event(struct eventnode *ev, struct session *ses)
 {
-    if (activesession==ses && ses->mesvar[3])
+    if (activesession==ses && ses->mesvar[MSG_EVENT])
         tintin_printf(ses, "[EVENT: %s]", ev->event);
     parse_input(ev->event, true, ses);
     recursion=0;
@@ -168,7 +168,7 @@ void undelay_command(const char *arg, struct session *ses)
         if (match(left, (*ev)->event))
         {
             flag=true;
-            if (ses==activesession && ses->mesvar[3])
+            if (ses==activesession && ses->mesvar[MSG_EVENT])
                 tintin_printf(ses, "#Ok. Event {%s} at %ld won't be executed.",
                     (*ev)->event, (*ev)->time-time(0));
             remove_event(ev);

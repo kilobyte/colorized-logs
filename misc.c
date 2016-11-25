@@ -682,7 +682,7 @@ void system_command(const char *arg, struct session *ses)
     get_arg(arg, what, 1, ses);
     if (*what)
     {
-        if (ses->mesvar[9])
+        if (ses->mesvar[MSG_SYSTEM])
             tintin_puts1("#EXECUTING SHELL COMMAND.", ses);
         utf8_to_local(buf, what);
         if (!(output = mypopen(buf, false, -1)))
@@ -702,7 +702,7 @@ void system_command(const char *arg, struct session *ses)
         }
         ses->lastintitle=save_lastintitle;
         fclose(output);
-        if (ses->mesvar[9])
+        if (ses->mesvar[MSG_SYSTEM])
             tintin_puts1("#OK COMMAND EXECUTED.", ses);
     }
     else
@@ -719,7 +719,7 @@ void shell_command(const char *arg, struct session *ses)
     get_arg(arg, what, 1, ses);
     if (*what)
     {
-        if (ses->mesvar[9])
+        if (ses->mesvar[MSG_SYSTEM])
             tintin_puts1("#EXECUTING SHELL COMMAND.", ses);
         utf8_to_local(cmd, what);
         if (ui_own_output)
@@ -732,7 +732,7 @@ void shell_command(const char *arg, struct session *ses)
         }
         if (ui_own_output)
             user_resume();
-        if (ses->mesvar[9])
+        if (ses->mesvar[MSG_SYSTEM])
             tintin_puts1("#OK COMMAND EXECUTED.", ses);
     }
     else
