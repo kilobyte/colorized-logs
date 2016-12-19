@@ -368,7 +368,7 @@ static struct session *new_session(const char *name, const char *address, int so
 /*****************************************************************************/
 void cleanup_session(struct session *ses)
 {
-    char buf[BUFFER_SIZE];
+    char buf[BUFFER_SIZE+1];
     struct session *sesptr, *act;
 
     if (ses->closing)
