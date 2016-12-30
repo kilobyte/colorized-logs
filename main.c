@@ -470,7 +470,7 @@ a screenful of all-uppercase (cAPS kEY IS STUCK AGAIN?) text that no one
 ever wants to read -- that is what docs are for.
 */
         tintin_printf(0, "~2~##########################################################");
-        tintin_printf(0, "#~7~                ~12~K B ~3~t i n~7~     v %-23s ~2~#", VERSION);
+        tintin_printf(0, "#~7~               ~12~K B ~3~t i n~7~    v %-25s ~2~#", VERSION);
         tintin_printf(0, "#                                                        #");
         tintin_printf(0, "#~7~ current developer: ~9~Adam Borowski (~9~kilobyte@angband.pl~7~) ~2~#");
         tintin_printf(0, "#                                                        #");
