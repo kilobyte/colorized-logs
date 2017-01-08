@@ -124,3 +124,7 @@
 * #hook title for when a program/MUD tries to set window title
 * #sendchar for sending some special characters like ^C
 * $SERVERIDLE pseudovar: time since last output from the server
+
+1.0.18:
+* idle/serveridle in #info
+* ansi2html improvements

@@ -1,3 +1,9 @@
+1.0.18:
+*	lots of internal cleanups
+*	idle/serveridle in #info
+*	ansi2html improvements
+*	assorted minor fixes
+
 1.0.17:
 *	pipetty, a new tool to fool isatty()
 *	256/24-bit color support, full in ansi2html, shoehorned to 16/8 colors
