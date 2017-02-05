@@ -434,8 +434,6 @@ csi:
                 fl|=STRIKE;
                 break;
             case 21:
-                fl&=~(BOLD|DIM);
-                break;
             case 22:
                 fl&=~(BOLD|DIM);
                 break;
