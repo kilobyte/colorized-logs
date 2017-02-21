@@ -221,7 +221,7 @@ int main(int argc, const char **argv)
                            "exclusive.\n", argv[0]), 1;
         }
         printf(
-"<pre style=\"color:#%s;white-space:pre-wrap:word-wrap:break-word\">",
+"<pre style=\"color:#%s;white-space:pre-wrap;word-wrap:break-word\">",
                 white?"000":"bbb");
     }
     else
