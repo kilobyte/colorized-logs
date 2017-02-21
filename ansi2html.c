@@ -221,7 +221,7 @@ int main(int argc, const char **argv)
                            "exclusive.\n", argv[0]), 1;
         }
         printf(
-"<pre style=\"color:#%s;white-space:pre-wrap;word-wrap:break-word\">",
+"<pre style=\"color:#%s;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word\">",
                 white?"000":"bbb");
     }
     else
@@ -247,6 +247,7 @@ int main(int argc, const char **argv)
 "\twhite-space: -pre-wrap;\n"
 "\twhite-space: pre-wrap;\n"
 "\tword-wrap: break-word;\n"
+"\toverflow-wrap: break-word;\n"
 "}\n"
 "b {font-weight: normal}\n"
 "b.BLK {color: #000}\n"
