@@ -32,9 +32,10 @@ static int rgb_from_256(int i)
     else if (i < 232)
     {   /* 6x6x6 colour cube. */
         i-=16;
-        return (i / 36 * 85 / 2) << 16|
-               (i / 6 % 6 * 85 / 2) << 8|
-               (i % 6 * 85 / 2);
+        int r = i / 36, g = i / 6 % 6, b = i % 6;
+        return (r ? r * 0x280000 + 0x370000 : 0)
+             | (g ? g * 0x002800 + 0x003700 : 0)
+             | (b ? b * 0x000028 + 0x000037 : 0);
     }
     else/* Grayscale ramp. */
         return i*0xa0a0a-((232*10-8)*0x10101);
