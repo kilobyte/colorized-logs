@@ -1636,6 +1636,7 @@ static void usertty_init(void)
 
 static void usertty_done(void)
 {
+    ui_own_output=false;
     tbuf+=sprintf(tbuf, "\033[1;%dr\033[%d;1f\033[?25h\033[?7h\033[0;37;40m", LINES, LINES);
     usertty_keypad(false);
     term_commit();
