@@ -3,18 +3,36 @@
 #include <string.h>
 #include <errno.h>
 #include <stdint.h>
-#include "config.h"
 
-#ifdef WORDS_BIGENDIAN
-# define to_little_endian(x) ((uint32_t) ( \
-    ((uint32_t)(x) &(uint32_t)0x000000ffU) << 24 | \
-    ((uint32_t)(x) &(uint32_t)0x0000ff00U) <<  8 | \
-    ((uint32_t)(x) &(uint32_t)0x00ff0000U) >>  8 | \
-    ((uint32_t)(x) &(uint32_t)0xff000000U) >> 24))
-#else
-# define to_little_endian(x) ((uint32_t)(x))
+#include <sys/types.h>
+#include <sys/param.h>
+#ifdef __ANDROID__
+  #include <sys/endian.h>
 #endif
-#define from_little_endian(x) to_little_endian(x)
+#ifdef __sun
+# include <sys/isa_defs.h>
+# define LITTLE_ENDIAN 1234
+# define BIG_ENDIAN    4321
+# ifdef _LITTLE_ENDIAN
+#  define BYTE_ORDER LITTLE_ENDIAN
+# else
+#  define BYTE_ORDER BIG_ENDIAN
+# endif
+#endif
+
+#ifndef htole32
+ #if BYTE_ORDER == LITTLE_ENDIAN
+  #define htole32(x) (x)
+ #else
+  #if BYTE_ORDER == BIG_ENDIAN
+   #define htole32(x) \
+       ((((x) & 0xff000000) >> 24) | (((x) & 0x00ff0000) >>  8) | \
+        (((x) & 0x0000ff00) <<  8) | (((x) & 0x000000ff) << 24))
+  #else
+   #error No endianness given.
+  #endif
+ #endif
+#endif
 
 struct ttyrec_header
 {
@@ -36,7 +54,7 @@ int main(void)
     {
         if (read(0, &th, 12)!=12)
             return 0;
-        n=from_little_endian(th.len);
+        n=htole32(th.len);
         while (n>0)
         {
             s=(n>BUFFER_SIZE)?BUFFER_SIZE:n;

@@ -12,7 +12,6 @@ AC_PROG_LN_S
 AC_PROG_EGREP
 
 # Checks for typedefs, structures, and compiler characteristics.
-AC_C_BIGENDIAN
 
 # Checks for library functions.
 AC_SEARCH_LIBS(forkpty, util)
