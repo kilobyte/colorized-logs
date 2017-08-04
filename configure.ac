@@ -29,7 +29,6 @@ AC_C_BIGENDIAN
 # Checks for library functions.
 AC_SEARCH_LIBS(forkpty, util)
 
-AC_SCO
 AC_SYS_LARGEFILE
 
 AC_CONFIG_FILES([Makefile])
