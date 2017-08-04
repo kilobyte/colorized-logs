@@ -35,8 +35,6 @@ AC_PTYRANGES
 AC_DEV_PTMX
 AC_SCO
 AC_SYS_LARGEFILE
-AC_C_TRY_FLAG([-Wno-unused-parameter])
-AC_C_TRY_FLAG([-Wno-implicit-fallthrough])
 
 # Enable some warnings.
 AC_C_TRY_FLAG([-Wwrite-strings])
