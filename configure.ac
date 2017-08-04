@@ -36,10 +36,6 @@ AC_DEV_PTMX
 AC_SCO
 AC_SYS_LARGEFILE
 
-# Enable some warnings.
-AC_C_TRY_FLAG([-Wwrite-strings])
-AC_C_TRY_FLAG([-Wstrict-prototypes])
-
 AC_CONFIG_FILES([Makefile])
 
 # Initialize the test suite.
