@@ -5,7 +5,7 @@ AM_CFLAGS=-Wall
 
 ansi2html_SOURCES=ansi2html.c
 ansi2txt_SOURCES=ansi2txt.c
-pipetty_SOURCES=pipetty.c pty.c pty.h
+pipetty_SOURCES=pipetty.c
 
 EXTRA_DIST=autogen.sh VERSION get_version
 

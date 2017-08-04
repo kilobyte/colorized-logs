@@ -28,11 +28,7 @@ AC_C_BIGENDIAN
 
 # Checks for library functions.
 AC_SEARCH_LIBS(forkpty, util)
-AC_CHECK_FUNCS([memcpy getpt ptsname _getpty grantpt \
-	forkpty regcomp getaddrinfo wcwidth posix_openpt cfmakeraw])
 
-AC_PTYRANGES
-AC_DEV_PTMX
 AC_SCO
 AC_SYS_LARGEFILE
 
