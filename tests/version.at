@@ -1,9 +1,0 @@
-AT_SETUP([[#version]])
-
-AT_DATA([testin], [#version
-])
-AT_DATA([expout], [#You are using KBtin ]AT_PACKAGE_VERSION[
-])
-AT_CHECK([runtest.sh],,[expout])
-
-AT_CLEANUP

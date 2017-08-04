@@ -1,8 +1,0 @@
-AT_SETUP([names for -r])
-
-AT_DATA([testin], [])
-AT_DATA([expout], [bar
-])
-AT_CHECK([echo "echo bar" >foo;chmod a+x foo;runtest.sh -r ./foo;rm -rf foo],,[expout])
-
-AT_CLEANUP

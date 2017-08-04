@@ -1,7 +1,0 @@
-kbtin|KBtin|KBtin's spawned pseudo-terminal,
-	am, bce, xenl, eo, hc, it#8, colors#8, bel=^G, el1=\e[K,
-	blink=\e[5m, bold=\e[1m, dim=\e[2m, sitm=\e[3m, smul=\e[4m,
-	sgr0=\e[m, ritm=\e[24m, rmul=\e[24m, setab=\e[4%p1%dm,
-	setaf=\e[3%p1%dm, ind=^J, nel=^J, dl1=\e[2K, smso=\e[0;1;47m,
-	rmso=\e[0m, sgr=\E[0%?%p1%p6%|%t;1%;%?%p2%|%t;4%;%?%p4%|%t;5%;
-	 %?%p5%|%t;2%;m, lm#0,

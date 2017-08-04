@@ -1,16 +1,6 @@
 AT_INIT
 AT_COLOR_TESTS
-AT_TESTED([KBtin])
-
-dnl define([forinclude], [ifelse($#,0,, $#,1,m4_include([$1]), [m4_include([$1])
-dnl     forinclude(shift($@))])])
-dnl
-dnl forinclude([version.at])
-
-dnl ===
-m4_include([version.at])
-m4_include([tests.at])
-m4_include([run.at])
+AT_TESTED([colorized-logs])
 
 m4_include([pipetty.at])
 m4_include([ansi2txt.at])
