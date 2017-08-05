@@ -37,7 +37,6 @@ stamp-h
 stamp-h1
 tests.at
 tests/_be_quiet_
-tests/get-utf8
 testsuite
 testsuite.dir
 testsuite.log

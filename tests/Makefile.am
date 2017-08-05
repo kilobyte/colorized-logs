@@ -1,7 +1,6 @@
 EXTRA_DIST = $(TESTSUITE_AT) testsuite package.m4
 DISTCLEANFILES       = atconfig $(check_SCRIPTS)
 MAINTAINERCLEANFILES = Makefile.in $(TESTSUITE) package.m4
-check_PROGRAMS = get-utf8
 
 ## ------------ ##
 ## package.m4.  ##
