@@ -6,7 +6,7 @@ undef $/;
 $_=<>;
 s|.*<pre|<|s;
 s|</pre>.*||s;
-s,\n<hr>\n,\l,sg;
+s,\n<hr>\n,\f,sg;
 s,<(?:[^>"]|"[^"]*")*>,,g;
 s,&iexcl;,\a,g;
 s,&lt;,<,g;

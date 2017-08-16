@@ -1,7 +1,0 @@
-AT_INIT
-AT_COLOR_TESTS
-AT_TESTED([colorized-logs])
-
-m4_include([pipetty.at])
-m4_include([ansi2txt.at])
-m4_include([ansi2html.at])
