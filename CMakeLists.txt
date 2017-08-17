@@ -38,3 +38,6 @@ install(
     pipetty.1
     DESTINATION share/man/man1
 )
+
+enable_testing()
+add_subdirectory(tests)
