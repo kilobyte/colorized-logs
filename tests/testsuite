@@ -2,6 +2,14 @@
 print "Running tests...\n" unless @ARGV;
 undef $/;
 
+my $DATADIR = '.';
+my $BINDIR = '.';
+
+-x "$DATADIR/unescape" or $DATADIR="$DATADIR/tests";
+-x "$DATADIR/unescape" or die "unescape missing?\n";
+-x "$BINDIR/ansi2html" or $BINDIR="$BINDIR/..";
+-x "$BINDIR/ansi2html" or die "ansi2html not yet built?\n";
+
 my ($pass,$fail) = (0,0);
 sub test($$$$)
 {
@@ -49,7 +57,7 @@ sub test($$$$)
     unlink for qw(stdin expout stdout stderr);
 }
 
-test('ansi2txt', './unescape|../ansi2txt', <<'IN', <<'OUT');
+test('ansi2txt', "$DATADIR/unescape|$BINDIR/ansi2txt", <<'IN', <<'OUT');
 foo\e[1mbar\e[0m\n
 \e[?2004l
 \e]0;title1\e\\
@@ -61,7 +69,7 @@ foobar
 
 OUT
 
-test('ansi2html', './unescape|../ansi2html|./htmlpre2txt', <<'IN', <<'OUT');
+test('ansi2html', "$DATADIR/unescape|$BINDIR/ansi2html|$DATADIR/htmlpre2txt", <<'IN', <<'OUT');
 foo\e[1mbar\e[0m\n
 \e[?2004l
 \e]0;title1\e\\
@@ -75,7 +83,7 @@ foobar
 
 OUT
 
-test('pipetty', '../pipetty </dev/null sh stdin', <<'IN', <<'OUT');
+test('pipetty', "$BINDIR/pipetty </dev/null sh stdin", <<'IN', <<'OUT');
 test -t 0
 printf 'isatty(0): %d\n' $?
 test -t 1
