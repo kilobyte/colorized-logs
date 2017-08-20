@@ -12,6 +12,8 @@ my $BINDIR = '.';
 -x "$BINDIR/ansi2html" or $BINDIR="$BINDIR/..";
 -x "$BINDIR/ansi2html" or die "ansi2html not yet built in $BINDIR?\n";
 
+my $id = $$;
+
 my ($pass,$fail) = (0,0);
 sub test($$$$)
 {
@@ -20,10 +22,10 @@ sub test($$$$)
     return if @ARGV && !grep { $name eq $_ } @ARGV;
     printf '* %-20s ', $name unless @ARGV;
 
-    open I, '>', "stdin" or die "Can't write to \"stdin\": $!\n";
+    open I, '>', "stdin.$id" or die "Can't write to \"stdin.$id\": $!\n";
     print I $stdin;
     close I;
-    open O, '>', "expout" or die "Can't write to \"expout\": $!\n";
+    open O, '>', "expout.$id" or die "Can't write to \"expout.$id\": $!\n";
     print O $stdout;
     close O;
 
@@ -31,23 +33,23 @@ sub test($$$$)
     unless ($pid)
     {
         alarm 20;
-        open STDIN,  '<', 'stdin'  or die "Can't dup stdin: $!\n";
-        open STDOUT, '>', 'stdout' or die "Can't dup stdout: $!\n";
-        open STDERR, '>', 'stderr' or die "Can't dup stderr: $!\n";
+        open STDIN,  '<', "stdin.$id"  or die "Can't dup stdin: $!\n";
+        open STDOUT, '>', "stdout.$id" or die "Can't dup stdout: $!\n";
+        open STDERR, '>', "stderr.$id" or die "Can't dup stderr: $!\n";
         exec $cmd;
         die "Couldn't exec: $!\n";
     }
 
     waitpid $pid, 0;
     my $ret = $?;
-    my $bad = system 'cmp -s stdout expout' || system 'cmp -s stderr /dev/null';
+    my $bad = system "cmp -s stdout.$id expout.$id" || system "cmp -s stderr.$id /dev/null";
 
     if ($ret || $bad)
     {
         $fail++;
         print "\e[31mFAIL\e[0m\n" unless @ARGV;
-        system 'cat stderr';
-        system 'diff -u expout stdout';
+        system "cat stderr.$id";
+        system "diff -u expout.$id stdout.$id";
         print "return value: $ret\n" if $ret;
     }
     else
@@ -56,7 +58,7 @@ sub test($$$$)
         print "\e[32mok\e[0m\n" unless @ARGV;
     }
 
-    unlink for qw(stdin expout stdout stderr);
+    unlink "$_.$id" for qw(stdin expout stdout stderr);
 }
 
 test('ansi2txt', "$DATADIR/unescape|$BINDIR/ansi2txt", <<'IN', <<'OUT');
@@ -85,7 +87,7 @@ foobar
 
 OUT
 
-test('pipetty', "$BINDIR/pipetty </dev/null sh stdin", <<'IN', <<'OUT');
+test('pipetty', "$BINDIR/pipetty </dev/null sh stdin.$id", <<'IN', <<'OUT');
 test -t 0
 printf 'isatty(0): %d\n' $?
 test -t 1
