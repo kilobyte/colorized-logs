@@ -2,13 +2,15 @@
 print "Running tests...\n" unless @ARGV;
 undef $/;
 
-my $DATADIR = '.';
+my $DATADIR = $0;
+$DATADIR=~s|testsuite$||;
+$DATADIR//='.';
 my $BINDIR = '.';
 
 -x "$DATADIR/unescape" or $DATADIR="$DATADIR/tests";
--x "$DATADIR/unescape" or die "unescape missing?\n";
+-x "$DATADIR/unescape" or die "unescape missing from $DATADIR?\n";
 -x "$BINDIR/ansi2html" or $BINDIR="$BINDIR/..";
--x "$BINDIR/ansi2html" or die "ansi2html not yet built?\n";
+-x "$BINDIR/ansi2html" or die "ansi2html not yet built in $BINDIR?\n";
 
 my ($pass,$fail) = (0,0);
 sub test($$$$)
