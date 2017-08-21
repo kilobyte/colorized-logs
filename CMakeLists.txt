@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 2.8.9)
 project(colorized-logs C)
+include(CheckIncludeFiles)
 include(CheckLibraryExists)
 include(CheckFunctionExists)
 
-#CHECK_INCLUDE_FILES(pty.h HAVE_PTY_H)
-#CHECK_INCLUDE_FILES(libutil.h HAVE_LIBUTIL_H)
+CHECK_INCLUDE_FILES(pty.h HAVE_PTY_H)
+CHECK_INCLUDE_FILES(libutil.h HAVE_LIBUTIL_H)
 #CHECK_INCLUDE_FILES(util.h HAVE_UTIL_H)
 CHECK_LIBRARY_EXISTS(util openpty "" HAVE_LIB_UTIL)
 if (HAVE_LIB_UTIL)
@@ -22,6 +23,7 @@ IF (HAVE_LIB_UTIL)
 ENDIF (HAVE_LIB_UTIL)
 
 target_link_libraries(pipetty ${LIB_UTIL})
+configure_file(config.h.cmake config.h)
 
 install(TARGETS
     ansi2html

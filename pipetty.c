@@ -8,7 +8,13 @@
 #include <sys/wait.h>
 #include <sys/ioctl.h>
 #include <termios.h>
-#include <pty.h>
+#include "config.h"
+#ifdef HAVE_PTY_H
+# include <pty.h>
+#endif
+#ifdef HAVE_LIBUTIL_H
+# include <libutil.h>
+#endif
 
 #define PN "pipetty"
 
