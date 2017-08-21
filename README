@@ -1,0 +1,19 @@
+==============
+colorized-logs
+==============
+
+Here's a handful of tools for dealing with logs with ANSI color.
+
+Some tools like gcc, dmesg, grep --color, colordiff, ccze, etc can enhance
+their output with color, making reading a lot more pleasant.  The difference
+can be as big as between slogging through twenty pages of a build log to
+find a failure, and a swift drag of the scroller to do the same within a
+second.
+
+Such colored logs can be usually viewed on a terminal or with "less -R";
+this package gives you:
+ * ansi2html: convert logs to HTML
+ * ansi2txt: drop ANSI control codes
+ * ttyrec2ansi: drop timing data from ttyrec files
+ * pipetty: makes a program think its stdout and stderr are connected to a
+   terminal; use as a prefix: "pipetty dmesg|tee"
