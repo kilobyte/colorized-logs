@@ -253,42 +253,23 @@ int main(int argc, const char **argv)
 "\toverflow-wrap: break-word;\n"
 "}\n"
 "b {font-weight: normal}\n"
-"b.BLK {color: #000}\n"
-"b.BLU {color: #00a}\n"
-"b.GRN {color: #0a0}\n"
-"b.CYN {color: #0aa}\n"
-"b.RED {color: #a00}\n"
-"b.MAG {color: #a0a}\n"
-"b.YEL {color: #a50}\n"
-"b.WHI {color: #aaa}\n"
-"b.HIK {color: #555}\n"
-"b.HIB {color: #55f}\n"
-"b.HIG {color: #5f5}\n"
-"b.HIC {color: #5ff}\n"
-"b.HIR {color: #f55}\n"
-"b.HIM {color: #f5f}\n"
-"b.HIY {color: #ff5}\n"
-"b.HIW {color: #fff}\n"
 "b.BOLD {color: #%s}\n"
-"b.BBLK {background-color: #000}\n"
-"b.BBLU {background-color: #00a}\n"
-"b.BGRN {background-color: #0a0}\n"
-"b.BCYN {background-color: #0aa}\n"
-"b.BRED {background-color: #a00}\n"
-"b.BMAG {background-color: #a0a}\n"
-"b.BYEL {background-color: #a50}\n"
-"b.BWHI {background-color: #aaa}\n"
 "b.ITA {font-style: italic}\n"
 "b.UND {text-decoration: underline}\n"
 "b.STR {text-decoration: line-through}\n"
-"b.UNDSTR {text-decoration: underline line-through}\n"
-"</style>\n"
-"</head>\n"
-"<body>\n"
-"<pre>",
+"b.UNDSTR {text-decoration: underline line-through}\n",
                 white?"white":"black",
                 white?"000":"bbb",
                 white?"000;font-weight:bold":"fff");
+        for (int i=0; i<16; i++)
+            printf("b.%s {color: #%06x}\n", cols[i], rgb_from_256(i));
+        for (int i=0; i<8; i++)
+            printf("b.B%s {background-color: #%06x}\n", cols[i], rgb_from_256(i));
+        printf(
+"</style>\n"
+"</head>\n"
+"<body>\n"
+"<pre>");
     }
     fg=bg=-1;
     fl=0;
