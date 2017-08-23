@@ -101,5 +101,13 @@ isatty(1): 0
 isatty(2): 0
 OUT
 
+test('ttyrec2ansi', "$DATADIR/unescape|$BINDIR/ttyrec2ansi", <<'IN', <<'OUT');
+aaaa10\a\0\b\0\0\0foo bar\n
+aaaa10\b\0\b\0\0\0baz qux\n
+IN
+foo bar
+baz qux
+OUT
+
 print "Passed: $pass, failed: $fail.\n" unless @ARGV;
 exit($fail>0);
