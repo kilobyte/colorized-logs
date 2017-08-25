@@ -1,0 +1,7 @@
+language: c
+dist: trusty
+addons:
+  apt:
+    packages:
+    - cmake
+script: cmake . && make && CTEST_OUTPUT_ON_FAILURE=on make test
