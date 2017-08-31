@@ -24,6 +24,17 @@ static int rgb_from_256(int i)
 {
     if (i < 16)
     {   /* Standard colours. */
+        if (white)
+        {
+            if (i == 3)
+                return 0x806000;
+            if (i == 3+8)
+                return 0xcccc00;
+            int c = (i&1 ? 0x010000 : 0x000000)
+                  | (i&2 ? 0x000100 : 0x000000)
+                  | (i&4 ? 0x000001 : 0x000000);
+            return i<8 ? c*0x80 : c*0xff;
+        }
         if (i == 3)
             return 0xaa5500;
         int c = (i&1 ? 0xaa0000 : 0x000000)
