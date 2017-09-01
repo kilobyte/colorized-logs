@@ -1,7 +1,13 @@
 language: c
-dist: trusty
-addons:
-  apt:
-    packages:
-    - cmake
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      addons:
+        apt:
+          packages:
+          - cmake
+    - os: osx
+
 script: cmake . && make && CTEST_OUTPUT_ON_FAILURE=on make test
