@@ -33,7 +33,8 @@ IF (HAVE_LIB_UTIL)
 ENDIF (HAVE_LIB_UTIL)
 
 target_link_libraries(pipetty ${LIB_UTIL})
-configure_file(config.h.cmake config.h)
+configure_file(config.h.cmake ${CMAKE_BINARY_DIR}/config.h)
+include_directories(${CMAKE_BINARY_DIR})
 
 install(TARGETS
     ansi2html
