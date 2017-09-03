@@ -1,0 +1,25 @@
+Source: colorized-logs
+Section: text
+Priority: optional
+Maintainer: Adam Borowski <kilobyte@angband.pl>
+Build-Depends: debhelper (>> 10.0.0), cmake
+Standards-Version: 4.1.0
+Homepage: http://github.com/kilobyte/colorized-logs
+Vcs-Git: https://github.com/kilobyte/colorized-logs.git -b debian
+Vcs-Browser: https://github.com/kilobyte/colorized-logs/tree/debian
+
+Package: colorized-logs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Replaces: kbtin (<< 1.0.18)
+Suggests: colordiff, colormake, ccze, colortail
+Description: tools for consuming logs with ANSI color
+ Some tools like gcc, dmesg, grep --color, colordiff, ccze, etc can enhance
+ their output with color, making reading a lot more pleasant.  You can
+ usually view that only on your terminal or with "less -R"; this package
+ gives you:
+  * ansi2html: convert logs to HTML
+  * ansi2txt: drop ANSI control codes
+  * ttyrec2ansi: drop timing data from ttyrec files
+  * pipetty: makes a program think its stdout and stderr are connected to a
+    terminal; use as a prefix: "pipetty dmesg|tee"

@@ -1,0 +1,7 @@
+colorized-logs (2.0-1) unstable; urgency=low
+
+  * Split into a new source package.
+  * New upstream release.
+  * Relicense to MIT.
+
+ -- Adam Borowski <kilobyte@angband.pl>  Mon, 04 Sep 2017 01:24:44 +0200
