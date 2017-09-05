@@ -1,3 +1,9 @@
+colorized-logs (2.1-1) unstable; urgency=medium
+
+  * New upstream bugfix release.
+
+ -- Adam Borowski <kilobyte@angband.pl>  Tue, 05 Sep 2017 15:59:06 +0200
+
 colorized-logs (2.0-1) unstable; urgency=low
 
   * Split into a new source package.

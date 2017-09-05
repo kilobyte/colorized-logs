@@ -286,7 +286,7 @@ int main(int argc, const char **argv)
     fl=0;
     in_span=false;
     frgb=brgb=-1;
-    char ch=getchar();
+    int ch=getchar();
     unsigned int ntok, tok[16];
 normal:
     switch (ch)

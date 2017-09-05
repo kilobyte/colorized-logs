@@ -11,6 +11,7 @@ while(<>)
     s/\\a/\a/g;
     s/\\f/\f/g;
     s/\\0/\0/g;
+    s/\\x([0-9a-fA-F]{2})/sprintf('%c',hex "$1")/ge;
     s/\\\\/\\/g;
     print;
 }

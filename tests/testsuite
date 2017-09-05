@@ -74,7 +74,7 @@ foobar
 
 OUT
 
-test('ansi2html', "$DATADIR/unescape|$BINDIR/ansi2html|$DATADIR/htmlpre2txt", <<'IN', <<'OUT');
+test('ansi2html', "$DATADIR/unescape|$BINDIR/ansi2html|$DATADIR/htmlpre2txt", <<'IN', <<"OUT");
 foo\e[1mbar\e[0m\n
 \e[?2004l
 \e]0;title1\e\\
@@ -82,10 +82,12 @@ foo\e[1mbar\e[0m\n
 \e]0;title2\a
 \n
 \f\n
+\xff\n
 IN
 foobar
 
-
+\f
+\xff
 OUT
 
 test('pipetty', "$BINDIR/pipetty </dev/null sh stdin.$id", <<'IN', <<'OUT');
