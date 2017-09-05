@@ -86,7 +86,7 @@ foo\e[1mbar\e[0m\n
 IN
 foobar
 
-
+\f
 \xff
 OUT
 
