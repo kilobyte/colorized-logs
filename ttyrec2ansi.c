@@ -52,18 +52,18 @@ int main(void)
 
     while (1)
     {
-        if (read(0, &th, 12)!=12)
+        if (fread(&th, 1, 12, stdin)!=12)
             return 0;
         n=htole32(th.len);
         while (n>0)
         {
             s=(n>BUFFER_SIZE)?BUFFER_SIZE:n;
-            if ((r=read(0, buf, s))<=0)
+            if ((r=fread(buf, 1, s, stdin))<=0)
             {
                 fprintf(stderr, "%s\n", r?strerror(errno):"File was truncated");
                 return 1;
             }
-            if (write(1, buf, r)!=r)
+            if (fwrite(buf, 1, r, stdout)!=r)
             {
                 fprintf(stderr, "Write error\n");
                 return 1;
