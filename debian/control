@@ -24,3 +24,4 @@ Description: tools for consuming logs with ANSI color
   * ttyrec2ansi: drop timing data from ttyrec files
   * pipetty: makes a program think its stdout and stderr are connected to a
     terminal; use as a prefix: "pipetty dmesg|tee"
+  * lesstty: pipe a program (as above) to "less -R"

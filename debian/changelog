@@ -1,3 +1,10 @@
+colorized-logs (2.2-1) unstable; urgency=medium
+
+  * New upstream release.
+  * 'lesstty' — a shorthand for pipetty|less -R.
+
+ -- Adam Borowski <kilobyte@angband.pl>  Tue, 27 Feb 2018 02:45:27 +0100
+
 colorized-logs (2.1-1) unstable; urgency=medium
 
   * New upstream bugfix release.
