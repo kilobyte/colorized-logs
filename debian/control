@@ -11,7 +11,7 @@ Rules-Requires-Root: no
 
 Package: colorized-logs
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, less
 Replaces: kbtin (<< 1.0.18)
 Suggests: colordiff, colormake, ccze, colortail
 Description: tools for consuming logs with ANSI color
