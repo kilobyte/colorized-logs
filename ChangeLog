@@ -1,0 +1,14 @@
+2.3:
+ * pipetty: hard-code PAGER=cat
+
+2.2:
+ * ttyrec2ansi: use cached stdio, for >4× speedup
+
+2.1:
+ * bugfix: infinite loop on 0xFF on unsigned-char architectures
+
+2.0:
+ * split out of KBtin
+ * migrate from autotools to CMake
+ * relicense to MIT
+ * use a much darker palette in on-white mode, especially for brown and yellow
