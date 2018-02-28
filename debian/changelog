@@ -1,3 +1,9 @@
+colorized-logs (2.3-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Adam Borowski <kilobyte@angband.pl>  Thu, 01 Mar 2018 00:33:49 +0100
+
 colorized-logs (2.2-1) unstable; urgency=medium
 
   * New upstream release.
