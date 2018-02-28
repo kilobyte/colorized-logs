@@ -59,6 +59,7 @@ int main(int argc, const char **argv)
         syserr("fork failed");
     if (!pid)
     {
+        putenv("PAGER=cat");
         close(master);
         setsid();
         dup2(slave, 1);
