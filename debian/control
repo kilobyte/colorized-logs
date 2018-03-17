@@ -14,6 +14,7 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, less
 Replaces: kbtin (<< 1.0.18)
 Suggests: colordiff, colormake, ccze, colortail
+Multi-Arch: foreign
 Description: tools for consuming logs with ANSI color
  Some tools like gcc, dmesg, grep --color, colordiff, ccze, etc can enhance
  their output with color, making reading a lot more pleasant.  You can
