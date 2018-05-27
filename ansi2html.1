@@ -34,6 +34,12 @@ Set the page title to the next argument.  Mutually exclusive with
 .BR -l ", " --no-wrap
 Disable word-wrapping.  Like text terminals, ansi2html wraps text by
 default, which is contrary to the usual browser default for plain text.
+.TP
+.BR --style " \fItext\fR"
+Injects some text into the stylesheet, obviously doesn't make any sense with
+.BR -n .
+Example:
+.I --style 'pre {font-family: Consolas}'
 .SH CAVEATS
 Most ANSI codes other than color codes are ignored; possibly causing
 misformatted output.  In general, anything unfit for a hardcopy terminal

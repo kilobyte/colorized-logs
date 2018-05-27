@@ -14,6 +14,7 @@
 static bool no_header=false, white=false, no_wrap=false, in_span;
 static int fg, bg, fl, frgb, brgb;
 static const char *title=0;
+static char *style=0;
 
 static const char *cols[]={"BLK","RED","GRN","YEL","BLU","MAG","CYN","WHI",
                            "HIK","HIR","HIG","HIY","HIB","HIM","HIC","HIW"};
@@ -219,6 +220,7 @@ int main(int argc, char **argv)
             {"white",           0, 0, 'w'},
             {"title",           1, 0, 't'},
             {"no-wrap",         0, 0, 'l'},
+            {"style",           1, 0, -257},
         };
         int c = getopt_long(argc, argv, "-nwt:l", long_options, 0);
         if (c == -1)
@@ -238,6 +240,11 @@ int main(int argc, char **argv)
         case 'l':
             no_wrap=true;
             break;
+        case -257:
+            if (style)
+                return fprintf(stderr, "%s: style was already given.\n", argv[0]), 1;
+            style=optarg;
+            break;
         case '?':
             return 1;
         case 1:
@@ -248,10 +255,10 @@ int main(int argc, char **argv)
 
     if (no_header)
     {
-        if (title)
+        if (title || style)
         {
-            return fprintf(stderr, "%s: --title and --no-header are mutually "
-                           "exclusive.\n", argv[0]), 1;
+            return fprintf(stderr, "%s: --no-header forbids --title and --style.\n",
+                           argv[0]), 1;
         }
         printf(
 "<pre style=\"color:#%s%s\">",
@@ -298,6 +305,8 @@ int main(int argc, char **argv)
             printf("b.%s {color: #%06x}\n", cols[i], rgb_from_256(i));
         for (int i=0; i<8; i++)
             printf("b.B%s {background-color: #%06x}\n", cols[i], rgb_from_256(i));
+        if (style)
+            printf("\n%s\n", style);
         printf(
 "</style>\n"
 "</head>\n"
