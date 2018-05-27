@@ -11,7 +11,7 @@
 #define INVERSE      0x200000
 #define STRIKE       0x400000
 
-static bool no_header=false, white=false, in_span;
+static bool no_header=false, white=false, no_wrap=false, in_span;
 static int fg, bg, fl, frgb, brgb;
 static const char *title=0;
 
@@ -218,8 +218,9 @@ int main(int argc, char **argv)
             {"no-header",       0, 0, 'n'},
             {"white",           0, 0, 'w'},
             {"title",           1, 0, 't'},
+            {"no-wrap",         0, 0, 'l'},
         };
-        int c = getopt_long(argc, argv, "-nwt:", long_options, 0);
+        int c = getopt_long(argc, argv, "-nwt:l", long_options, 0);
         if (c == -1)
             break;
 
@@ -233,6 +234,9 @@ int main(int argc, char **argv)
             break;
         case 't':
             title=optarg;
+            break;
+        case 'l':
+            no_wrap=true;
             break;
         case '?':
             return 1;
@@ -250,8 +254,9 @@ int main(int argc, char **argv)
                            "exclusive.\n", argv[0]), 1;
         }
         printf(
-"<pre style=\"color:#%s;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word\">",
-                white?"000":"bbb");
+"<pre style=\"color:#%s%s\">",
+                white?"000":"bbb",
+                no_wrap?"":";white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word");
     }
     else
     {
@@ -271,12 +276,7 @@ int main(int argc, char **argv)
 "pre {\n"
 "\tfont-weight: normal;\n"
 "\tcolor: #%s;\n"
-"\twhite-space: -moz-pre-wrap;\n"
-"\twhite-space: -o-pre-wrap;\n"
-"\twhite-space: -pre-wrap;\n"
-"\twhite-space: pre-wrap;\n"
-"\tword-wrap: break-word;\n"
-"\toverflow-wrap: break-word;\n"
+"%s"
 "}\n"
 "b {font-weight: normal}\n"
 "b.BOLD {color: #%s}\n"
@@ -286,6 +286,13 @@ int main(int argc, char **argv)
 "b.UNDSTR {text-decoration: underline line-through}\n",
                 white?"white":"black",
                 white?"000":"bbb",
+                no_wrap?"":
+"\twhite-space: -moz-pre-wrap;\n"
+"\twhite-space: -o-pre-wrap;\n"
+"\twhite-space: -pre-wrap;\n"
+"\twhite-space: pre-wrap;\n"
+"\tword-wrap: break-word;\n"
+"\toverflow-wrap: break-word;\n",
                 white?"000;font-weight:bold":"fff");
         for (int i=0; i<16; i++)
             printf("b.%s {color: #%06x}\n", cols[i], rgb_from_256(i));
