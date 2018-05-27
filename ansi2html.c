@@ -63,6 +63,18 @@ static inline int rgb_to_int(u8 r, u8 g, u8 b)
 }
 
 
+static int get_frgb(int fg)
+{
+    return fg==-1?white?0x000000:0xaaaaaa:rgb_from_256(fg);
+}
+
+
+static int get_brgb(int bg)
+{
+    return bg==-1?white?0xaaaaaa:0x000000:rgb_from_256(bg);
+}
+
+
 static void span(void)
 {
     int tmp, _fg=fg, _bg=bg, _frgb=frgb, _brgb=brgb;
@@ -82,12 +94,12 @@ static void span(void)
     if (fl&BLINK)
     {
         if (_frgb==-1)
-            _frgb=_fg==-1?white?0x000000:0xaaaaaa:rgb_from_256(_fg);
+            _frgb=get_frgb(_fg);
         _frgb=rgb_to_int((_frgb>>16&0xff)*3/4,
                          (_frgb>> 8&0xff)*3/4,
                          (_frgb    &0xff)*3/4)+0x606060;
         if (_brgb==-1)
-            _brgb=_bg==-1?white?0xaaaaaa:0x000000:rgb_from_256(_bg);
+            _brgb=get_brgb(_bg);
         _brgb=rgb_to_int((_brgb>>16&0xff)*3/4,
                          (_brgb>> 8&0xff)*3/4,
                          (_brgb    &0xff)*3/4)+0x606060;
