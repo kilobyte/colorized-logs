@@ -1,3 +1,7 @@
+2.4:
+ * ansi2html: -l (--no-wrap), --style, -c (--contrast)
+ * allow testing installed binaries
+
 2.3:
  * pipetty: hard-code PAGER=cat
 

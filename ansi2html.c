@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include <getopt.h>
 
 #define BOLD         0x010000
 #define DIM          0x020000
@@ -10,9 +11,10 @@
 #define INVERSE      0x200000
 #define STRIKE       0x400000
 
-static bool no_header=false, white=false, in_span;
+static bool no_header=false, white=false, contrast=false, no_wrap=false, in_span;
 static int fg, bg, fl, frgb, brgb;
 static const char *title=0;
+static char *style=0;
 
 static const char *cols[]={"BLK","RED","GRN","YEL","BLU","MAG","CYN","WHI",
                            "HIK","HIR","HIG","HIY","HIB","HIM","HIC","HIW"};
@@ -61,6 +63,18 @@ static inline int rgb_to_int(u8 r, u8 g, u8 b)
 }
 
 
+static int get_frgb(int fg)
+{
+    return fg==-1?white?0x000000:0xaaaaaa:rgb_from_256(fg);
+}
+
+
+static int get_brgb(int bg)
+{
+    return bg==-1?white?0xaaaaaa:0x000000:rgb_from_256(bg);
+}
+
+
 static void span(void)
 {
     int tmp, _fg=fg, _bg=bg, _frgb=frgb, _brgb=brgb;
@@ -80,18 +94,25 @@ static void span(void)
     if (fl&BLINK)
     {
         if (_frgb==-1)
-            _frgb=_fg==-1?white?0x000000:0xaaaaaa:rgb_from_256(_fg);
+            _frgb=get_frgb(_fg);
         _frgb=rgb_to_int((_frgb>>16&0xff)*3/4,
                          (_frgb>> 8&0xff)*3/4,
                          (_frgb    &0xff)*3/4)+0x606060;
         if (_brgb==-1)
-            _brgb=_bg==-1?white?0xaaaaaa:0x000000:rgb_from_256(_bg);
+            _brgb=get_brgb(_bg);
         _brgb=rgb_to_int((_brgb>>16&0xff)*3/4,
                          (_brgb>> 8&0xff)*3/4,
                          (_brgb    &0xff)*3/4)+0x606060;
     }
     if (fl&DIM)
         _fg=8;
+
+    if (contrast && (_frgb==-1?get_frgb(_fg):_frgb)==(_brgb==-1?get_brgb(_bg):_brgb))
+    {
+        if (_frgb==-1)
+            _frgb=get_frgb(_fg);
+        _frgb^=0x808080;
+    }
 
     if (no_header)
         goto do_span;
@@ -208,35 +229,66 @@ static void print_string(const char *restrict str)
 }
 
 
-int main(int argc, const char **argv)
+int main(int argc, char **argv)
 {
-    for (int i=1; i<argc; ++i)
-        if (!strcmp(argv[i], "-n") || !strcmp(argv[i], "--no-header"))
+    while (1)
+    {
+        const static struct option long_options[] =
+        {
+            {"no-header",       0, 0, 'n'},
+            {"white",           0, 0, 'w'},
+            {"contrast",        0, 0, 'c'},
+            {"title",           1, 0, 't'},
+            {"no-wrap",         0, 0, 'l'},
+            {"style",           1, 0, -257},
+        };
+        int c = getopt_long(argc, argv, "-nwt:lc", long_options, 0);
+        if (c == -1)
+            break;
+
+        switch (c)
+        {
+        case 'n':
             no_header=true;
-        else if (!strcmp(argv[i], "-w") || !strcmp(argv[i], "--white"))
+            break;
+        case 'w':
             white=true;
-        else if (!strcmp(argv[i], "-nw") || !strcmp(argv[i], "-wn"))
-            no_header=white=true;
-        else if (!strcmp(argv[i], "-t") || !strcmp(argv[i], "--title"))
-            if (++i<argc)
-                title=argv[i];
-            else
-                return fprintf(stderr, "%s: --title requires an argument.\n",
-                               argv[0]), 1;
-        else
-            return fprintf(stderr, "%s: Unknown argument '%s'.\n", argv[0],
-                           argv[i]), 1;
+            break;
+        case 'c':
+            contrast=true;
+            break;
+        case 't':
+            if (title)
+                return fprintf(stderr, "%s: title was already given.\n", argv[0]), 1;
+            title=optarg;
+            break;
+        case 'l':
+            no_wrap=true;
+            break;
+        case -257:
+            if (style)
+                return fprintf(stderr, "%s: style was already given.\n", argv[0]), 1;
+            style=optarg;
+            break;
+        case '?':
+            return 1;
+        case 1:
+            return fprintf(stderr, "%s: this program works as a filter, please "
+                           "pipe the input in instead.\n", argv[0]), 1;
+        }
+    }
 
     if (no_header)
     {
-        if (title)
+        if (title || style)
         {
-            return fprintf(stderr, "%s: --title and --no-header are mutually "
-                           "exclusive.\n", argv[0]), 1;
+            return fprintf(stderr, "%s: --no-header forbids --title and --style.\n",
+                           argv[0]), 1;
         }
         printf(
-"<pre style=\"color:#%s;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word\">",
-                white?"000":"bbb");
+"<pre style=\"color:#%s%s\">",
+                white?"000":"bbb",
+                no_wrap?"":";white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word");
     }
     else
     {
@@ -256,12 +308,7 @@ int main(int argc, const char **argv)
 "pre {\n"
 "\tfont-weight: normal;\n"
 "\tcolor: #%s;\n"
-"\twhite-space: -moz-pre-wrap;\n"
-"\twhite-space: -o-pre-wrap;\n"
-"\twhite-space: -pre-wrap;\n"
-"\twhite-space: pre-wrap;\n"
-"\tword-wrap: break-word;\n"
-"\toverflow-wrap: break-word;\n"
+"%s"
 "}\n"
 "b {font-weight: normal}\n"
 "b.BOLD {color: #%s}\n"
@@ -271,11 +318,20 @@ int main(int argc, const char **argv)
 "b.UNDSTR {text-decoration: underline line-through}\n",
                 white?"white":"black",
                 white?"000":"bbb",
+                no_wrap?"":
+"\twhite-space: -moz-pre-wrap;\n"
+"\twhite-space: -o-pre-wrap;\n"
+"\twhite-space: -pre-wrap;\n"
+"\twhite-space: pre-wrap;\n"
+"\tword-wrap: break-word;\n"
+"\toverflow-wrap: break-word;\n",
                 white?"000;font-weight:bold":"fff");
         for (int i=0; i<16; i++)
             printf("b.%s {color: #%06x}\n", cols[i], rgb_from_256(i));
         for (int i=0; i<8; i++)
             printf("b.B%s {background-color: #%06x}\n", cols[i], rgb_from_256(i));
+        if (style)
+            printf("\n%s\n", style);
         printf(
 "</style>\n"
 "</head>\n"
