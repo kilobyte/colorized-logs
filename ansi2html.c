@@ -11,7 +11,7 @@
 #define INVERSE      0x200000
 #define STRIKE       0x400000
 
-static bool no_header=false, white=false, no_wrap=false, in_span;
+static bool no_header=false, white=false, contrast=false, no_wrap=false, in_span;
 static int fg, bg, fl, frgb, brgb;
 static const char *title=0;
 static char *style=0;
@@ -106,6 +106,13 @@ static void span(void)
     }
     if (fl&DIM)
         _fg=8;
+
+    if (contrast && (_frgb==-1?get_frgb(_fg):_frgb)==(_brgb==-1?get_brgb(_bg):_brgb))
+    {
+        if (_frgb==-1)
+            _frgb=get_frgb(_fg);
+        _frgb^=0x808080;
+    }
 
     if (no_header)
         goto do_span;
@@ -230,11 +237,12 @@ int main(int argc, char **argv)
         {
             {"no-header",       0, 0, 'n'},
             {"white",           0, 0, 'w'},
+            {"contrast",        0, 0, 'c'},
             {"title",           1, 0, 't'},
             {"no-wrap",         0, 0, 'l'},
             {"style",           1, 0, -257},
         };
-        int c = getopt_long(argc, argv, "-nwt:l", long_options, 0);
+        int c = getopt_long(argc, argv, "-nwt:lc", long_options, 0);
         if (c == -1)
             break;
 
@@ -245,6 +253,9 @@ int main(int argc, char **argv)
             break;
         case 'w':
             white=true;
+            break;
+        case 'c':
+            contrast=true;
             break;
         case 't':
             title=optarg;
