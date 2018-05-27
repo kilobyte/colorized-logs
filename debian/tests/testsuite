@@ -1,0 +1,3 @@
+#!/bin/sh
+
+BINDIR=/usr/bin tests/testsuite
