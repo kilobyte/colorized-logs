@@ -6,7 +6,7 @@ undef $/;
 my $DATADIR = $0;
 $DATADIR=~s|testsuite$||;
 $DATADIR//='.';
-my $BINDIR = '.';
+my $BINDIR = $ENV{'BINDIR'}//'.';
 
 -x "$DATADIR/unescape" or $DATADIR="$DATADIR/tests";
 -x "$DATADIR/unescape" or die "unescape missing from $DATADIR?\n";
