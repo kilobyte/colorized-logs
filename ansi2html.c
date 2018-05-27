@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include <getopt.h>
 
 #define BOLD         0x010000
 #define DIM          0x020000
@@ -208,24 +209,35 @@ static void print_string(const char *restrict str)
 }
 
 
-int main(int argc, const char **argv)
+int main(int argc, char **argv)
 {
-    for (int i=1; i<argc; ++i)
-        if (!strcmp(argv[i], "-n") || !strcmp(argv[i], "--no-header"))
+    while (1)
+    {
+        const static struct option long_options[] =
+        {
+            {"no-header",       0, 0, 'n'},
+            {"white",           0, 0, 'w'},
+            {"title",           1, 0, 't'},
+        };
+        int c = getopt_long(argc, argv, "nwt:", long_options, 0);
+        if (c == -1)
+            break;
+
+        switch (c)
+        {
+        case 'n':
             no_header=true;
-        else if (!strcmp(argv[i], "-w") || !strcmp(argv[i], "--white"))
+            break;
+        case 'w':
             white=true;
-        else if (!strcmp(argv[i], "-nw") || !strcmp(argv[i], "-wn"))
-            no_header=white=true;
-        else if (!strcmp(argv[i], "-t") || !strcmp(argv[i], "--title"))
-            if (++i<argc)
-                title=argv[i];
-            else
-                return fprintf(stderr, "%s: --title requires an argument.\n",
-                               argv[0]), 1;
-        else
-            return fprintf(stderr, "%s: Unknown argument '%s'.\n", argv[0],
-                           argv[i]), 1;
+            break;
+        case 't':
+            title=optarg;
+            break;
+        case '?':
+            return 1;
+        }
+    }
 
     if (no_header)
     {
