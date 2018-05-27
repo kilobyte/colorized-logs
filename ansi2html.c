@@ -219,7 +219,7 @@ int main(int argc, char **argv)
             {"white",           0, 0, 'w'},
             {"title",           1, 0, 't'},
         };
-        int c = getopt_long(argc, argv, "nwt:", long_options, 0);
+        int c = getopt_long(argc, argv, "-nwt:", long_options, 0);
         if (c == -1)
             break;
 
@@ -236,6 +236,9 @@ int main(int argc, char **argv)
             break;
         case '?':
             return 1;
+        case 1:
+            return fprintf(stderr, "%s: this program works as a filter, please "
+                           "pipe the input in instead.\n", argv[0]), 1;
         }
     }
 
