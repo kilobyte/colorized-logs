@@ -258,6 +258,8 @@ int main(int argc, char **argv)
             contrast=true;
             break;
         case 't':
+            if (title)
+                return fprintf(stderr, "%s: title was already given.\n", argv[0]), 1;
             title=optarg;
             break;
         case 'l':
