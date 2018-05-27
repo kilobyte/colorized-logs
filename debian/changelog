@@ -1,3 +1,10 @@
+colorized-logs (2.4-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Add autopkgtest (run the testsuite on installed binaries).
+
+ -- Adam Borowski <kilobyte@angband.pl>  Sun, 27 May 2018 14:07:22 +0200
+
 colorized-logs (2.3-1) unstable; urgency=medium
 
   * New upstream release.
