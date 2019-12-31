@@ -26,7 +26,7 @@ CHECK_FUNCTION_EXISTS(openpty HAVE_FUNC_OPENPTY)
 add_executable(ansi2html ansi2html.c)
 add_executable(ansi2txt ansi2txt.c)
 add_executable(ttyrec2ansi ttyrec2ansi.c)
-add_executable(pipetty pipetty.c)
+add_executable(pipetty pipetty.c signals.c)
 
 IF (HAVE_LIB_UTIL)
     set(LIB_UTIL util)

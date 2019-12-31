@@ -19,6 +19,8 @@
 # include <util.h>
 #endif
 
+extern void sigobit(int ret);
+
 #define PN "pipetty"
 
 void syserr(const char *msg, ...)
@@ -85,5 +87,7 @@ int main(int argc, const char **argv)
     int ret;
     if (waitpid(pid, &ret, 0)==-1)
         syserr("waitpid failed");
+    if (WIFSIGNALED(ret))
+        sigobit(ret);
     return WIFEXITED(ret)?WEXITSTATUS(ret):WTERMSIG(ret)+128;
 }
