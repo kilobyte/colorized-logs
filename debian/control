@@ -3,7 +3,7 @@ Section: text
 Priority: optional
 Maintainer: Adam Borowski <kilobyte@angband.pl>
 Build-Depends: debhelper-compat (=12), cmake
-Standards-Version: 4.1.4
+Standards-Version: 4.4.1
 Homepage: https://github.com/kilobyte/colorized-logs
 Vcs-Git: https://github.com/kilobyte/colorized-logs.git -b debian
 Vcs-Browser: https://github.com/kilobyte/colorized-logs/tree/debian
