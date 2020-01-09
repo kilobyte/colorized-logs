@@ -1,3 +1,10 @@
+colorized-logs (2.5-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Drop the bash implementation of lesstty, use C version.
+
+ -- Adam Borowski <kilobyte@angband.pl>  Thu, 09 Jan 2020 19:46:27 +0100
+
 colorized-logs (2.4-1) unstable; urgency=medium
 
   * New upstream release.
