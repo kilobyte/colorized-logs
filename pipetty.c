@@ -38,6 +38,18 @@ void syserr(const char *msg, ...)
     exit(1);
 }
 
+static int basename_is(const char *proc, const char *name)
+{
+    int plen = strlen(proc);
+    int nlen = strlen(name);
+
+    if (plen==nlen && !memcmp(proc, name, nlen))
+        return 1;
+    if (plen>nlen && proc[plen-nlen-1]=='/' && !memcmp(proc+plen-nlen, name, nlen))
+        return 1;
+    return 0;
+}
+
 int main(int argc, const char **argv)
 {
     if (argc<2)
@@ -73,8 +85,33 @@ int main(int argc, const char **argv)
         syserr("%s", argv[1]);
         return 127;
     }
-
     close(slave);
+
+    int less = basename_is(argv[0], "lesstty");
+    if (less)
+    {
+        int p[2];
+        if (pipe(p))
+            syserr("pipe failed");
+
+        less=fork();
+        if (less==-1)
+            syserr("fork failed");
+        if (!less)
+        {
+            close(p[1]);
+            dup2(p[0], 0);
+            close(p[0]);
+
+            execlp("less", "less", "-R", "-", 0);
+            syserr("can't run less");
+            return 127;
+        }
+
+        close(p[0]);
+        dup2(p[1], 1);
+        close(p[1]);
+    }
 
     char buf[16384];
     int r;
@@ -83,11 +120,17 @@ int main(int argc, const char **argv)
         if (write(1, buf, r)!=r)
             syserr("error writing to stdout");
     }
+    close(master);
 
     int ret;
     if (waitpid(pid, &ret, 0)==-1)
         syserr("waitpid failed");
     if (WIFSIGNALED(ret))
         sigobit(ret);
+    if (less)
+    {
+        close(1);
+        waitpid(less, 0, 0);
+    }
     return WIFEXITED(ret)?WEXITSTATUS(ret):WTERMSIG(ret)+128;
 }
