@@ -16,9 +16,10 @@ my $BINDIR = $ENV{'BINDIR'}//'.';
 my $id = $$;
 
 my ($pass,$fail) = (0,0);
-sub test($$$$)
+sub test($$$$;$)
 {
-    my ($name, $cmd, $stdin, $stdout) = @_;
+    my ($name, $cmd, $stdin, $stdout, $expret) = @_;
+    $expret //= 0;
 
     return if @ARGV && !grep { $name eq $_ } @ARGV;
     printf '* %-20s ', $name unless @ARGV;
@@ -45,13 +46,13 @@ sub test($$$$)
     my $ret = $?;
     my $bad = system "cmp -s stdout.$id expout.$id" || system "cmp -s stderr.$id /dev/null";
 
-    if ($ret || $bad)
+    if (($ret != $expret) || $bad)
     {
         $fail++;
         print "\e[31mFAIL\e[0m\n" unless @ARGV;
         system "cat stderr.$id";
         system "diff -u expout.$id stdout.$id";
-        print "return value: $ret\n" if $ret;
+        print "return value: $ret\n" if ($ret != $expret);
     }
     else
     {
@@ -101,6 +102,14 @@ IN
 isatty(0): 1
 isatty(1): 0
 isatty(2): 0
+OUT
+
+test('pipetty:sigobit', "$BINDIR/pipetty </dev/null sh stdin.$id 2>&1", <<'IN', <<'OUT', 0x8f00);
+PID=$$
+(kill $PID) &
+sleep 10
+IN
+Terminated
 OUT
 
 test('ttyrec2ansi', "$DATADIR/unescape|$BINDIR/ttyrec2ansi", <<'IN', <<'OUT');

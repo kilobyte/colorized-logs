@@ -1,0 +1,22 @@
+.TH lesstty 1 2017-10-09
+.SH NAME
+lesstty \- execute a program redirecting its output to a color-capable pager
+.SH SYNOPSIS
+.B lesstty
+.I command
+[
+.I args...
+]
+.SH DESCRIPTION
+.B lesstty
+runs a program that ordinarily behaves differently when its output is
+redirected, and sends it output to
+.B less -R
+for viewing.
+.P
+This is merely a shorthand for
+.I pipetty command | less -R
+that passes errors from \fIcommand\fR.
+.SH "SEE ALSO"
+.BR pipetty ,
+.BR less .

@@ -26,7 +26,15 @@ CHECK_FUNCTION_EXISTS(openpty HAVE_FUNC_OPENPTY)
 add_executable(ansi2html ansi2html.c)
 add_executable(ansi2txt ansi2txt.c)
 add_executable(ttyrec2ansi ttyrec2ansi.c)
-add_executable(pipetty pipetty.c)
+add_executable(pipetty pipetty.c signals.c)
+
+add_custom_target(lesstty ALL
+    DEPENDS pipetty
+    COMMAND ln -sf pipetty lesstty
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMENT "LINK lesstty -> pipetty")
+set_target_properties(lesstty
+    PROPERTIES ADDITIONAL_CLEAN_FILES lesstty)
 
 IF (HAVE_LIB_UTIL)
     set(LIB_UTIL util)
@@ -42,13 +50,16 @@ install(TARGETS
     ttyrec2ansi
     pipetty
     RUNTIME DESTINATION bin)
+install(FILES
+    ${CMAKE_BINARY_DIR}/lesstty
+    DESTINATION bin)
 
-install(
-    FILES
+install(FILES
     ansi2html.1
     ansi2txt.1
     ttyrec2ansi.1
     pipetty.1
+    lesstty.1
     DESTINATION share/man/man1
 )
 

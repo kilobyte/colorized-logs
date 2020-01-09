@@ -1,3 +1,7 @@
+2.5:
+ * pipetty: write an obituary for child killed by a signal
+ * lesstty: pipetty redirected to "less -R"
+
 2.4:
  * ansi2html: -l (--no-wrap), --style, -c (--contrast)
  * allow testing installed binaries
