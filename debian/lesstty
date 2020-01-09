@@ -1,4 +1,0 @@
-#!/bin/bash
-set -e
-pipetty "$@" | less -R
-exit ${PIPESTATUS[0]}
