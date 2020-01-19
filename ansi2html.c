@@ -241,6 +241,7 @@ int main(int argc, char **argv)
             {"title",           1, 0, 't'},
             {"no-wrap",         0, 0, 'l'},
             {"style",           1, 0, -257},
+            {0,                 0, 0, 0}
         };
         int c = getopt_long(argc, argv, "-nwt:lc", long_options, 0);
         if (c == -1)
