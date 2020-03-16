@@ -420,13 +420,16 @@ esc:
             {
             case 27:
                 ch=getchar(); /* want ESC \ but we accept ESC anything */
+                // fallthru
             case 7:
                 ch=getchar(); /* BELL is the alternate terminator */
+                // fallthru
             case EOF:
                 goto normal;
             }
     case '%':
         ch=getchar();
+        // fallthru
     default:
         ch=getchar();
         goto normal;
