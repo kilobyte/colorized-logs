@@ -233,7 +233,7 @@ int main(int argc, char **argv)
 {
     while (1)
     {
-        const static struct option long_options[] =
+        static const struct option long_options[] =
         {
             {"no-header",       0, 0, 'n'},
             {"white",           0, 0, 'w'},
