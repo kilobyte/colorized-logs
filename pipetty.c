@@ -103,7 +103,7 @@ int main(int argc, const char **argv)
             dup2(p[0], 0);
             close(p[0]);
 
-            execlp("less", "less", "-R", "-", 0);
+            execlp("less", "less", "-R", "-", NULL);
             syserr("can't run less");
             return 127;
         }
