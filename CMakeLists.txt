@@ -6,13 +6,13 @@ include(CheckFunctionExists)
 
 # OpenBSD has _ancient_ gcc but new cmake, some distros have new gcc but old
 # cmake, thus:
-  if (CMAKE_VERSION VERSION_LESS "3.1")
+if (CMAKE_VERSION VERSION_LESS "3.1")
     if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
-      set (CMAKE_C_FLAGS "--std=gnu99 ${CMAKE_C_FLAGS}")
+        set (CMAKE_C_FLAGS "--std=gnu99 ${CMAKE_C_FLAGS}")
     endif ()
-  else ()
+else ()
     set (CMAKE_C_STANDARD 99)
-  endif ()
+endif ()
 
 CHECK_INCLUDE_FILES(pty.h HAVE_PTY_H)
 CHECK_INCLUDE_FILES(libutil.h HAVE_LIBUTIL_H)
