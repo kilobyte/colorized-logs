@@ -117,7 +117,7 @@ static void span(void)
     if (no_header)
         goto do_span;
 
-    printf("<b");
+    printf("<b"); // Redefining <b> helps Braille and speech readers.
     if (_fg!=-1)
     {
         if (fl&BOLD)
