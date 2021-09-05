@@ -12,6 +12,7 @@
 #define STRIKE       0x400000
 
 static bool no_header=false, white=false, contrast=false, no_wrap=false, in_span;
+static bool in_hyperlink=false;
 static int fg, bg, fl, frgb, brgb;
 static const char *title=0;
 static char *style=0;
@@ -229,6 +230,73 @@ static void print_string(const char *restrict str)
 }
 
 
+// return value is pending ch
+static int osc(void)
+{
+    int ch=getchar();
+    if (ch<'0'||ch>'9') /* not an OSC, don't try to parse */
+        return ch;
+    int cmd=0;
+    while (ch>='0' && ch<='9')
+    {
+        cmd=cmd*10 + ch-'0';
+        ch=getchar();
+    }
+    if (ch==';')
+        ch=getchar();
+    else
+        cmd=-1; // not a well-formed OSC
+
+    char str[4096], *ps=str;
+
+    for (;;ch=getchar())
+        switch (ch)
+        {
+        case 27:
+            ch=getchar(); // if not ST, ESC is illegal here
+            if (ch!='\\')
+                goto abort;
+            // fallthru
+        case 7:
+            ch=getchar(); // BELL is the alternate terminator
+            *ps=0;
+            goto ok;
+        default:
+            if (ps < str+sizeof(str)-1)
+            {
+                *ps++=ch;
+                break;
+            }
+            // fallthru
+        case EOF:
+        abort:
+            *ps=0;
+            print_string(str);
+            return ch;
+        }
+
+ok:
+    if (cmd!=8) // hyperlink
+        return ch;
+    unspan();
+    if (in_hyperlink)
+        printf("</a>"), in_hyperlink=0;
+    // only the first semicolon (after cmd number) is mandatory when closing
+    ps=strchr(str, ';');
+    if (!ps)
+        return ch;
+    if (*ps)
+        ps++;
+    if (ps[strcspn(ps, "\"<>")])
+        return ch;
+    if (!*ps)
+        return ch;
+    printf("<a href=\"%s\">", ps);
+    in_hyperlink=1;
+    return ch;
+}
+
+
 int main(int argc, char **argv)
 {
     while (1)
@@ -400,6 +468,14 @@ normal:
         printf("&#x2326;");     // delete
         ch=getchar();
         goto normal;
+    case 10:                    // newline
+        if (in_hyperlink)
+        {
+            unspan();
+            printf("</a>");
+            in_hyperlink=0;
+        }
+        // fallthru
     default:
         putchar(ch);
         ch=getchar();
@@ -412,21 +488,8 @@ esc:
     case '[':
         break;
     case ']':
-        ch=getchar();
-        if (ch<'0'||ch>'9') // not an OSC, don't try to parse
-            goto normal;
-        for (;;ch=getchar())
-            switch (ch)
-            {
-            case 27:
-                ch=getchar(); // want ESC \ but we accept ESC anything
-                // fallthru
-            case 7:
-                ch=getchar(); // BELL is the alternate terminator
-                // fallthru
-            case EOF:
-                goto normal;
-            }
+        ch=osc();
+        goto normal;
     case '%':
         ch=getchar();
         // fallthru
