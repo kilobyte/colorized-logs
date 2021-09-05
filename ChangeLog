@@ -1,3 +1,7 @@
+2.6:
+ * ansi2html: fix crash on invalid options
+ * ansi2html: make OSC 8 hyperlinks clickable
+
 2.5:
  * pipetty: write an obituary for child killed by a signal
  * lesstty: pipetty redirected to "less -R"
