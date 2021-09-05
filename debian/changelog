@@ -1,3 +1,11 @@
+colorized-logs (2.6-1) unstable; urgency=medium
+
+  * New upstream release.
+  * dh 13.
+  * watch format 4.
+
+ -- Adam Borowski <kilobyte@angband.pl>  Sun, 05 Sep 2021 22:59:24 +0200
+
 colorized-logs (2.5-1) unstable; urgency=medium
 
   * New upstream release.
