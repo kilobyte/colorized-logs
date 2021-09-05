@@ -12,6 +12,7 @@
 #define STRIKE       0x400000
 
 static bool no_header=false, white=false, contrast=false, no_wrap=false, in_span;
+static bool in_hyperlink=false;
 static int fg, bg, fl, frgb, brgb;
 static const char *title=0;
 static char *style=0;
@@ -25,7 +26,7 @@ typedef unsigned char u8;
 static int rgb_from_256(int i)
 {
     if (i < 16)
-    {   /* Standard colours. */
+    {   // Standard colours.
         if (white)
         {
             if (i == 3)
@@ -45,14 +46,14 @@ static int rgb_from_256(int i)
         return i<8 ? c : c+0x555555;
     }
     else if (i < 232)
-    {   /* 6x6x6 colour cube. */
+    {   // 6x6x6 colour cube.
         i-=16;
         int r = i / 36, g = i / 6 % 6, b = i % 6;
         return (r ? r * 0x280000 + 0x370000 : 0)
              | (g ? g * 0x002800 + 0x003700 : 0)
              | (b ? b * 0x000028 + 0x000037 : 0);
     }
-    else/* Grayscale ramp. */
+    else// Grayscale ramp.
         return i*0xa0a0a-((232*10-8)*0x10101);
 }
 
@@ -117,7 +118,7 @@ static void span(void)
     if (no_header)
         goto do_span;
 
-    printf("<b");
+    printf("<b"); // Redefining <b> helps Braille and speech readers.
     if (_fg!=-1)
     {
         if (fl&BOLD)
@@ -142,7 +143,7 @@ static void span(void)
         *cl=0;
         if (cl>=clbuf+5)
             printf(" class=\"%s\"", clbuf+1);
-        else /* implies no spaces */
+        else // implies no spaces
             printf(" class=%s", clbuf+1);
     }
 
@@ -229,11 +230,78 @@ static void print_string(const char *restrict str)
 }
 
 
+// return value is pending ch
+static int osc(void)
+{
+    int ch=getchar();
+    if (ch<'0'||ch>'9') /* not an OSC, don't try to parse */
+        return ch;
+    int cmd=0;
+    while (ch>='0' && ch<='9')
+    {
+        cmd=cmd*10 + ch-'0';
+        ch=getchar();
+    }
+    if (ch==';')
+        ch=getchar();
+    else
+        cmd=-1; // not a well-formed OSC
+
+    char str[4096], *ps=str;
+
+    for (;;ch=getchar())
+        switch (ch)
+        {
+        case 27:
+            ch=getchar(); // if not ST, ESC is illegal here
+            if (ch!='\\')
+                goto abort;
+            // fallthru
+        case 7:
+            ch=getchar(); // BELL is the alternate terminator
+            *ps=0;
+            goto ok;
+        default:
+            if (ps < str+sizeof(str)-1)
+            {
+                *ps++=ch;
+                break;
+            }
+            // fallthru
+        case EOF:
+        abort:
+            *ps=0;
+            print_string(str);
+            return ch;
+        }
+
+ok:
+    if (cmd!=8) // hyperlink
+        return ch;
+    unspan();
+    if (in_hyperlink)
+        printf("</a>"), in_hyperlink=0;
+    // only the first semicolon (after cmd number) is mandatory when closing
+    ps=strchr(str, ';');
+    if (!ps)
+        return ch;
+    if (*ps)
+        ps++;
+    if (ps[strcspn(ps, "\"<>")])
+        return ch;
+    if (!*ps)
+        return ch;
+    printf("<a href=\"%s\">", ps);
+    in_hyperlink=1;
+    return ch;
+}
+
+
 int main(int argc, char **argv)
 {
     while (1)
     {
-        const static struct option long_options[] =
+        static const struct option long_options[] =
         {
             {"no-header",       0, 0, 'n'},
             {"white",           0, 0, 'w'},
@@ -241,6 +309,7 @@ int main(int argc, char **argv)
             {"title",           1, 0, 't'},
             {"no-wrap",         0, 0, 'l'},
             {"style",           1, 0, -257},
+            {0,                 0, 0, 0}
         };
         int c = getopt_long(argc, argv, "-nwt:lc", long_options, 0);
         if (c == -1)
@@ -361,14 +430,14 @@ normal:
         ch=getchar();
         goto normal;
     case 7:
-        printf("&#x266A;");     /* bell */
+        printf("&#x266A;");     // bell
         ch=getchar();
         goto normal;
     case 8:
-        printf("&#x232B;");     /* backspace */
+        printf("&#x232B;");     // backspace
         ch=getchar();
         goto normal;
-    case 12:                    /* form feed */
+    case 12:                    // form feed
     formfeed:
         ch=getchar();
         unspan();
@@ -380,7 +449,7 @@ normal:
         if (ch!=10)
             printf("&crarr;\n");
         goto normal;
-    case 27:                    /* ESC */
+    case 27:                    // ESC
         ch=getchar();
         goto esc;
     case '<':
@@ -396,9 +465,17 @@ normal:
         ch=getchar();
         goto normal;
     case 127:
-        printf("&#x2326;");     /* delete */
+        printf("&#x2326;");     // delete
         ch=getchar();
         goto normal;
+    case 10:                    // newline
+        if (in_hyperlink)
+        {
+            unspan();
+            printf("</a>");
+            in_hyperlink=0;
+        }
+        // fallthru
     default:
         putchar(ch);
         ch=getchar();
@@ -411,21 +488,11 @@ esc:
     case '[':
         break;
     case ']':
-        ch=getchar();
-        if (ch<'0'||ch>'9') /* not an OSC, don't try to parse */
-            goto normal;
-        for (;;ch=getchar())
-            switch (ch)
-            {
-            case 27:
-                ch=getchar(); /* want ESC \ but we accept ESC anything */
-            case 7:
-                ch=getchar(); /* BELL is the alternate terminator */
-            case EOF:
-                goto normal;
-            }
+        ch=osc();
+        goto normal;
     case '%':
         ch=getchar();
+        // fallthru
     default:
         ch=getchar();
         goto normal;
@@ -443,7 +510,7 @@ csi:
         goto csiopt;
     case ';':
         if (++ntok>=sizeof(tok)/sizeof(tok[0]))
-            goto normal;        /* too many tokens, something is fishy */
+            goto normal;        // too many tokens, something is fishy
         tok[ntok]=0;
         ch=getchar();
         goto csi;
@@ -513,18 +580,17 @@ csi:
                 if (i>ntok)
                     break;
                 if (tok[i]==5 && i<ntok)
-                {   /* 256 colours */
+                {   // 256 colours
                     i++;
                     frgb=rgb_from_256(tok[i]);
                 }
                 else if (tok[i]==2 && i+3<=ntok)
-                {   /* 24 bit */
+                {   // 24 bit
                     frgb=rgb_to_int(tok[i+1], tok[i+2], tok[i+3]);
                     i+=3;
                 }
-                /* Subcommands 3 (CMY) and 4 (CMYK) are so insane
-                 * there's no point in supporting them.
-                 */
+                // Subcommands 3 (CMY) and 4 (CMYK) are so insane
+                // there's no point in supporting them.
                 break;
             case 39:
                 fg=-1;
@@ -540,12 +606,12 @@ csi:
                 if (i>ntok)
                     break;
                 if (tok[i]==5 && i<ntok)
-                {   /* 256 colours */
+                {   // 256 colours
                     i++;
                     brgb=rgb_from_256(tok[i]);
                 }
                 else if (tok[i]==2 && i+3<=ntok)
-                {   /* 24 bit */
+                {   // 24 bit
                     brgb=rgb_to_int(tok[i+1], tok[i+2], tok[i+3]);
                     i+=3;
                 }
@@ -571,16 +637,16 @@ csi:
         ntok=tok[0];
         if (ntok<=0)
             ntok=1;
-        else if (ntok>512) /* sanity */
+        else if (ntok>512) // sanity
             ntok=512;
         for (unsigned int i=0;i<ntok;++i)
             printf(" ");
         ch=getchar();
         goto normal;
-    case 'J': /* screen clear */
+    case 'J': // screen clear
         goto formfeed;
     default:
-        ch=getchar();           /* invalid/unimplemented code, ignore */
+        ch=getchar();           // invalid/unimplemented code, ignore
     case EOF:
         goto normal;
     }

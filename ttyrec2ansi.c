@@ -63,7 +63,7 @@ int main(void)
                 fprintf(stderr, "%s\n", r?strerror(errno):"File was truncated");
                 return 1;
             }
-            if (fwrite(buf, 1, r, stdout)!=r)
+            if ((ssize_t)fwrite(buf, 1, r, stdout)!=r)
             {
                 fprintf(stderr, "Write error\n");
                 return 1;

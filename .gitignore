@@ -7,6 +7,7 @@ Makefile
 *.orig
 *~
 pipetty
+lesstty
 ttyrec2ansi
 config.h
 valgrind.*
