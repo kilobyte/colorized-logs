@@ -55,8 +55,16 @@ int main(int argc, const char **argv)
     if (argc<2)
         errno=0, syserr("missing command");
 
+    int less = basename_is(argv[0], "lesstty");
+    struct winsize ws = {};
+    if (less)
+    {
+        if (ioctl(0, TIOCGWINSZ, &ws) && ioctl(1, TIOCGWINSZ, &ws))
+            ws.ws_row=24, ws.ws_col=80;
+    }
+
     int master, slave;
-    if (openpty(&master, &slave, 0, 0/*termios*/, 0/*winsize*/))
+    if (openpty(&master, &slave, 0, 0/*termios*/, less? &ws : 0))
         syserr("can't allocate a pseudo-terminal");
     if (master>31)
         errno=0, syserr("bad fd from openpty(): %d", master);
@@ -87,7 +95,6 @@ int main(int argc, const char **argv)
     }
     close(slave);
 
-    int less = basename_is(argv[0], "lesstty");
     if (less)
     {
         int p[2];
