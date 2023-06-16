@@ -1,0 +1,50 @@
+# github action workflow
+name: Build and upload artifacts
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - README.md
+      - LICENSE
+      - .github/**
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v1.13
+        with:
+          cmake-version: 3.18
+      - name: cmake version
+        run: cmake --version
+      - name: make version
+        run: make --version
+      - name: build
+        run: |
+          mkdir build
+          cd build
+          cmake ..
+          make
+      - name: Write tar archive to dist dir
+        run: |
+          mkdir dist
+          tar -cvf dist/colorized-logs.tar.gz \
+            build/pipetty \
+            build/lesstty \
+            build/ttyrec2ansi \
+            build/ansi2txt \
+            build/ansi2html
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: colorized-logs.tar.gz
+          path: dist/colorized-logs.tar.gz
