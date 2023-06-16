@@ -34,17 +34,13 @@ jobs:
           cd build
           cmake ..
           make
-      - name: Write tar archive to dist dir
-        run: |
-          mkdir dist
-          tar -cvf dist/colorized-logs.tar.gz \
-            build/pipetty \
-            build/lesstty \
-            build/ttyrec2ansi \
-            build/ansi2txt \
-            build/ansi2html
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: colorized-logs.tar.gz
-          path: dist/colorized-logs.tar.gz
+          name: colorized-logs
+          path: |
+            build/pipetty
+            build/lesstty
+            build/ttyrec2ansi
+            build/ansi2txt
+            build/ansi2html

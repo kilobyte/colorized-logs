@@ -33,7 +33,7 @@ jobs:
       - name: Write tar archive to dist dir
         run: |
           mkdir dist
-          tar -cvf dist/colorized-logs.tar.gz \
+          tar -czf dist/colorized-logs.tar.gz \
             build/pipetty \
             build/lesstty \
             build/ttyrec2ansi \
