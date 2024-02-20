@@ -426,15 +426,15 @@ normal:
                                case 11:                   case 14: case 15:
     case 16: case 17: case 18: case 19: case 20: case 21: case 22: case 23:
     case 24: case 25: case 26:          case 28: case 29: case 30: case 31:
-        printf("&#x24%02X;", ch);
+        printf("&#x24%02X;", ch);// → ␀..␟
         ch=getchar();
         goto normal;
-    case 7:
-        printf("&#x266A;");     // bell
+    case 7:                     // bell
+        printf("&#x266A;");     // → ♪
         ch=getchar();
         goto normal;
-    case 8:
-        printf("&#x232B;");     // backspace
+    case 8:                     // backspace
+        printf("&#x232B;");     // → ⌫
         ch=getchar();
         goto normal;
     case 12:                    // form feed
@@ -443,8 +443,8 @@ normal:
         unspan();
         printf("\n<hr>\n");
         goto normal;
-    case 13:
-        ch=getchar();
+    case 13:			// \r
+        ch=getchar();           // → ↵
         unspan();
         if (ch!=10)
             printf("&crarr;\n");
@@ -464,8 +464,8 @@ normal:
         printf("&amp;");
         ch=getchar();
         goto normal;
-    case 127:
-        printf("&#x2326;");     // delete
+    case 127:                   // delete
+        printf("&#x2326;");     // → ⌦
         ch=getchar();
         goto normal;
     case 10:                    // newline
