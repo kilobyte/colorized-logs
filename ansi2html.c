@@ -297,6 +297,8 @@ ok:
 }
 
 
+#define DIE(msg) return fprintf(stderr, "%s: " msg, argv[0]), 1;
+
 int main(int argc, char **argv)
 {
     while (1)
@@ -328,7 +330,7 @@ int main(int argc, char **argv)
             break;
         case 't':
             if (title)
-                return fprintf(stderr, "%s: title was already given.\n", argv[0]), 1;
+                DIE("title was already given.\n");
             title=optarg;
             break;
         case 'l':
@@ -336,24 +338,20 @@ int main(int argc, char **argv)
             break;
         case -257:
             if (style)
-                return fprintf(stderr, "%s: style was already given.\n", argv[0]), 1;
+                DIE("style was already given.\n");
             style=optarg;
             break;
         case '?':
             return 1;
         case 1:
-            return fprintf(stderr, "%s: this program works as a filter, please "
-                           "pipe the input in instead.\n", argv[0]), 1;
+            DIE("this program works as a filter, please pipe the input in instead.\n");
         }
     }
 
     if (no_header)
     {
         if (title || style)
-        {
-            return fprintf(stderr, "%s: --no-header forbids --title and --style.\n",
-                           argv[0]), 1;
-        }
+            DIE("--no-header forbids --title and --style.\n");
         printf(
 "<pre style=\"color:#%s%s\">",
                 white?"000":"bbb",
