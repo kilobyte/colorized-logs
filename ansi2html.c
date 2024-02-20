@@ -405,6 +405,7 @@ int main(int argc, char **argv)
 "<body>\n"
 "<pre>");
     }
+
     fg=bg=-1;
     fl=0;
     in_span=false;
