@@ -491,6 +491,8 @@ esc:
         ch=osc();
         goto normal;
     case '%':
+    case '(':
+    case ')':
         ch=getchar();
         // fallthru
     default:
