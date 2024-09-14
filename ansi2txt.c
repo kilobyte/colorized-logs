@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-int main(void)
+int main()
 {
     int ch;
     do
@@ -20,7 +20,7 @@ int main(void)
                     else if (ch==27)
                         {ch=getchar(); break;}
                 }
-            else if (ch=='%')
+            else if (ch=='%'||ch=='('||ch==')')
                 ch=getchar();
             else {}
         else if (ch!=EOF)

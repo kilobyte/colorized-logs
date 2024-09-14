@@ -297,6 +297,8 @@ ok:
 }
 
 
+#define DIE(msg) return fprintf(stderr, "%s: " msg, argv[0]), 1;
+
 int main(int argc, char **argv)
 {
     while (1)
@@ -328,7 +330,7 @@ int main(int argc, char **argv)
             break;
         case 't':
             if (title)
-                return fprintf(stderr, "%s: title was already given.\n", argv[0]), 1;
+                DIE("title was already given.\n");
             title=optarg;
             break;
         case 'l':
@@ -336,24 +338,20 @@ int main(int argc, char **argv)
             break;
         case -257:
             if (style)
-                return fprintf(stderr, "%s: style was already given.\n", argv[0]), 1;
+                DIE("style was already given.\n");
             style=optarg;
             break;
         case '?':
             return 1;
         case 1:
-            return fprintf(stderr, "%s: this program works as a filter, please "
-                           "pipe the input in instead.\n", argv[0]), 1;
+            DIE("this program works as a filter, please pipe the input in instead.\n");
         }
     }
 
     if (no_header)
     {
         if (title || style)
-        {
-            return fprintf(stderr, "%s: --no-header forbids --title and --style.\n",
-                           argv[0]), 1;
-        }
+            DIE("--no-header forbids --title and --style.\n");
         printf(
 "<pre style=\"color:#%s%s\">",
                 white?"000":"bbb",
@@ -407,6 +405,7 @@ int main(int argc, char **argv)
 "<body>\n"
 "<pre>");
     }
+
     fg=bg=-1;
     fl=0;
     in_span=false;
@@ -426,15 +425,15 @@ normal:
                                case 11:                   case 14: case 15:
     case 16: case 17: case 18: case 19: case 20: case 21: case 22: case 23:
     case 24: case 25: case 26:          case 28: case 29: case 30: case 31:
-        printf("&#x24%02X;", ch);
+        printf("&#x24%02X;", ch);// → ␀␁␂␃␄␅␆ ␋ ␎␏ ␐␑␒␓␔␕␖␗ ␘␙␚ ␜␝␞␟
         ch=getchar();
         goto normal;
-    case 7:
-        printf("&#x266A;");     // bell
+    case 7:                     // bell
+        printf("&#x266A;");     // → ♪
         ch=getchar();
         goto normal;
-    case 8:
-        printf("&#x232B;");     // backspace
+    case 8:                     // backspace
+        printf("&#x232B;");     // → ⌫
         ch=getchar();
         goto normal;
     case 12:                    // form feed
@@ -443,8 +442,8 @@ normal:
         unspan();
         printf("\n<hr>\n");
         goto normal;
-    case 13:
-        ch=getchar();
+    case 13:			// \r
+        ch=getchar();           // → ↵
         unspan();
         if (ch!=10)
             printf("&crarr;\n");
@@ -464,8 +463,8 @@ normal:
         printf("&amp;");
         ch=getchar();
         goto normal;
-    case 127:
-        printf("&#x2326;");     // delete
+    case 127:                   // delete
+        printf("&#x2326;");     // → ⌦
         ch=getchar();
         goto normal;
     case 10:                    // newline
@@ -491,6 +490,8 @@ esc:
         ch=osc();
         goto normal;
     case '%':
+    case '(':
+    case ')':
         ch=getchar();
         // fallthru
     default:
