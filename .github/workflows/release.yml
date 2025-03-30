@@ -1,0 +1,53 @@
+# github action workflow
+name: Create release
+
+on:
+  push:
+    tags:
+      - v*
+    paths-ignore:
+      - README.md
+      - LICENSE
+      - .github/**
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v1.13
+        with:
+          cmake-version: 3.18
+      - name: cmake version
+        run: cmake --version
+      - name: make version
+        run: make --version
+      - name: build
+        run: |
+          mkdir build
+          cd build
+          cmake ..
+          make
+      - name: Write tar archive to dist dir
+        run: |
+          mkdir dist
+          tar -czf dist/colorized-logs.tar.gz \
+            build/pipetty \
+            build/lesstty \
+            build/ttyrec2ansi \
+            build/ansi2txt \
+            build/ansi2html
+      - name: Create release with packages
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/colorized-logs.tar.gz
+          tag_name: ${{ github.ref_name }}
+          body: |
+            ## Changes
+            ${{ github.event.head_commit.message }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
