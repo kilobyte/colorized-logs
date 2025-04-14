@@ -1,3 +1,7 @@
+2.7:
+ * pipetty: pass terminal size (or 80×24) to the program being run
+ * ansi2*: parse and ignore some more codes
+
 2.6:
  * ansi2html: fix crash on invalid options
  * ansi2html: make OSC 8 hyperlinks clickable

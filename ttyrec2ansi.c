@@ -44,7 +44,7 @@ struct ttyrec_header
 #define BUFFER_SIZE 4096
 
 
-int main(void)
+int main()
 {
     struct ttyrec_header th;
     char buf[BUFFER_SIZE];
